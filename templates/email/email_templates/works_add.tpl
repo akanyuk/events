@@ -13,7 +13,7 @@ switch($get_variable) {
 ?>
 <html><body>
 <p>На сайт Demoscene at Multimatograf была добавлена новая работа.</p>
-<p><a href="<?php echo NFW::i()->absolute_path?>/admin/works?action=update&record_id=<?php echo $data['work']['id']?>"><?php echo NFW::i()->absolute_path?>/admin/works?action=update&work_id=<?php echo $data['work']['id']?></a></p>
+<p><?php echo '<a href="'.NFW::i()->absolute_path?>/admin/works?action=update&record_id=<?php echo $data['work']['id'].'">'.NFW::i()->absolute_path.'/admin/works?action=update&work_id='.$data['work']['id'].'</a>'?></p>
 <br />
 <p>(Не отвечайте на это сообщение)</p>
 </body></html>

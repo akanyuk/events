@@ -55,14 +55,16 @@ function selectFilename(filename) {
 	window.close();
 }
 </script>
+<style>
+	TABLE { width: 100%; border:0; padding:0; border-collapse:collapse; }
+	TD, TH { border-left: 1px dotted #aaa; padding: 2px 5px; white-space: nowrap; text-align: center; vertical-align: center; }
+	TH { font-weight: normal; background-color: #cccccc; }
+	TD.first, TH.first { border-left: none; }
+</style>
+
 </head>
 <body style="padding: 1em;">
 <?php if (isset($_GET['type']) && $_GET['type'] == 'image'): ?>
-	<style>
-		TABLE { width: 100%; }
-		TD, TH { border-left: 1px dotted #aaa; white-space: nowrap; text-align: center; vertical-align: center; }
-		TD.first, TH.first { border-left: none; }
-	</style>
 	<table class="main-table">
 		<thead>
 			<tr>
@@ -86,11 +88,6 @@ function selectFilename(filename) {
 		</tbody>
 	</table>
 <?php else: ?>
-	<style>
-		TABLE { border:0; padding:0; border-collapse:collapse; }
-		TH, TD { padding: 2px 5px; }
-		TH { font-weight: normal; background-color: #cccccc; }
-	</style>
 	<table class="main-table" style="width: 100%;">
 		<thead>
 			<tr>

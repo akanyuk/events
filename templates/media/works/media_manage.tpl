@@ -144,7 +144,7 @@ $(document).ready(function(){
 	<strong>screenshot:</strong> screenshot in work profile<br />
 	<strong>voting:</strong> download link on voting page<br />
 	<strong>image:</strong> voting-image<br />
-	<strong>audio:</strong>	files for audio player (mp3 & ogg)<br />
+	<strong>audio:</strong>	files for audio player (mp3 &amp; ogg)<br />
 	<strong>release:</strong> include this file in release pack (standalone files or zip-archive)
 </div>
 <div style="float: left;">

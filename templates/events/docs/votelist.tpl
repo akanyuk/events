@@ -47,7 +47,7 @@
 	foreach ($CCompetitions->getRecords(array('filter' => array('event_id' => $Module->record['id']))) as $c) {
 		if (!in_array($c['id'], $data['competitions'])) continue;
 ?>
-<tr><td colspan="2"><h4><?php echo htmlspecialchars($c['title'])?></h3></td></tr>
+<tr><td colspan="2"><h4><?php echo htmlspecialchars($c['title'])?></h4></td></tr>
 <?php
 		$counter = 1;
 		

@@ -3,8 +3,8 @@
 $lang_main = array(
 	'set language' => 'Set language',
 	
+	'news' => 'News',
 	'latest news' => 'Latest news',
-	'all news' => 'All news',
 
 	'days' 				=> 'days',
 	'hours'				=> 'hours',

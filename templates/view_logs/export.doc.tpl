@@ -6,6 +6,7 @@ BODY, TD, TH, P { color: #000; font-family: Verdana, Arial, Helvetica, sans-seri
 TD, TH, P { margin: 0; padding: 0; font-size: 0.7em; }
 H1 { font: bold 1.2em Verdana, Arial, Helvetica, sans-serif; padding: 0.2em 0; }
 TABLE { border: none; border-collapse: collapse; padding: 0; }
+TABLE { border: none; width: 100%;  border-spacing: 10px; border-collapse: separate; }
 TD, TH { padding: 0.2em 0.8em; }
 TD.nw { white-space: nowrap; }
 TH { text-align: left; background-color: #cccccc; }
@@ -18,7 +19,7 @@ TR.odd TD { background-color:#eeeeee; }
 <p>отфильтровано всего: <strong><?php echo count($logs)?> записей.</strong></p>
 <p>дата выгрузки: <strong><?php echo date('d.m.Y H:i:s')?></strong></p>
 <p>&nbsp;</p>
-<table cellpadding="6" border="0">
+<table>
 	<thead>
 		<tr>
 			<th>Дата</th>

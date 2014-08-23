@@ -231,7 +231,8 @@ class NFW_EXTENDED extends NFW {
 			
 			return array(
 				$CNews->record['title'],
-				$CNews->renderAction(array('record' => $CNews->record), $options['template'], 'news') 
+				$CNews->renderAction(array('record' => $CNews->record), $options['template'], 'news'),
+				$CNews->record['posted']
 			);
 		}
 		else {
@@ -239,7 +240,7 @@ class NFW_EXTENDED extends NFW {
 				'load_attachments' => isset($options['load_attachments']) ? $options['load_attachments'] : false,
 				'posted_from' => isset($options['posted_from']) ? $options['posted_from'] : false,
 				'posted_to' => isset($options['posted_to']) ? $options['posted_to'] : false,
-				'records_on_page' => isset($options['records_on_page']) ? $options['records_on_page'] : 16,
+				'records_on_page' => isset($options['records_on_page']) ? $options['records_on_page'] : 10,
 				'page' => isset($_GET['p']) ? intval($_GET['p']) : 1
 			);
 			

@@ -2,9 +2,9 @@
 // Russian language file for main template
 $lang_main = array(
 	'set language' => 'Установить язык',
-	
+
+	'news' => 'Новости',
 	'latest news' => 'Новости',
-	'all news' => 'Все новости',
 	
 	'days' 				=> 'дней',
 	'hours'				=> 'часов',

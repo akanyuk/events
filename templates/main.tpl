@@ -188,7 +188,7 @@ $(document).ready(function(){
 		<li><a href="/admin">Control panel</a></li>
 		<?php endif; ?>
 		<li<?php echo page_is('cabinet/works?action=list') ? ' class="active"' : ''?>><a href="<?php echo NFW::i()->absolute_path?>/cabinet/works?action=list"><?php echo $lang_main['cabinet prods']?></a></li>
-		<li<?php echo page_is('cabinet/works?action=add') ? ' class="active"' : ''?>><a href="<?php echo NFW::i()->base_path?>cabinet/works?action=add"><?php echo $lang_main['cabinet add work']?></a></a></li>
+		<li<?php echo page_is('cabinet/works?action=add') ? ' class="active"' : ''?>><a href="<?php echo NFW::i()->base_path?>cabinet/works?action=add"><?php echo $lang_main['cabinet add work']?></a></li>
 		<li<?php echo page_is('register.html?action=update_profile') ? ' class="active"' : ''?>><a href="<?php echo NFW::i()->absolute_path?>/register.html?action=update_profile"><?php echo $lang_main['cabinet profile']?></a></li>
 		<li><a href="?action=logout"><?php echo NFW::i()->lang['Logout']?></a></li>
 	</ul>
@@ -205,7 +205,7 @@ $(document).ready(function(){
 
 <?php if (isset($page['latest-news'])): ?>
 	<div style="margin-bottom: 20px;">
-		<legend><?php echo $lang_main['latest news']?></legend>
+		<legend><a href="<?php echo NFW::i()->base_path?>news.html"><?php echo $lang_main['latest news']?></a></legend>
 		<?php echo NFW::i()->renderNews(array('records_on_page' => 3, 'template' => 'latest'))?>
 	</div>
 <?php endif; ?>
