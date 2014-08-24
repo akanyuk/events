@@ -36,7 +36,7 @@ TR.odd TD { background-color:#eeeeee; }
 				<td class="nw"><?php echo date('d.m.Y H:i:s', $log['posted'])?></td>
 				<td><?php echo htmlspecialchars($log['message_full'])?></td>
 				<td><?php echo htmlspecialchars($log['poster_username'])?></td>
-				<td class=nw"><?php echo (($log['browser']) ? htmlspecialchars($log['browser']) : 'unknown')?></td>
+				<td class="nw"><?php echo (($log['browser']) ? htmlspecialchars($log['browser']) : 'unknown')?></td>
 				<td><?php echo $log['ip']?></td>
 				<td><a href="<?php echo $log['url']?>">Открыть</a></td>
 			</tr>

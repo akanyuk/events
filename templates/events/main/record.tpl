@@ -57,7 +57,7 @@ $(document).ready(function(){
 		}
 		
 ?>
-	<tr rel="competition-header" id="<?php echo $c['id']?>" name="<?php echo $c['id']?>">
+	<tr rel="competition-header" id="<?php echo $c['id']?>">
 		<td class="b r"><?php echo $c['pos']?></td>
 		<td class="nw">
 			<?php if ($is_link): ?>
@@ -87,7 +87,6 @@ $(document).ready(function(){
 					<?php echo date('d.m.Y H:i', $c['voting_from']).' - '.date('d.m.Y H:i', $c['voting_to'])?>
 				</p>
 			<?php endif; ?>
-			</dl>
 		</td>
 	</tr>
 <?php } ?>
