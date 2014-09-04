@@ -18,8 +18,8 @@ $lang_main = array(
 	
 	'register' => array(
 		// email
-		'complete subject'	=> 'Demoscene at Multimatograf: Welcome',
-		'restore password subject' => 'Demoscene at Multimatograf: password recovery',
+		'complete subject'	=> 'Retroscene Events: Welcome',
+		'restore password subject' => 'Retroscene Events: password recovery',
 		
 		// controler
 		'already registered'=> 'You are already registered. Please <a href="?action=logout">log out</a> to register another account.',

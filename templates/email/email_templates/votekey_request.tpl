@@ -1,13 +1,13 @@
 <?php 
 switch($get_variable) {
 	case 'subject':
-		echo $language == 'English' ? 'DMF: votekey generated' : 'DMF: ключ голосования';
+		echo $language == 'English' ? 'Retroscene Events: votekey generated' : 'Retroscene Events: ключ голосования';
 		break;
 	case 'from': 
 		echo NFW::i()->cfg['email_from'];
 		break;
 	case 'from_name':
-		echo 'demoscene.multimatograf.ru';
+		echo 'Retroscene Events';
 		break;
 	case 'message':
 ?>

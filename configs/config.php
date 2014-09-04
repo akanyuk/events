@@ -3,7 +3,7 @@
 $config = array (
 	# e-mail адреса, на которые будут отправляться оповещения администрации (массив)
 	'notify_emails' => array('aka.nyuk@gmail.com', 'diver4d@gmail.com'),
-	'email_from' => 'demoscene@multimatograf.ru',
+	'email_from' => 'robot@retroscene.org',
 	
 	'countdown' => 'Apr 25, 2014',
 	'countdown_when' => '25-27 апреля 2014',

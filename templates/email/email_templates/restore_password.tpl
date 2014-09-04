@@ -8,7 +8,7 @@ switch($get_variable) {
 		echo NFW::i()->cfg['email_from'];
 		break;
 	case 'from_name':
-		echo 'demoscene.multimatograf.ru';
+		echo 'Retroscene Events';
 		break;
 	case 'message':
 ?>
@@ -20,7 +20,7 @@ switch($get_variable) {
 <br />
 <p>(Do not reply to this message)</p>
 <?php else: ?>
-<p>Вы запросили новый пароль для учётной записи на сайте «Demoscene at Multimatograf»</p>
+<p>Вы запросили новый пароль для учётной записи на сайте «Retroscene Events»</p>
 <p>Если вы не запрашивали этого или передумали менять свой пароль, просто проигнорируйте это письмо.</p> 
 <p>Если же вы посетите страницу активации ниже, пароль будет изменён.</p>
 <br />

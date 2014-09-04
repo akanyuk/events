@@ -19,8 +19,8 @@ $lang_main = array(
 	// register.html
 	'register' => array(
 		// email
-		'complete subject'			=> 'Demoscene at Multimatograf: Welcome',
-		'restore password subject' 	=> 'Demoscene at Multimatograf: восстановление пароля',
+		'complete subject'			=> 'Retroscene Events: Welcome',
+		'restore password subject' 	=> 'Retroscene Events: восстановление пароля',
 		
 		// controler
 		'already registered'=> 'Вы уже зарегистрированы. Для регистрации другого пользователя Вам необходимо <a href="?action=logout">выйти из системы</a>.',

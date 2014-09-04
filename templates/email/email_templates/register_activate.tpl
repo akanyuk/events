@@ -8,13 +8,13 @@ switch($get_variable) {
 		echo NFW::i()->cfg['email_from'];
 		break;
 	case 'from_name':
-		echo 'demoscene.multimatograf.ru';
+		echo 'Retroscene Events';
 		break;
 	case 'message':
 ?>
 <html><body>
 <?php if (NFW::i()->user['language'] == 'English'): ?>
-<p>Thank you for registering at «Demoscene at Multimatograf» website. Your username is <?php echo htmlspecialchars($username)?>, as you requested.</p>
+<p>Thank you for registering at «Retroscene Events» website. Your username is <?php echo htmlspecialchars($username)?>, as you requested.</p>
 <br />
 <p>To complete your registration, you need to set a password for your account.</p>
 <p>To set your password, please visit the following page:</p>
@@ -23,7 +23,7 @@ switch($get_variable) {
 <br />
 <p>(Do not reply to this message)</p>
 <?php else: ?>
-<p>Спасибо за регистрацию на сайте «Demoscene at Multimatograf». Ваше имя пользователя — <?php echo htmlspecialchars($username)?>, как указано при регистрации.</p>
+<p>Спасибо за регистрацию на сайте «Retroscene Events». Ваше имя пользователя — <?php echo htmlspecialchars($username)?>, как указано при регистрации.</p>
 <br />
 <p>Чтобы завершить регистрацию, нужно установить пароль для вашей учётной записи.</p>
 <p>Чтобы назначить пароль, посетите, пожалуйста, следующую страницу:</p>

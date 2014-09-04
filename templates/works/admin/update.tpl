@@ -94,13 +94,28 @@ $(document).ready(function(){
 	</ul>
     
     <div id="tabs-1" rel="tab-container">
-    	<?php if ($Module->record['description']): ?>
-	    	<div style="float: right; width: 200px; padding-left: 10px;">
-	    		<?php echo ui_message(array('text' => '<div><strong>Author\'s comment:</strong></div>'.$Module->record['description']))?>
-	    	</div>
-	    <?php endif; ?>
 		<form id="works-update" action="<?php echo $Module->formatURL('update').'&record_id='.$Module->record['id']?>">
 			<input name="send_notify" type="hidden" />
+			
+			<div style="float: right; width: 230px; padding-left: 10px;">
+		   		<fieldset>
+		   			<legend>Poster info</legend>
+	<?php
+		ob_start();
+		echo '<strong>e-mail:</strong> '.$Module->record['poster_email'].'<br />';
+		echo '<strong>realname:</strong> '.htmlspecialchars($Module->record['poster_realname']).'<br />';
+		echo '<strong>country:</strong> '.($Module->record['poster_country'] ? htmlspecialchars($Module->record['poster_country']) : '-').'<br />';
+		echo '<strong>city:</strong> '.($Module->record['poster_city'] ? htmlspecialchars($Module->record['poster_city']) : '-').'<br />';
+		echo $Module->record['description'] ? '<br /><strong>Author\'s comment:</strong><br />'.htmlspecialchars($Module->record['description']) : '';
+		
+		//echo ui_message(array('text' => ob_get_clean()));
+		echo ob_get_clean();
+	?>
+				</fieldset>
+			</div>
+			
+			<div style="padding-top: 10px;"></div>
+			
 			<?php echo active_field(array('name' => 'title', 'value' => $Module->record['title'], 'attributes'=>$Module->attributes['title'], 'width'=>"500px;"))?>
 			<?php echo active_field(array('name' => 'author', 'value' => $Module->record['author'], 'attributes'=>$Module->attributes['author'], 'width'=>"500px;"))?>
 			<?php echo active_field(array('name' => 'competition_id', 'value' => $Module->record['competition_id'], 'attributes'=>$Module->attributes['competition_id']))?>
@@ -108,7 +123,7 @@ $(document).ready(function(){
 			<?php echo active_field(array('name' => 'platform', 'value' => $Module->record['platform'], 'attributes'=>$Module->attributes['platform'], 'width'=>"210px;"))?>
 			<?php echo active_field(array('name' => 'format', 'value' => $Module->record['format'], 'attributes'=>$Module->attributes['format'], 'width'=>"210px;"))?>
 			<?php echo active_field(array('name' => 'external_html', 'value' => $Module->record['external_html'], 'attributes'=>$Module->attributes['external_html'], 'width'=>"500px;", 'height'=>"50px;"))?>
-			
+						
 			<div style="padding-top: 1em; padding-left: 105px;">
 				<button id="works-save" class="nfw-button" icon="ui-icon-disk">Save changes</button>
 				<input type="hidden" name="checkboxes_presents[send_notify]" value="1" />

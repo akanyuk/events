@@ -101,7 +101,7 @@ class works extends active_record {
 
 	protected function load($id, $options = array()) {
 		$query = array(
-			'SELECT'	=> 'w.*, c.title AS competition_title, c.pos AS competition_pos, c.alias AS competition_alias, c.works_type, c.voting_from, c.voting_to, e.id AS event_id, e.title AS event_title, e.date_from AS event_from, e.date_to AS event_to, e.alias AS event_alias',
+			'SELECT'	=> 'w.*, c.title AS competition_title, c.pos AS competition_pos, c.alias AS competition_alias, c.works_type, c.voting_from, c.voting_to, e.id AS event_id, e.title AS event_title, e.date_from AS event_from, e.date_to AS event_to, e.alias AS event_alias, u.email AS poster_email, u.realname AS poster_realname, u.country AS poster_country, u.city AS poster_city',
 			'FROM'		=> $this->db_table.' AS w',
 			'JOINS'		=> array(
 				array(
@@ -111,6 +111,10 @@ class works extends active_record {
 				array(
 					'INNER JOIN'=> 'events AS e',
 					'ON'		=> 'c.event_id=e.id'
+				),
+				array(
+					'LEFT JOIN'=> 'users AS u',
+					'ON'		=> 'w.posted_by=u.id'
 				),
 			),
 			'WHERE'		=> 'w.id='.intval($id),
