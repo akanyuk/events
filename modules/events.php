@@ -14,7 +14,7 @@ class events extends active_record {
 		'options' => array('desc'=>'Options', 'type'=>'custom'),
 		'content' => array('desc'=>'Description', 'type'=>'str', 'maxlength'=>1048576),
 		'date_from' => array('desc'=>'Date from', 'type'=>'date', 'required'=>true),
-		'date_to' => array('desc'=>'Date to', 'type'=>'date', 'required'=>true),
+		'date_to' => array('desc'=>'Date to', 'type'=>'date', 'is_end' => true, 'required'=>true),
 		'is_hidden' => array('desc'=>'Disabled', 'type'=>'bool'),
 	);
 
@@ -322,13 +322,18 @@ class events extends active_record {
 
 
 	   	// Format `options`
-	   	$values = array();
-	   	foreach($this->options_attributes as $varname=>$a) {
-		   	foreach ($_POST['options'][$varname] as $index=>$cur_val) {
-		   		$values[$index][$varname] = $this->formatAttribute($cur_val, $a);
+	   	if (isset($_POST['update_record_options']) && $_POST['update_record_options']) {
+		   	$values = array();
+		   	foreach($this->options_attributes as $varname=>$a) {
+			   	foreach ($_POST['options'][$varname] as $index=>$cur_val) {
+			   		$values[$index][$varname] = $this->formatAttribute($cur_val, $a);
+			   	}
 		   	}
-	   	}
-	   	$this->record['options'] = NFW::i()->serializeArray($values);
+		   	$this->record['options'] = NFW::i()->serializeArray($values);
+		}
+		else {
+		   	$this->record['options'] = NFW::i()->serializeArray($this->record['options']);
+		}
 
 		$errors = $this->validate();
 		if (!empty($errors)) {

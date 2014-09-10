@@ -325,13 +325,11 @@ class vote extends active_record {
 		}
 
 		$votes = array();
-		$prune_old_voted_works = array();
 		foreach ($data['votes'] as $work_id=>$vote) {
 			$vote = intval($vote);
 			if ($vote < 1 || $vote > 10) continue;
 			if (!in_array($work_id, $available_works)) continue;
 			
-			$prune_old_voted_works[] = $work_id;
 			$votes[] = array('work_id' => $work_id, 'vote' => $vote);
 		}
 		if (empty($votes)) {
@@ -353,9 +351,10 @@ class vote extends active_record {
 		
 		// Prune old votes with same votekey
 		$query = array(
-			'DELETE'	=> 'votes',
-			'WHERE'		=> '`votekey_id`='.$votekey_id.' AND `work_id` IN ('.implode(',', $prune_old_voted_works).')',
+				'DELETE'	=> 'votes',
+				'WHERE'		=> '`votekey_id`='.$votekey_id.' AND `work_id` IN ('.implode(',', $available_works).')',
 		);
+		
 		if (!$result = NFW::i()->db->query_build($query)) {
 			$this->error('Unable to delete old votes', __FILE__, __LINE__, NFW::i()->db->error());
 			return false;

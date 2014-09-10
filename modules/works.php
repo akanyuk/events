@@ -625,10 +625,11 @@ class works extends active_record {
 				
 			$pack_dir = PROJECT_ROOT.'files/'.$this->record['event_alias'].'/'.$this->record['competition_alias'];
 			if (!file_exists($pack_dir)) {
-				if (!mkdir($pack_dir, 0777)) {
+				if (!mkdir($pack_dir)) {
 					$this->error('Unable to make competition directory', __FILE__, __LINE__);
 					return false;
 				}
+				chmod($pack_dir, 0777);
 			}
 		
 			$pack_filename = iconv("UTF-8", NFW::i()->cfg['media']['fs_encoding'], $this->record['title']).'.zip';
@@ -661,7 +662,7 @@ class works extends active_record {
 				}
 			}
 		
-			$archive_description = 'Author: '.$this->record['author']."\n".'Full name of work: '.$this->record['title']."\n".'Compo: '.$this->record['competition_title']."\n".'Event: '.$this->record['event_title']."\n".'Platform: '.$this->record['platform'].($this->record['format'] ? ' / '.$this->record['format'] : '');
+			$archive_description = 'Full name of prod: '.$this->record['title']."\n".'Author: '.$this->record['author']."\n".'Event: '.$this->record['event_title'].' ('.date('d.m.Y', $this->record['event_from']).' - '.date('d.m.Y', $this->record['event_to']).')'."\n".'Compo: '.$this->record['competition_title']."\n".'Platform: '.$this->record['platform'].($this->record['format'] ? ' / '.$this->record['format'] : '')."\n".'Link: '.NFW::i()->absolute_path.'/files/'.$this->record['event_alias'].'/'.$this->record['competition_alias'].'/'.$pack_filename;
 				
 			if ($_POST['attach_file_id'] && !in_array('file_id.diz', $already_added)) {
 				$zip->addFromString('file_id.diz', $archive_description);
@@ -669,6 +670,7 @@ class works extends active_record {
 		
 			$zip->setArchiveComment(htmlspecialchars($archive_description));
 			$zip->close();
+			chmod($pack_dir.'/'.$pack_filename, 0666);
 			NFW::i()->renderJSON(array('result' => 'success', 'url' => NFW::i()->absolute_path.'/files/'.$this->record['event_alias'].'/'.$this->record['competition_alias'].'/'.$this->record['title'].'.zip'));
 		}
 				

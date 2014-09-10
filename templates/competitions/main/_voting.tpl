@@ -12,12 +12,15 @@ if (isset($_COOKIE['votekey'])) {
 	}
 }
 else
-{	if ($competition['event_id'] && NFW::i()->user["email"] && NFW::i()->user["username"])
-	{
+{
+	if ($competition['event_id'] && NFW::i()->user["email"] && NFW::i()->user["username"])
+	{
+
 		$CVote = new vote();
 		$result = $CVote->requestVotekey(array("event_id"=>$competition['event_id'],"email"=>NFW::i()->user["email"]), false);
 
-		if ($result["votekey"]) {			NFW::i()->setCookie('votekey', $result["votekey"]);
+		if ($result["votekey"]) {
+			NFW::i()->setCookie('votekey', $result["votekey"]);
 			$votekey = $result["votekey"];
 		}
 
@@ -43,15 +46,22 @@ if (isset($_COOKIE['votes'])) {
 	unset($vals);
 
 if ($vote_values)
-{
+{
+
 	foreach ($vote_values as $k=>$v)
-	{		if (!$v["value"]) $value = $v["label_".NFW::i()->user['language']];
+	{
+		if (!$v["value"]) $value = $v["label_".NFW::i()->user['language']];
 		else
-		{			if (!$v["label_".NFW::i()->user['language']]) $value = $v["value"];
-			else {				if ($v["value"]==$max_val) $value = $v["label_".NFW::i()->user['language']];
-				else $value = $v["value"].": ".$v["label_".NFW::i()->user['language']];
-				}			}
-		$vote_options[$v["value"]]=$value;		}
+		{
+			if (!$v["label_".NFW::i()->user['language']]) $value = $v["value"];
+			else {
+				$value = $v["label_".NFW::i()->user['language']];
+				}
+			}
+
+		$vote_options[$v["value"]]=$value;
+
+		}
 
 }
 else $vote_options = $lang_main['voting votes'];
@@ -157,7 +167,7 @@ $(document).ready(function(){
 
 <div><span class="label label-danger"><?php echo $lang_main['voting to']?>: <?php echo date('d.m.Y H:i', $competition['voting_to'])?></span></div>
 <?php echo nl2br($competition['announcement'])?>
-<br />
+<hr />
 
 <form id="voting" action="<?php echo NFW::i()->base_path?>events" class="form-horizontal">
 	<input type="hidden" name="competition_id" value="<?php echo $competition['id']?>" />
@@ -216,7 +226,8 @@ $(document).ready(function(){
 	);
 
 	if (!$name["value"] && NFW::i()->user["username"])
-	{		$name["value"] = (NFW::i()->user["realname"]) ? htmlspecialchars(NFW::i()->user["realname"]) : htmlspecialchars(NFW::i()->user["username"]);
+	{
+		$name["value"] = (NFW::i()->user["realname"]) ? htmlspecialchars(NFW::i()->user["realname"]) : htmlspecialchars(NFW::i()->user["username"]);
 
 		}
 

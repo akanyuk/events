@@ -20,8 +20,10 @@ $(document).ready(function(){
 
 	// Make `results.txt`, works pack
 	$('form[id="make"]').activeForm({
-		success: function(response) {
-			if (response.reload == 'reload') { window.location.reload();; }
+		success: function(response) {
+
+
+			if (response.reload == 'reload') { window.location.reload();; }
 			else $(document).trigger('uiDialog', '<a href="' + response.url + '">' + response.url + '</a>');
 		}
 	});
@@ -33,7 +35,8 @@ $(document).ready(function(){
  	 			$('div[id="events-update-media"]').find('form').trigger('save-comments');
  	 	 	},
  	 		action: '<?php echo $Module->formatURL('update').'&record_id='.$Module->record['id']?>',
- 			success: function(response) {
+ 			success: function(response) {
+
  	 			if (response.is_updated) {
  	 				$(document).trigger('uiDialog', 'Saved.');
  	 			}
@@ -76,7 +79,8 @@ $(document).ready(function(){
  	 	 	return isSuccess;
  	 	},
  	 		action: '<?php echo $Module->formatURL('update').'&record_id='.$Module->record['id']?>',
- 			success: function(response) { 	 			if (response.is_updated) {
+ 			success: function(response) {
+ 	 			if (response.is_updated) {
  	 				$(document).trigger('uiDialog', 'Saved.');
  	 			}
  			}
@@ -94,7 +98,11 @@ $(document).ready(function(){
 
 
 
- 	//$(document).off('click', f.find('*[rel="remove-values-record"]')).on('click', f.find('*[rel="remove-values-record"]'), function(){ 	$(document).on('click', '*[rel="remove-values-record"]', function(){ 	 	if ($(this).closest('div[id="record"]').attr('rel') == 'update') {
+ 	//$(document).off('click', f.find('*[rel="remove-values-record"]')).on('click', f.find('*[rel="remove-values-record"]'), function(){
+
+ 	$(document).on('click', '*[rel="remove-values-record"]', function(){
+
+ 	 	if ($(this).closest('div[id="record"]').attr('rel') == 'update') {
 
  	 		if (!confirm('Удалить параметр?')) return false;
  	 	}
@@ -162,6 +170,7 @@ $(document).ready(function(){
 </div>
 
 <form id="eventz-update-<?php echo $Module->record['id']?>" action="<?php echo $Module->formatURL('update').'&record='.$Module->record['id']?>">
+	<input type="hidden" name="update_record_options" value="1" />
 	<div id="values-area" class="eventz">
 		<div class="header">
 			<?php foreach ($Module->options_attributes as $key=>$a) { ?>
@@ -267,14 +276,16 @@ $(document).ready(function(){
 
 
 	if ($layout_type=="diver")
-	{
+	{
+
 		echo '   '.htmlspecialchars($Module->record['title'])."\n";
 		echo '   '.date('d.m.Y', $Module->record['date_from']).'-'.date('d.m.Y', $Module->record['date_to'])."\n";
 		echo "\n";
 		echo '   '.'Official results'."\n";
 		echo "\n";
 
-		$header =  " # title                              author                        vts pts  avg";		$cur_competition = false;
+		$header =  " # title                              author                        vts pts  avg";
+		$cur_competition = false;
 		foreach ($release_works as $w) {
 			if ($cur_competition != $w['competition_id']) {
 				$cur_competition = $w['competition_id'];
@@ -312,7 +323,8 @@ $(document).ready(function(){
 			echo "online party management system provided by nyuk";
 		}
 	else
-	{
+	{
+
 		echo htmlspecialchars($Module->record['title'])."\n";
 		echo date('d.m.Y', $Module->record['date_from']).'-'.date('d.m.Y', $Module->record['date_to'])."\n";
 		echo "\n";
