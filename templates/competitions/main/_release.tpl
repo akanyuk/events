@@ -32,17 +32,24 @@ foreach ($release_works as $w) {
 		<?php echo $w['num_votes'] ? $lang_main['works num_votes'].': <span class="label label-default">'.$w['num_votes'].'</span>&nbsp;&nbsp;' : ''?>
 		<?php echo $w['total_scores'] ? $lang_main['works total_scores'].': <span class="label label-default">'.$w['total_scores'].'</span>&nbsp;&nbsp;' : ''?>
 		
-		<strong><?php echo $lang_main['voting download']?>:</strong>
-		<?php
-			if ($w['permanent_file']) {
-				echo '<a href="'.$w['permanent_file']['url'].'" title="'.$w['permanent_file']['basename'].'" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-download-alt"></span></a>';
-			}
-			else {
-				foreach ($w['release_files'] as $f) { 
-					echo '<a href="'.cache_media($f).'" title="'.$f['basename'].'" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-download-alt"></span></a>';
-				}
-			} 
-		?>				
+		<?php if ($w['permanent_file'] || !empty($w['release_files'])):?>
+			<div>
+				<div class="pull-left"><?php echo $lang_main['voting download']?>:</div>
+				<div class="pull-left" style="padding-left: 5px;">
+					<?php
+						if ($w['permanent_file']) {
+							echo '<div><strong><a href="'.$w['permanent_file']['url'].'">'.$w['permanent_file']['basename'].'</a></strong></div>';
+						}
+						else {
+							foreach ($w['release_files'] as $f) { 
+								echo '<div><strong><a href="'.cache_media($f).'"">'.$f['basename'].'</a></strong></div>';
+							}
+						} 
+					?>				
+				</div>
+				<div class="clearfix"></div>
+			</div>
+		<?php endif; ?>
 	</p>
 </div></div>
 <hr />

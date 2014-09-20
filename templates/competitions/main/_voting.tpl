@@ -191,11 +191,17 @@ $(document).ready(function(){
 		<div class="col-md-8">
 			<?php echo $lang_main['works platform']?> / <?php echo $lang_main['works format']?>:
 			<strong><?php echo htmlspecialchars($w['platform']).($w['format'] ? ' / '.htmlspecialchars($w['format']) : '')?></strong>
-			<br />
-			<strong><?php echo $lang_main['voting download']?>:</strong>
-			<?php foreach ($w['voting_files'] as $f) { ?>
-				<a href="<?php echo cache_media($f)?>" title="<?php echo $f['basename']?>" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-download-alt"></span></a>
-			<?php } ?>
+			<?php if (!empty($w['voting_files'])):?>
+				<div>
+					<div class="pull-left"><?php echo $lang_main['voting download']?>:</div>
+					<div class="pull-left" style="padding-left: 5px;">
+						<?php foreach ($w['voting_files'] as $f) { ?>
+							<div><strong><a href="<?php echo cache_media($f)?>"><?php echo htmlspecialchars($f['basename'])?></a></strong></div>
+						<?php } ?>
+					</div>
+					<div class="clearfix"></div>
+				</div>
+			<?php endif; ?>
 		</div>
 		<div class="col-md-3">
 			<select name="votes[<?php echo $w['id']?>]" id="<?php echo $w['id']?>" class="form-control" style="width: auto;">
