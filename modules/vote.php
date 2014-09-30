@@ -87,76 +87,6 @@ class vote extends active_record {
 		return array($records, $total_records, $num_filtered);
 	}
 
-	private function getVotes($options = array()) {
-		$filter = isset($options['filter']) ? $options['filter'] : array();
-	
-		// Generate 'WHERE' string
-		$where = array();
-	
-		if (isset($filter['event_id']) && $filter['event_id'] != '-1') $where[] = 'v.event_id = '.intval($filter['event_id']);
-	
-		// not strong "WHERE"
-		if (isset($options['free_filter'])) {
-			$where[] = '(w.title LIKE \'%'.NFW::i()->db->escape($options['free_filter']).'%\' OR vk.votekey LIKE \'%'.NFW::i()->db->escape($options['free_filter']).'%\' OR vk.email LIKE \'%'.NFW::i()->db->escape($options['free_filter']).'%\' OR v.username LIKE \'%'.NFW::i()->db->escape($options['free_filter']).'%\' OR v.poster_ip LIKE \'%'.NFW::i()->db->escape($options['free_filter']).'%\')';
-		}
-	
-		$where = empty($where) ? '' : join(' AND ', $where);
-	
-		// Count total records
-		if (!$result = NFW::i()->db->query_build(array('SELECT' => 'COUNT(*)', 'FROM' => 'votes'))) {
-			$this->error('Unable to count records', __FILE__, __LINE__, NFW::i()->db->error());
-			return false;
-		}
-		list($total_records) = NFW::i()->db->fetch_row($result);
-	
-		$joins = array(
-			array(
-				'INNER JOIN'=> 'works AS w',
-				'ON'		=> 'v.work_id=w.id'
-			),
-			array(
-				'LEFT JOIN'=> 'votekeys AS vk',
-				'ON'		=> 'v.votekey_id=vk.id'
-			)
-		);
-		
-		// Count filtered values
-		if (!$result = NFW::i()->db->query_build(array(
-			'SELECT' => 'COUNT(*)', 
-			'FROM' => 'votes AS v',
-			'JOINS' => $joins, 
-			'WHERE' => $where
-		))) {
-			$this->error('Unable to count filtered records', __FILE__, __LINE__, NFW::i()->db->error());
-			return false;
-		}
-		list($num_filtered) = NFW::i()->db->fetch_row($result);
-		if (!$num_filtered) {
-			return array(array(), $total_records, 0);
-		}
-	
-		if (!$result = NFW::i()->db->query_build(array(
-			'SELECT'	=> 'v.*, vk.votekey, vk.email AS votekey_email, w.title AS work_title',
-			'FROM'		=> 'votes AS v',
-			'JOINS' 	=> $joins,
-			'WHERE' 	=> $where,
-			'ORDER BY'	=> isset($options['ORDER BY']) ? $options['ORDER BY'] : 'v.posted DESC',
-			'LIMIT' 	=> (isset($options['offset']) ? intval($options['offset']) : null).(isset($options['limit']) ? ','.intval($options['limit']) : null),
-		))) {
-			$this->error('Unable to fetch records', __FILE__, __LINE__, NFW::i()->db->error());
-			return false;
-		}
-		if (!NFW::i()->db->num_rows($result)) {
-			return array();
-		}
-		$records = array();
-		while($cur_record = NFW::i()->db->fetch_assoc($result)) {
-			$records[] = $cur_record;
-		}
-	
-		return array($records, $total_records, $num_filtered);
-	}
-		
 	// Load results for given works array
 	private function getResults($event_id, $votekey_status = -1) {
 		$query = array(
@@ -208,7 +138,7 @@ class vote extends active_record {
 			}
 	
 			$works[$r['competition_id']]['works'][$r['work_id']]['total_scores'] += $r['vote'];
-			$works[$r['competition_id']]['works'][$r['work_id']]['num_votes'] ++;;
+			$works[$r['competition_id']]['works'][$r['work_id']]['num_votes'] ++;
 		}
 	
 		$prev_average = 0;
@@ -235,6 +165,77 @@ class vote extends active_record {
 		usort($works, 'sortByPos');
 	
 		return $works;
+	}
+		
+	public function getVotes($options = array()) {
+		$filter = isset($options['filter']) ? $options['filter'] : array();
+	
+		// Generate 'WHERE' string
+		$where = array();
+	
+		if (isset($filter['event_id']) && $filter['event_id'] != '-1') $where[] = 'v.event_id = '.intval($filter['event_id']);
+		if (isset($filter['competition_id']) && $filter['competition_id'] != '-1') $where[] = 'w.competition_id = '.intval($filter['competition_id']);		
+	
+		// not strong "WHERE"
+		if (isset($options['free_filter'])) {
+			$where[] = '(w.title LIKE \'%'.NFW::i()->db->escape($options['free_filter']).'%\' OR vk.votekey LIKE \'%'.NFW::i()->db->escape($options['free_filter']).'%\' OR vk.email LIKE \'%'.NFW::i()->db->escape($options['free_filter']).'%\' OR v.username LIKE \'%'.NFW::i()->db->escape($options['free_filter']).'%\' OR v.poster_ip LIKE \'%'.NFW::i()->db->escape($options['free_filter']).'%\')';
+		}
+	
+		$where = empty($where) ? '' : join(' AND ', $where);
+	
+		// Count total records
+		if (!$result = NFW::i()->db->query_build(array('SELECT' => 'COUNT(*)', 'FROM' => 'votes'))) {
+			$this->error('Unable to count records', __FILE__, __LINE__, NFW::i()->db->error());
+			return false;
+		}
+		list($total_records) = NFW::i()->db->fetch_row($result);
+	
+		$joins = array(
+				array(
+						'INNER JOIN'=> 'works AS w',
+						'ON'		=> 'v.work_id=w.id'
+				),
+				array(
+						'LEFT JOIN'=> 'votekeys AS vk',
+						'ON'		=> 'v.votekey_id=vk.id'
+				)
+		);
+	
+		// Count filtered values
+		if (!$result = NFW::i()->db->query_build(array(
+				'SELECT' => 'COUNT(*)',
+				'FROM' => 'votes AS v',
+				'JOINS' => $joins,
+				'WHERE' => $where
+		))) {
+			$this->error('Unable to count filtered records', __FILE__, __LINE__, NFW::i()->db->error());
+			return false;
+		}
+		list($num_filtered) = NFW::i()->db->fetch_row($result);
+		if (!$num_filtered) {
+			return array(array(), $total_records, 0);
+		}
+	
+		if (!$result = NFW::i()->db->query_build(array(
+				'SELECT'	=> 'v.*, vk.votekey, vk.email AS votekey_email, w.title AS work_title',
+				'FROM'		=> 'votes AS v',
+				'JOINS' 	=> $joins,
+				'WHERE' 	=> $where,
+				'ORDER BY'	=> isset($options['ORDER BY']) ? $options['ORDER BY'] : 'v.posted DESC',
+				'LIMIT' 	=> (isset($options['offset']) ? intval($options['offset']) : null).(isset($options['limit']) ? ','.intval($options['limit']) : null),
+		))) {
+			$this->error('Unable to fetch records', __FILE__, __LINE__, NFW::i()->db->error());
+			return false;
+		}
+		if (!NFW::i()->db->num_rows($result)) {
+			return array();
+		}
+		$records = array();
+		while($cur_record = NFW::i()->db->fetch_assoc($result)) {
+			$records[] = $cur_record;
+		}
+	
+		return array($records, $total_records, $num_filtered);
 	}
 		
 	function requestVotekey($data, $send = true) {

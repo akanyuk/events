@@ -38,11 +38,11 @@ foreach ($release_works as $w) {
 				<div class="pull-left" style="padding-left: 5px;">
 					<?php
 						if ($w['permanent_file']) {
-							echo '<div><strong><a href="'.$w['permanent_file']['url'].'">'.$w['permanent_file']['basename'].'</a></strong></div>';
+							echo '<div><strong><a href="'.$w['permanent_file']['url'].'">'.htmlspecialchars($w['permanent_file']['basename']).'</a></strong></div>';
 						}
 						else {
 							foreach ($w['release_files'] as $f) { 
-								echo '<div><strong><a href="'.cache_media($f).'"">'.$f['basename'].'</a></strong></div>';
+								echo '<div><strong><a href="'.cache_media($f).'"">'.htmlspecialchars($f['basename']).'</a></strong></div>';
 							}
 						} 
 					?>				

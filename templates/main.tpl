@@ -28,7 +28,7 @@ $lang_main = NFW::i()->getLang('main');
 <style>
 /* Main template */
 .dm-nav { background-color: #707070; color: #fff; border: none; border-bottom: 1px solid #555; min-height: 40px; }
-.dm-nav .navbar-header { padding-right: 20px; padding-top: 5px; }
+.dm-nav .navbar-header { padding-right: 20px; }
 .dm-nav .navbar-nav > li > a { text-shadow: 0; color: #fff; padding-bottom: 10px; padding-top: 10px; }
 .dm-nav .navbar-nav > li > a:hover, .dm-nav .navbar-nav > li > a:focus { background-color: #444; color: #fff; }
 .dm-nav .navbar-nav > .active > a, .dm-nav .navbar-nav > .active > a:hover { background-color: #800; color: #fff; }
@@ -83,11 +83,9 @@ DIV.dm-alert-cond P { font-size: 12px; line-height: 13px; }
 	}
 ?>
 	</div>
-<?php /*	
 	<div class="navbar-header">
-		<a href="<?php echo NFW::i()->base_path?>"><img src="<?php echo NFW::i()->assets('main/logo32.png')?>" /></a>
+		<a href="<?php echo NFW::i()->base_path?>"><img src="<?php echo NFW::i()->assets('main/rse-logo.gif')?>" /></a>
 	</div>
-*/?>	
 	<div role="navigation" class="collapse navbar-collapse">
 <?php
 	echo '<ul class="nav navbar-nav">';
@@ -125,7 +123,7 @@ echo $page['content'];
 	</div>
 	<div class="col-md-3">
 <?php
-	$countdown = intval((strtotime(NFW::i()->cfg['countdown']) - time()) / 86400);
+	$countdown = ceil((strtotime(NFW::i()->cfg['countdown']) - time()) / 86400);
 	if ($countdown > 0): ?>
 <div style="text-align: right; margin-bottom: 20px;">
 	<div style="font-weight: bold; font-size: 45pt; line-height: 40pt;"><?php echo $countdown?></div>

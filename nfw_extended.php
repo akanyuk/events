@@ -316,11 +316,25 @@ class NFW_EXTENDED extends NFW {
 		}
 	}
 	 
-	function sendNotify($event, $data = array()) {
-		if (!isset(NFW::i()->cfg['notify_emails']) || !is_array(NFW::i()->cfg['notify_emails'])) return;
-		 
+	function sendNotify($event, $event_id, $data = array()) {
 		foreach (NFW::i()->cfg['notify_emails'] as $email) {
 			email::sendFromTemplate($email, $event, array('data' => $data));
+		}
+		
+		$query = array(
+			'SELECT' => 'u.email', 
+			'FROM' => 'events_managers AS e',
+			'JOINS' => array(
+				array(
+					'INNER JOIN'=> 'users AS u',
+					'ON'		=> 'e.user_id=u.id'
+				),					
+			), 
+			'WHERE' => 'e.event_id='.$event_id
+		);
+		if (!$result = NFW::i()->db->query_build($query)) return false;
+		while ($u = NFW::i()->db->fetch_assoc($result)) {
+			email::sendFromTemplate($u['email'], $event, array('data' => $data));
 		}
 	}
 	

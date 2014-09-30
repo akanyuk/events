@@ -5,12 +5,12 @@ NFW::i()->registerFunction('ui_message');
 NFW::i()->registerResource('jquery.cookie');
 
 if (isset($_COOKIE['layout_type'])) $layout_type = $_COOKIE['layout_type']; else $layout_type="";
-if (isset($_COOKIE['layout_platform_show'])) $platform = json_decode($_COOKIE['layout_platform_show']); else $platform="";
+if (isset($_COOKIE['layout_platform_show'])) $platform = json_decode($_COOKIE['layout_platform_show']); else $platform = array();
 
-	foreach ($Module->options_attributes as $key=>&$a) {
-		$a['style'] = isset($a['style']) ? $a['style'] : 'width: '.(isset($a['width']) ? $a['width'] : '300px;');
-	}
-	unset($a);
+foreach ($Module->options_attributes as $key=>&$a) {
+	$a['style'] = isset($a['style']) ? $a['style'] : 'width: '.(isset($a['width']) ? $a['width'] : '300px;');
+}
+unset($a);
 ?>
 <script type="text/javascript">
 $(document).ready(function(){
@@ -248,8 +248,6 @@ $(document).ready(function(){
 //  string(4) "8.44"
 
 
-
-
 	// Get release works
 	$CWorks = new works();
 	list($release_works) = $CWorks->getRecords(array(
@@ -379,7 +377,6 @@ $(document).ready(function(){
 	}
 
 ?>
-
 					<label for="layout_type">Type of layout</label>
 					<div class="input-row">
 						<select name="layout_type" id="layout_type" class="form-control" style="width: 90px; top:0px;">
@@ -408,9 +405,11 @@ $(document).ready(function(){
 			echo '<div><input name="competitions[]" value="'.$cur_competition.'" type="checkbox" checked="checked" /> '.htmlspecialchars($w['competition_title']).'</div>';
 		}
 	}
-
-	echo '<div><input name="attach_results_txt" type="checkbox" checked="checked" /> Attach `results.txt` into archive</div>';
 ?>
+				<hr />
+				<div><input name="attach_results_txt" type="checkbox" checked="checked" /> Attach `results.txt` into archive</div>
+				<div><input name="attach_media" type="checkbox" /> Attach Event's media files</div>
+	
 				<div id="pack_filename" class="active-field">
 					<label for="pack_filename"><strong>files/<?php echo $Module->record['alias']?>/</strong></label>
 					<div class="input-row">

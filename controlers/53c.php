@@ -2,7 +2,7 @@
 define('COMPETITION_ID', 8);
 
 class works53c extends works {
-	function add53c($data) {
+	function add53c($data, $competition) {
 		$this->formatAttributes($data);
 		$this->record['platform'] = 'ZX-Spectrum';
 		$this->record['format'] = 'attributes';
@@ -32,7 +32,7 @@ class works53c extends works {
 		fwrite($fp, $tap);
 		fclose($fp);
 
-		NFW::i()->sendNotify('works_add', array('work' => $this->record));
+		NFW::i()->sendNotify('works_add', $competition['event_id'], array('work' => $this->record));
 		return true;
 	}
 
@@ -69,7 +69,7 @@ if (!$reception_available) {
 }
 
 $CWorks = new works53c();
-if (!$CWorks->add53c($_POST, $CCompetitions->record['id'])) {
+if (!$CWorks->add53c($_POST, $CCompetitions->record)) {
 	NFW::i()->renderJSON(array('result' => 'error', 'errors' => $CWorks->errors));
 }
 

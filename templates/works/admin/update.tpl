@@ -122,7 +122,7 @@ $(document).ready(function(){
 			<?php echo active_field(array('name' => 'status', 'value' => $Module->record['status'], 'attributes'=>$Module->attributes['status']))?>
 			<?php echo active_field(array('name' => 'platform', 'value' => $Module->record['platform'], 'attributes'=>$Module->attributes['platform'], 'width'=>"210px;"))?>
 			<?php echo active_field(array('name' => 'format', 'value' => $Module->record['format'], 'attributes'=>$Module->attributes['format'], 'width'=>"210px;"))?>
-			<?php echo active_field(array('name' => 'external_html', 'value' => $Module->record['external_html'], 'attributes'=>$Module->attributes['external_html'], 'width'=>"500px;", 'height'=>"50px;"))?>
+			<?php echo active_field(array('name' => 'external_html', 'value' => $Module->record['external_html'], 'attributes'=>$Module->attributes['external_html'], 'width'=>"750px;", 'height'=>"150px;"))?>
 						
 			<div style="padding-top: 1em; padding-left: 105px;">
 				<button id="works-save" class="nfw-button" icon="ui-icon-disk">Save changes</button>
@@ -148,6 +148,6 @@ $(document).ready(function(){
     	 	<span id="permanent-link"><?php echo $Module->record['permanent_file'] ? '<a href="'.$Module->record['permanent_file']['url'].'">'.$Module->record['permanent_file']['url'].'</a>' : 'none'?></span>
     	 </div>
     	 <button id="media-release" class="nfw-button" icon="ui-icon-disk">Generate permanent archive with `release` files</button>
-    	 <input id="attach-file_id" type="checkbox" />Attach `file_id.diz` into archive (only if not exist).
+    	 <input id="attach-file_id" type="checkbox" checked="checked" />Attach `file_id.diz` into archive (only if not exist).
     </div>
 </div>

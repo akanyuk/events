@@ -425,7 +425,9 @@ class works extends active_record {
 		
 		// Add media
 		$CMedia->closeSession(get_class($this), $this->record['id']);
-		NFW::i()->sendNotify('works_add', array('work' => $this->record));
+		
+		$CCompetitions = new competitions($this->record['competition_id']); 
+		NFW::i()->sendNotify('works_add', $CCompetitions->record['event_id'], array('work' => $this->record));
 		
 		$lang_main = NFW::i()->getLang('main');
     	NFW::i()->renderJSON(array('result' => 'success', 'message' => $lang_main['works upload success message']));
@@ -668,7 +670,7 @@ class works extends active_record {
 				$zip->addFromString('file_id.diz', $archive_description);
 			}
 		
-			$zip->setArchiveComment(htmlspecialchars($archive_description));
+			$zip->setArchiveComment(iconv("UTF-8", 'cp1251', htmlspecialchars($archive_description)));
 			$zip->close();
 			chmod($pack_dir.'/'.$pack_filename, 0666);
 			NFW::i()->renderJSON(array('result' => 'success', 'url' => NFW::i()->absolute_path.'/files/'.$this->record['event_alias'].'/'.$this->record['competition_alias'].'/'.$this->record['title'].'.zip'));

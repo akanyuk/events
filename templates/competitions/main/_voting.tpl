@@ -191,13 +191,20 @@ $(document).ready(function(){
 		<div class="col-md-8">
 			<?php echo $lang_main['works platform']?> / <?php echo $lang_main['works format']?>:
 			<strong><?php echo htmlspecialchars($w['platform']).($w['format'] ? ' / '.htmlspecialchars($w['format']) : '')?></strong>
-			<?php if (!empty($w['voting_files'])):?>
+			<?php if ($w['permanent_file'] || !empty($w['voting_files'])):?>
 				<div>
 					<div class="pull-left"><?php echo $lang_main['voting download']?>:</div>
 					<div class="pull-left" style="padding-left: 5px;">
-						<?php foreach ($w['voting_files'] as $f) { ?>
-							<div><strong><a href="<?php echo cache_media($f)?>"><?php echo htmlspecialchars($f['basename'])?></a></strong></div>
-						<?php } ?>
+						<?php
+							if ($w['permanent_file']) {
+								echo '<div><strong><a href="'.$w['permanent_file']['url'].'">'.htmlspecialchars($w['permanent_file']['basename']).'</a></strong></div>';
+							}
+							else {
+								foreach ($w['voting_files'] as $f) { 
+									echo '<div><strong><a href="'.cache_media($f).'">'.htmlspecialchars($f['basename']).'</a></strong></div>';
+								}
+							} 
+						?>
 					</div>
 					<div class="clearfix"></div>
 				</div>
@@ -205,12 +212,7 @@ $(document).ready(function(){
 		</div>
 		<div class="col-md-3">
 			<select name="votes[<?php echo $w['id']?>]" id="<?php echo $w['id']?>" class="form-control" style="width: auto;">
-				<?php
-
-
-
-
-				 foreach ($vote_options as $i=>$d) echo '<option value="'.$i.'"'.(isset($cookie[$w['id']]) && $cookie[$w['id']] == $i ? ' selected="selected"' : '').'>'.$d.'</option>'; ?>
+				<?php foreach ($vote_options as $i=>$d) echo '<option value="'.$i.'"'.(isset($cookie[$w['id']]) && $cookie[$w['id']] == $i ? ' selected="selected"' : '').'>'.$d.'</option>'; ?>
 			</select>
 		</div>
 	</div>

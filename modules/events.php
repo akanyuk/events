@@ -31,7 +31,7 @@ class events extends active_record {
 
 		if ($record['date_from'] > NFW::i()->actual_date) {
 			$record['status'] = array(
-				'desc' => '+'.intval(($record['date_from'] - NFW::i()->actual_date) / 86400).' '.$lang_main['days'],
+				'desc' => '+'.ceil(($record['date_from'] - NFW::i()->actual_date) / 86400).' '.$lang_main['days'],
 				'label-class' => 'label-primary',
 			);
 		}
@@ -303,6 +303,21 @@ class events extends active_record {
 	    			}
 	    		}
 
+	    		// Attach media
+	    		if (isset($_POST['attach_media']) && $_POST['attach_media'] && !empty($this->record['attachments'])) {
+	    			$media_info = array();
+	    			foreach ($this->record['attachments'] as $a) {
+	    				$zip->addFile($a['fullpath'], iconv("UTF-8", 'cp866', $a['basename']));
+	    				if ($a['comment']) {
+	    					$media_info[] = $a['basename'].' - '.$a['comment'];
+	    				}
+	    			}
+	    			
+	    			if (!empty($media_info)) {
+	    				$zip->addFromString(iconv("UTF-8", 'cp866', 'media-info.txt'), implode("\n", $media_info));
+	    			}
+	    		}
+	    		
 	    		$zip->setArchiveComment(htmlspecialchars($this->record['title'])."\n".date('d.m.Y', $this->record['date_from']).'-'.date('d.m.Y', $this->record['date_to'])."\n".NFW::i()->absolute_path);
 	    		$zip->close();
 	    		NFW::i()->renderJSON(array('result' => 'success', 'url' => NFW::i()->absolute_path.'/files/'.$this->record['alias'].'/'.$pack_filename));
