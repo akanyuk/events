@@ -191,22 +191,22 @@ class vote extends active_record {
 		list($total_records) = NFW::i()->db->fetch_row($result);
 	
 		$joins = array(
-				array(
-						'INNER JOIN'=> 'works AS w',
-						'ON'		=> 'v.work_id=w.id'
-				),
-				array(
-						'LEFT JOIN'=> 'votekeys AS vk',
-						'ON'		=> 'v.votekey_id=vk.id'
-				)
+			array(
+				'INNER JOIN'=> 'works AS w',
+				'ON'		=> 'v.work_id=w.id'
+			),
+			array(
+				'LEFT JOIN'=> 'votekeys AS vk',
+				'ON'		=> 'v.votekey_id=vk.id'
+			)
 		);
 	
 		// Count filtered values
 		if (!$result = NFW::i()->db->query_build(array(
-				'SELECT' => 'COUNT(*)',
-				'FROM' => 'votes AS v',
-				'JOINS' => $joins,
-				'WHERE' => $where
+			'SELECT' => 'COUNT(*)',
+			'FROM' => 'votes AS v',
+			'JOINS' => $joins,
+			'WHERE' => $where
 		))) {
 			$this->error('Unable to count filtered records', __FILE__, __LINE__, NFW::i()->db->error());
 			return false;
@@ -217,12 +217,12 @@ class vote extends active_record {
 		}
 	
 		if (!$result = NFW::i()->db->query_build(array(
-				'SELECT'	=> 'v.*, vk.votekey, vk.email AS votekey_email, w.title AS work_title',
-				'FROM'		=> 'votes AS v',
-				'JOINS' 	=> $joins,
-				'WHERE' 	=> $where,
-				'ORDER BY'	=> isset($options['ORDER BY']) ? $options['ORDER BY'] : 'v.posted DESC',
-				'LIMIT' 	=> (isset($options['offset']) ? intval($options['offset']) : null).(isset($options['limit']) ? ','.intval($options['limit']) : null),
+			'SELECT'	=> 'v.*, vk.votekey, vk.email AS votekey_email, w.title AS work_title, w.place AS work_place',
+			'FROM'		=> 'votes AS v',
+			'JOINS' 	=> $joins,
+			'WHERE' 	=> $where,
+			'ORDER BY'	=> isset($options['ORDER BY']) ? $options['ORDER BY'] : 'v.posted DESC',
+			'LIMIT' 	=> (isset($options['offset']) ? intval($options['offset']) : null).(isset($options['limit']) ? ','.intval($options['limit']) : null),
 		))) {
 			$this->error('Unable to fetch records', __FILE__, __LINE__, NFW::i()->db->error());
 			return false;

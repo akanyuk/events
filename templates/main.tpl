@@ -100,15 +100,13 @@ DIV.dm-alert-cond P { font-size: 12px; line-height: 13px; }
 	</div>
 </div></div>
     	
-<div id="page-content" class="container"><div class="row">
-	<div class="col-md-9">
-<?php 
+<?php ob_start();
 if (isset($page['breadcrumb']) && !empty($page['breadcrumb'])) {
 	echo '<ul class="breadcrumb">';
 	echo '<div class="pull-right">';
 	echo isset($page['breadcrumb_status']) ? $page['breadcrumb_status'] : '';
 	echo '</div>';
-	
+
 	//echo '<li><a href="/">Home</a> <span class="divider">/</span></li>';
 	foreach ($page['breadcrumb'] as $b) {
 		echo isset($b['url']) ? '<li><a href="'.NFW::i()->base_path.$b['url'].'">'.htmlspecialchars($b['desc']).'</a>' : '<li class="active">'.htmlspecialchars($b['desc']).'</li>';
@@ -116,12 +114,22 @@ if (isset($page['breadcrumb']) && !empty($page['breadcrumb'])) {
 
 	echo '<div class="clearfix"></div>';
 	echo '</ul>';
-}		
+}
 
 echo $page['content'];
+
+$page_content = ob_get_clean();
+
+if (isset($page['disable_right_pane']) && $page['disable_right_pane']) {
+	echo '<div id="page-content" class="container">'.$page_content.'</div>';
+	return;
+}
 ?>
-	</div>
-	<div class="col-md-3">
+
+<div id="page-content" class="container">
+	<div class="row">
+		<div class="col-md-9"><?php echo $page_content?></div>
+		<div class="col-md-3">
 <?php
 	$countdown = ceil((strtotime(NFW::i()->cfg['countdown']) - time()) / 86400);
 	if ($countdown > 0): ?>
@@ -208,6 +216,7 @@ $(document).ready(function(){
 	</div>
 <?php endif; ?>
 	</div>
+	
 </div></div>
 
 <?php if (!defined('NFW_DEBUG')): ?>
@@ -217,7 +226,7 @@ $(document).ready(function(){
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-  ga('create', 'UA-6132412-2', 'multimatograf.ru');
+  ga('create', 'UA-5151104-4', 'auto');
   ga('send', 'pageview');
 
 </script>
