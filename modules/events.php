@@ -48,6 +48,8 @@ class events extends active_record {
 			);
 		}
 
+		$record['is_one_day'] = date('d-m-Y', $record['date_from']) == date('d-m-Y', $record['date_to']) ? true : false;
+		
 		return $record;
 	}
 

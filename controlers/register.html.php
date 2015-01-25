@@ -242,7 +242,7 @@ class users_register extends users {
 	}	
 	
 	function restore_password($fields) {
-		$Module = new active_record();
+		$Module = new pages();
 		$Module->attributes = array(
 			'captcha' => array('type' => 'captcha'),
 			'request_email' => array('type' => 'email', 'desc' => 'E-mail', 'required'=>true),

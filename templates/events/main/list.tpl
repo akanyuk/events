@@ -4,7 +4,7 @@
 		<a href="<?php echo NFW::i()->base_path.$record['alias']?>">
 			<img class="media-object" src="<?php echo $record['announce'] ? $record['announce'] : NFW::i()->assets('main/news-no-image.png')?>" />
 		</a>
-		<div style="line-height: 12px;"><small><?php echo date('d.m.Y', $record['date_from']).' -<br />'.date('d.m.Y', $record['date_to'])?></small></div>
+		<div style="line-height: 12px;"><small><?php echo $record['is_one_day'] ? date('d.m.Y', $record['date_from']) : date('d.m.Y', $record['date_from']).' -<br />'.date('d.m.Y', $record['date_to'])?></small></div>
 	</div>
     <div class="media-body">
     	<div class="pull-right">

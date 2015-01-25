@@ -45,12 +45,13 @@ else {
 	$first_hour = date('d.m.y H', $first_vote['posted']).'MSK';
 	$titles = $header_titles = $count_total = $pre_stats = array();
 	foreach ($votes as $vkey=>$v) {
-		$key = $v['work_place'].'. '.$v['work_title'];
+		$key = $v['work_place'] ? sprintf('%02d', $v['work_place']).'-'.$v['work_id'] : $v['work_id']; 
+		$title = $v['work_place'] ? $v['work_place'].'. '.$v['work_title'] : $v['work_title'];
 		
-		if (!isset($titles[$v['work_place']])) {
-			$titles[$v['work_place']] = $v['work_place'].'. '.$v['work_title'];
-			$header_titles[$v['work_place']] = '"'.htmlspecialchars($v['work_place'].'. '.$v['work_title']).'"';
-			$count_total[$key] = array('num_votes' => 0, 'total_scores' => 0);
+		if (!isset($titles[$key])) {
+			$titles[$key] = $title;
+			$header_titles[$key] = '"'.$title.'"';
+			$count_total[$key] = array('num_votes' => 0, 'total_scores' => 0, 'title' => $title);
 		}
 
 		if ($v['votekey_id']) continue;
@@ -69,14 +70,18 @@ else {
 		unset($votes[$vkey]);
 	}
 	
-	ksort($titles);
-	ksort($header_titles);
-
 	// Collect online votes
 	foreach ($votes as $vkey=>$v) {
-		$key = $v['work_place'].'. '.$v['work_title'];
+		$key = $v['work_place'] ? sprintf('%02d', $v['work_place']).'-'.$v['work_id'] : $v['work_id'];
+		$title = $v['work_place'] ? $v['work_place'].'. '.$v['work_title'] : $v['work_title'];
 		$hour = date('d.m.y H', $v['posted']).'MSK';
 	
+		if (!isset($count_total[$key])) {
+			$titles[$key] = $title;
+			$header_titles[$key] = '"'.$title.'"';
+			$count_total[$key] = array('num_votes' => 0, 'total_scores' => 0, 'title' => $title);
+		}
+		
 		$count_total[$key]['num_votes']++;
 		$count_total[$key]['total_scores'] += $v['vote'];
 	
@@ -89,11 +94,14 @@ else {
 		}
 	}
 	
+	ksort($titles);
+	ksort($header_titles);
+	
 	// Calculate average
 	$stats = array();
 	foreach ($pre_stats as $hour=>$p1) {
-		foreach ($p1 as $title=>$p) {
-			$stats[$hour][$title] = array(
+		foreach ($p1 as $p) {
+			$stats[$hour][$p['title']] = array(
 				'tot' => $p['total_scores'],
 				'num' => $p['num_votes'],
 				'avg' => $p['num_votes'] ? round($p['total_scores'] / $p['num_votes'], 2) : 0

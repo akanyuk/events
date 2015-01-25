@@ -46,7 +46,7 @@ elseif (isset($chapters[0]) && $CEvents->loadByAlias($chapters[0])) {
 			array('url' => 'events', 'desc' => $page['title']),
 			array('desc' => $CEvents->record['title'])
 		);
-		$page['breadcrumb_status'] = '<span class="label '.$CEvents->record['status']['label-class'].'">'.date('d.m.Y', $CEvents->record['date_from']).' - '.date('d.m.Y', $CEvents->record['date_to']).'</span>';
+		$page['breadcrumb_status'] = '<span class="label '.$CEvents->record['status']['label-class'].'">'.($CEvents->record['is_one_day'] ? date('d.m.Y', $CEvents->record['date_from']) : date('d.m.Y', $CEvents->record['date_from']).' - '.date('d.m.Y', $CEvents->record['date_to'])).'</span>';
 		
 		$page['title'] = $CEvents->record['title'];
 		$page['content'] = $CEvents->renderAction(array(
@@ -70,7 +70,7 @@ elseif (isset($chapters[0]) && $CEvents->loadByAlias($chapters[0])) {
 		array('url' => $CEvents->record['alias'], 'desc' => $CEvents->record['title']),
 		array('desc' => $CCompetitions->record['title'])
 	);
-	$page['breadcrumb_status'] = '<span class="label '.$CEvents->record['status']['label-class'].'">'.date('d.m.Y', $CEvents->record['date_from']).' - '.date('d.m.Y', $CEvents->record['date_to']).'</span>';
+	$page['breadcrumb_status'] = '<span class="label '.$CEvents->record['status']['label-class'].'">'.($CEvents->record['is_one_day'] ? date('d.m.Y', $CEvents->record['date_from']) : date('d.m.Y', $CEvents->record['date_from']).' - '.date('d.m.Y', $CEvents->record['date_to'])).'</span>';
 
 	if ($CCompetitions->record['release_status']['available'] && $CCompetitions->record['release_works']) {
 		$content = $CCompetitions->renderAction(array(

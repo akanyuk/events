@@ -174,7 +174,7 @@ $(document).ready(function(){
 	<div id="error-message" style="height: 18px; font-size: 85%; color: #ff0000;"></div>
    	
 	<div style="float: left; margin-right: 10px;">
-		<button type="submit" name="login" class="btn" style="margin-top: 0;"><?php echo NFW::i()->lang['GoIn']?></button>
+		<button type="submit" name="login" class="btn btn-default" style="margin-top: 0;"><?php echo NFW::i()->lang['GoIn']?></button>
 	</div>
 	<div style="padding-top: 10px;">
 		<a href="<?php echo NFW::i()->base_path?>register.html?action=restore_password"><?php echo $lang_main['register']['restore password btn']?></a>
