@@ -1,6 +1,13 @@
 <?php
 	NFW::i()->registerResource('jquery.activeForm');
 
+	require_once(PROJECT_ROOT.'include/helpers/SxGeo/SxGeo.php');
+	$SxGeo = new SxGeo(PROJECT_ROOT.'var/SxGeoCity.dat');
+	if ($geo = $SxGeo->getCityFull($_SERVER['REMOTE_ADDR'])) {
+		$default_country = $geo['country']['iso'];
+		//$default_city = NFW::i()->user['language'] == 'Russian' ? $geo['city']['name_ru'] : $geo['city']['name_en'];
+		$default_city = '';
+	}
 ?>
 <script type="text/javascript">
 $(document).ready(function(){
@@ -39,9 +46,9 @@ $(document).ready(function(){
 	<?php echo active_field(array('name' => 'username', 'attributes' => $attributes['username']))?>
 	<?php echo active_field(array('name' => 'email', 'attributes' => $attributes['email']))?>
 	<?php echo active_field(array('name' => 'realname', 'attributes' => $attributes['realname']))?>
-	<?php echo active_field(array('name' => 'language', 'attributes' => $attributes['language']))?>
-	<?php echo active_field(array('name' => 'country', 'attributes' => $attributes['country']))?>
-	<?php echo active_field(array('name' => 'city', 'attributes' => $attributes['city']))?>
+	<?php echo active_field(array('name' => 'language', 'attributes' => $attributes['language'], 'value' => NFW::i()->user['language']))?>
+	<?php echo active_field(array('name' => 'country', 'attributes' => $attributes['country'], 'value' => $default_country))?>
+	<?php echo active_field(array('name' => 'city', 'attributes' => $attributes['city'], 'value' => $default_city))?>
 
     <div class="form-group" id="captcha">
 		<label class="control-label col-md-3" for="captcha"><strong><?php echo $lang_main['register']['captcha']?></strong></label>

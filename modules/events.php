@@ -87,7 +87,14 @@ class events extends active_record {
 	}
 
 	public function loadByAlias($alias) {
-		return $this->load(urldecode($alias), true);
+		$result = $this->load(urldecode($alias), true);
+		
+		if ($this->error || $this->record['is_hidden']) {
+			$this->error('Record not found.', __FILE__, __LINE__);
+			return false;
+		}
+		
+		return $result;
 	}
 
 	function getRecords($options = array()) {

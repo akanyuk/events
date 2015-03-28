@@ -282,7 +282,7 @@ $(document).ready(function(){
 		echo '   '.'Official results'."\n";
 		echo "\n";
 
-		$header =  " # title                              author                        vts pts  avg";
+		$header =  " # title                                                      vts pts  avg";
 		$cur_competition = false;
 		foreach ($release_works as $w) {
 			if ($cur_competition != $w['competition_id']) {
@@ -293,7 +293,7 @@ $(document).ready(function(){
 				echo $header."\n"."\n";
 			}
 
-			$desc = $w['title'].' / '.$w['author'];
+			$desc = $w['title'].($w['author'] ? ' by '.$w['author'] : '');
 			if (in_array($w['competition_id'],$platform)) $desc .= " [".($w["platform"])."]";
 
 			echo ($w['place'] ? sprintf("%2s", $w['place']).' ' : ' - ');
@@ -338,7 +338,7 @@ $(document).ready(function(){
 				echo "\n";
 			}
 
-			$desc = $w['title'].' / '.$w['author'];
+			$desc = $w['title'].($w['author'] ? ' by '.$w['author'] : '');
 			if (in_array($w['competition_id'],$platform)) $desc .= " [".($w["platform"])."]";
 
 			echo ($w['place'] ? sprintf("%2s", $w['place']).'. ' : ' - ').$desc.str_repeat(' ', 66 - mb_strlen($desc,'UTF-8')).str_pad(($w['total_scores']),3," ",STR_PAD_LEFT)." ".$w['average_vote']."\n";

@@ -16,7 +16,7 @@
 <script type="text/javascript">
 $(document).ready(function(){
 	// status hints
-	$('div[rel="status-tooltip"]').tooltip({ 'animation': false });
+	$('div[rel="status-tooltip"]').tooltip({ 'animation': false, 'html': true });
 	
 	$(document).trigger('refresh');
 });
@@ -25,10 +25,10 @@ $(document).ready(function(){
 <table class="table table-condensed dm">
 	<thead>
 		<tr>
+			<th><?php // echo $lang_main['works status']?></th>
 			<th><?php echo $lang_main['works title']?></th>
 			<th><?php echo $lang_main['works author']?></th>
 			<th><?php echo $lang_main['competions title']?></th>
-			<th><?php echo $lang_main['works status']?></th>
 		</tr>
 	</thead>
 	<tbody>
@@ -41,10 +41,10 @@ $(document).ready(function(){
 		}
 ?>
 	<tr>
+		<td><div rel="status-tooltip" title="<?php echo '<strong>'.$record['status_info']['desc'].'</strong><br />'.$record['status_info']['desc_full']?>" class="label <?php echo $record['status_info']['label-class']?>"><span class="glyphicon <?php echo $record['status_info']['icon']?>"></span></div></td>
 		<td class="b"><a href="<?php echo NFW::i()->base_path.'cabinet/works?action=view&record_id='.$record['id']?>"><?php echo htmlspecialchars($record['title'])?></a></td>
 		<td><?php echo htmlspecialchars($record['author'])?></td>
 		<td><?php echo htmlspecialchars($record['competition_title'])?></td>
-		<td class="nw"><div rel="status-tooltip" title="<?php echo $record['status_info']['desc_full']?>" class="label <?php echo $record['status_info']['label-class']?>"><?php echo $record['status_info']['desc']?></div></td>
 	</tr>
 <?php 		
 	}

@@ -72,15 +72,10 @@ DIV.dm-alert-cond P { font-size: 12px; line-height: 13px; }
 <div role="banner" class="navbar navbar-fixed-top dm-nav"><div class="container">
 	<div class="lang-change pull-right">
 <?php 
-	if (NFW::i()->user['is_guest']) {	
-		$change_lang_url = ($_SERVER['REQUEST_URI'] ? $_SERVER['REQUEST_URI'] : '').(empty($_GET) ? '?lang=' : '&lang=');
-		echo NFW::i()->user['language'] == 'English' ? 'english' : '<a href="'.$change_lang_url.'English">english</a>';
-		echo ' / ';
-		echo NFW::i()->user['language'] == 'Russian' ? 'русский' : '<a href="'.$change_lang_url.'Russian">русский</a>';
-	}
-	else {
-		echo '<a href="'.NFW::i()->absolute_path.'/register.html?action=update_profile">'.$lang_main['set language'].'</a>';
-	}
+	$change_lang_url = ($_SERVER['REQUEST_URI'] ? $_SERVER['REQUEST_URI'] : '').(empty($_GET) ? '?lang=' : '&lang=');
+	echo NFW::i()->user['language'] == 'English' ? 'english' : '<a href="'.$change_lang_url.'English">english</a>';
+	echo ' / ';
+	echo NFW::i()->user['language'] == 'Russian' ? 'русский' : '<a href="'.$change_lang_url.'Russian">русский</a>';
 ?>
 	</div>
 	<div class="navbar-header">

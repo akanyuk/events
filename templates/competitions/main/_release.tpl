@@ -12,7 +12,7 @@ list($release_works) = $CWorks->getRecords(array(
 ));
 
 foreach ($release_works as $w) {
-	echo '<h3 style="padding-bottom: 10px;">'.($w['place'] ? '<span class="label label-success" style="font-size: 100%;">'.$w['place'].'</span>&nbsp;' : '').htmlspecialchars($w['title'].' / '.$w['author']).'</h3>';
+	echo '<h3 style="padding-bottom: 10px;">'.($w['place'] ? '<span class="label label-success" style="font-size: 100%;">'.$w['place'].'</span>&nbsp;' : '').htmlspecialchars($w['title'].($w['author'] ? ' by '.$w['author'] : '')).'</h3>';
 	
 	// Display content (image, audio, video
 	foreach ($w['image_files'] as $f) echo '<p><img src="'.cache_media($f).'" /></p>'; 

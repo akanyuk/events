@@ -36,7 +36,7 @@ $(document).ready(function(){
 		<?php if ($Module->record['screenshot']): ?><img src="<?php echo $Module->record['screenshot']['tmb_prefix']?>192" /><?php endif; ?>		
 	</div>
 	<div class="pull-left">
-		<dt><?php echo $lang_main['works title']?>:</dt><dd><?php echo htmlspecialchars($Module->record['title'].($Module->record['author'] ? ' / '.$Module->record['author'] : ''))?></dd>
+		<dt><?php echo $lang_main['works title']?>:</dt><dd><?php echo htmlspecialchars($Module->record['title'].($Module->record['author'] ? ' by '.$Module->record['author'] : ''))?></dd>
 		<dt><?php echo $lang_main['works status']?>:</dt><dd><div rel="status-tooltip" title="<?php echo $Module->record['status_info']['desc_full']?>" class="label <?php echo $Module->record['status_info']['label-class']?>"><?php echo $Module->record['status_info']['desc']?></div></dd>
 		<dt><?php echo $lang_main['works platform']?>:</dt><dd><?php echo htmlspecialchars($Module->record['platform'].($Module->record['format'] ? ' ('.$Module->record['format'].')' : ''))?></dd>
 		<dt><?php echo $lang_main['event']?>:</dt><dd><?php echo $Module->record['event_title']?></dd>

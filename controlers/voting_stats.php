@@ -24,6 +24,20 @@ if (isset($_GET['competition_id'])) foreach ($competitions as $c) {
 	}
 }
 
+// No competitions in selected event
+if (!$cur_competition) {
+	$CPages = new pages();
+	$CPages->path_prefix = 'main';
+	$page = $CPages->loadPage('/');
+	$page['title'] = 'Voting statistics';
+	$page['content'] = $CPages->renderAction(array(
+			'events' => $events,
+			'cur_event' => $cur_event,
+	), 'voting_stats');
+	$page['disable_right_pane'] = true;
+	NFW::i()->assign('page', $page);
+	NFW::i()->display('main.tpl');	
+} 
 
 // Fetch stats
 $CVote = new vote();

@@ -43,7 +43,7 @@ $(document).ready(function(){
 		}
 		else {
 			$is_link = false;
-			$count = $c['voting_works'];
+			$count = $c['release_works'];
 		}
 
 		if (!$count) {

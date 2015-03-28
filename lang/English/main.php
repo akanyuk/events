@@ -1,8 +1,6 @@
 <?php
 //English language file for main template
 $lang_main = array(
-	'set language' => 'Set language',
-	
 	'news' => 'News',
 	'latest news' => 'Latest news',
 
@@ -98,20 +96,22 @@ $lang_main = array(
 	
 	'works upload info' => '<p>The uploaded files will be stored on the server only after you press the "Send prod" button.</p><p>You can also include extra files (like screenshots, file for voting and nfo file) by describing them in the comments field.</p><p>You will receive an e-mail confirmation of your prod\'s approval after it is verified by the organizers.</p>',
 	'works upload success label' => 'Prod uploaded successfully.',
-	'works upload success message' => 'Prod stored successfully. You will receive an e-mail confirmation of your prod\'s approval status after it is verified by the organizers.',
+	'works upload success message' => 'Prod stored successfully. You will receive an e-mail confirmation of your prod`s approval status after it is verified by the organizers.',
 	'works status desc' => array(
 		0 => 'Not checked yet',
 		1 => 'Verified',
 		2 => 'Disqualified',
 		3 => 'Feedback needed',
-		4 => 'Out of compo'
+		4 => 'Out of compo',
+		5 => 'Wait preselection',				
 	),
 	'works status desc full' => array(
 		0 => 'The work is being processed by the organizing committee.',
 		1 => 'The work is accepted.',
 		2 => 'Work is disqualified.',
 		3 => 'Awaiting author\'s feedback.',
-		4 => 'Prod will not be shown on the demoparty, but will be included in the release pack.'
+		4 => 'Prod will not be shown on the demoparty, but will be included in the release pack.',
+		5 => 'Prod wait to preselect.'
 	),
 
 	'works details' => 'Prods',

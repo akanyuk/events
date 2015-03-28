@@ -12,6 +12,14 @@ $config = array (
 	'meta_description' => 'Demoscene events',
 	'meta_keywords' => 'Demoscene, демосцена, демопати, ZX-Spectrum',
 	
+	// Language stuffs
+	'default_language' => 'English',
+	'available_languages' => array('Russian', 'English'),
+	'set_language_by_cookie' => true,		# Разрешить смену языка через значение COOKIE
+	'set_language_by_get' => true,			# Разрешить смену языка через GET-запрос
+	'set_language_by_geoip' => true,		# Разрешить поиск подходящего языка через GeoIP
+	'update_profile_language' => true,		# Обновлять язык в профиле пользователя одновременно с GET-запросом
+		
 	'db' => array (
 		'type' => 'mysql',
 		'host' => 'localhost',

@@ -22,41 +22,18 @@ class NFW_EXTENDED extends NFW {
 			}
 		}
 	
-		// Try to load language from GET or COOKIE
-		if (isset($_GET['lang']) && in_array($_GET['lang'], array('Russian', 'English'))) {
-			$this->user['language'] = $stored_language = $_GET['lang'];
-			$this->setCookie('lang', $stored_language, time() + 60*60*24*30);
-			$_SERVER['REQUEST_URI'] = preg_replace('/(&?lang='.$_GET['lang'].')/', '', $_SERVER['REQUEST_URI']);
-			$_SERVER['REQUEST_URI'] = preg_replace('/(\?$)/', '', $_SERVER['REQUEST_URI']);
-			unset($_GET['lang']);
-		}
-		elseif (isset($_COOKIE['lang']) && in_array($_COOKIE['lang'], array('Russian', 'English'))) {
-			$this->user['language'] = $stored_language =  $_COOKIE['lang'];
-		}
-		else {
-			$stored_language = false;
-			$this->user['language'] = $this->default_user['language'];
-		}
-		$this->assign('lang_main', $this->getLang('main'));
-		$this->lang = $this->getLang('nfw_main');
-		
 		parent::__construct($init_cfg);
 		
-		// Reload language if cookies language != user language
-		if ($this->user['is_guest'] && $stored_language && $this->user['language'] != $stored_language) {
-			$this->user['language'] = $stored_language;
-			$this->lang = $this->getLang('nfw_main', true);
-			$this->assign('lang_main', $this->getLang('main', true));
-		}
-		
-		// This user is manager of next events...
+		// This user is manager of following events...
 		$this->user['manager_of_events'] = array();
-		$query = NFW::i()->checkPermissions('events', 'update_managers') ? array('SELECT' => 'id AS event_id', 'FROM' => 'events') : array('SELECT' => 'event_id', 'FROM' => 'events_managers', 'WHERE' => 'user_id='.$this->user['id']);
-		if (!$result = NFW::i()->db->query_build($query)) {
-			$this->stop('Unable to fetch managed events');
-		}
-		while ($a = NFW::i()->db->fetch_assoc($result)) {
-			$this->user['manager_of_events'][] = $a['event_id'];
+		if (!$this->user['is_guest']) {
+			$query = NFW::i()->checkPermissions('events', 'update_managers') ? array('SELECT' => 'id AS event_id', 'FROM' => 'events') : array('SELECT' => 'event_id', 'FROM' => 'events_managers', 'WHERE' => 'user_id='.$this->user['id']);
+			if (!$result = NFW::i()->db->query_build($query)) {
+				$this->stop('Unable to fetch managed events');
+			}
+			while ($a = NFW::i()->db->fetch_assoc($result)) {
+				$this->user['manager_of_events'][] = $a['event_id'];
+			}
 		}
 	}
 		
@@ -162,64 +139,6 @@ class NFW_EXTENDED extends NFW {
 		}
 		
 		return false;
-	}
-		
-	// Authenificate user if possible via activeForm
-	function login($action = '') {
-		$classname = (isset(NFW::i()->cfg['module_map']['users'])) ? NFW::i()->cfg['module_map']['users'] : 'users';
-		$CUsers = new $classname ();
-	
-		// Logout action
-		if ($action == 'logout' || isset($_GET['action']) && $_GET['action'] == 'logout') {
-			$CUsers->cookie_logout();
-	
-			// Делаем редирект, чтобы куки прижились
-			// Send no-cache headers
-			header('Expires: Thu, 21 Jul 1977 07:30:00 GMT');	// When yours truly first set eyes on this world! :)
-			header('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT');
-			header('Cache-Control: post-check=0, pre-check=0', false);
-			header('Pragma: no-cache');		// For HTTP/1.0 compability
-			header('Content-type: text/html; charset=utf-8');
-			NFW::i()->stop('<html><head><meta http-equiv="refresh" content="0;URL='.$this->absolute_path.'" /></head><body></body></html>');
-		}
-			
-		// Login form action
-		if ($action == 'form' || isset($_GET['action']) && $_GET['action'] == 'login') {
-			$this->display('login.tpl');
-		}
-			
-		// Authentificate send
-		if (isset($_POST['login']) && isset($_POST['username']) && isset($_POST['password'])) {
-			$form_username = trim($_POST['username']);
-			$form_password = trim($_POST['password']);
-			unset($_POST['login'], $_POST['username'], $_POST['password']);
-	
-			if (!$account = $CUsers->authentificate($form_username, $form_password)) {
-				if (isset($_COOKIE['lang']) && in_array($_COOKIE['lang'], array('Russian', 'English')) && $_COOKIE['lang'] != $this->user['language']) {
-					$this->user['language'] = $_COOKIE['lang'];
-					// Reload lang file
-					$this->lang = $this->getLang('nfw_main', true);
-				}
-	
-				$this->renderJSON(array('result' => 'error', 'message' => $this->lang['Errors']['Wrong_auth']));
-			}
-	
-			$this->user = $account;
-			$this->user['is_guest'] = false;
-	
-			$CUsers->cookie_update($this->user);
-			logs::write(logs::KIND_LOGIN);
-			
-			$this->renderJSON(array('result' => 'succes'));
-		}
-	
-		// Cookie login
-		if ($account = $CUsers->cookie_login()) {
-			$this->user = $account;
-			$this->user['is_guest'] = false;
-		}
-	
-		return;
 	}
 		
 	function renderNews($options = array()) {

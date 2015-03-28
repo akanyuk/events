@@ -28,25 +28,25 @@ class view_logs extends logs {
 	 * Get array with logs
 	 *
 	 * @param array	  $options 		Options array:
-	 * 								'filter'			// Filter array
-	 * 									'kind'			// Logs with one kind or kind's array
-	 * 									'posted_from'	// From timestamp
-	 * 									'posted_to'		// To timestamp
-	 * 									'poster'		// User ID or array with ID's
-	 * 									'message'		// Logs message
-	 * 									'kind'			// Logs kind
-	 * 									'IP'			// Poster IP
-	 * 								'free_filter'		// Неполное совпадение с фильтром прои поиске
-	 * 									'IP'			// Poster IP
-	 * 								'limit'				// SQL LIMIT
-	 * 								'offset'			// SQL OFFSET
-	 * 								'sort_reverse'		// Reverse sorting
+	 * 								'filter'		// Filter array
+	 * 								'kind'			// Logs with one kind or kind's array
+	 * 								'posted_from'	// From timestamp
+	 * 								'posted_to'		// To timestamp
+	 * 								'poster'		// User ID or array with ID's
+	 * 								'message'		// Logs message
+	 * 								'kind'			// Logs kind
+	 * 								'IP'			// Poster IP
+	 * 								'free_filter'	// Неполное совпадение с фильтром прои поиске
+	 * 								'IP'			// Poster IP
+	 * 								'limit'			// SQL LIMIT
+	 * 								'offset'		// SQL OFFSET
+	 * 								'sort_reverse'	// Reverse sorting
 	 *
 	 * @return array(
 	 * 			logs,				// Array with items
 	 * 		   )
 	 */
-	public static function get($options = array()) {
+	private function fetch($options = array()) {
 		$filter = (isset($options['filter'])) ? $options['filter'] : array();
 	
 		// Setup WHERE from filter
@@ -127,14 +127,15 @@ class view_logs extends logs {
 		if (!NFW::i()->db->num_rows($result)) return false;
 	
 		while ($l = NFW::i()->db->fetch_assoc($result)) {
+			$l['browser'] = self::get_browser();
 			$logs[] = $l;
 		}
 	
 		return array($logs, $num_filtered);
 	}
 		
-	public function getRecords($options = array()) {
-		if (!$result = self::get($options)) return false;
+	private function getRecords($options = array()) {
+		if (!$result = $this->fetch($options)) return false;
 		list($logs, $num_filtered) = $result;
 		
 		$parent_attributes = (isset($options['additional_attributes'])) ? $options['additional_attributes'] : array(); 

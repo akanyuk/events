@@ -11,11 +11,12 @@ class works extends active_record {
 	var $attributes = array(
 		'competition_id' => array('type' => 'select', 'desc' => 'Competition', 'required' => true, 'options' => array()),
 		'status' => array('type' => 'select', 'desc' => 'Status', 'options' => array(
-			0 => array('id' => 0, 'voting' => false, 'release' => false, 'label-class' => 'label-default'),	// Unchecked
-			1 => array('id' => 1, 'voting' =>  true, 'release' =>  true, 'label-class' => 'label-success'),	// Checked
-			2 => array('id' => 2, 'voting' => false, 'release' => false, 'label-class' => 'label-danger'),	// Disqualified
-			3 => array('id' => 3, 'voting' => false, 'release' => false, 'label-class' => 'label-warning'),	// Feedback needed
-			4 => array('id' => 4, 'voting' => false, 'release' =>  true, 'label-class' => 'label-danger'),	// Out of competition
+			0 => array('id' => 0, 'voting' => false, 'release' => false, 'label-class' => 'label-default', 'icon' => 'glyphicon-question-sign'),	// Unchecked
+			1 => array('id' => 1, 'voting' =>  true, 'release' =>  true, 'label-class' => 'label-success', 'icon' => 'glyphicon-ok'),				// Checked
+			2 => array('id' => 2, 'voting' => false, 'release' => false, 'label-class' => 'label-danger', 'icon' => 'glyphicon-ban-circle'),		// Disqualified
+			3 => array('id' => 3, 'voting' => false, 'release' => false, 'label-class' => 'label-warning', 'icon' => 'glyphicon-question-sign'),	// Feedback needed
+			4 => array('id' => 4, 'voting' => false, 'release' =>  true, 'label-class' => 'label-danger', 'icon' => 'glyphicon-exclamation-sign'),	// Out of competition
+			5 => array('id' => 5, 'voting' => false, 'release' =>  true, 'label-class' => 'label-info', 'icon' => 'glyphicon-hourglass'),			// Wait preselect		
 		)),
 		'pos' => array('type' => 'int', 'desc' => 'Position'),
 		'title' => array('type' => 'str', 'desc' => 'Title', 'required' => true, 'maxlength' => 200),
@@ -484,8 +485,11 @@ class works extends active_record {
     }
         
 	function actionInsert() {
-		$this->error_report_type = (empty($_POST)) ? 'alert' : 'active_form';
+		$this->error_report_type = empty($_POST) ? 'alert' : 'active_form';
 
+		// Author not required in admin
+		$this->attributes['author']['required'] = false;
+		
 		$CEvents = new events(isset($_GET['event_id']) ? $_GET['event_id'] : null);
 		if (!$CEvents->record['id']) {
 			$this->error('Unable to search event', __FILE__, __LINE__);
@@ -549,6 +553,9 @@ class works extends active_record {
 		$this->error_report_type = empty($_POST) ? 'default' : 'active_form';
 
 		if (!$this->load($_GET['record_id'])) return false;
+
+		// Author not required in admin
+		$this->attributes['author']['required'] = false;
 		
 		// Load competitions
 		$Competitions = new competitions();
