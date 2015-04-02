@@ -1,7 +1,7 @@
 <?php 
 NFW::i()->registerResource('jquery.activeForm');
 NFW::i()->registerResource('ckeditor');
-NFW::i()->registerFunction('ui_message');
+NFW::i()->registerResource('jquery.jgrowl');
 ?>
 <script type="text/javascript">
 $(document).ready(function(){
@@ -15,7 +15,7 @@ $(document).ready(function(){
  				$('input[name="local_file"]').closest('form').trigger('save-comments');
  				
  	 			if (response.is_updated) {
- 	 				$(document).trigger('uiDialog', 'Изменения сохранены');
+ 	 				$.jGrowl('Changes sucesfully saved.');
  	 			}
  			}
  		});
@@ -38,7 +38,7 @@ $(document).ready(function(){
 
 		$.post('<?php echo $Module->formatURL('delete')?>', { record_id: '<?php echo $Module->record['id']?>' }, function(response){
 			if (response) {
-				$(document).trigger('uiDialog', [ response, { state: 'error' }]);
+				alert(response);
 				return false;
 			}
 			else {

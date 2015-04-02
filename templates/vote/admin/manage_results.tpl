@@ -9,7 +9,7 @@ $(document).ready(function(){
 			'event_id': $('select[id="results-filter-event"]').val(),
 			'votekey': $('select[id="results-filter-votekey"]').val()
 		}, function(response){
-			$(document).trigger('uiDialog', response);
+			$.jGrowl(response);
 		});
 	});
 

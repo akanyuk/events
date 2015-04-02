@@ -14,7 +14,7 @@ $(document).ready(function(){
 	$(document).on('click', 'button[id="works-update-pos"]', function(){
 		$.post('<?php echo $Module->formatURL('update')?>&part=update_pos', oTable.find('input[rel="pos"]').serialize(), function(response){
 			if (response != 'success') {
-				$(document).trigger('uiDialog', [ response, { state: 'error' }]);
+				alert(response);
 				return false;
 			}
 			

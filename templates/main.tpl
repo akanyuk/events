@@ -9,6 +9,8 @@ if (!defined('NFW_DEBUG') && defined('BROWSCAP_CACHE')) {
 	}
 }
 
+NFW::i()->registerResource('main');
+
 if (NFW::i()->user['is_guest']) {
 	NFW::i()->registerResource('jquery.activeForm');
 }

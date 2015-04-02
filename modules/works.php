@@ -357,7 +357,7 @@ class works extends active_record {
    	// Просмотр автором работ из ЛК    
     function cabinetList() {
     	list($records) = $this->getRecords(array(
-    		'filter' => array('posted_by' => NFW::i()->user['id']),
+    		'filter' => array('posted_by' => NFW::i()->user['id'], 'allow_hidden' => true),
     		'ORDER BY' => 'e.date_from DESC, c.pos, w.pos'
     	));
     	 
@@ -438,7 +438,7 @@ class works extends active_record {
     	if (!isset($_GET['part']) || $_GET['part'] != 'list.js') {
     		$CEvents = new events();
     		return $this->renderAction(array(
-    			'events' => $CEvents->getRecords(array('filter' => array('managed' => true))) 
+    			'events' => $CEvents->getRecords(array('filter' => array('managed' => true, 'allow_hidden' => true))) 
     		));
     	}
     	

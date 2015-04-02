@@ -1,5 +1,6 @@
 <?php
 NFW::i()->registerResource('jquery.activeForm');
+NFW::i()->registerResource('jquery.jgrowl');
 
 // Fetch all users
 $users_search = array();
@@ -35,7 +36,7 @@ $(document).ready(function(){
 	var emF = $('form[id="event-managers"]');
 	emF.activeForm({
 		success: function(response) {
-			$(document).trigger('uiDialog', 'Event managers updated.');
+			$.jGrowl('Event managers updated.');
 		}
 	});
 

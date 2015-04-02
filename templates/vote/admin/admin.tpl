@@ -1,6 +1,7 @@
 <?php 
 	NFW::i()->registerResource('dataTables');
 	NFW::i()->registerResource('jquery.activeForm');
+	NFW::i()->registerResource('jquery.jgrowl');
 ?>
 <script type="text/javascript">
 $(document).ready(function(){

@@ -1,6 +1,7 @@
 <?php
 NFW::i()->registerResource('jquery.uniform'); 
 NFW::i()->registerResource('dataTables');
+NFW::i()->registerResource('jquery.jgrowl');
 ?>
 <script type="text/javascript">
 $(document).ready(function(){
@@ -13,7 +14,7 @@ $(document).ready(function(){
 	$(document).on('click', 'button[id="competitions-update-pos"]', function(){
 		$.post('<?php echo $Module->formatURL('update')?>&part=update_pos', oTable.find('input[rel="pos"]').serialize(), function(response){
 			if (response != 'success') {
-				$(document).trigger('uiDialog', [ response, { state: 'error' }]);
+				alert(response);
 				return false;
 			}
 			

@@ -1,4 +1,5 @@
 <?php
+	NFW::i()->registerFunction('ui_message');
 	$lang_media = NFW::i()->getLang('media');
 ?>
 <script type="text/javascript">
@@ -83,7 +84,7 @@ $(document).ready(function(){
 	// Save setting
 	$('button[id="media-manage-save"]').click(function(){
 		$.post('<?php echo NFW::i()->base_path.'admin/works?action=media_manage&record_id='.$owner_id?>', form.serialize(), function(response){
-			$(document).trigger('uiDialog', response.message);
+			$.jGrowl(response.message);
 		}, 'json');
 	});
 });

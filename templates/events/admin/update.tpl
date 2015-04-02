@@ -1,8 +1,9 @@
 <?php
 NFW::i()->registerResource('jquery.activeForm');
 NFW::i()->registerResource('ckeditor');
-NFW::i()->registerFunction('ui_message');
+NFW::i()->registerResource('jquery.jgrowl');
 NFW::i()->registerResource('jquery.cookie');
+NFW::i()->registerFunction('ui_message');
 
 if (isset($_COOKIE['layout_type'])) $layout_type = $_COOKIE['layout_type']; else $layout_type="";
 if (isset($_COOKIE['layout_platform_show'])) $platform = json_decode($_COOKIE['layout_platform_show']); else $platform = array();
@@ -38,7 +39,7 @@ $(document).ready(function(){
  			success: function(response) {
 
  	 			if (response.is_updated) {
- 	 				$(document).trigger('uiDialog', 'Saved.');
+ 	 				$.jGrowl('Event profile updated.');
  	 			}
  			}
  		});
@@ -81,7 +82,7 @@ $(document).ready(function(){
  	 		action: '<?php echo $Module->formatURL('update').'&record_id='.$Module->record['id']?>',
  			success: function(response) {
  	 			if (response.is_updated) {
- 	 				$(document).trigger('uiDialog', 'Saved.');
+ 	 				$.jGrowl('Event profile updated.');
  	 			}
  			}
 

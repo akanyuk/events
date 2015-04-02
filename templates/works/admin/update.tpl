@@ -2,7 +2,7 @@
 NFW::i()->registerResource('jquery.activeForm');
 NFW::i()->registerResource('jquery.cookie');
 NFW::i()->registerResource('colorbox');
-NFW::i()->registerFunction('ui_message');
+NFW::i()->registerResource('jquery.jgrowl');
 ?>
 <script type="text/javascript">
 $(document).ready(function(){
@@ -12,7 +12,7 @@ $(document).ready(function(){
 
 		$.post('<?php echo $Module->formatURL('delete')?>', { record_id: '<?php echo $Module->record['id']?>' }, function(response){
 			if (response != 'success') {
-				$(document).trigger('uiDialog', [ response, { state: 'error' }]);
+				alert(response);
 				return false;
 			}
 			else {
@@ -25,7 +25,7 @@ $(document).ready(function(){
 	wuF.activeForm({
 		success: function(response) {
  			if (response.is_updated) {
- 				$(document).trigger('uiDialog', 'Saved.');
+ 				$.jGrowl('Work profile updated.');
  			}
 		}
 	});
@@ -52,7 +52,7 @@ $(document).ready(function(){
 				$(document).trigger('uiDialog', '<a href="' + response.url + '">' + response.url + '</a>');
 			}
 			else {
-				$(document).trigger('uiDialog', [ response.errors.general, { state: 'error' }]);
+				alert(response.errors.general);
 			}
 		},'json');
 	});
@@ -107,8 +107,6 @@ $(document).ready(function(){
 		echo '<strong>country:</strong> '.($Module->record['poster_country'] ? htmlspecialchars($Module->record['poster_country']) : '-').'<br />';
 		echo '<strong>city:</strong> '.($Module->record['poster_city'] ? htmlspecialchars($Module->record['poster_city']) : '-').'<br />';
 		echo $Module->record['description'] ? '<br /><strong>Author\'s comment:</strong><br />'.htmlspecialchars($Module->record['description']) : '';
-		
-		//echo ui_message(array('text' => ob_get_clean()));
 		echo ob_get_clean();
 	?>
 				</fieldset>

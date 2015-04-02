@@ -1,7 +1,7 @@
 <?php
 	NFW::i()->registerResource('jquery.activeForm');
 
-	require_once(PROJECT_ROOT.'include/helpers/SxGeo/SxGeo.php');
+	require_once(NFW_ROOT.'helpers/SxGeo/SxGeo.php');
 	$SxGeo = new SxGeo(PROJECT_ROOT.'var/SxGeoCity.dat');
 	if ($geo = $SxGeo->getCityFull($_SERVER['REMOTE_ADDR'])) {
 		$default_country = $geo['country']['iso'];
