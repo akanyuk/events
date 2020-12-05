@@ -7,7 +7,7 @@ $upcoming = $current = $past = array();
 foreach ($CEvents->getRecords(array('limit' => 5, 'load_media' => true)) as $record) {
 	switch ($record['status_type']) {
 		case 'upcoming':
-			$upcoming[] = $record;
+            array_unshift($upcoming, $record);
 			break;
 		case 'current':
 			$current[] = $record;
