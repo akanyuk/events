@@ -1,43 +1,79 @@
 <?php
-NFW::i()->registerResource('jquery.activeForm');
-NFW::i()->registerResource('ckeditor');
-NFW::i()->registerResource('jquery.jgrowl');
-NFW::i()->registerResource('jquery.cookie');
-NFW::i()->registerFunction('ui_message');
+/**
+ * @var $Module object
+ */
 
-if (isset($_COOKIE['layout_type'])) $layout_type = $_COOKIE['layout_type']; else $layout_type="";
-if (isset($_COOKIE['layout_platform_show'])) $platform = json_decode($_COOKIE['layout_platform_show']); else $platform = array();
-
-foreach ($Module->options_attributes as $key=>&$a) {
-	$a['style'] = isset($a['style']) ? $a['style'] : 'width: '.(isset($a['width']) ? $a['width'] : '300px;');
+// Custom rendering: votelist, results.txt, etc...
+$custom_render = isset($_REQUEST['force-render']) ?  'update.'.$_REQUEST['force-render'] : false;
+if ($custom_render && file_exists(PROJECT_ROOT.'include/templates/events/admin/'.$custom_render.'.tpl')) {
+	NFW::i()->stop($Module->renderAction(array('request' => $_REQUEST), $custom_render));
 }
-unset($a);
+
+NFW::i()->assign('page_title', $Module->record['title'].' / edit');
+
+NFW::i()->registerResource('jquery.activeForm');
+NFW::i()->registerResource('jquery.jgrowl');
+NFW::i()->registerResource('ckeditor');
+NFW::i()->registerResource('colorbox');
+NFW::i()->registerResource('jquery.ui.interactions');
+
+active_field('set_defaults', array('labelCols' => '2', 'inputCols' => '10'));
+
+// Preload competitions array
+$CCompetitions = new competitions();
+$competitions = $CCompetitions->getRecords(array('filter' => array('event_id' => $Module->record['id'])));
+
+
+// Generate breadcrumbs
+
+NFW::i()->breadcrumb = array(
+	array('url' => 'admin/events', 'desc' => 'Events'),
+	array('desc' => $Module->record['title'])
+);
+
+$hint = 'Posted: '.date('d.m.Y H:i', $Module->record['posted']).' ('.$Module->record['posted_username'].')';
+if ($Module->record['edited']) {
+	$hint .= "<br />".'Updated: '.date('d.m.Y H:i', $Module->record['edited']).' ('.$Module->record['edited_username'].')';
+}
+NFW::i()->breadcrumb_status = '<div class="text-muted" style="font-size: 80%;">'.$hint.'</div>';
+
+
+// Logotype form
+
+$CMedia = new media();
+
+$preview_form = $CMedia->openSession(array(
+	'owner_class' => 'events_preview',
+	'owner_id' => $Module->record['id'],
+	'single_upload' => true,
+	'images_only' => true,
+	'template' => '_admin_events_preview_form',
+	'preview_default' => NFW::i()->assets('main/news-no-image.png'),
+	'preview' => $Module->record['preview'] ? $Module->record['preview'] : array('id' => false, 'url' => false),
+));
+
+$preview_large_form = $CMedia->openSession(array(
+	'owner_class' => 'events_preview_large',
+	'owner_id' => $Module->record['id'],
+	'single_upload' => true,
+	'images_only' => true,
+	'template' => '_admin_events_preview_form',
+	'preview_default' => NFW::i()->assets('main/news-no-image.png'),
+	'preview' => $Module->record['preview_large'] ? $Module->record['preview_large'] : array('id' => false, 'url' => false),
+));
+
+// Success dialog
+NFW::i()->registerFunction('ui_dialog');
+$succes_dialog = new ui_dialog();
+$succes_dialog->render();
 ?>
 <script type="text/javascript">
 $(document).ready(function(){
-	// Votelist
-	$('form[id="votelist"]').find('input[type="checkbox"], input[rel="uniform"]').uniform();
-	$('input[rel="emptyrows"]').spinner({ min: 0, max: 20 });
-
-	// Make `results.txt`, works pack
-	$('form[id="make"]').activeForm({
-		success: function(response) {
-
-
-			if (response.reload == 'reload') { window.location.reload();; }
-			else $(document).trigger('uiDialog', '<a href="' + response.url + '">' + response.url + '</a>');
-		}
-	});
-
 	// Main action
- 	$('form[rel="events-update"]').each(function(){
+ 	$('form[role="events-update"]').each(function(){
  		$(this).activeForm({
- 	 		beforeSubmit: function(){
- 	 			$('div[id="events-update-media"]').find('form').trigger('save-comments');
- 	 	 	},
  	 		action: '<?php echo $Module->formatURL('update').'&record_id='.$Module->record['id']?>',
  			success: function(response) {
-
  	 			if (response.is_updated) {
  	 				$.jGrowl('Event profile updated.');
  	 			}
@@ -45,419 +81,340 @@ $(document).ready(function(){
  		});
 	});
 
-	$('button[id="events-save"]').click(function(){
-		$(this).closest('div[rel="tab-container"]').find('form[rel="events-update"]').submit();
-	});
-
 	// Visual edit
 	$('textarea[name="content"]').CKEDIT({ 'media': 'events', 'media_owner': '<?php echo $Module->record['id']?>' });
-
-
-	<?php /*$('div[id="events-update-tabs"]').tabs().show();*/ ?>
-
-	$('div[id="events-update-tabs"]').tabs({
-		active: $.cookie('events-update-activetab'),
-		activate: function(event, ui){
-		$.cookie('events-update-activetab', ui.newTab.index(), {
-			expires : 30
-		});
-	}
-	}).show();
-
-
-    // Action 'update'
- 	var f = $('form[id="eventz-update-<?php echo $Module->record['id']?>"]')
- 	f.activeForm({
- 	 	beforeSubmit: function() {
- 	 	 	var isSuccess = true;
- 	 		f.find('div[id="values-area"]').find('input').removeClass('error');
- 	 	 	$.each(f.find('div[id="values-area"]').find('input[req="required"]'), function(i,o) {
- 	 	 	 	if ($(this).val()) return;
-
- 	 	 	 	$(this).addClass('error');
- 	 	 	 	isSuccess = false;
- 	 	 	});
- 	 	 	return isSuccess;
- 	 	},
- 	 		action: '<?php echo $Module->formatURL('update').'&record_id='.$Module->record['id']?>',
- 			success: function(response) {
- 	 			if (response.is_updated) {
- 	 				$.jGrowl('Event profile updated.');
- 	 			}
- 			}
-
-
+	
+    // Voting settings
+ 	var sF = $('form[id="voting-settings-update"]');
+ 	 sF.activeForm({
+ 		success: function(response) {
+ 	 		if (response.is_updated) {
+ 	 			$.jGrowl('Voting settings updated.');
+ 	 		}
+ 		}
 	});
 
  	// Sortable `values`
- 	f.find('div[id="values-area"]').sortable({
-		items: 'div[id="record"]',
- 		axis: 'y',
- 	 	handle: '.icon'
-	});
+ 	sF.find('div[id="values-area"]').sortable({ items: 'div[id="record"]', axis: 'y', handle: '.icon' });
 
-
-
-
- 	//$(document).off('click', f.find('*[rel="remove-values-record"]')).on('click', f.find('*[rel="remove-values-record"]'), function(){
-
- 	$(document).on('click', '*[rel="remove-values-record"]', function(){
-
- 	 	if ($(this).closest('div[id="record"]').attr('rel') == 'update') {
-
- 	 		if (!confirm('Удалить параметр?')) return false;
+ 	$(document).off('click', '*[data-action="remove-values-record"]').on('click', '*[data-action="remove-values-record"]', function(event){
+ 	 	if ($(this).closest('div[id="record"]').data('role') == 'update') {
+ 	 		if (!confirm('Remove value')) {
+ 	 			event.preventDefault();
+ 	 	 		return false;
+ 	 		}
  	 	}
 
  	 	$(this).closest('div[id="record"]').remove();
 	});
 
- 	f.find('button[id="add-values-record"]').click(function(){
- 	 	var tpl = $('div[id="values-record-template-<?php echo $Module->record['id']?>"]').html();
- 	 	f.find('div[id="values-area"]').append(tpl);
- 	 	f.find('input, select').uniform();
-
+ 	sF.find('button[id="add-values-record"]').click(function(){
+ 	 	var tpl = $('div[id="voting-settings-record-template"]').html();
+ 	 	sF.find('div[id="values-area"]').append(tpl);
  	 	return false;
 	});
+ 	
 
-	$(document).trigger('refresh');
+	// Votelist
+	$('a[role="toogle-votelist-col"]').attr('title', 'Toggle all').click(function(){
+		var tbody = $(this).closest('table').find('tbody');
+		var index = $(this).closest('th').index();
 
+		// Determine new state
+		var newState = false;
+		tbody.find('tr').each(function(){
+			if ($(this).find('td').eq(index).find('input[type="checkbox"]:not(:checked)').length) {
+				newState = true;
+				return;
+			}
+		});
+
+		// Set new state
+		tbody.find('tr').each(function(){
+			$(this).find('td').eq(index).find('input[type="checkbox"]').prop('checked', newState);
+		});
+
+		return false;
+	});
+
+	
+	// Make `results.txt`, works pack
+	
+	$('[role="builders-toggle-competitions"]').attr('title', 'Toggle all').click(function(){
+		var oContainer = $(this).closest('#competitions-conatiner');
+		var newState = oContainer.find('input[type="checkbox"]:not(:checked)').length ? true : false;
+
+		oContainer.find('input[type="checkbox"]').prop('checked', newState);
+		return false;
+		
+	});
+
+	// Refresh result.txt
+	$('a[role="result.txt-layout"]').click(function(){
+		$('a[role="result.txt-layout"]').removeClass('active');
+		$(this).addClass('active');	
+
+		var layout = $(this).text();
+		
+		var platform = [];
+		$('input[role="result.txt-platform"]:checked').each(function(){
+			platform.push($(this).val());
+		});
+
+		$.post('<?php echo $Module->formatURL('update').'&record_id='.$Module->record['id'].'&force-render=results.txt'?>', { 'layout': layout, 'platform': platform }, function(response){
+			$('textarea[name="results_txt"]').val(response);
+		});
+		
+		return false;
+	});
+	
+	$('form[id="make"]').activeForm({
+		success: function(response) {
+			$(document).trigger('show-<?php echo $succes_dialog->getID()?>', [ '<a href="' + response.url + '">' + response.url + '</a>' ]);
+		}
+	});
 });
+
 </script>
 
 <style>
-	.eventz {	display: table;	}
-	.eventz .record, .eventz .header { display:table-row; }
-	.eventz .record:nth-child(even) { background-color: #E2E4FF; }
-	.eventz .cell { display:table-cell; padding: 5px 2px; }
-	.eventz .cell:nth-child(1) { padding-left: 5px; }
-	.eventz .header .cell { font-size: 90%; font-weight: bold; }
+	FORM#make TEXTAREA { font-family: Consolas, Lucida Console, Courier New, monospace; font-size: 10.5px; color: #444; height: 500px; }
 </style>
-
-
-<div id="events-update-tabs" style="display: none;">
-	<div style="float: right; padding-right: 1em; padding-top: 0.2em;">
-		<p style="font-size: 85%; text-align: right;">Posted: <?php echo date('d.m.Y H:i:s', $Module->record['posted']).' ('.$Module->record['posted_username'].')'?></p>
-		<?php if ($Module->record['edited']): ?>
-			<p style="font-size: 85%; text-align: right;">Updated: <?php echo date('d.m.Y H:i:s', $Module->record['edited']).' ('.$Module->record['edited_username'].')'?></p>
-		<?php endif; ?>
-	</div>
-
-	<ul>
-		<li><a href="#tabs-1">Settings</a></li>
-		<li><a href="#tabs-2">Description</a></li>
-  	    <li><a href="#tabs-5">Vote Options</a></li>
-		<li><a href="#tabs-4">Votelist</a></li>
-		<li><a href="#tabs-3">Builders</a></li>
-
-		<?php if (NFW::i()->checkPermissions('events', 'update_managers')): ?>
-			<li><a href="<?php echo $Module->formatURL('update_managers').'&record_id='.$Module->record['id']?>">Managers</a></li>
-		<?php endif; ?>
-	</ul>
-
-
-    <div id="tabs-5" rel="tab-container">
-
-<div id="values-record-template-<?php echo $Module->record['id']?>" style="display: none;">
-	<div id="record" class="record" rel="insert">
-		<?php
-
-
-		foreach ($Module->options_attributes as $key=>$a) { ?>
-			<div class="cell"><input type="text" name="options[<?php echo $key?>][]" style="<?php echo $a['style']?>" placeholder="<?php echo $a['desc']?>" <?php echo isset($a['required']) && $a['required'] ? 'req="required"' : ''?> /></div>
-		<?php } ?>
-		<div class="cell"><span class="icon ui-icon ui-icon-arrowthick-2-n-s ui-state-disabled" title="Переместить"></span></div>
-		<div class="cell"><span rel="remove-values-record" class="ui-icon ui-icon-closethick ui-state-disabled" title="Удалить"></span></div>
-	</div>
-</div>
-
-<form id="eventz-update-<?php echo $Module->record['id']?>" action="<?php echo $Module->formatURL('update').'&record='.$Module->record['id']?>">
-	<input type="hidden" name="update_record_options" value="1" />
-	<div id="values-area" class="eventz">
-		<div class="header">
-			<?php foreach ($Module->options_attributes as $key=>$a) { ?>
-				<div class="cell"><?php echo $a['desc']?></div>
-			<?php } ?>
-		</div>
-		<?php foreach ($Module->record['options'] as $v) { ?>
-			<div id="record" class="record myClass" rel="update">
-				<?php foreach ($Module->options_attributes as $key=>$a) { ?>
-					<div class="cell"><input type="text" name="options[<?php echo $key?>][]" value="<?php echo $v[$key]?>" style="<?php echo $a['style']?>" placeholder="<?php echo $a['desc']?>" <?php echo isset($a['required']) && $a['required'] ? 'req="required"' : ''?> /></div>
-				<?php } ?>
-				<div class="cell"><span class="icon ui-icon ui-icon-arrowthick-2-n-s ui-state-disabled" title="Переместить"></span></div>
-				<div class="cell"><span rel="remove-values-record" class="ui-icon ui-icon-closethick ui-state-disabled" title="Удалить"></span></div>
-			</div>
-		<?php } ?>
-	</div>
-
-	<div style="padding-top: 0.5em;">
-		<button type="submit" name="form-send" class="nfw-button" icon="ui-icon-disk">Сохранить изменения</button>
-		<button id="add-values-record" class="nfw-button" icon="ui-icon-plus">Добавить параметр</button>
-	</div>
-</form>
-
-
-    </div>
-
-    <div id="tabs-1" rel="tab-container">
-		<form rel="events-update">
-			<?php echo active_field(array('name' => 'title', 'value' => $Module->record['title'], 'attributes'=>$Module->attributes['title'], 'width'=>"500px;"))?>
-			<?php echo active_field(array('name' => 'alias', 'value' => $Module->record['alias'], 'attributes'=>$Module->attributes['alias'], 'width'=>"200px;"))?>
-			<?php echo active_field(array('name' => 'date_from', 'value' => $Module->record['date_from'], 'attributes'=>$Module->attributes['date_from']))?>
-			<?php echo active_field(array('name' => 'date_to', 'value' => $Module->record['date_to'], 'attributes'=>$Module->attributes['date_to']))?>
-			<?php echo active_field(array('name' => 'announcement', 'value' => $Module->record['announcement'], 'attributes'=>$Module->attributes['announcement'], 'width'=>"500px;", 'height'=>"50px;"))?>
-			<?php echo active_field(array('name' => 'is_hidden', 'value' => $Module->record['is_hidden'], 'attributes'=>$Module->attributes['is_hidden']))?>
-		</form>
-		<div id="events-update-media" style="padding-top: 1em; padding-left: 105px;">
-<?php
-	$CMedia = new media();
-	echo $CMedia->openSession(array('owner_class' => get_class($Module), 'owner_id' => $Module->record['id'], 'safe_filenames' => true, 'force_rename' => true));
-?>
-
-			<div style="width: 400px; padding: 1em;">
-			<?php echo ui_message(array('text' => '	&#8226; Use comment <strong>announce</strong> for <strong>64x64pix</strong> logo in events list.'));?>
-			</div>
-
-			<button id="events-save" class="nfw-button" icon="ui-icon-disk">Save changes</button>
-		</div>
-    </div>
-    <div id="tabs-2" rel="tab-container">
-		<form rel="events-update">
-			<textarea name="content"><?php echo htmlspecialchars($Module->record['content'])?></textarea>
-		</form>
-    </div>
-    <div id="tabs-3">
-		<style>
-			FORM#make LABEL { text-align: left; width: auto; padding-right: 2px; padding-top: 7px; font-weight: bold; }
-			FORM#make .input-row { padding-left: 0; }
-			FORM#make TEXTAREA { font-family: Consolas, Lucida Console, Courier New, monospace; font-size: 10.5px; color: #444; margin-bottom: 1em; width: 500px; height: 400px; }
-			FORM#make .checker { padding-bottom: 0.5em; }
-			#results_filename .selector { top: 0px; }
-		</style>
-		<form id="make">
-			<input type="hidden" name="part" value="make" />
-
-			<fieldset class="section" style="float: left; margin-right: 1em;">
-				<legend>results.txt</legend>
-				<textarea name="results_txt">
-<?php
-
-//  ["num_votes"]=>
-//  string(2) "41"
-//  ["total_scores"]=>
-//  string(3) "346"
-//  ["average_vote"]=>
-//  string(4) "8.44"
-
-
-	// Get release works
-	$CWorks = new works();
-	list($release_works) = $CWorks->getRecords(array(
-		'filter' => array('release_only' => true, 'event_id' => $Module->record['id']),
-		'ORDER BY' => 'c.pos, w.status, w.place'
-	));
-
-
-	if ($result = NFW::i()->db->query_build(array('SELECT'	=> 'count(distinct(`votekey_id`)) as `total`,`event_id` ', 'FROM' => 'votes', 'GROUP BY' => 'event_id', 'WHERE' => '`votekey_id`> 0 and `event_id` = '.$Module->record['id']))) {
-		while ($record = NFW::i()->db->fetch_assoc($result)) {
-			$totalvotes = $record["total"];
-		}
-	}
-	else $totalvotes = 0;
-
-
-	if ($result = NFW::i()->db->query_build(array('SELECT'	=> 'count(distinct(`username`)) as `total`,`event_id` ', 'FROM' => 'votes', 'GROUP BY' => 'event_id', 'WHERE' => '`votekey_id` = 0 and `event_id` = '.$Module->record['id']))) {
-		while ($record = NFW::i()->db->fetch_assoc($result)) {
-			$offline = $record["total"];
-		}
-	}
-	else $offline = 0;
-
-
-
-	if ($layout_type=="diver")
-	{
-
-		echo '   '.htmlspecialchars($Module->record['title'])."\n";
-		echo '   '.date('d.m.Y', $Module->record['date_from']).'-'.date('d.m.Y', $Module->record['date_to'])."\n";
-		echo "\n";
-		echo '   '.'Official results'."\n";
-		echo "\n";
-
-		$header =  " # title                                                      vts pts  avg";
-		$cur_competition = false;
-		foreach ($release_works as $w) {
-			if ($cur_competition != $w['competition_id']) {
-				$cur_competition = $w['competition_id'];
-				echo "\n";
-				echo '   '.($w['competition_title']).str_repeat(' ',80-3 - mb_strlen(($w['competition_title']),'UTF-8'))."\n";
-				echo "\n";
-				echo $header."\n"."\n";
-			}
-
-			$desc = $w['title'].($w['author'] ? ' by '.$w['author'] : '');
-			if (in_array($w['competition_id'],$platform)) $desc .= " [".($w["platform"])."]";
-
-			echo ($w['place'] ? sprintf("%2s", $w['place']).' ' : ' - ');
-			if (in_array($w['competition_id'],$platform)) $w['title'] = $w['title']." [".($w["platform"])."]";
-			echo ($w['title']).str_repeat(' ',35 - mb_strlen(($w['title']),'UTF-8'));
-
-			if (mb_strlen(($w['title']),'UTF-8')>35) echo "\n".str_repeat(' ',35+3);
-
-			echo ($w['author']).str_repeat(' ',30 - mb_strlen(($w['author']),'UTF-8'));
-
-			if (mb_strlen(($w['author']),'UTF-8')>30) echo "\n".str_repeat(' ',35+3+30);
-
-			echo str_pad(($w['num_votes']),3," ",STR_PAD_LEFT)." ";
-			echo str_pad(($w['total_scores']),3," ",STR_PAD_LEFT)." ";
-
-			echo str_replace(".",",",$w['average_vote'])."\n";
-		}
-
-			echo "\n";
-			echo ($totalvotes+$offline)." voters: ";
-			if ($totalvotes) echo $totalvotes." online";
-			if ($totalvotes && $offline) echo  " + ";
-			if ($offline) echo $offline." at partyplace";
-			echo "\n";
-			echo "online party management system provided by nyuk";
-		}
-	else
-	{
-
-		echo htmlspecialchars($Module->record['title'])."\n";
-		echo date('d.m.Y', $Module->record['date_from']).'-'.date('d.m.Y', $Module->record['date_to'])."\n";
-		echo "\n";
-		echo 'Official results'."\n";
-		echo "\n";
-
-		$cur_competition = false;
-		foreach ($release_works as $w) {
-			if ($cur_competition != $w['competition_id']) {
-				$cur_competition = $w['competition_id'];
-				echo "\n";
-				echo '________'.htmlspecialchars($w['competition_title']).str_repeat('_',72 - mb_strlen(htmlspecialchars($w['competition_title']),'UTF-8'))."\n";
-				echo "\n";
-			}
-
-			$desc = $w['title'].($w['author'] ? ' by '.$w['author'] : '');
-			if (in_array($w['competition_id'],$platform)) $desc .= " [".($w["platform"])."]";
-
-			echo ($w['place'] ? sprintf("%2s", $w['place']).'. ' : ' - ').$desc.str_repeat(' ', 66 - mb_strlen($desc,'UTF-8')).str_pad(($w['total_scores']),3," ",STR_PAD_LEFT)." ".$w['average_vote']."\n";
-		}
-	}
-
-?>
-				</textarea>
-
-
-
-				<div id="results_filename" class="active-field">
-					<label for="results_filename"><strong>files/<?php echo $Module->record['alias']?>/</strong></label>
-					<div class="input-row">
-						<input type="text" value="results.txt" name="results_filename" maxlength="64" style="width: 120px" />
-						<button name="save_results" value="1" type="submit" class="nfw-button" icon="ui-icon-disk">Save</button>
-						<div id="filename" class="error-info" rel="error-info"></div>
-					</div>
-				</div>
-			</fieldset>
-
-			<fieldset class="section">
-				<legend>Results settings</legend>
-
-				<div id="results_filename" class="active-field">
-                <div>Выберите, для каких компо добавлять платформу:<br/><br/></div>
-<?php
-	$cur_competition = false;
-	foreach ($release_works as $w) {
-		if ($cur_competition != $w['competition_id']) {
-			$cur_competition = $w['competition_id'];
-			echo '<div><input name="layout_platform_show[]" value="'.$cur_competition.'" type="checkbox" ';
-			if (in_array($w['competition_id'],$platform)) echo 'checked="checked" ';
-			echo '/> '.htmlspecialchars($w['competition_title']).'</div>';
-		}
-	}
-
-?>
-					<label for="layout_type">Type of layout</label>
-					<div class="input-row">
-						<select name="layout_type" id="layout_type" class="form-control" style="width: 90px; top:0px;">
-							<?php
-							$layout_types = array("nyuk"=>"nyuk","diver"=>"diver");
-
-							 foreach ($layout_types as $i=>$d) echo '<option value="'.$i.'"'.($layout_type == $i ? ' selected="selected"' : '').'>'.$d.'</option>'; ?>
-						</select>
-						<button name="refresh_results" value="1" type="submit" class="nfw-button" icon="ui-icon-disk">Refresh</button>
-					</div>
-
-				</div>
-
-
-			</fieldset>
-
-              <br/>
-			<fieldset class="section">
-				<legend>Make works pack (zip-archive)</legend>
-
-<?php
-	$cur_competition = false;
-	foreach ($release_works as $w) {
-		if ($cur_competition != $w['competition_id']) {
-			$cur_competition = $w['competition_id'];
-			echo '<div><input name="competitions[]" value="'.$cur_competition.'" type="checkbox" checked="checked" /> '.htmlspecialchars($w['competition_title']).'</div>';
-		}
-	}
-?>
-				<hr />
-				<div><input name="attach_results_txt" type="checkbox" checked="checked" /> Attach `results.txt` into archive</div>
-				<div><input name="attach_media" type="checkbox" /> Attach Event's media files</div>
+<div class="row">
+	<div id="events-update-record=container" class="col-md-9">
 	
-				<div id="pack_filename" class="active-field">
-					<label for="pack_filename"><strong>files/<?php echo $Module->record['alias']?>/</strong></label>
-					<div class="input-row">
-						<input type="text" value="<?php echo $Module->record['alias'].'-pack.zip'?>" name="pack_filename" maxlength="64" style="width: 120px" />
-						<button name="save_pack" value="1" type="submit" class="nfw-button" icon="ui-icon-disk">Save</button>
-						<div id="filename" class="error-info" rel="error-info"></div>
+		<ul class="nav nav-tabs" role="tablist">
+			<li role="presentation" class="active"><a href="#settings" aria-controls="settings" role="tab" data-toggle="tab">Settings</a></li>
+			<li role="presentation"><a href="#description" aria-controls="description" role="tab" data-toggle="tab">Description</a></li>
+			<li role="presentation"><a href="#voting_settings" aria-controls="voting_settings" role="tab" data-toggle="tab">Voting settings</a></li>
+			<li role="presentation"><a href="#votelist" aria-controls="votelist" role="tab" data-toggle="tab">Votelist</a></li>
+			<li role="presentation"><a href="#builders" aria-controls="builders" role="tab" data-toggle="tab">Builders</a></li>
+			<?php if (NFW::i()->checkPermissions('events', 'manage')):?>
+			<li role="presentation"><a href="#manage" aria-controls="manage" role="tab" data-toggle="tab">Manage</a></li>
+			<?php endif; ?>
+		</ul>
+		
+		<div class="tab-content">
+			<?php if (NFW::i()->checkPermissions('events', 'manage')):?>
+			<div role="tabpanel" class="tab-pane" style="padding-top: 20px;" id="manage"><?php echo $Module->renderAction('_manage')?></div>
+			<?php endif; ?>
+		
+			<div role="tabpanel" class="tab-pane in active" style="padding-top: 20px;" id="settings">
+				<form role="events-update">
+					<?php echo active_field(array('name' => 'title', 'value' => $Module->record['title'], 'attributes'=>$Module->attributes['title'], 'inputCols' => '8'))?>
+					<?php echo active_field(array('name' => 'date_from', 'value' => $Module->record['date_from'], 'attributes'=>$Module->attributes['date_from'], 'endDate' => -365))?>
+					<?php echo active_field(array('name' => 'date_to', 'value' => $Module->record['date_to'], 'attributes'=>$Module->attributes['date_to'], 'endDate' => -365))?>
+					<?php echo active_field(array('name' => 'announcement', 'value' => $Module->record['announcement'], 'attributes'=>$Module->attributes['announcement'], 'height'=>'100px;'))?>
+					<?php echo active_field(array('name' => 'announcement_og', 'value' => $Module->record['announcement_og'], 'attributes'=>$Module->attributes['announcement_og']))?>
+					<?php echo active_field(array('name' => 'one_compo_event', 'value' => $Module->record['one_compo_event'], 'attributes'=>$Module->attributes['one_compo_event']))?>
+					<?php echo active_field(array('name' => 'hide_works_count', 'value' => $Module->record['hide_works_count'], 'attributes'=>$Module->attributes['hide_works_count']))?>
+					
+					<div class="form-group">
+						<div class="col-md-10 col-md-offset-2">
+							<button type="submit" class="btn btn-primary"><span class="fa fa-floppy-o"></span> <?php echo NFW::i()->lang['Save changes']?></button>
+						</div>
+					</div>
+				</form>
+				<hr />
+				<?php echo $CMedia->openSession(array('owner_class' => get_class($Module), 'owner_id' => $Module->record['id'])); ?>
+			</div>
+			
+			<div role="tabpanel" class="tab-pane" style="padding-top: 10px;" id="description">
+				<form role="events-update">
+					<textarea name="content"><?php echo htmlspecialchars($Module->record['content'])?></textarea>
+				</form>
+			</div>
+			
+			<div role="tabpanel" class="tab-pane" style="padding-top: 20px;" id="voting_settings">
+				<div id="voting-settings-record-template" style="display: none;">
+					<div id="record" class="record">
+						<div class="cell"><span class="icon glyphicon glyphicon-sort" title="Sort"></span></div>
+						<?php foreach ($Module->options_attributes as $key=>$a) { ?>
+							<div class="cell"><input type="text" class="form-control" name="options[<?php echo $key?>][]" style="<?php echo $a['style']?>" placeholder="<?php echo $a['desc']?>" <?php echo isset($a['required']) && $a['required'] ? 'required' : ''?> /></div>
+						<?php } ?>
+						<div class="cell"><button data-action="remove-values-record" class="btn btn-danger btn-xs" title="<?php echo NFW::i()->lang['Remove']?>"><span class="glyphicon glyphicon-remove"></span></button></div>
 					</div>
 				</div>
-			</fieldset>
-			<div style="clear: both;"></div>
-		</form>
-    </div>
-
-    <div id="tabs-4">
-		<form id="votelist" method="POST" class="active-form" target="_blank">
-			<input type="hidden" name="part" value="votelist" />
-<?php
-	echo active_field(array('name' => 'header1', 'desc' => 'Header 1', 'rel' => 'uniform', 'value' => $Module->record['title']));
-	echo active_field(array('name' => 'header2', 'desc' => 'Header 2', 'rel' => 'uniform', 'value' => date('d.m.Y', $Module->record['date_from']).'-'.date('d.m.Y', $Module->record['date_to'])));
-	echo active_field(array('name' => 'header3', 'desc' => 'Header 3', 'rel' => 'uniform', 'value' => 'Main compo votelist'));
-?>
-			<div class="input-row"><table class="main-table">
-				<tr>
-					<th>Include</th>
-					<th style="width: 280px;">Competition</th>
-					<th>Display works</th>
-					<th>Empty rows</th>
-				</tr>
-<?php
-	$CCompetitions = new competitions();
-	foreach ($CCompetitions->getRecords(array('filter' => array('event_id' => $Module->record['id']))) as $c) {
-		//echo active_field(array('name' => 'competitions['.$c['id'].']', 'value' => true, 'type' => 'checkbox', 'desc' => $c['title']));
-?>
-			<tr class="zebra">
-				<td><input type="checkbox" checked="CHECKED" name="competitions[]" value="<?php echo $c['id']?>" /></td>
-				<td><?php echo htmlspecialchars($c['title'])?></td>
-				<td><input type="checkbox" checked="CHECKED" name="display_works[]" value="<?php echo $c['id']?>" /></td>
-				<td><input rel="emptyrows" name="emptyrows[<?php echo $c['id']?>]" value="0" type="text" style="width: 15px;" maxlength="2" /></td>
-			</tr>
-<?php
-	}
-?>
-			</table></div>
-
-			<div class="input-row" style="padding-top: 1em;">
-				<button type="submit" class="nfw-button" icon="ui-icon-document">Generate votelist</button>
+		
+				<form id="voting-settings-update">
+					<input type="hidden" name="update_record_options" value="1" />
+					<div id="values-area" class="settings">
+						<?php foreach ($Module->record['options'] as $v) { ?>
+							<div id="record" class="record" data-role="update">
+								<div class="cell"><span class="icon glyphicon glyphicon-sort" title="Sort"></span></div>
+								<?php foreach ($Module->options_attributes as $key=>$a) { ?>
+									<div class="cell"><input type="text" class="form-control" name="options[<?php echo $key?>][]" value="<?php echo $v[$key]?>" style="<?php echo $a['style']?>" placeholder="<?php echo $a['desc']?>" <?php echo isset($a['required']) && $a['required'] ? 'required' : ''?> /></div>
+								<?php } ?>
+								<div class="cell"><button data-action="remove-values-record" class="btn btn-danger btn-xs" title="<?php echo NFW::i()->lang['Remove']?>"><span class="glyphicon glyphicon-remove"></span></button></div>
+							</div>
+						<?php } ?>
+					</div>
+					<div style="padding-top: 20px;">
+						<button id="add-values-record" class="btn btn-default">Add value</button>
+						<button type="submit" name="form-send" class="btn btn-primary"><span class="fa fa-floppy-o"></span> <?php echo NFW::i()->lang['Save changes']?></button>
+					</div>
+				</form>		
 			</div>
-		</form>
-    </div>
+		
+			<div role="tabpanel" class="tab-pane" style="padding-top: 10px;" id="votelist">
+				<form id="votelist" method="POST" action="<?php echo $Module->formatURL('update').'&record_id='.$Module->record['id'].'&force-render=votelist'?>" target="_blank">
+<?php
+	echo active_field(array('name' => 'header', 'desc' => 'Header', 'value' => $Module->record['title']));
+	echo active_field(array('name' => 'subheader', 'desc' => 'Subheader', 'value' => 'Main compo votelist'));
+	echo active_field(array('name' => 'description', 'desc' => 'Description', 'type' => 'textarea', 'value' => NFW::i()->getLang('main', 'votelist note'), 'labelCols' => '2'));
+?>
+					<table  class="table table-striped table-condensed">
+						<thead>
+							<tr>
+								<th><a role="toogle-votelist-col" href="#">Include this competition</a></th>
+								<th><a role="toogle-votelist-col" href="#">Display works</a></th>
+								<th>Empty rows</th>
+							</tr>
+						</thead>
+						<tbody><?php foreach ($competitions as $c) { ?>
+							<tr>
+								<td>
+									<div class="checkbox">
+   										<label>	
+   											<input type="checkbox" checked="CHECKED" name="competitions[]" value="<?php echo $c['id']?>" />
+   											<?php echo htmlspecialchars($c['title'])?>
+   										</label>
+									</div>
+								</td>
+								<td><input type="checkbox" checked="CHECKED" name="display_works[]" value="<?php echo $c['id']?>" /></td>
+								<td><input class="form-control" style="width: 100px;" name="emptyrows[<?php echo $c['id']?>]" value="0" type="text" style="width: 15px;" maxlength="2" /></td>
+							</tr>
+						<?php } ?></tbody>
+					</table>
+			
+					<div style="padding-top: 20px;">
+						<button type="submit" class="btn btn-primary"><span class="fa fa-list-ol"></span> Generate votelist</button>
+					</div>
+				</form>
+			</div>
+		
+			<div role="tabpanel" class="tab-pane" style="padding-top: 20px;" id="builders">
+				<form id="make">
+					<div class="row">
+						<div class="col-md-8">
+							<textarea class="form-control" name="results_txt"><?php echo $Module->renderAction(array('request' => $_REQUEST), 'update.results.txt')?></textarea>
+						</div>
+						<div class="col-md-4">
+							<ul class="nav nav-tabs" role="tablist">
+								<li role="presentation" class="active"><a href="#builders-results" aria-controls="builders-results" role="tab" data-toggle="tab">results.txt</a></li>
+								<li role="presentation"><a href="#builders-pack" aria-controls="builders-pack" role="tab" data-toggle="tab">pack.zip</a></li>
+							</ul>
+							
+							<div class="tab-content">
+								<div role="tabpanel" class="tab-pane active" style="padding-top: 20px;" id="builders-results">
+									<div id="competitions-conatiner">
+										<h4><a role="builders-toggle-competitions" href="#">Compos with platform displayed:</a></h4>
+										<?php foreach ($competitions as $c) { ?>
+										<div class="checkbox">
+											<label>	
+										   		<input role="result.txt-platform" type="checkbox" value="<?php echo $c['id']?>" />
+												<?php echo htmlspecialchars($c['title'])?>
+											</label>
+										</div> 
+										<?php } ?>
+									</div>
+									
+									<br />					 
+									<label>Refresh with layout: </label>
+									<a role="result.txt-layout" href="#" class="btn btn-default btn-sm active">nyuk</a>
+									<a role="result.txt-layout" href="#" class="btn btn-default btn-sm">diver</a>
+									
+									<hr />
+									
+									<div data-active-container="results_filename">
+										<div class="input-group">
+											<span class="input-group-addon" id="sizing-addon1">files/<?php echo $Module->record['alias']?>/</span>
+											
+			      							<input type="text" class="form-control" name="results_filename" value="results.txt" maxlength="64" placeholder="results.txt">
+											<span class="input-group-btn">
+			        							<button name="save_results_txt" value="1" type="submit" class="btn btn-primary" type="button" title="Save results file"><span class="fa fa-floppy-o"></span></button>
+											</span>
+										</div>
+										<span class="help-block"></span>
+									</div>
+								</div>
+								<div role="tabpanel" class="tab-pane" style="padding-top: 20px;" id="builders-pack">
+									<div id="competitions-conatiner">
+										<h4><a role="builders-toggle-competitions" href="#">Attach competitions:</a></h4>
+													
+										<?php foreach ($competitions as $c) { ?>
+										<div class="checkbox">
+											<label>	
+										   		<input type="checkbox" checked="checked" name="competitions[]" value="<?php echo $c['id']?>" />
+												<?php echo htmlspecialchars($c['title'])?>
+											</label>
+										</div> 
+										<?php } ?>
+									</div>
+									
+									<br />
+									
+									<div class="checkbox">
+										<label>	
+									   		<input type="checkbox" checked="CHECKED" name="attach_results_txt" /> Attach `results.txt` into archive
+										</label>
+									</div> 
+									
+									<div class="checkbox">
+										<label>	
+									   		<input type="checkbox" checked="CHECKED" name="attach_media" /> Attach Event's media files
+										</label>
+									</div> 
+							
+									<hr />
+									
+									<div data-active-container="pack_filename">
+										<div class="input-group">
+											<span class="input-group-addon" id="sizing-addon1">files/<?php echo $Module->record['alias']?>/</span>
+											
+			      							<input type="text" class="form-control" name="pack_filename" value="<?php echo $Module->record['alias'].'-pack.zip'?>" maxlength="64" placeholder="<?php echo $Module->record['alias'].'-pack.zip'?>">
+											<span class="input-group-btn">
+			        							<button name="save_pack" value="1" type="submit" class="btn btn-primary" type="button" title="Save pack archive"><span class="fa fa-floppy-o"></span></button>
+											</span>
+										</div>
+										<span class="help-block"></span>
+									</div>
+								</div>
+							</div>					
+						</div>
+					</div>
+				</form>
+			</div>
+	
+		</div>
+	</div>
+		
+	<div class="col-md-3">
+		<?php /* Right bar */ ?>
+		<h3>Preview image:</h3>
+		<?php echo $preview_form?>
+	
+		<h3>Large preview:</h3>
+		<?php echo $preview_large_form ?>
+		<br />
+		<br />
+		
+		<div class="panel panel-primary">
+			<div class="panel-heading">Related links</div>
+			<div class="panel-body">
+				<ul class="nav nav-pills nav-stacked">
+					<li role="presentation"><a href="<?php echo NFW::i()->base_path.'admin/competitions?event_id='.$Module->record['id']?>" title="Manage competitions of this events">Manage competitions</a></li>
+					<li role="presentation"><a href="<?php echo NFW::i()->base_path.'admin/works?event_id='.$Module->record['id']?>" title="Manage works of this events">Manage works</a></li>
+					<li role="presentation"><a href="<?php echo NFW::i()->base_path.'admin/vote?event_id='.$Module->record['id']?>" title="Manage voting of this events">Manage voting</a></li>
+				</ul>
+				
+				<?php if (!empty($competitions)): ?>
+				<hr />
+				<?php foreach ($competitions as $competition) { ?>
+				<p><?php echo $competition['position']?>.&nbsp;<a href="<?php echo NFW::i()->base_path.'admin/competitions?action=update&record_id='.$competition['id']?>" title="Manage `<?php echo htmlspecialchars($competition['title'])?>` competition"><?php echo htmlspecialchars($competition['title'])?></a></p>
+				<?php } ?>
+				<?php endif;?>
+			</div>
+		</div>
+	</div>
 </div>

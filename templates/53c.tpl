@@ -1,7 +1,6 @@
 <?php
-	NFW::i()->setUI('bootstrap');
+	NFW::i()->registerResource('bootstrap');
 	NFW::i()->registerResource('jquery.activeForm');
-	NFW::i()->registerResource('jquery.cookie');
 	$lang_main = NFW::i()->getLang('main');
 ?>
 <html lang="<?php echo NFW::i()->lang['lang']?>"><head>
@@ -148,19 +147,10 @@ $(document).ready(function(){
 	var f = $('form[id="send"]');
 	f.activeForm({
  	 	'cleanErrors': function() {
- 	 		f.find('div[class~="form-group"]').find('*[class="help-block"]').empty();
- 	 		f.find('div[class~="form-group"]').removeClass('has-error');
+ 	 		f.find('div[id="error-response"]').empty().hide();
  	 	},
 		'error': function(response) {
-			$.each(response.errors, function(i, e) {
-				if (f.find('div[class~="form-group"][id="'+i+'"]').length) {
-					f.find('div[class~="form-group"][id="'+i+'"]').addClass('has-error');
-					f.find('div[class~="form-group"][id="'+i+'"]').find('*[class="help-block"]').html(e);
-				}
-				else if (i != 'general') {
-					alert(e);
-				}
-			});	
+			f.find('div[id="error-response"]').text(response.message).show();
 		},
 		'success': function(response){
 			$('div[id="success-dialog"]').find('div[id="message"]').html(response.message);
@@ -171,29 +161,16 @@ $(document).ready(function(){
 	});
 
 	$('button[id="send"]').click(function() {
-		// Make tap
-		var loader = '%13%00%00%00%63%68%75%6e%6b%79%20%20%20%20%7e%00%0a%00%7e%00%08%80%00%ff%00%00%1c%00%ea%21%00%40%11%01%40%36%55%01%00%01%ed%b0%36%aa%0d%ed%b0%21%00%40%06%16%ed%b0%c9%0d%00%0a%10%00%ef%22%22%af%32%32%35%32%38%0e%00%00%00%58%00%0d%00%14%39%00%e7%30%0e%00%00%00%00%00%3a%f9%c0%28%be%32%33%36%33%35%0e%00%00%53%5c%00%2b%32%35%36%0e%00%00%00%01%00%2a%be%32%33%36%33%36%0e%00%00%54%5c%00%2b%35%0e%00%00%05%00%00%29%0d%00%1e%09%00%f2%30%0e%00%00%00%00%00%0d%1f';
-		var header = '%13%00%00%03%73%63%72%65%65%6e%20%20%20%20%00%03%00%58%00%80%d4';
-		
-		var data = '%02%03%ff';
-		var checksum = 0xff;
-		var hexDigits = '0123456789abcdef'
-		for (var y = 0; y < 24; y++) {
-			for (var x = 0; x < 32; x++) {
-				var byte = HALFTONE_PALETTE[screenColours[y][x]].attributeByte;
-				checksum = checksum ^ byte;
-				data += ( '%' + hexDigits.substr(byte >> 4,1) + hexDigits.substr(byte & 0x0f,1) );
-			}
-		}
-		var checksumString = '%' + hexDigits.substr(checksum >> 4,1) + hexDigits.substr(checksum & 0x0f,1);
-		f.find('input[name="tap"]').val(loader + header + data + checksumString);
-
+		f.find('input[name="tap"]').val(makeTap());
 		f.submit();
 		return false;
 	});
-		
 <?php endif; ?>
 
+	$('button[id="export-tap"]').click(function() {
+		window.open('data:application/octet-stream,'+makeTap(),'_blank','height=300,width=400');
+	});
+	
 	$('button[id="clear-screen"]').click(function() {
 		for (var y = 0; y < 24; y++) {
 			var cells = $('#screen tr').eq(y).find('td');
@@ -212,13 +189,16 @@ $(document).ready(function(){
 				bytes.push(HALFTONE_PALETTE[screenColours[y][x]].attributeByte);
 			}
 		}
-		$.cookie('chunkypaint-draft', bytes, { expires: 7 });
+
+		localStorage.setItem('chunkypaint-draft', bytes);
 	});
 
 	$('button[id="load-draft"]').click(function() {
-		if (!($.cookie('chunkypaint-draft'))) return;
+		var bytes = localStorage.getItem('chunkypaint-draft');
+		if (!bytes) return;
+
+		bytes = bytes.split(/\D+/);
 		
-		var bytes = $.cookie('chunkypaint-draft').split(/\D+/);
 		for (var y = 0; y < 24; y++) {
 			var cells = $('#screen tr').eq(y).find('td');
 			for (var x = 0; x < 32; x++) {
@@ -228,8 +208,26 @@ $(document).ready(function(){
 			}
 		}
 	}).trigger('click'); // Autoload draft
-});
 
+
+	function makeTap() {
+		var loader = '%13%00%00%00%63%68%75%6e%6b%79%20%20%20%20%7e%00%0a%00%7e%00%08%80%00%ff%00%00%1c%00%ea%21%00%40%11%01%40%36%55%01%00%01%ed%b0%36%aa%0d%ed%b0%21%00%40%06%16%ed%b0%c9%0d%00%0a%10%00%ef%22%22%af%32%32%35%32%38%0e%00%00%00%58%00%0d%00%14%39%00%e7%30%0e%00%00%00%00%00%3a%f9%c0%28%be%32%33%36%33%35%0e%00%00%53%5c%00%2b%32%35%36%0e%00%00%00%01%00%2a%be%32%33%36%33%36%0e%00%00%54%5c%00%2b%35%0e%00%00%05%00%00%29%0d%00%1e%09%00%f2%30%0e%00%00%00%00%00%0d%1f';
+		var header = '%13%00%00%03%73%63%72%65%65%6e%20%20%20%20%00%03%00%58%00%80%d4';
+		
+		var data = '%02%03%ff';
+		var checksum = 0xff;
+		var hexDigits = '0123456789abcdef'
+		for (var y = 0; y < 24; y++) {
+			for (var x = 0; x < 32; x++) {
+				var byte = HALFTONE_PALETTE[screenColours[y][x]].attributeByte;
+				checksum = checksum ^ byte;
+				data += ( '%' + hexDigits.substr(byte >> 4,1) + hexDigits.substr(byte & 0x0f,1) );
+			}
+		}
+		var checksumString = '%' + hexDigits.substr(checksum >> 4,1) + hexDigits.substr(checksum & 0x0f,1);	
+		return loader+header+data+checksumString;
+	}
+});
 </script>		
 <style>
 	body { margin: 15px; color: white; background-color: black; font: 10pt Verdana, Arial; }
@@ -257,7 +255,7 @@ $(document).ready(function(){
 <div id="success-dialog" class="modal fade"><div class="modal-dialog"><div class="modal-content">
 	<div class="modal-header">
 		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-		<h4 class="modal-title"><?php echo $lang_main['works upload success label']?></h4>
+		<h4 class="modal-title"><?php echo $lang_main['works uploaded']?></h4>
 	</div>
 	<div id="message" class="modal-body"></div>
 	<div class="modal-footer">
@@ -277,6 +275,7 @@ $(document).ready(function(){
 	<div class="pull-right">
 		<button id="save-draft" class="btn btn-default">Save draft</button>
 		<button id="load-draft" class="btn btn-default">Load draft</button>
+		<button id="export-tap" class="btn btn-success">Export TAP</button>
 	</div>
 	<div class="pull-left">
 		<button id="clear-screen" class="btn btn-danger">Clear screen</button>
@@ -286,23 +285,33 @@ $(document).ready(function(){
 <div class="pull-right" style="width: 450px;">
 	<ul id="palette"></ul>
 	<div class="clearfix"></div>
+	
 	<br />	
 	<br />
 	<br />
+	
+	<?php if ($reception_available): ?>
 	<form id="send" class="form-horizontal"><fieldset>
 		<legend>Submit prod</legend>
+		
+		<div class="alert alert-warning"><?php echo htmlspecialchars($competition['event_title'].' / '.$competition['title'])?></div>
+		
 		<input name="tap" type="hidden" />
-		<?php echo active_field(array('name' => 'title', 'attributes' => $attributes['title'], 'desc' => $lang_main['works title'], 'labelCols' => '3', 'inputCols' => '8'))?>
-		<?php echo active_field(array('name' => 'author', 'attributes' => $attributes['author'], 'desc' => $lang_main['works author'], 'labelCols' => '3', 'inputCols' => '8'))?>
+		<?php echo active_field(array('name' => 'Title', 'attributes' => $attributes['title'], 'desc' => $lang_main['works title'], 'labelCols' => '3', 'inputCols' => '8'))?>
+		<?php echo active_field(array('name' => 'Author', 'attributes' => $attributes['author'], 'desc' => $lang_main['works author'], 'labelCols' => '3', 'inputCols' => '8'))?>
 		
 		<div class="form-group"><div class="col-md-offset-3">
-			<button id="send" class="btn btn-primary btn-lg"<?php echo $reception_available? '' : ' disabled="disabled"'?>><?php echo $lang_main['works send']?></button>
+			<button id="send" class="btn btn-primary btn-lg"><?php echo $lang_main['works send']?></button>
 		</div></div>
 		
-		<?php if (!$reception_available):?>
-			<div class="alert alert-danger"><?php echo $lang_main['53c reception form'].' '.date('d.m.Y H:i', $competition['reception_from'])?></div>
-		<?php endif;?>
+		<br />
+		<div class="form-group"><div class="col-md-offset-3 col-md-8">
+			<div id="error-response" style="display: none;" class="alert alert-danger"></div>
+		</div></div>
 	</fieldset></form>	
+	<?php elseif ($reception_future): ?>
+		<div class="alert alert-info"><?php echo $lang_main['53c reception form'].' <strong>'.date('d.m.Y H:i', $competition['reception_from']).'</strong>'?></div>
+	<?php endif; ?>
 </div>
 <div class="clearfix"></div>
 	

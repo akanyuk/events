@@ -2,11 +2,19 @@
 define('NFW_CLASSNAME', 'NFW_EXTENDED');
 
 class NFW_EXTENDED extends NFW {
+    var $project_settings = array();
+    var $notify_emails = array();
+
 	var $actual_date = false;
+
+	var $main_og = array();				# метатеги для Open Graph
+	var $main_login_form = true;		# форма авторизации, по умолчанию включена
+	var $main_search_box = true;		# строка поиска, по умолчанию включена
+	var $main_right_pane = true;		# правая панель, по умолчанию включена
 	
 	function __construct($init_cfg = null) {
-		// Глобально точность операций
-		bcscale (2);
+		// Глобально кодировка для mb-операций
+		mb_internal_encoding ('UTF-8');
 		
 		// Actual date (i.e. for debugging)
 		$this->actual_date = time();
@@ -14,168 +22,172 @@ class NFW_EXTENDED extends NFW {
 			$this->actual_date = $result;
 		}
 		
-		// Define kinds for use in logs::write
-		require (PROJECT_ROOT.'include/configs/logs_kinds.php');
-		foreach($logs_kinds as $kind=>$a) {
-			if (isset($a['define'])) {
-				define($a['define'], $kind);
-			}
-		}
-	
 		parent::__construct($init_cfg);
 		
-		// This user is manager of following events...
-		$this->user['manager_of_events'] = array();
-		if (!$this->user['is_guest']) {
-			$query = NFW::i()->checkPermissions('events', 'update_managers') ? array('SELECT' => 'id AS event_id', 'FROM' => 'events') : array('SELECT' => 'event_id', 'FROM' => 'events_managers', 'WHERE' => 'user_id='.$this->user['id']);
-			if (!$result = NFW::i()->db->query_build($query)) {
-				$this->stop('Unable to fetch managed events');
-			}
-			while ($a = NFW::i()->db->fetch_assoc($result)) {
-				$this->user['manager_of_events'][] = $a['event_id'];
-			}
+		$this->resources_depends['main'] = array('resources' => array('jquery', 'bootstrap3.typeahead', 'font-awesome'));
+		$this->resources_depends['owl-carousel'] = array('resources' => array('jquery'));
+		
+		// Preload all available settings
+		$CSettings = new settings();
+		foreach ($CSettings->getConfigs() as $key=>$config) {
+			$this->$key = $config;
 		}
+		$this->project_settings = reset($this->project_settings);
+		
+		if ($this->user['is_blocked']) {
+			NFW::i()->stop($this->lang['Errors']['Account_disabled'].' <a href=?action=logout>'.$this->lang['Logout'].'</a>', 'error-page');
+		}
+		
 	}
 		
 	function checkPermissions($module = 1, $action = '', $additional = false) {
 		if (parent::checkPermissions($module, $action, $additional)) return true;
 
-		// --- special permissions for event's managers ---
-		if (!empty(NFW::i()->user['manager_of_events'])) {
-			$always_manage = array(
-				'events' => array('admin'),
-				'competitions' => array('admin'),
-				'works' => array('admin'),
-				'vote' => array('admin'),
-				'timeline' => array('admin'),
-				'profile' => array('admin'),
-				'admin' => array(''),
-			);
-			if (isset($always_manage[$module]) && in_array($action, $always_manage[$module])) return true;
-			 
-			if ($module == 'events') {
-				if ($action == 'update' && isset($_GET['record_id']) && in_array($_GET['record_id'], NFW::i()->user['manager_of_events'])) return true;
-				if (($action == 'media_upload' || $action == 'media_modify') && in_array($additional, NFW::i()->user['manager_of_events'])) return true;
-				return false;
-			}
-			
-			if ($module == 'competitions') {
-				if (empty($_POST)) return true;
-				
-				// Check in module
-				if ($action == 'update' && isset($_GET['part']) && $_GET['part'] == 'update_pos') return true;
-				
-				if ($action == 'insert') {
-					return in_array($_POST['event_id'], NFW::i()->user['manager_of_events']) ? true : false;
-				}
-				 
-				if ($action == 'update') {
-					if (isset($_POST['event_id']) && !in_array($_POST['event_id'], NFW::i()->user['manager_of_events'])) return false;
-					
-					$Compo = new competitions($_GET['record_id']);
-					return in_array($Compo->record['event_id'], NFW::i()->user['manager_of_events']) ? true : false;
-				}
-				
-				return false;
-			}
-			
-			if ($module == 'works') {
-				if (empty($_POST)) return true;
-				
-				// Check in module
-				if ($action == 'update' && isset($_GET['part']) && $_GET['part'] == 'update_pos') return true;
-				
-				if ($action == 'insert') {
-					$Compo = new competitions($_POST['competition_id']);
-					return $Compo->record['id'] && in_array($Compo->record['event_id'], NFW::i()->user['manager_of_events']) ? true : false;
-				}
-				
-				if ($action == 'update' || $action == 'media_manage') {
-					$CWorks = new works($_GET['record_id']);
-					return $CWorks->record['id'] && in_array($CWorks->record['event_id'], NFW::i()->user['manager_of_events']) ? true : false;
-				}
-				
-				if ($action == 'media_get' || $action == 'media_upload' || $action == 'media_modify') {
-					$CWorks = new works($additional);
-					return $CWorks->record['id'] && in_array($CWorks->record['event_id'], NFW::i()->user['manager_of_events']) ? true : false;
-				}
-				
-				return false;
-			}
-			
-			if ($module == 'vote') {
-				if (empty($_POST)) return true;
-				
-				if (isset($_GET['part']) && $_GET['part'] == 'list.js' && in_array($action, array('manage_votekeys', 'manage_votes', 'manage_results'))) return true;
+		// Search
+		if ($module == 'works' && $action == 'search') return true;
+		
+		// Voting actions
+		if ($module == 'vote' && in_array($action, array('request_votekey', 'add_vote'))) return true;
 
-				if ($action == 'manage_votekeys' && isset($_GET['part']) && $_GET['part'] == 'add-votekeys') {
-					return in_array($_POST['event_id'], NFW::i()->user['manager_of_events']) ? true : false;
-				}
+		// (re) load comments list
+		if ($module == 'works_comments' && $action == 'comments_list') return true;
+			
+		// Adding works comments - all registered
+		if ($module == 'works_comments' && $action == 'add_comment') {
+			if (NFW::i()->user['is_guest']) return false;	// Guests never adding comments
 				
-				if ($action == 'manage_votes' && isset($_GET['part']) && $_GET['part'] == 'add-vote') {
-					return in_array($_GET['event_id'], NFW::i()->user['manager_of_events']) ? true : false;
-				}
+			if (empty($_POST) || !isset($_POST['work_id'])) return true;
 				
-				// Check in module
-				if ($action == 'manage_results' && isset($_GET['part']) && $_GET['part'] == 'save-results') return true;
-				
-				return false;
-			}
+			$CWorks = new works($_POST['work_id']);
+			if (!$CWorks->record['id']) return false;
+		
+			$CCompetitions = new competitions($CWorks->record['competition_id']);
+			if (!$CCompetitions->record['id']) return false;
+		
+			// Add comments only if voting opened, or release opened
+			return $CCompetitions->record['voting_status']['available'] || $CCompetitions->record['release_status']['available'] ? true : false;
 		}
 		
 		
-		// --- special permissions for works authors  ---
+		// --- special permissions for works authors ОБЯЗАТЕЛЬНО ДО event's managers! ---
 		
 		// Any operations with `works` session files for authors
 		if ($module == 'works' && in_array($action, array('media_get', 'media_upload', 'media_modify')) && $additional == 0) return true;
-
+		
 		// Fetching works
 		if ($module == 'works' && $action == 'media_get') {
 			$CWorks = new works($additional);
 			if (!$CWorks->record['id']) return false;
-
+		
 			// Always return work to author
 			if ($CWorks->record['posted_by'] == NFW::i()->user['id']) return true;
+		}
+		
+		
+		// --- special permissions for event's managers ---
+		
+		// Права проверяются позже, средствами модуля
+		$bypass_module = array(
+			'competitions' => array('set_pos', 'set_dates'),
+			'works' => array('set_pos'),
+		);
+		if (isset($bypass_module[$module]) && in_array($action, $bypass_module[$module])) return true;
+
+		$managed_events = events::get_managed();
+		
+		// Права на доступ к панели управления для всех менеджеров
+		$allow_cp = array(
+			'admin' => array(''),
+			'profile' => array('admin'),
+			'events' => array('admin'),
+			'users' => array('admin'),
+		);
+		if (!empty($managed_events) && isset($allow_cp[$module]) && in_array($action, $allow_cp[$module])) return true;
+		
+		// Custom calls of checkPermissions
+		if ($module == 'check_manage_event' && in_array($action, $managed_events)) return true;
+		
+		if ($module == 'events' && $action == 'update') {
+			return isset($_GET['record_id']) && in_array($_GET['record_id'], $managed_events) ?  true : false;
+		}
+		
+		if (($module == 'events' || $module == 'events_preview' || $module == 'events_preview_large') && ($action == 'media_upload' || $action == 'media_modify')) {
+			return in_array($additional, $managed_events) ? true : false;
+		}
+		
+		if ($module == 'competitions' && ($action == 'admin' || $action == 'insert')) {
+			return isset($_GET['event_id']) && in_array($_GET['event_id'], $managed_events) ? true : false;
+		}
+		
+		if ($module == 'competitions' && ($action == 'update' || $action == 'delete')) {
+			if (!isset($_GET['record_id'])) return false;
+			
+			$Competition = new competitions($_GET['record_id']);
+			return in_array($Competition->record['event_id'], $managed_events) ? true : false;
+		}
+
+		if ($module == 'works' && in_array($action, array('admin', 'insert'))) {
+			return isset($_GET['event_id']) && in_array($_GET['event_id'], $managed_events) ? true : false;
+		}
+
+		if ($module == 'works' && in_array($action, array('update', 'delete'))) {
+			if (!isset($_GET['record_id'])) return false;
+				
+			$CWorks = new works($_GET['record_id']);
+			return in_array($CWorks->record['event_id'], $managed_events) ? true : false;
+		}
+
+		if ($module == 'works_media' && in_array($action, array('update_properties', 'convert_zx', 'file_id_diz', 'make_release', 'remove_release'))) {
+			if (!isset($_GET['record_id'])) return false;
+			
+			$CWorks = new works($_GET['record_id']);
+			return in_array($CWorks->record['event_id'], $managed_events) ? true : false;
+		}
+		
+		if ($module == 'works' && ($action == 'media_get' || $action == 'media_upload' || $action == 'media_modify') && $additional) {
+			if ($action == 'media_get' || $action == 'media_upload' || $action == 'media_modify') {
+				$CWorks = new works($additional);
+				return in_array($CWorks->record['event_id'], $managed_events) ? true : false;
+			}
+				
+			return true;
+		}
+
+		if ($module == 'vote' && in_array($action, array('admin', 'votekeys', 'votes', 'results'))) {
+			return isset($_GET['event_id']) && in_array($_GET['event_id'], $managed_events) ? true : false;
+		}
+		
+		if ($module == 'works_comments' && $action == 'delete') {
+			if (is_array($additional) && isset($additional['work_id'])) {
+				$CWorks = new works($additional['work_id']);
+				return in_array($CWorks->record['event_id'], $managed_events) ? true : false;
+			}
+			elseif(isset($_POST['record_id'])) {
+				$CWorksComments = new works_comments($_POST['record_id']);
+				return in_array($CWorksComments->record['event_id'], $managed_events) ? true : false;
+			}
+			else {
+				return false;
+			}
 		}
 		
 		return false;
 	}
 		
 	function renderNews($options = array()) {
-		if (isset($options['id'])) {
-			$CNews = new news($options['id']);
-			if (!$CNews->record['id']) return false;
+		$CNews = new news();
+		if (!$records = $CNews->getRecords($options)) return false;
+
+		// Generate paging links
+		$baseURL = isset($options['pagination_baseurl']) ? $options['pagination_baseurl'] : NFW::i()->absolute_path.'/news.html';
+		$paging_links = $CNews->num_pages > 1 ? $this->paginate($CNews->num_pages, $CNews->cur_page, $baseURL, ' ') : '';
 			
-			$CNews->path_prefix = 'main';
-			
-			return array(
-				$CNews->record['title'],
-				$CNews->renderAction(array('record' => $CNews->record), $options['template'], 'news'),
-				$CNews->record['posted']
-			);
-		}
-		else {
-			$fetch_options = array(
-				'load_attachments' => isset($options['load_attachments']) ? $options['load_attachments'] : false,
-				'posted_from' => isset($options['posted_from']) ? $options['posted_from'] : false,
-				'posted_to' => isset($options['posted_to']) ? $options['posted_to'] : false,
-				'records_on_page' => isset($options['records_on_page']) ? $options['records_on_page'] : 10,
-				'page' => isset($_GET['p']) ? intval($_GET['p']) : 1
-			);
-			
-			$CNews = new news();
-			if (!$news = $CNews->getRecords($fetch_options)) return false;
-	
-			// Generate paging links
-			$paging_links = $CNews->num_pages > 1 ? NFW::i()->paginate($CNews->num_pages, $CNews->cur_page, NFW::i()->absolute_path.'/news.html', ' ') : '';
-				
-			// Render page content
-			$CNews->path_prefix = 'main';
-			return $CNews->renderAction(array(
-				'news' => $news, 
-				'paging_links' => $paging_links,
-			), $options['template']);
-		}
+		// Render page content
+		return $CNews->renderAction(array(
+			'category' => isset($options['category']) ? $options['category'] : null,
+			'records' => $records, 
+			'paging_links' => $paging_links,
+		), $options['template']);
 	}
 	
 	function paginate($num_pages, $cur_page, $link_to, $separator = ", ") {
@@ -220,24 +232,36 @@ class NFW_EXTENDED extends NFW {
 	    return '<ul class="pagination">'.implode($separator, $pages).'</ul>';
 	}	
     
+	function safeFilename($filename) {
+		$filename = str_replace(
+			array(' ', 'а','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н','о','п','р','с','т','у','ф','х','ц','ч','ш','щ','ъ','ы','ь','э','ю','я'),
+			array('_', 'a','b','v','g','d','e','e','zh','z','i','j','k','l','m','n','o','p','r','s','t','u','f','h','c','ch','sh','sch','','y','','e','yu','ya'),
+			mb_convert_case($filename, MB_CASE_LOWER, 'UTF-8'));
+		
+		$filename = preg_replace('/[^a-zA-Z0-9.]/', '_', $filename);
+		
+		return $filename;
+	} 
+	
 	function formatTimeDelta($time) {
+		NFW::i()->registerFunction('word_suffix');
 		$lang_main = NFW::i()->getLang('main');
 		
-		$left = $time - NFW::i()->actual_date;
+		$left = $time - $this->actual_date;
 		if (intval($left/86400)) {
-			return intval($left/86400).' '.$lang_main['days'];
+			return intval($left/86400).' '.word_suffix(intval($left/86400), $lang_main['days suffix']);
 		}
 		elseif (intval($left/3600)) {
-			return intval($left/3600).' '.$lang_main['hours'];
+			return intval($left/3600).' '.word_suffix(intval($left/3600), $lang_main['hours suffix']);
 		}
 		else {
-			return intval($left/60).' '.$lang_main['minutes'];
+			return intval($left/60).' '.word_suffix(intval($left/60), $lang_main['minutes suffix']);
 		}
 	}
 	 
-	function sendNotify($event, $event_id, $data = array()) {
-		foreach (NFW::i()->cfg['notify_emails'] as $email) {
-			email::sendFromTemplate($email, $event, array('data' => $data));
+	function sendNotify($tp, $event_id, $data = array(), $attachments = array()) {
+		foreach ($this->notify_emails as $email) {
+			email::sendFromTemplate($email, $tp, array('data' => $data));
 		}
 		
 		$query = array(
@@ -253,42 +277,22 @@ class NFW_EXTENDED extends NFW {
 		);
 		if (!$result = NFW::i()->db->query_build($query)) return false;
 		while ($u = NFW::i()->db->fetch_assoc($result)) {
-			email::sendFromTemplate($u['email'], $event, array('data' => $data));
+			email::sendFromTemplate($u['email'], $tp, array('data' => $data), $attachments);
 		}
+
+		return true;
 	}
-	
-	function serializeArray($array) {
-		return base64_encode(serialize($array));
-	}
-	
-	function unserializeArray($string) {
-		$result = unserialize(base64_decode($string));
-		if (!$result) $result = array();
-		 
-		return $result;
-	}
-	
-    function stop($message = '', $output = null) {
-    	if ($message === 404) {
-    		$CElements = new elements('main-menu', true);
-    		NFW::i()->setUI('bootstrap');
-			header("HTTP/1.0 404 Not Found");
-			NFW::i()->assign('page', array('main-menu' => $CElements->record['content'], 'path' => '', 'title' => 'Запрашиваемя страница не найдена', 'content' => '<div class="alert alert-danger">Запрашиваемя страница не найдена.</div>'));
-			NFW::i()->display('main.tpl');
-		}
-		elseif ($message === 'inactive') {
-			$CElements = new elements('main-menu', true);
-			NFW::i()->setUI('bootstrap');
-			NFW::i()->assign('page', array('main-menu' => $CElements->record['content'], 'path' => '', 'title' => 'Страница временно недоступна', 'content' => '<div class="alert alert-danger">Страница временно недоступна.</div>'));
-			NFW::i()->display('main.tpl');
-		}
-    	else if($output === 'error-page') {
-    		$CElements = new elements('main-menu', true);
-    		NFW::i()->setUI('bootstrap');
-    		NFW::i()->assign('page', array('main-menu' => $CElements->record['content'], 'path' => '', 'title' => 'Ошибка', 'content' => '<div class="alert alert-danger">'.$message.'</div>'));
-    		NFW::i()->display('main.tpl');
-    	}
-    	 
-    	parent::stop($message, $output);
+
+	function hook($hook_name, $alias = "", $hook_additional = array()) {
+	    if (!file_exists(PROJECT_ROOT.'include/hooks/'.$alias.'/'.$hook_name.'.php')) {
+	        return "";
+        }
+
+	    include(PROJECT_ROOT.'include/hooks/'.$alias.'/'.$hook_name.'.php');
+	    if (function_exists($hook_name)) {
+            return $hook_name($hook_additional);
+        }
+
+	    return "";
     }
 }

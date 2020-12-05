@@ -1,4 +1,21 @@
 $(document).ready(function(){
+	// Multiple images in one prod
+	$('.owl-carousel').each(function(){
+		$(this).owlCarousel({ 
+			items: 1, 
+			center: true,
+			loop: true
+		});
+	});
+
+	// Stop other audio's
+	$('audio').on('play', function() {
+	    $('audio').not(this).each(function(index, audio) {
+	        audio.pause();
+	        audio.stop();
+	    });
+	});
+	
 	if ($.blockUI) {
 		$.blockUI.defaults.message = null;
 		$.blockUI.defaults.fadeOut = 0;

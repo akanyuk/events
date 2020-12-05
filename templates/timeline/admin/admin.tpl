@@ -1,110 +1,84 @@
-<?php 
+<?php
+NFW::i()->assign('page_title', 'Timeline');
+
 NFW::i()->registerResource('jquery.activeForm');
-NFW::i()->registerResource('jquery.activeForm/jqueryui.timepicker.min.js');
-NFW::i()->registerResource('jquery.activeForm/jqueryui.timepicker.js');
+NFW::i()->registerResource('jquery.activeForm/bootstrap-datetimepicker.min.js');
+NFW::i()->registerResource('jquery.activeForm/bootstrap-datetimepicker.min.css');
+NFW::i()->registerResource('jquery.activeForm/bootstrap-datetimepicker.ru.js');
 
 $now =  time() - time()%3600 + 3600;
 ?>
 <script type="text/javascript">
 $(document).ready(function(){
  	// Action 'update'
+ 	
  	var f = $('form[id="timeline"]');
  	f.activeForm({
 		success: function(response) {
-			window.location.reload();
+			//window.location.reload();
 		}
 	});
 
- 	$(document).on('click', '*[rel="remove-values-record"]', function(){
- 	 	$(this).closest('div[rel="record"]').remove();
+ 	$(document).on('click', '*[data-action="remove-values-record"]', function(event){
+ 	 	$(this).closest('div[id="record"]').remove();
 	});
 
- 	f.find('button[id="add-line"]').click(function(){
-		// Find last ID
-		var curKEY = 1;
-		f.find('div[id="values-area"]').find('div[rel="record"]').each(function(){
-			var rowKEY = parseInt($(this).attr('id'));
-			if (curKEY <= rowKEY) curKEY = rowKEY + 1;  
-		});
-		
- 	 	var tpl = $('div[id="timeline-record-template"]').html().replace(/%KEY%/g, curKEY);
- 	 	f.find('div[id="values-area"]').append(tpl);
- 	 	f.find('textarea').uniform();
-
- 	 	updateDatepickers(f);
+ 	f.find('button[id="add-values-record"]').click(function(){
+ 	 	f.addValue(<?php echo $now?>, '');
  	 	
  	 	return false;
 	});
 
- 	<?php if (empty($records)):?>
- 	f.find('button[id="add-line"]').trigger('click');
- 	<?php else: ?>
- 	updateDatepickers(f);
- 	<?php endif; ?>
+ 	f.addValue = function(timestamp, description) {
+ 	 	var tpl = $('div[id="timeline-record-template"]').html().replace(/%description%/g, description);
+ 	 	$(this).find('div[id="values-area"]').append(tpl);
 
-	$(document).trigger('refresh');
-});
+ 		// Datepicker
+		var dp = $(this).find('input[role="datepicker"]');
+		var container = dp.closest('div');
+		var name = dp.attr('name');
 
-function updateDatepickers(f) {
-	f.find('input[rel="datepicker"]').each(function(){
-		var id = 'adp' + Math.floor(Math.random()*10000000);
-		var name = $(this).attr('name');
-		var value = $(this).val();
-
-		$(this).after('<input type="hidden" id="' + id + '" name="' + name + '" value="' + value + '" />').datetimepicker({ 
-			'altField': '#' + id, 
-			'altFormat' : '@',
-			'altFieldTimeOnly': false,
-			'onSelect' : function(dateText, inst) {
-				$('#' + id).val($.datepicker.formatDate('@', $(this).datepicker('getDate')) / 1000);
-			},
-			'onClose': function(dateText, inst) {
-				$('input[id="' + id + '"]').val($.datepicker.formatDate('@', $(this).datepicker('getDate')) / 1000);
-			}
+		dp.attr({ 'readonly': '1' }).removeAttr('name role');
+		container.append('<input name="' + name + '" value="' + timestamp + '" type="hidden" />');
+		
+		dp.datetimepicker({ 
+			'autoclose': true,
+			'todayBtn': true,
+			'todayHighlight': true,
+			'format': 'dd.mm.yyyy hh:ii',
+			'minView': 0,
+			'weekStart': <?php echo NFW::i()->user['language'] == 'English' ? '0' : '1'?>,
+			'language': '<?php echo NFW::i()->user['language'] == 'English' ? 'en' : 'ru'?>',
+			'startDate': '<?php echo date('d.m.Y H:i')?>',
+			'endDate': '<?php echo date('d.m.Y H:i', time() + 86400 * 365)?>'
+		}).on('changeDate', function(e) {
+		    var TimeZoned = new Date(e.date.setTime(e.date.getTime() + (e.date.getTimezoneOffset() * 60000)));
+		    dp.datetimepicker('setDate', TimeZoned);				
+		    container.find('input[name="' + name + '"]').val(TimeZoned.valueOf() / 1000);
 		});
 
-		$(this).val(formatDateTime(value, true, true)).uniform().removeAttr('rel').removeAttr('name').attr('disabled', 'disabled');
-	});	
-}
+	 	// Initial value
+		dp.datetimepicker('setDate', new Date(timestamp * 1000));
+ 	}
 
+	<?php foreach ($records as $r) echo "\t\t".'f.addValue('.$r['date_from'].', '.json_encode($r['content']).');'."\n"; ?>
+});
 </script>
-<style>
-	.settings {	display: table;	}
-	.settings .record, .settings .header { display:table-row; }
-	.settings .record:nth-child(even) { background-color: #E2E4FF; }
-	.settings .cell { display:table-cell; padding: 5px 2px; vertical-align: top; }
-	.settings .cell:nth-child(1) { padding-left: 5px; }
-	.settings .header .cell { font-size: 90%; font-weight: bold; }
-	
-	FORM#timeline TEXTAREA { background-color: white; }
-	FORM#timeline INPUT.d { width: 100px; }
-</style>
 
 <div id="timeline-record-template" style="display: none;">
-	<div rel="record" id="%KEY%" class="record">
-		<div class="cell" style="padding-top: 12px;"><input type="text" class="d" rel="datepicker" name="records[%KEY%][date_from]" value="<?php echo $now?>" /></div>
-		<div class="cell"><textarea name="records[%KEY%][content]" style="height: 30px;"></textarea></div>
-		<div class="cell"><span rel="remove-values-record" class="ui-icon ui-icon-trash ui-state-disabled" title="Remove"></span></div>
+	<div id="record" class="record">
+		<div class="cell">
+			<div class="cell"><input name="date_from[]" role="datepicker" type="text" class="form-control" style="display: inline; width: 150px;" /></div>
+			<div class="cell"><textarea name="content[]" class="form-control" style="width: 400px; height: 56px;">%description%</textarea></div>
+			<div class="cell"><button data-action="remove-values-record" class="btn btn-danger btn-xs" title="<?php echo NFW::i()->lang['Remove']?>"><span class="glyphicon glyphicon-remove"></span></button></div>
+		</div>
 	</div>
 </div>
 
 <form id="timeline">
-	<div id="values-area" class="settings">
-		<div class="header">
-			<div class="cell">From</div>
-			<div class="cell">Description</div>
-		</div>
-		<?php $cur_key = 1; foreach ($records as $r) { ?>
-			<div rel="record" id="<?php echo $cur_key?>" class="record">
-				<div class="cell" style="padding-top: 12px;"><input type="text" class="d" rel="datepicker" name="records[<?php echo $cur_key?>][date_from]" value="<?php echo $r['date_from']?>" /></div>
-				<div class="cell"><textarea name="records[<?php echo $cur_key?>][content]" style="height: 30px;"><?php echo $r['content']?></textarea></div>
-				<div class="cell"><span rel="remove-values-record" class="ui-icon ui-icon-trash ui-state-disabled" title="Remove"></span></div>
-			</div>
-		<?php $cur_key++; } ?>
-	</div>
-	
-	<div style="padding-top: 0.5em;">
-		<button type="submit" class="nfw-button" icon="ui-icon-disk">Save changes</button>
-		<button id="add-line" class="nfw-button" icon="ui-icon-plus">Add line</button>
+	<div id="values-area" class="settings"></div>
+	<div style="padding-top: 20px;">
+		<button id="add-values-record" class="btn btn-default">Add value</button>
+		<button type="submit" name="form-send" class="btn btn-primary"><span class="fa fa-floppy-o"></span> <?php echo NFW::i()->lang['Save changes']?></button>
 	</div>
 </form>

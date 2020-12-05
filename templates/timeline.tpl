@@ -34,7 +34,7 @@ NFW::i()->registerResource('jquery.countdown');
 </style>
 <script type="text/javascript">
 $(document).ready(function(){
-	$('div[rel="countdown"]').each(function(){
+	$('div[role="countdown"]').each(function(){
 		$(this).countdown({
 			until: new Date($(this).text()), 
 			compact: true, 
@@ -50,7 +50,7 @@ $(document).ready(function(){
 <body>
 <?php foreach ($records as $record) { ?>
 	<div id="obj" class="timeline-record">
-		<div rel="countdown" class="countdown"><?php echo date('r', $record['date_from'])?></div>
+		<div role="countdown" class="countdown"><?php echo date('r', $record['date_from'])?></div>
    		<div class="date"><?php echo date('d.m.Y H:i', $record['date_from'])?></div>
    		<div class="desc"><?php echo str_replace('<br', '<hr', nl2br($record['content']))?></div>
    	</div>   	

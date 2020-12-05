@@ -1,0 +1,143 @@
+/* Lang */
+html[lang="en"] .hidden-lang-en { display: none; }
+html[lang="ru"] .hidden-lang-ru { display: none; }
+
+/* Main template */
+.dm-nav { background-color: #707070; color: #fff; border: none; border-bottom: 1px solid #555; min-height: 40px; }
+.dm-nav .navbar-header { padding-right: 20px; }
+.dm-nav .navbar-nav > li > a { color: #fff; padding-bottom: 10px; padding-top: 10px; }
+.dm-nav .navbar-nav > li > a:hover, .dm-nav .navbar-nav > li > a:focus { background-color: #444; color: #fff; }
+.dm-nav .navbar-nav > .active > a, .dm-nav .navbar-nav > .active > a:hover { background-color: #800; color: #fff; }
+
+#page-content { padding-top:60px; padding-bottom: 1em; }
+#page-content .breadcrumb { padding: 0; background-color: inherit; }
+#page-content .menu-block { background-color: #F8F8F8; border: 1px solid #ddd; border-radius: 4px 4px 0 0; box-shadow: none; padding: 1em; margin-bottom: 20px; }
+#page-content .dropdown-menu > li > a { white-space: normal; }	/* searchbox on mobile devices */
+
+.btn-events-main { 
+	color: #fff; 
+	background-color: #254969;
+	border-bottom: 3px solid #10222c;
+	 
+}
+
+.btn-events-main:focus, .btn-events-main:hover, .btn-events-main:active {
+	color: #fff;
+	background-color: #286090;
+	border-color: #183748;
+}
+
+@media (max-width: 768px) {
+	.btn-events-main { 
+		display: block;
+	}
+}
+
+@media (min-width: 769px) {
+	.btn-events-main {
+		padding: 10px 50px;
+	}
+}
+
+/* Globals */
+DIV.dm-alert-cond { padding: 10px; }
+DIV.dm-alert-cond P { font-size: 12px; line-height: 13px; }
+
+.dl-compo-status .label { font-size: 100%; }
+.dl-compo-status DD { padding-bottom: 10px; }
+
+.label-platform, .label-format { display: inline-block; padding: 3px 10px 4px 10px; margin-right: 3px; }
+.label-platform { background-color: #6e3731; }
+.label-format { background-color: #31606e; }
+
+/* index page */
+h2.index-head { border-bottom: 1px solid #bbb; margin-bottom: 30px; }
+
+/* comments icons */
+
+.icon-32x32 { width: 32px; height: 32px; background: url("icons-32x32.png?201709143"); }
+.icon-32x32-picture { background-position: 0 0; }
+.icon-32x32-music 	{ background-position: -32px 0; }
+.icon-32x32-demo 	{ background-position: -64px 0; }
+.icon-32x32-other 	{ background-position: -96px 0; }
+
+.icon-64x64 { width: 64px; height: 64px; background: url("icons-64x64.png?201709143"); }
+.icon-64x64-picture { background-position: 0 0; }
+.icon-64x64-music 	{ background-position:  -64px 0; }
+.icon-64x64-demo 	{ background-position: -128px 0; }
+.icon-64x64-other 	{ background-position: -192px 0; }
+
+/* display works */
+.works-media-container .header .row { display: table-row; }
+.works-media-container .header .cell { display: table-cell; vertical-align: middle; }
+.works-media-container .header .cell-number { height: 50px; padding-right: 10px; }
+.works-media-container .header .cell-platform { padding-bottom: 10px; }
+
+.works-media-container .header h2 { margin: 0; }
+.works-media-container .header h3 { margin: 0; }
+
+.works-media-container .platform-description { font-size: 11.5px; }
+
+.works-media-container .author-note {
+	display: inline-block;
+	margin-bottom: 10px;
+	padding: 10px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	box-shadow: 0 1px 1px rgba(0,0,0,.05);
+}
+
+.works-media-container .links { margin-top: 5px; margin-bottom: 5px; }
+.works-media-container .links .item { display: inline-block; margin-right: 16px; white-space: nowrap; }
+.works-media-container .links .icon {
+	position: relative; top: 3px;
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 3px;
+    background: url("icons-16x16.png?201709143");
+}
+
+/* mobile improvement */
+
+.works-media-container P { margin: 0 0 2px; }
+.works-media-container .form-control { width: inherit; }
+
+@media (max-width: 768px) {
+	.dl-compo-status dd { margin-left: 120px; }
+	.dl-compo-status dt {
+	    float: left;
+	    width: 110px;
+	    overflow: hidden;
+	    clear: left;
+	    text-align: right;
+	    text-overflow: ellipsis;
+	    white-space: nowrap;
+	}
+	.dl-compo-status dt .dates { display: block; font-size: 85%; }
+	
+	.lang-change-md { display: none; }
+	
+	.breadcrumb { white-space: nowrap; overflow: auto; margin-bottom: 0; }
+	.breadcrumb .breadcrumb-status { display: none;	}
+	.breadcrumb-status-mobile { margin-bottom: 10px; }
+	
+	.works-media-container .img-container IMG { width: 100%; }
+	.works-media-container #external-html IFRAME { width: 100%; height: 256px; }
+	.works-media-container .links .item { display: block; }
+}
+
+@media (min-width: 769px) {
+	.breadcrumb-status-mobile { display: none;	}
+	.lang-change-xs { display: none; }
+	.owl-carousel .owl-item img { width: inherit !important; display: inline !important; }
+}
+
+.dm-nav .lang-change { color: #fff; font-size: 80%; font-weight: bold; float: right; padding-top: 12px; padding-right: 20px; }
+.dm-nav .lang-change a { color: #fff; font-weight: normal; } 
+.dm-nav .lang-change a:hover { color: #FFFBD7; }
+
+.mobile-login-form { margin-top: 10px; }
+.mobile-login-form .help-block { color: #a00; }
+.mobile-login-form A { color: #fff; }
+.mobile-login-form A:hover { color: #FFFBD7; }

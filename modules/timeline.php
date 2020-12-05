@@ -1,6 +1,6 @@
 <?php
 /***********************************************************************
-  Copyright (C) 2009-2013 Andrew nyuk Marinov (aka.nyuk@gmail.com)
+  Copyright (C) 2009-2017 Andrey nyuk Marinov (aka.nyuk@gmail.com)
   $Id$  
   
  ************************************************************************/
@@ -31,34 +31,32 @@ class timeline extends active_record {
 	    return $records;
 	}
 		
-	function actionAdmin() {
-		if (!empty($_POST)) {
-			$this->error_report_type = 'active_form';
-			
-			// Prune all
-			NFW::i()->db->query_build(array('DELETE' => $this->db_table));
-			
-			foreach ($_POST['records'] as $r) {
-				if (!$r['content']) continue;
-				
-				$query = array(
-					'INSERT'	=> '`content`, `date_from`',
-					'INTO'		=> $this->db_table,
-					'VALUES'	=> '\''.NFW::i()->db->escape($r['content']).'\', '.intval($r['date_from'])
-				);
-				if (!NFW::i()->db->query_build($query)) {
-					$this->error('Unable to insert new timeline', __FILE__, __LINE__, NFW::i()->db->error());
-					return false;
-				}
-			}
-			
-			NFW::i()->renderJSON(array('result' => 'success'));
+	function actionAdminAdmin() {
+		if (empty($_POST)) {
+			return $this->renderAction(array(
+				'records' => $this->getRecords()
+			));
 		}
 		
+		$this->error_report_type = 'active_form';
 		
-		return $this->renderAction(array(
-			'records' => $this->getRecords()
-		));
-	        
+		// Prune all
+		NFW::i()->db->query_build(array('DELETE' => $this->db_table));
+		
+		foreach ($_POST['content'] as $key=>$content) {
+			if (!$content) continue;
+			
+			$query = array(
+				'INSERT'	=> '`content`, `date_from`',
+				'INTO'		=> $this->db_table,
+				'VALUES'	=> '\''.NFW::i()->db->escape($content).'\', '.intval($_POST['date_from'][$key])
+			);
+			if (!NFW::i()->db->query_build($query)) {
+				$this->error('Unable to insert new timeline', __FILE__, __LINE__, NFW::i()->db->error());
+				return false;
+			}
+		}
+		
+		NFW::i()->renderJSON(array('result' => 'success'));
    }
 }

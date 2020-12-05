@@ -1,36 +1,58 @@
 <?php
+NFW::i()->assign('page_title', $Module->record['title'].' / Редактирование');
+
+NFW::i()->breadcrumb = array(
+	array('url' => 'admin/news', 'desc' => 'Новости'),
+	array('desc' => $Module->record['title'])
+);
+
 NFW::i()->registerResource('jquery.activeForm');
-NFW::i()->registerResource('ckeditor');
 NFW::i()->registerResource('jquery.jgrowl');
+NFW::i()->registerResource('ckeditor');
+
+// Open session for uploading from CKEditor
+$CMedia = new media();
+$CMedia->openSession(array('owner_class' => get_class($Module), 'owner_id' => $Module->record['id']));
+
+ob_start();
+?>
+<div class="text-muted" style="font-size: 80%;">
+	<div class="pull-right">
+		Добавлено: <?php echo date('d.m.Y H:i', $Module->record['posted']).' ('.$Module->record['posted_username'].')'?>
+		<?php echo $Module->record['edited'] ? '<br />Отредактировано: '.date('d.m.Y H:i', $Module->record['edited']).' ('.$Module->record['edited_username'].')' : '' ?>	
+	</div>
+</div>
+<?php 
+NFW::i()->breadcrumb_status = ob_get_clean();
 ?>
 <script type="text/javascript">
 $(document).ready(function(){
- 	$('form[rel="news-update"]').each(function(){
+ 	$('form[role="news-update"]').each(function(){
  		$(this).activeForm({
- 	 		beforeSubmit: function(){
- 	 			$('div[id="news-update-media"]').find('form').trigger('save-comments');
- 	 	 	},
  	 		action: '<?php echo $Module->formatURL('update').'&record_id='.$Module->record['id']?>',
  			success: function(response) {
+ 				//$('div[id="news-update-media"]').find('form').trigger('save-comments');
+ 				
  	 			if (response.is_updated) {
- 	 				$.jGrowl('Changes sucesfully saved.');
+ 	 				$.jGrowl('Изменения сохранены');
  	 			}
  			}
  		});
 	});
 
 	$('button[id="news-save"]').click(function(){
-		$(this).closest('div[rel="tab-container"]').find('form[rel="news-update"]').submit();
+		$(this).closest('div[role="tabpanel"]').find('form[role="news-update"]').submit();
 	});
 
 	// Visual edit
-	$('textarea[name="content"]').CKEDIT({ 'media': 'news', 'media_owner': '<?php echo $Module->record['id']?>' });
-		
-	$('a[id="news-delete"]').click(function(){
+	$('textarea[name="content"]').CKEDIT({ 'toolbar': '!Full', 'media': 'news', 'media_owner': '<?php echo $Module->record['id']?>' });
+
+	<?php if (NFW::i()->checkPermissions('news', 'delete')): ?>
+	$('[id="news-delete"]').click(function(){
 		if (!confirm('Удалить запись?')) return false;
 
 		$.post('<?php echo $Module->formatURL('delete')?>', { record_id: '<?php echo $Module->record['id']?>' }, function(response){
-			if (response) {
+			if (response != 'success') {
 				alert(response);
 				return false;
 			}
@@ -39,45 +61,42 @@ $(document).ready(function(){
 			}
 		});
 	});
-
-	$('div[id="news-update-tabs"]').tabs().show();
-
-	$(document).trigger('refresh');
+	<?php endif; ?>
 });
 </script>
 
-<div id="news-update-tabs" style="display: none;">
-	<?php if (NFW::i()->checkPermissions('news', 'delete')): ?>
-		<div class="ui-state-error ui-corner-all" style="float: right; margin-right: 0.5em; margin-top: 0.2em; padding-right: 1px;"> 
-			<a id="news-delete" href="#" class="ui-icon ui-icon-trash nfw-tooltip" title="Удалить запись"></a>
-		</div>
-	<?php endif; ?>
-	<div style="float: right; padding-right: 1em; padding-top: 0.2em;">
-		<p style="font-size: 85%; text-align: right;">Добавлено: <?php echo date('d.m.Y H:i:s', $Module->record['posted']).' ('.$Module->record['posted_username'].')'?></p>
-		<?php if ($Module->record['edited']): ?>
-			<p style="font-size: 85%; text-align: right;">Обновлено: <?php echo date('d.m.Y H:i:s', $Module->record['edited']).' ('.$Module->record['edited_username'].')'?></p>
-		<?php endif; ?>
-	</div>
-	
-	<ul>
-		<li><a href="#tabs-1">Текст</a></li>
-		<li><a href="#tabs-2">Параметры</a></li>
-	</ul>
-    
-    <div id="tabs-1">
-		<form rel="news-update">
+<ul class="nav nav-tabs" role="tablist">
+	<li role="presentation" class="active"><a href="#content" aria-controls="content" role="tab" data-toggle="tab">Текст</a></li>
+	<li role="presentation"><a href="#params" aria-controls="params" role="tab" data-toggle="tab">Параметры</a></li>
+</ul>
+
+<div class="tab-content">
+	<div role="tabpanel" class="tab-pane in active" id="content">
+    	<form role="news-update" style="margin-top: 3px;">
 			<textarea name="content"><?php echo htmlspecialchars($Module->record['content'])?></textarea>
 		</form>    
     </div>
-    <div id="tabs-2" rel="tab-container">
-		<form rel="news-update">
-			<?php echo active_field(array('name' => 'title', 'value' => $Module->record['title'], 'attributes'=>$Module->attributes['title'], 'width'=>"500px;"))?>
-			<?php echo active_field(array('name' => 'announcement', 'value' => $Module->record['announcement'], 'attributes'=>$Module->attributes['announcement'], 'width'=>"500px;", 'height'=>"50px;"))?>
+    
+    <div role="tabpanel" class="tab-pane" id="params">
+		<form role="news-update" style="margin-top: 20px;">
+			<?php echo active_field(array('name' => 'title', 'value' => $Module->record['title'], 'attributes'=>$Module->attributes['title']))?>
+			<?php echo active_field(array('name' => 'announcement', 'value' => $Module->record['announcement'], 'attributes'=>$Module->attributes['announcement']))?>
+			<?php echo active_field(array('name' => 'meta_keywords', 'value' => $Module->record['meta_keywords'], 'attributes'=>$Module->attributes['meta_keywords']))?>
 		</form>
-		<div id="news-update-media" style="padding-top: 1em; padding-left: 105px;">
-			<?php echo $media_form?>
-			<button id="news-save" class="nfw-button" icon="ui-icon-disk">Сохранить изменения</button>
-		</div>			
-    </div>
-</div>	    	
+
+		<div id="news-update-media"><?php echo $media_form?></div>
+		
+		<div class="form-group">
+			<div class="col-md-9 col-md-offset-3">
+				<?php if (NFW::i()->checkPermissions('news', 'delete')): ?>
+				<div class="pull-right">
+					<a id="news-delete" href="#" class="text-danger"><span class="glyphicon glyphicon-remove"></span> Удалить запись</a>
+				</div>
+				<?php endif; ?>
+				<button id="news-save" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> <?php echo NFW::i()->lang['Save changes']?></button>
+				<div class="clearfix"></div>
+			</div>
+		</div>
+	</div>
+</div>
 	

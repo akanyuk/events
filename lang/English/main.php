@@ -1,92 +1,75 @@
 <?php
-//English language file for main template
+/**
+ * @var $lang_main array
+ * @desc English language file for main template
+ */
 $lang_main = array(
-	'news' => 'News',
-	'latest news' => 'Latest news',
-
-	'days' 				=> 'days',
-	'hours'				=> 'hours',
-	'minutes'			=> 'minutes',
+	'days suffix'		=> array('day', 'days', 'days'),
+	'hours suffix'		=> array('hour', 'hours', 'hours'),
+	'minutes suffix'	=> array('minute', 'minutes', 'minutes'),
+	'today'				=> 'Today',
+	'yesterday'			=> 'Yesterday',
+	
+	'news' 				=> 'News',
+	'latest news' 		=> 'Latest news',
+	'all news' 			=> 'Show all news',
+	'comments' 			=> 'Comments',
+	'latest comments' 	=> 'Latest comments',
+	'all comments' 		=> 'Show all comments',
+	'days left' 		=> 'days left',
 	'unavailable' 		=> 'unavailable',
-	'event closed' 		=> 'closed',
 	'reception closed' 	=> 'closed',
 	'voting closed' 	=> 'closed',
-	
-	'close button' => 'Close',
-	
-	'register' => array(
-		// email
-		'complete subject'	=> 'Retroscene Events: Welcome',
-		'restore password subject' => 'Retroscene Events: password recovery',
+	'choose button' 	=> 'Choose',
+	'download' 			=> 'download',
+	'search hint'		=> 'Search by title or author',
 		
-		// controler
-		'already registered'=> 'You are already registered. Please <a href="?action=logout">log out</a> to register another account.',
-		'complete desc' 	=> 'A message with the further instructions has been sent to your e-mail address.',
-		'wrong key'			=> 'The password activation key was incorrect or has expired. Please request a new password.',
-				
-		// template
-		'registration'		=> 'Registration',
-		'label info'		=> 'Account information',
-		'username'			=> 'User name',
-		'realname'			=> 'Full name',
-		'country'			=> 'Country',
-		'city'			=> 'City',
-		'language'			=> 'Language',
-		'captcha'			=> 'Protective code',
-		'captcha info'		=> 'Enter the protective code from image nearby.',
-		'send'				=> 'Register',
-		'label success'		=> 'Registration complete',
-		
-		'activation'		=> 'Account activation',
-		'password'			=> 'New password',
-		're-password'		=> 'Retype password',
-		'activate'			=> 'Activate account',
-		
-		'restore password' 			=> 'Restore password',
-		'restore password btn' 		=> 'Restore password',
-		'restore password label' 	=> 'Restore password request',
-		'restore password info'		=> 'Your new password will be sent on your e-mail address.',
-		'restore send'				=> 'Send request',
-		'restore complete caption'	=> 'Operation complete',
-		'restore message'			=> 'If you have specified your login correctly, a message with the further instruction on the password recovery will be sent to you.',		
-	),
-	
 	'cabinet prods' 	=> 'My Prods',
 	'cabinet profile' 	=> 'Profile',
 	'cabinet add work'	=> 'Upload prod',
-	'cabinet' => array(
-		// Profile edit
-		'edit profile' => 'Edit profile',
-		'save profile' => 'Save profile',
-		'edit password' => 'Edit password',
-		'old-password' => 'Old password',
-		'do not change password' => 'If you don\'t want to change your password, leave all the fields blank.',
-	),
+	'cabinet add work at'	=> 'Upload prod at',
+	'cabinet add choose event'		=> 'Choose event',
+	'cabinet add choose event desc'	=> 'Choose event for prod uploading',
 
+	'latest events' 	=> 'Latest events',		
+		'all events' 		=> 'Show all events',
 	'events' 			=> 'Events',
 	'event' 			=> 'Event',
 	'events no open' 	=> 'Opened events not found.',
+	'events not found' 	=> 'Events not found.',
 	
-	'competition' 				=> 'Сompetition',
-	'competions title' 			=> 'Сompetition title',
-	'competions type'			=> 'Works type',
-	'competions reception'		=> 'Reception',
-	'competions voting' 		=> 'Voting',
-	'competions approved works-short'	=> 'Prods',
-	'competions approved works'			=> 'Prods approved',
+	'competition' 						=> 'Сompetition',
+	'competitions type'					=> 'Works type',
+	'competitions reception'			=> 'Reception',
+	'competitions voting' 				=> 'Voting',
+	'competitions approved works-short'	=> 'Prods',
+    'competitions received works'		=> 'Prods received',
+	'competitions approved works'		=> 'Prods approved',
 		
 	'works empty'	=> 'You have not uploaded any prods yet',
 	'works send' 	=> 'Send prod',
 	'works title' 	=> 'Title',
 	'works author' 	=> 'Author',
+	'works author note' => 'Author\'s note',
 	'works platform'	=> 'Platform',
 	'works format'		=> 'Format',
-	'works description'	=> 'Description',
+	'works description'	=> 'Comment for organizers',
+	'works description public'	=> 'Comment for visitors',
+	'works description refs'	=> 'Display additional materials during voting (phases, references, etc)',
+	'works description refs options' => array('Yes', 'No', 'At the discretion of the organizers', 'Another (in comment)'),
+		
 	'works voting' 	=> 'Voting',
 	'works status' 	=> 'Status',
-	'works posted' 	=> 'Posted',
 	
+	'works tab main' 		=> 'Main',
+	'works tab preview' 	=> 'Preview',
+		
+	'works permanent link' => 'Permanent link',
+		
 	'works files'	=> 'Files',
+	'works add files' => 'Add more files',
+	'works add files submit' => 'Send files',
+	'works add file comment' => 'Comment',
 	'works filesize' => 'Filesize',
 	'works uploaded' => 'Uploaded',
 	'filestatus voting' => 'File can be downloaded at online voting',
@@ -94,9 +77,12 @@ $lang_main = array(
 	'filestatus audio' => 'File used in audio-player at online voting and in public prod profile',
 	'filestatus release' => 'File will be added in prods pack and can be downloaded from public prod profile',
 	
-	'works upload info' => '<p>The uploaded files will be stored on the server only after you press the "Send prod" button.</p><p>You can also include extra files (like screenshots, file for voting and nfo file) by describing them in the comments field.</p><p>You will receive an e-mail confirmation of your prod\'s approval after it is verified by the organizers.</p>',
-	'works upload success label' => 'Prod uploaded successfully.',
-	'works upload success message' => 'Prod stored successfully. You will receive an e-mail confirmation of your prod`s approval status after it is verified by the organizers.',
+	'works upload no file error' => 'No files for uploading!.',
+		
+	'works upload info' => '<p>The uploaded files will be stored on the server only after you press the "Send prod" button.</p><p>You can also include extra files (like screenshots, file for voting and nfo file).</p><p>You will receive an e-mail confirmation of your prod\'s approval after it is verified by the organizers.</p>',
+    'works upload agree warning' => 'You must agree to the rules of uploading work.',
+	'works upload success message' => 'Prod stored successfully. You will receive an e-mail confirmation of your prod`s approval status after it is verified by the organizers.',
+	'works added files success message' => 'New files in prod profile stored successfully.',
 	'works status desc' => array(
 		0 => 'Not checked yet',
 		1 => 'Verified',
@@ -106,8 +92,8 @@ $lang_main = array(
 		5 => 'Wait preselection',				
 	),
 	'works status desc full' => array(
-		0 => 'The work is being processed by the organizing committee.',
-		1 => 'The work is accepted.',
+		0 => 'The prod is being processed by the organizing committee.',
+		1 => 'The prod is accepted.',
 		2 => 'Work is disqualified.',
 		3 => 'Awaiting author\'s feedback.',
 		4 => 'Prod will not be shown on the demoparty, but will be included in the release pack.',
@@ -120,8 +106,12 @@ $lang_main = array(
 	'works num_votes' => 'Number of votes',
 	'works total_scores' => 'Total scores',
 	
+	'works comments count' => 'Comments',
+	'works comments write' => 'Write comment',
+	'works comments send' => 'Send comment',
+	'works comments attention register' => 'Only registered users can write comments.',
+		
 	'voting to' => 'Voting ends on',
-	'voting download' => 'Download',
 	'voting audio not support' => 'Ваш браузер не поддерживает воспроизведение аудио.<br />Вы можете скачать данный аудиофайл по ссылке ниже.',
 	'voting votes' => array(
 		0 => 'Skip voting',
@@ -137,14 +127,15 @@ $lang_main = array(
 		10 => '10: Best'
 	),
 	'voting name' => 'Your name or nick',
-	'voting note' => '<strong>Attention!</strong> Your votes and your name may be published by demoparty orgs.',
-	'voting send' => 'Send!',
+	'voting vote' => 'Your vote',
+	'voting note' => '<strong>Attention!</strong> Your votes and your name may be published by demoparty orgs.',
+	'voting send' => 'Do vote!',
 	'voting error empty votelist' => 'Please fill votes',
 	'voting error wrong username' => 'Please fill your name.',
 	'voting error wrong votekey' => 'Wrong votekey.',
 	'voting success note' => 'Your vote accepted.',
 	
-	'votekey-request note' => 'Votekey will be send to given e-mail address. <br />E-mail address never be published by demoparty orgs.',
+	'votekey-request note' => 'Votekey will be send to given e-mail address. <br />E-mail address never be published by demoparty orgs.',
 	'votekey-request email label' => 'E-mail address',
 	'votekey-request' => 'Request votekey',
 	'votekey-another' => 'Another votekey',

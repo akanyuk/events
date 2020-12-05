@@ -1,6 +1,6 @@
 <?php
 /***********************************************************************
-  Copyright (C) 2012 Andrew nyuk Marinov (aka.nyuk@gmail.com)
+  Copyright (C) 2012-2018 Andrey nyuk Marinov (aka.nyuk@gmail.com)
   $Id$
   
   Управление авторскими работами.
@@ -8,37 +8,63 @@
  ************************************************************************/
 
 class works extends active_record {
+	static $action_aliases = array(
+		'update' => array(
+			array('module' => 'works', 'action' => 'admin'),
+			array('module' => 'works', 'action' => 'insert'),
+			array('module' => 'works', 'action' => 'delete'),
+			array('module' => 'works_media', 'action' => 'update_properties'),
+			array('module' => 'works_media', 'action' => 'convert_zx'),
+			array('module' => 'works_media', 'action' => 'file_id_diz'),
+			array('module' => 'works_media', 'action' => 'make_release'),
+			array('module' => 'works_media', 'action' => 'remove_release'),
+		),
+	);
+	
 	var $attributes = array(
 		'competition_id' => array('type' => 'select', 'desc' => 'Competition', 'required' => true, 'options' => array()),
 		'status' => array('type' => 'select', 'desc' => 'Status', 'options' => array(
-			0 => array('id' => 0, 'voting' => false, 'release' => false, 'label-class' => 'label-default', 'icon' => 'glyphicon-question-sign'),	// Unchecked
-			1 => array('id' => 1, 'voting' =>  true, 'release' =>  true, 'label-class' => 'label-success', 'icon' => 'glyphicon-ok'),				// Checked
-			2 => array('id' => 2, 'voting' => false, 'release' => false, 'label-class' => 'label-danger', 'icon' => 'glyphicon-ban-circle'),		// Disqualified
-			3 => array('id' => 3, 'voting' => false, 'release' => false, 'label-class' => 'label-warning', 'icon' => 'glyphicon-question-sign'),	// Feedback needed
-			4 => array('id' => 4, 'voting' => false, 'release' =>  true, 'label-class' => 'label-danger', 'icon' => 'glyphicon-exclamation-sign'),	// Out of competition
-			5 => array('id' => 5, 'voting' => false, 'release' =>  true, 'label-class' => 'label-info', 'icon' => 'glyphicon-hourglass'),			// Wait preselect		
+			0 => array('id' => 0, 'voting' => false, 'release' => false, 'css-class' => 'warning', 'icon' => 'fa fa-question'),				// Unchecked
+			1 => array('id' => 1, 'voting' =>  true, 'release' =>  true, 'css-class' => 'success', 'icon' => 'fa fa-check-circle'),				// Checked
+			2 => array('id' => 2, 'voting' => false, 'release' => false, 'css-class' => 'danger', 'icon' => 'fa fa-ban '),					// Disqualified
+			3 => array('id' => 3, 'voting' => false, 'release' => false, 'css-class' => 'warning', 'icon' => 'fa fa-question'),				// Feedback needed
+			4 => array('id' => 4, 'voting' => false, 'release' =>  true, 'css-class' => 'danger', 'icon' => 'fa fa-exclamation-circle'),	// Out of competition
+			5 => array('id' => 5, 'voting' => false, 'release' =>  true, 'css-class' => 'info', 'icon' => 'fa fa-hourglass-half'),			// Wait preselect		
 		)),
-		'pos' => array('type' => 'int', 'desc' => 'Position'),
+		'position' => array('type' => 'int', 'desc' => 'Position'),
 		'title' => array('type' => 'str', 'desc' => 'Title', 'required' => true, 'maxlength' => 200),
 		'author' => array('type' => 'str', 'desc' => 'Author', 'required' => true, 'maxlength' => 200),
+		'author_note' => array('type' => 'textarea', 'desc' => 'Author note', 'maxlength' => 512),
 		'description' => array('type' => 'textarea', 'desc' => 'Description', 'maxlength' => 2048),
 		'platform' => array('type' => 'str', 'desc' => 'Platform', 'required' => true, 'options' => array()),
 		'format' => array('type' => 'str', 'desc' => 'Format', 'maxlength' => 128),
-		'external_html' => array('type' => 'textarea', 'desc' => 'External HTML (i.e. Youtube)', 'maxlength' => 2048),
+		'external_html' => array('type' => 'textarea', 'desc' => 'External HTML (i.e. Youtube)', 'maxlength' => 2048),
 	);
 	
-	var $breadcrumb = array();
+	public $current_event = false;
 
 	function __construct($record_id = false) {
 		$lang_main = NFW::i()->getLang('main');
-	
+		
 		foreach ($this->attributes['status']['options'] as &$o) {
 			$o['desc'] = $lang_main['works status desc'][$o['id']];
 			$o['desc_full'] = $lang_main['works status desc full'][$o['id']];
 		}
-
+			
+		return parent::__construct($record_id);
+	}
+	
+	private function loadEditorOptions($event_id, $options = array()) {
+		$CEvents = new events($event_id);
+		if (!$CEvents->record['id']) {
+			$this->error($CEvents->last_msg, __FILE__, __LINE__);
+			return false;
+		}
+		
+		$this->current_event = $CEvents->record;
+		
 		// Collect available platforms
-		if (!$result = NFW::i()->db->query_build(array('SELECT'	=> 'DISTINCT platform', 'FROM' => 'works', 'ORDER BY' > 'platform'))) {
+		if (!$result = NFW::i()->db->query_build(array('SELECT'	=> 'DISTINCT platform', 'FROM' => 'works', 'ORDER BY' => 'platform'))) {
 			$this->error('Unable to fetch platforms', __FILE__, __LINE__, NFW::i()->db->error());
 			return false;
 		}
@@ -46,13 +72,21 @@ class works extends active_record {
 			$this->attributes['platform']['options'][] = $record['platform'];
 		}
 		
+		// Load competitions
+		$filters = array(
+			'event_id' => $this->current_event['id'],
+			'open_reception' => isset($options['open_reception']) ? isset($options['open_reception']) : false
+		);
+		$Competitions = new competitions();
+		foreach ($Competitions->getRecords(array('filter' => $filters)) as $c) {
+			$this->attributes['competition_id']['options'][] = array('id' => $c['id'], 'desc' => $c['title']);
+		}
 		
-		return parent::__construct($record_id);
+		return true;
 	}
 	
     private function formatRecord($record) {
-    	$lang_main = NFW::i()->getLang('main');
-    	
+    	$record['display_title'] = $record['voting_to'] <= NFW::i()->actual_date ? $record['title'].' by '.$record['author'] : $record['title'];
     	$record['status_info'] = $this->attributes['status']['options'][$record['status']];
     	
     	// Convert `media_info`
@@ -89,20 +123,27 @@ class works extends active_record {
     	}
     	unset($record['attachments']);
     	
-    	if (file_exists(PROJECT_ROOT.'files/'.$record['event_alias'].'/'.$record['competition_alias'].'/'.iconv("UTF-8", NFW::i()->cfg['media']['fs_encoding'], $record['title']).'.zip')) {
-    		$record['permanent_file'] = pathinfo('files/'.$record['event_alias'].'/'.$record['competition_alias'].'/'.$record['title'].'.zip');    		
-    		$record['permanent_file']['url'] = NFW::i()->absolute_path.'/files/'.$record['event_alias'].'/'.$record['competition_alias'].'/'.$record['title'].'.zip';
+    	
+    	$fs_basename = iconv("UTF-8", NFW::i()->cfg['media']['fs_encoding'], $record['release_basename']);
+    	if ($record['release_basename'] && file_exists(PROJECT_ROOT.'files/'.$record['event_alias'].'/'.$record['competition_alias'].'/'.$fs_basename)) {
+    		NFW::i()->registerFunction('friendly_filesize');
+    		$record['release_link'] = array(
+    			'url' => NFW::i()->absolute_path.'/files/'.$record['event_alias'].'/'.$record['competition_alias'].'/'.$record['release_basename'],
+    			'filesize_str' => friendly_filesize(PROJECT_ROOT.'files/'.$record['event_alias'].'/'.$record['competition_alias'].'/'.$fs_basename),
+    		);
     	}
     	else {
-    		$record['permanent_file'] = false;
+    		$record['release_link'] = false;
     	}
+    	
+    	$record['main_link'] = NFW::i()->absolute_path.'/'.$record['event_alias'].'/'.$record['competition_alias'].'/'.$record['id'];
     	
     	return $record;
 	}
 
 	protected function load($id, $options = array()) {
 		$query = array(
-			'SELECT'	=> 'w.*, c.title AS competition_title, c.pos AS competition_pos, c.alias AS competition_alias, c.works_type, c.voting_from, c.voting_to, e.id AS event_id, e.title AS event_title, e.date_from AS event_from, e.date_to AS event_to, e.alias AS event_alias, u.email AS poster_email, u.realname AS poster_realname, u.country AS poster_country, u.city AS poster_city',
+			'SELECT'	=> 'w.*, c.title AS competition_title, c.position AS competition_pos, c.alias AS competition_alias, c.works_type, c.voting_from, c.voting_to, e.id AS event_id, e.title AS event_title, e.date_from AS event_from, e.date_to AS event_to, e.alias AS event_alias, u.email AS poster_email, u.realname AS poster_realname, u.country AS poster_country, u.city AS poster_city',
 			'FROM'		=> $this->db_table.' AS w',
 			'JOINS'		=> array(
 				array(
@@ -121,60 +162,50 @@ class works extends active_record {
 			'WHERE'		=> 'w.id='.intval($id),
 		);
 		if (!$result = NFW::i()->db->query_build($query)) {
-			$this->error('Unable to fetch record', __FILE__, __LINE__, NFW::i()->db->error());
+			$this->error('Unable to fetch work', __FILE__, __LINE__, NFW::i()->db->error());
 			return false;
 		}
 		
 		if (!NFW::i()->db->num_rows($result)) {
-			$this->error('Record not found.', __FILE__, __LINE__);
+			$this->error('Work not found.', __FILE__, __LINE__);
 			return false;
 		}
 		$this->db_record = $this->record = NFW::i()->db->fetch_assoc($result);
 	
 		$CMedia = new media();
-		$this->record['attachments'] = $CMedia->getFiles(get_class($this), $this->record['id']);
+		$this->record['attachments'] = $CMedia->getFiles(get_class($this), $this->record['id'], array('order_by' => 'position'));
 	
+		// Load links
+		$this->record['links'] = array();
+		if (!$result = NFW::i()->db->query_build(array(
+			'SELECT'	=> 'url, title',
+			'FROM'		=> 'works_links',
+			'WHERE'		=> 'work_id='.$this->record['id'],
+			'ORDER BY'	=> 'position',
+		))) {
+			$this->error('Unable to fetch record links', __FILE__, __LINE__, NFW::i()->db->error());
+			return false;
+		}
+		while ($link = NFW::i()->db->fetch_assoc($result)) {
+			$this->record['links'][] = $link;
+		}
+		
 		$this->record = $this->formatRecord($this->record);
 		return $this->record;
 	}
 	
-	protected function save() {
-		if ($this->record['id']) {
-			$is_updated = parent::save();
-			if ($this->error) return false;
-			
-			if ($is_updated) {
-				// Add service information
-				$query = array(
-					'UPDATE'	=> $this->db_table,
-					'SET'		=> '`edited_by`='.NFW::i()->user['id'].', `edited_username`=\''.NFW::i()->db->escape(NFW::i()->user['username']).'\', `edited_ip`=\''.logs::get_remote_address().'\', `edited`='.time(),
-					'WHERE'		=> '`id`='.$this->record['id']
-				);
-				if (!NFW::i()->db->query_build($query)) {
-					$this->error('Unable to update record', __FILE__, __LINE__, NFW::i()->db->error());
-					return false;
-				}
-			}
-			
-			return $is_updated;
-		}
-		else {
-			parent::save();
-			if ($this->error) return false;
-				
-			// Add service information
-			$query = array(
-				'UPDATE'	=> $this->db_table,
-				'SET'		=> '`posted_by`='.NFW::i()->user['id'].', `posted_username`=\''.NFW::i()->db->escape(NFW::i()->user['username']).'\', `poster_ip`=\''.logs::get_remote_address().'\', `posted`='.time(),
-				'WHERE'		=> '`id`='.$this->record['id']
-			);
-			if (!NFW::i()->db->query_build($query)) {
-				$this->error('Unable to update record', __FILE__, __LINE__, NFW::i()->db->error());
+	protected function save($attributes = array()) {
+		// Determine `position`
+		if (!$this->record['position']) {
+			if (!$result = NFW::i()->db->query_build(array('SELECT' => 'MAX(`position`)', 'FROM' => $this->db_table, 'WHERE' => 'competition_id='.intval($this->record['competition_id'])))) {
+				$this->error('Unable to determine `position`', __FILE__, __LINE__, NFW::i()->db->error());
 				return false;
 			}
-			
-			return true;
-		}	
+			list($pos) = NFW::i()->db->fetch_row($result);
+			$this->record['position'] = intval($pos) + 1;
+		}
+		
+		return parent::save($attributes);
 	}
 		
 	public function loadCounters(&$competitions) {
@@ -217,16 +248,24 @@ class works extends active_record {
 	}
 	
 	public function getRecords($options = array()) {
-		// Count total records
-		$query = array('SELECT' => 'COUNT(*)', 'FROM' => $this->db_table);
-		if (!$result = NFW::i()->db->query_build($query)) {
-			$this->error('Unable to count records', __FILE__, __LINE__, NFW::i()->db->error());
-			return false;
-		}
-		list($total_records) = NFW::i()->db->fetch_row($result);
-	
 		$filter = isset($options['filter']) ? $options['filter'] : array();
-	
+		$limit = isset($options['limit']) ? intval($options['limit']) : false;
+		$offset = isset($options['offset']) ? intval($options['offset']) : false;
+		$skip_pagination = isset($options['skip_pagination']) && $options['skip_pagination'] ? true : false;
+		$fetch_manager_note = isset($options['fetch_manager_note']) && $options['fetch_manager_note'] ? true : false;
+		
+		if (!$skip_pagination) {
+			// Count total records
+			$query = array('SELECT' => 'COUNT(*)', 'FROM' => $this->db_table);
+			if (!$result = NFW::i()->db->query_build($query)) {
+				$this->error('Unable to count records', __FILE__, __LINE__, NFW::i()->db->error());
+				return false;
+			}
+			list($total_records) = NFW::i()->db->fetch_row($result);
+		} else {
+            $total_records = 0;
+        }
+		
 		// Setup WHERE from filter
 		$where = array();
 	
@@ -245,34 +284,40 @@ class works extends active_record {
 		if (!(isset($filter['allow_hidden']) && $filter['allow_hidden'])) {
 			$where[] = 'e.is_hidden=0';
 		}
+
+		// Collect statuses
+		$vs = $rs = array();
+		foreach ($this->attributes['status']['options'] as $s) {
+			if ($s['voting']) {
+				$vs[] = $s['id'];
+			}
+			if ($s['release']) {
+				$rs[] = $s['id'];
+			}
+		}
 		
 		if (isset($filter['voting_only']) && $filter['voting_only']) {
-			$vs = array();
-			foreach ($this->attributes['status']['options'] as $s) {
-				if ($s['voting']) {
-					$vs[] = $s['id'];
-				}
-			}
 			$where[] = 'w.status IN ('.implode(',', $vs).')';
 		}
 		
 		if (isset($filter['release_only']) && $filter['release_only']) {
-			$vs = array();
-			foreach ($this->attributes['status']['options'] as $s) {
-				if ($s['release']) {
-					$vs[] = $s['id'];
-				}
-			}
-			$where[] = 'w.status IN ('.implode(',', $vs).')';
+			$where[] = 'w.status IN ('.implode(',', $rs).')';
 		}
 		
-		// not strong "WHERE"
-	
-		if (isset($options['free_filter'])) {
-			$where[] = '(w.title LIKE \'%'.NFW::i()->db->escape($options['free_filter']).'%\' OR c.title LIKE \'%'.NFW::i()->db->escape($options['free_filter']).'%\')';
+		if (isset($filter['released_only']) && $filter['released_only']) {
+			$where[] = 'w.status IN ('.implode(',', $rs).')';
+			$where[] = 'e.is_hidden=0';
+			$where[] = 'c.voting_to<='.NFW::i()->actual_date;
 		}
-	
-		$where = count($where) ? join(' AND ', $where) : null;
+		
+		if (isset($filter['search_main']) && $filter['search_main']) {
+			$where[] = 'w.status IN ('.implode(',', array_unique(array_merge($vs, $rs))).')';
+			$where[] = 'e.is_hidden=0';
+			$where[] = 'c.voting_from<='.NFW::i()->actual_date;
+			$where[] = '(w.title LIKE \'%'.NFW::i()->db->escape($filter['search_main']).'%\' OR w.author LIKE \'%'.NFW::i()->db->escape($filter['search_main']).'%\')';
+		}
+		
+		$where = count($where) ? join(' AND ', array_unique($where)) : null;
 		
 		$joins = array(
 			array(
@@ -286,65 +331,108 @@ class works extends active_record {
 		);
 		
 		// Count filtered values
-		$query = array(
-			'SELECT'	=> 'COUNT(*)',
-			'FROM'		=> $this->db_table.' AS w',
-			'JOINS'		=> $joins,
-			'WHERE'		=> $where,
-		);
-		if (!$result = NFW::i()->db->query_build($query)) {
-			$this->error('Unable to count filtered records', __FILE__, __LINE__, NFW::i()->db->error());
-			return false;
+		if (!$skip_pagination) {
+			$query = array(
+				'SELECT'	=> 'COUNT(*)',
+				'FROM'		=> $this->db_table.' AS w',
+				'JOINS'		=> $joins,
+				'WHERE'		=> $where,
+			);
+			if (!$result = NFW::i()->db->query_build($query)) {
+				$this->error('Unable to count filtered records', __FILE__, __LINE__, NFW::i()->db->error());
+				return false;
+			}
+			list($num_filtered) = NFW::i()->db->fetch_row($result);
+			if (!$num_filtered) {
+				return $skip_pagination ? array() : array(array(), $total_records, 0);
+			}
+		} else {
+            $num_filtered = 0;
+        }
+
+		$select = array('w.*', 'IFNULL(w.place,9999) AS sorting_place', 'c.title AS competition_title', 'c.position AS competition_pos', 'c.alias AS competition_alias', 'c.works_type', 'c.voting_from', 'c.voting_to', 'e.id AS event_id', 'e.title AS event_title', 'e.date_from AS event_from', 'e.date_to AS event_to', 'e.alias AS event_alias');
+		
+		if ($fetch_manager_note) {
+			$joins[] = array(
+				'LEFT JOIN'=> 'works_managers_notes AS wmi',
+				'ON'		=> 'wmi.work_id=w.id AND wmi.user_id='.NFW::i()->user['id']
+			);
+			
+			$select[] = 'wmi.is_checked AS managers_notes_is_checked';
+			$select[] = 'wmi.is_marked AS managers_notes_is_marked';
+			$select[] = 'wmi.comment AS managers_notes_comment';
 		}
-		list($num_filtered) = NFW::i()->db->fetch_row($result);
-		if (!$num_filtered) {
-			return array(array(), $total_records, 0);
-		}
-	
+		
 		// ----------------
 		// Fetching records
 		// ----------------
 		$query = array(
-			'SELECT'	=> 'w.*, c.title AS competition_title, c.pos AS competition_pos, c.alias AS competition_alias, c.works_type, c.voting_from, c.voting_to, e.id AS event_id, e.title AS event_title, e.date_from AS event_from, e.date_to AS event_to, e.alias AS event_alias',
+			'SELECT'	=> implode(', ', $select),
 			'FROM'		=> $this->db_table.' AS w',
 			'JOINS'		=> $joins,
 			'WHERE'		=> $where,
-			'ORDER BY'	=> isset($options['ORDER BY']) ? $options['ORDER BY'] : 'e.date_from, c.pos, w.pos',
-			'LIMIT' 	=> isset($options['limit']) && $options['limit'] ? intval($options['limit']) : null,
-			'OFFSET' 	=> isset($options['offset']) && $options['offset'] ? intval($options['offset']) : null,
+			'ORDER BY'	=> isset($options['ORDER BY']) ? $options['ORDER BY'] : 'e.date_from, c.position, w.position',
 		);
+		if ($limit) {
+			$query['LIMIT'] = ($offset ? $offset.',' : '').$limit;
+		}
 		if (!$result = NFW::i()->db->query_build($query)) {
 			$this->error('Unable to fetch records', __FILE__, __LINE__, NFW::i()->db->error());
 			return false;
 		}
-		if (!NFW::i()->db->num_rows($result)) return false;
-		$records = $ids = array();
+		if (!NFW::i()->db->num_rows($result)) {
+			return $skip_pagination ? array() : array(array(), $total_records, $num_filtered);
+		}
+		
+		$records = $ids = $links = array();
 		while ($record = NFW::i()->db->fetch_assoc($result)) {
 			$ids[] = $record['id'];
+
+			$links[$record['id']] = array();
 			$record['attachments'] = array();
-				
 			$records[] = $record;
 		}
 
-		// Load attachments
-		$CMedia = new media();
-		foreach ($CMedia->getFiles(get_class($this), $ids) as $a) {
-			foreach ($records as $key=>$record) {
-				if ($record['id'] != $a['owner_id']) continue;
-					
-				array_push($records[$key]['attachments'], $a);
-				break;
+		if (isset($options['load_attachments']) && $options['load_attachments']) {
+			$CMedia = new media();
+			foreach ($CMedia->getFiles(get_class($this), $ids, array('order_by' => 'position')) as $a) {
+				foreach ($records as $key=>$record) {
+					if ($record['id'] != $a['owner_id']) continue;
+						
+					array_push($records[$key]['attachments'], $a);
+					break;
+				}
 			}
+		}
+
+		// Load links
+		if (!$result = NFW::i()->db->query_build(array(
+			'SELECT'	=> 'work_id, url, title',
+			'FROM'		=> 'works_links',
+			'WHERE'		=> 'work_id IN ('.implode(',',$ids).')',
+			'ORDER BY'	=> 'work_id, position',
+		))) {
+			$this->error('Unable to fetch record links', __FILE__, __LINE__, NFW::i()->db->error());
+			return false;
+		}
+		while ($link = NFW::i()->db->fetch_assoc($result)) {
+			$links[$link['work_id']][] = array('title' => $link['title'], 'url' => $link['url']);
 		}
 		
 		foreach ($records as $key=>$record) {
+			$record['links'] = $links[$record['id']];
+			
 			$records[$key] = $this->formatRecord($record);
-		}
+		};
 		
-		return array($records, $total_records, $num_filtered);
+		// Load comments count
+		$CWorksComments = new works_comments();
+		$CWorksComments->loadCounters($records);
+		
+		return $skip_pagination ? $records : array($records, $total_records, $num_filtered);
 	}
 	
-	function validate() {
+	function validate($foo = false, $bar = false) {
 		$errors = parent::validate($this->record, $this->attributes);
 		if (!$this->searchArrayAssoc($this->attributes['competition_id']['options'], $this->record['competition_id'])) {
 			$errors['competition_id'] = 'System error: wrong cometition ID'; 
@@ -353,68 +441,126 @@ class works extends active_record {
 		return $errors;
 	}
 	
+	function actionMainSearch() {
+		$search_string = isset($_GET['q']) ? trim($_GET['q']) : false;
+		if (!$search_string) {
+			NFW::i()->stop('[]');
+		}
+		
+		$response = array();
+		foreach ($this->getRecords(array('filter' => array('search_main' => $search_string), 'limit' => 12, 'skip_pagination' => true)) as $record) {
+			$response[] = array(
+				'id' => $record['id'],
+				'title' => $record['display_title'],
+				'link' => $record['main_link']
+			);
+		}
+		
+		NFW::i()->stop(json_encode($response));
+	}
 	
    	// Просмотр автором работ из ЛК    
-    function cabinetList() {
-    	list($records) = $this->getRecords(array(
+    function actionCabinetList() {
+    	$records = $this->getRecords(array(
     		'filter' => array('posted_by' => NFW::i()->user['id'], 'allow_hidden' => true),
-    		'ORDER BY' => 'e.date_from DESC, c.pos, w.pos'
+    		'ORDER BY' => 'e.date_from DESC, c.position, w.position',
+    		'load_attachments' => true, 'skip_pagination' => true
     	));
     	 
 		return $this->renderAction(array('records' => $records));
     }
     
-    function cabinetView() {
+    function actionCabinetView() {
+    	$this->error_report_type = empty($_POST) ? 'error-page' : 'active_form';
+    	
     	if (!$this->load($_GET['record_id'])) return false;
     	if ($this->record['posted_by'] != NFW::i()->user['id']) {
     		$this->error(NFW::i()->lang['Errors']['Bad_request'], __FILE__, __LINE__);
     		return false;
     	}
 
+    	if (empty($_POST)) {
+	    	return $this->renderAction();
+    	}
+    	    	
+    	// Add files to work
+    	$CMedia = new media();
+    	$files_added = $CMedia->getSessionFiles(get_class($this));
+    	if (empty($files_added)) {
+    		$this->error('System error: no files. Please try again.', __FILE__, __LINE__);
+    		return false;
+    	}
+    	$CMedia->closeSession(get_class($this), $this->record['id']);
+
+    	// Reset `checked` status for all managers
+        NFW::i()->db->query_build(array('UPDATE' => 'works_managers_notes', 'SET' => 'is_checked=0', 'WHERE' => 'work_id='.$this->record['id']));
+
+    	NFW::i()->sendNotify('works_add_files', $this->record['event_id'], array('work' => $this->record, 'media_added' => count($files_added), 'comment' => $_POST['comment']), $files_added);
+    	
     	$lang_main = NFW::i()->getLang('main');
-    	$this->breadcrumb = array(
-    		array('url' => 'cabinet/works?action=list', 'desc' => $lang_main['cabinet prods']),
-    		array('desc' => $this->record['title'])
-    	);
-    	 
-    	return $this->renderAction();
+    	NFW::i()->renderJSON(array('result' => 'success', 'message' => $lang_main['works added files success message']));
     }
 
-    function cabinetAdd() {
-    	$Competitions = new competitions();
-    	foreach ($Competitions->getRecords(array('filter' => array('open_reception' => true))) as $c) {
-    		$this->attributes['competition_id']['options'][] = array('id' => $c['id'], 'desc' => $c['title'].' / '.$c['event_title']);
+    function actionCabinetAdd() {
+    	$lang_main = NFW::i()->getLang('main');
+    	
+    	// Collect events with reception opened
+    	$events = array();
+    	$CCompetitions = new competitions();
+    	foreach ($CCompetitions->getRecords(array('filter' => array('open_reception' => true))) as $c) {
+    		$events[] = $c['event_id'];
     	}
-
-    	if (empty($this->attributes['competition_id']['options'])) {
-    		$lang_main = NFW::i()->getLang('main');
+    	$events = array_unique($events);
+    	
+    	if (empty($events)) {
     		$this->error($lang_main['events no open'], __FILE__, __LINE__);
     		return false;
     	}
-    	 
-    	$CMedia = new media();
-    	if (empty($_POST)) {
-    		
-    		$lang_main = NFW::i()->getLang('main');
-    		$this->breadcrumb = array(
-    			array('url' => 'cabinet/works?action=list', 'desc' => $lang_main['cabinet prods']),
-    			array('desc' => $lang_main['cabinet add work'])
-    		);
-    		
+
+    	// Choose event
+    	if (count($events) > 1 && !isset($_GET['event_id'])) {
+    		$CEvents = new events();
     		return $this->renderAction(array(
-    			'attributes' => $this->attributes,
-    			'media_form' => $CMedia->openSession(array(
-    				'owner_class' => get_class($this), 
-    				'secure_storage' => true,    				
-    				'path_prefix' => 'works',
-    				'template' => 'add_work',
-    			)),
-    		));
+    			'events' => $CEvents->getRecords(array('load_media' => true, 'filter' => array('ids' => $events))) 
+    		), 'add_choose_event');
+    	}
+
+    	$event_id = isset($_GET['event_id']) ? $_GET['event_id'] : reset($events);
+    	  
+    	if (!in_array($event_id, $events)) {
+    		$this->error($lang_main['events not found'], __FILE__, __LINE__);
+    		return false;
     	}
     	
-    	$this->formatAttributes($_POST);
+    	if (!$this->loadEditorOptions($event_id, array('open_reception' => true))) return false;
+    	
+    	if (empty($_POST)) {
+    		return $this->renderAction();
+    	}
 
+    	$lang_main = NFW::i()->getLang('main');
+    	 
+    	$this->formatAttributes($_POST);
+    	// Collect description from several fields
+		$desc = array();
+		if ($_POST['description_public']) {
+			$desc[] = 'Comment for visitors:'."\n".$_POST['description_public'];
+		}
+		if ($_POST['description_refs']) {
+			$desc[] = 'Display additional: '.$_POST['description_refs'];
+		}
+		if ($_POST['description']) {
+			$desc[] = 'Comment for organizers:'."\n".$_POST['description'];
+		}
+		$this->record['description'] = implode("\n\n", $desc);
+		
     	$errors = $this->validate();
+
+    	$CMedia = new media();
+    	if (!$CMedia->countSessionFiles(get_class($this))) {
+    		$errors['general'] = $lang_main['works upload no file error'];
+    	}
+    	
 		if (!empty($errors)) {
    			NFW::i()->renderJSON(array('result' => 'error', 'errors' => $errors));
 		}
@@ -423,91 +569,58 @@ class works extends active_record {
 		if ($this->error) {
 			NFW::i()->renderJSON(array('result' => 'error', 'errors' => array('general' => $this->last_msg)));
 		}
+
+		NFW::i()->hook("works_add_save_success", $this->current_event['alias'], array('record' => $this->record, 'post' => $_POST));
 		
 		// Add media
 		$CMedia->closeSession(get_class($this), $this->record['id']);
+		$this->reload();	// Load $this->record['attachments']
 		
-		$CCompetitions = new competitions($this->record['competition_id']); 
-		NFW::i()->sendNotify('works_add', $CCompetitions->record['event_id'], array('work' => $this->record));
-		
-		$lang_main = NFW::i()->getLang('main');
+		NFW::i()->sendNotify('works_add', $this->current_event['id'], array('work' => $this->record), $this->record['media_info']);
     	NFW::i()->renderJSON(array('result' => 'success', 'message' => $lang_main['works upload success message']));
     }
 
-    function actionAdmin() {
-    	if (!isset($_GET['part']) || $_GET['part'] != 'list.js') {
-    		$CEvents = new events();
-    		return $this->renderAction(array(
-    			'events' => $CEvents->getRecords(array('filter' => array('managed' => true, 'allow_hidden' => true))) 
-    		));
-    	}
+    function actionAdminAdmin() {
+    	// Main action
+    	if (!$this->loadEditorOptions($_GET['event_id'])) return false;
     	
-    	$this->error_report_type = 'silent';
-    			
-    	$options = array(
-    		'limit' => $_POST['iDisplayLength'],
-    		'offset' => $_POST['iDisplayStart'],
+    	if (!isset($_GET['part']) || $_GET['part'] != 'list') {
+    		return $this->renderAction();
+    	}
+    	 
+    	$records = $this->getRecords(array(
     		'filter' => array(
-    			'event_id' => $_POST['event_id'] == '-1' ? null : $_POST['event_id'],
-    			'competition_id' => $_POST['competition_id'] && $_POST['competition_id'] != '-1' ? $_POST['competition_id'] : null,
-    			'allow_hidden' => true
+    		    'event_id' => $this->current_event['id'],
+    		    'allow_hidden' => true,
     		),
-    		'free_filter' => isset($_POST['sSearch']) && $_POST['sSearch'] ? $_POST['sSearch'] : null
-    	);
-/*
-    	switch ($_POST['iSortCol_0']) {
-    		case 1:
-    			$options['ORDER BY'] = $_POST['sSortDir_0'] == 'asc' ? 'w.pos' : 'w.pos DESC';
-    			break;
-    		case 2:
-    			$options['ORDER BY'] = $_POST['sSortDir_0'] == 'asc' ? 'w.title' : 'w.title DESC';
-    			break;
-    		case 2:
-    			$options['ORDER BY'] = $_POST['sSortDir_0'] == 'asc' ? 'w.posted_username' : 'w.posted_username DESC';
-    			break;
-    		case 2:
-    			$options['ORDER BY'] = $_POST['sSortDir_0'] == 'asc' ? 'w.posted_username' : 'w.posted_username DESC';
-    			break;
-    	}
-*/
-    	list($records, $iTotalRecords, $iTotalDisplayRecords) = $this->getRecords($options);
-
-    	// Competitions
-    	$Competitions = new competitions();
-    	$available_competitions = $Competitions->getRecords(array('filter' => array('event_id' => $_POST['event_id'] == '-1' ? null : $_POST['event_id'])));
-    	
-    	NFW::i()->stop($this->renderAction(array(
-    		'records' => $records,
-    		'iTotalRecords' => $iTotalRecords,
-    		'iTotalDisplayRecords' => $iTotalDisplayRecords,
-    		'available_competitions' => $available_competitions
-    	), '_admin_list.js'));
+    		'fetch_manager_note' => true,
+    		'load_attachments' => true,
+    		'skip_pagination' => true,
+    	));
+    	NFW::i()->stop($this->renderAction(array('records' => $records), '_admin_list'));
     }
         
-	function actionInsert() {
-		$this->error_report_type = empty($_POST) ? 'alert' : 'active_form';
-
-		// Author not required in admin
-		$this->attributes['author']['required'] = false;
+	// Update positions
+	function actionAdminSetPos() {
+		$this->error_report_type = 'plain';
 		
-		$CEvents = new events(isset($_GET['event_id']) ? $_GET['event_id'] : null);
-		if (!$CEvents->record['id']) {
-			$this->error('Unable to search event', __FILE__, __LINE__);
-			return false;
+		foreach ($_POST['position'] as $r) {
+			if (!$this->load($r['record_id'])) continue;
+		
+			if (!NFW::i()->checkPermissions('check_manage_event', $this->record['event_id'])) continue;
+		
+			if (!NFW::i()->db->query_build(array('UPDATE' => $this->db_table, 'SET'	=> 'position='.intval($r['position']), 'WHERE' => 'id='.$this->record['id']))) {
+				$this->error('Unable to update positions', __FILE__, __LINE__, NFW::i()->db->error());
+				return false;
+			}
 		}
 		
-		// Load competitions
-		$Competitions = new competitions();
-		foreach ($Competitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id']))) as $c) {
-			$this->attributes['competition_id']['options'][] = array('id' => $c['id'], 'desc' => $c['title']);
-		}
-		
-		if (empty($_POST)) {
-			NFW::i()->stop($this->renderAction(array(
-				'event' => $CEvents->record
-			)));
-		}
+		NFW::i()->stop('success');
+	}
 	
+    function actionAdminInsert() {
+		if (!$this->loadEditorOptions($_GET['event_id'])) return false;
+		
 		// Saving
 		$this->formatAttributes($_POST);
 		$errors = $this->validate();
@@ -515,14 +628,6 @@ class works extends active_record {
 			NFW::i()->renderJSON(array('result' => 'error', 'errors' => $errors));
 		}
 		 
-		// Determine `position`
-		if (!$result = NFW::i()->db->query_build(array('SELECT' => 'MAX(`pos`)', 'FROM' => $this->db_table, 'WHERE' => 'competition_id='.intval($this->record['competition_id'])))) {
-			$this->error('Unable to determine `position`', __FILE__, __LINE__, NFW::i()->db->error());
-			return false;
-		}
-		list($pos) = NFW::i()->db->fetch_row($result);
-		$this->record['pos'] = intval($pos) + 1;
-			
 		$this->save();
 		if ($this->error) {
 			NFW::i()->renderJSON(array('result' => 'error', 'errors' => array('general' => $this->last_msg)));
@@ -531,37 +636,11 @@ class works extends active_record {
 		NFW::i()->renderJSON(array('result' => 'success', 'record_id' => $this->record['id']));
 	}
 	
-	function actionUpdate() {
-		if (isset($_GET['part']) && $_GET['part'] == 'update_pos' && isset($_POST['pos']) && !empty($_POST['pos'])) {
-			$this->error_report_type = 'plain';
-			
-			foreach ($_POST['pos'] as $id=>$value) {
-				if (!$this->load($id)) continue;
-				
-				if (!in_array($this->record['event_id'], NFW::i()->user['manager_of_events'])) continue;
-				
-				if (!NFW::i()->db->query_build(array('UPDATE' => $this->db_table, 'SET'	=> 'pos='.intval($value), 'WHERE' => 'id='.$this->record['id']))) {
-					$this->error('Unable to update positions', __FILE__, __LINE__, NFW::i()->db->error());
-					return false;
-				}
-			}
-			NFW::i()->stop('success');
-		}
-			    	
-		// Main
+	function actionAdminUpdate() {
+		$this->error_report_type = empty($_POST) ? 'error-page' : 'active_form';
 		
-		$this->error_report_type = empty($_POST) ? 'default' : 'active_form';
-
 		if (!$this->load($_GET['record_id'])) return false;
-
-		// Author not required in admin
-		$this->attributes['author']['required'] = false;
-		
-		// Load competitions
-		$Competitions = new competitions();
-		foreach ($Competitions->getRecords(array('filter' => array('event_id' => $this->record['event_id']))) as $c) {
-			$this->attributes['competition_id']['options'][] = array('id' => $c['id'], 'desc' => $c['title']);
-		}
+		if (!$this->loadEditorOptions($this->record['event_id'])) return false;
 		
 		if (empty($_POST)) {
 			return $this->renderAction();
@@ -575,10 +654,52 @@ class works extends active_record {
 		}
 		 
 		$is_updated = $this->save();
-		if ($this->error) {
-			NFW::i()->renderJSON(array('result' => 'error', 'errors' => array('general' => $this->last_msg)));
+		if ($this->error) return false;
+		
+		
+		// Update work manager note
+		if (!NFW::i()->db->query_build(array('DELETE' => 'works_managers_notes', 'WHERE' => 'work_id='.$this->record['id'].' AND user_id='.NFW::i()->user['id']))) {
+			$this->error('Unable to delete old personal info', __FILE__, __LINE__, NFW::i()->db->error());
+			return false;
 		}
-		 
+		
+		if (!NFW::i()->db->query_build(array(
+			'INSERT' => 'work_id, user_id, comment, is_checked, is_marked',
+			'INTO' => 'works_managers_notes',
+			'VALUES' => $this->record['id'].','.NFW::i()->user['id'].', \''.NFW::i()->db->escape($_POST['manager_note']['comment']).'\', '.intval($_POST['manager_note']['is_checked']).', '.intval($_POST['manager_note']['is_marked'])
+		))) {
+			$this->error('Unable to insert personal info', __FILE__, __LINE__, NFW::i()->db->error());
+			return false;
+		}
+		
+		// Update work links
+		$new_links = array();
+		if (isset($_POST['links'])) foreach ($_POST['links']['url'] as $pos=>$url) {
+			if (!$url) continue;
+			
+			$new_links[] = array('url' => $url, 'title' => $_POST['links']['title'][$pos]);
+		}
+		$is_links_updated = NFW::i()->serializeArray($this->record['links']) == NFW::i()->serializeArray($new_links) ? false : true;
+		
+		if ($is_links_updated) {
+			// Prune all old links
+			if (!NFW::i()->db->query_build(array('DELETE' => 'works_links', 'WHERE' => 'work_id='.$this->record['id']))) {
+				$this->error('Unable to delete old links', __FILE__, __LINE__, NFW::i()->db->error());
+				return false;
+			}
+				
+			foreach ($new_links as $key=>$link) {
+				if (!NFW::i()->db->query_build(array(
+					'INSERT' => '`work_id`, `position`, `title`, `url`',
+					'INTO' => 'works_links',
+					'VALUES' => $this->record['id'].','.$key.',\''.NFW::i()->db->escape($link['title']).'\',\''.NFW::i()->db->escape($link['url']).'\''
+				))) {
+					$this->error('Unable to insert link', __FILE__, __LINE__, NFW::i()->db->error());
+					return false;
+				}
+			}
+		}
+		
 		if (isset($_POST['send_notify']) && $_POST['send_notify']) {
 			$CUsers = new users($this->record['posted_by']);
 			if ($this->is_valid_email($CUsers->record['email'])) {
@@ -586,119 +707,16 @@ class works extends active_record {
 			}
 		}
 		
-		NFW::i()->renderJSON(array('result' => 'success', 'is_updated' => $is_updated));
+		NFW::i()->renderJSON(array('result' => 'success', 'is_updated' => $is_updated || $is_links_updated));
 	}
 	
-	function actionMediaManage() {
-		$this->error_report_type = empty($_POST) ? 'plain' : 'active_form';
-		
-		if (!$this->load($_GET['record_id'])) return false;
-		
-		if (empty($_POST)) {
-			foreach ($this->record['media_info'] as $a) {
-				if ($a['type'] == 'image') {
-					list($width, $height) = getimagesize($a['fullpath']);
-					$a['image_size'] = '['.$width.'x'.$height.']'; 
-					$a['icon'] = $a['tmb_prefix'].'64';
-				}
-				else {
-					$a['image_size'] = '';
-					$a['icon'] = $a['icons']['64x64'];
-				}
-				
-				$result[] = array(
-					'id' => $a['id'], 
-					'basename' => $a['basename'], 
-					'url' => $a['url'],
-					'type' => $a['type'],
-					'icon' => $a['icon'],
-					'image_size' => $a['image_size'],
-					'filesize_str' => $a['filesize_str'],
-					'posted_str' => date('d.m.Y H:i:s', $a['posted']),
-					'posted_username' => $a['posted_username'],
-					'is_screenshot' => $a['is_screenshot'], 
-					'is_voting' => $a['is_voting'],
-					'is_image' => $a['is_image'],
-					'is_audio' => $a['is_audio'],
-					'is_release' => $a['is_release']
-				);
-			}			
-			NFW::i()->renderJSON(array('iTotalRecords' => count($result), 'aaData' => $result));
-		}
-				
-		if (isset($_POST['media_release']) && $_POST['media_release']) {
-			if (!$_POST['attach_file_id'] && empty($this->record['release_files'])) {
-				$this->error('Nothing to add into archive!<br />Please select `release` files first.', __FILE__, __LINE__);
-				return false;
-			}
-				
-			$pack_dir = PROJECT_ROOT.'files/'.$this->record['event_alias'].'/'.$this->record['competition_alias'];
-			if (!file_exists($pack_dir)) {
-				if (!mkdir($pack_dir)) {
-					$this->error('Unable to make competition directory', __FILE__, __LINE__);
-					return false;
-				}
-				chmod($pack_dir, 0777);
-			}
-		
-			$pack_filename = iconv("UTF-8", NFW::i()->cfg['media']['fs_encoding'], $this->record['title']).'.zip';
-				
-			$zip = new ZipArchive();
-			if ($zip->open($pack_dir.'/'.$pack_filename, ZIPARCHIVE::OVERWRITE | ZIPARCHIVE::CREATE) !== TRUE) {
-				$this->error('Unable to create zip-archive', __FILE__, __LINE__);
-				return false;
-			}
-		
-			$already_added = array();
-				
-			foreach ($this->record['release_files'] as $a) {
-				if ($a['mime_type'] == 'application/zip') {
-					// Repack zip-archive
-					$ezip = zip_open($a['fullpath']);
-					while ($zip_entry = zip_read($ezip)) {
-						if (zip_entry_open($ezip, $zip_entry, "r")) {
-							$already_added[] = strtolower(zip_entry_name($zip_entry));
-							$zip->addFromString(iconv("UTF-8", 'cp866', zip_entry_name($zip_entry)), zip_entry_read($zip_entry, zip_entry_filesize($zip_entry)));
-							zip_entry_close($zip_entry);
-						}
-					}
-				}
-				else {
-					$basename = strtolower($a['basename']);
-					$basename = in_array($basename, $already_added) ? $a['id'].'_'.$basename : $basename;
-					$already_added[] = $basename;
-					$zip->addFile($a['fullpath'], iconv("UTF-8", 'cp866', $basename));
-				}
-			}
-		
-			$archive_description = 'Full name of prod: '.$this->record['title']."\n".'Author: '.$this->record['author']."\n".'Event: '.$this->record['event_title'].' ('.date('d.m.Y', $this->record['event_from']).' - '.date('d.m.Y', $this->record['event_to']).')'."\n".'Compo: '.$this->record['competition_title']."\n".'Platform: '.$this->record['platform'].($this->record['format'] ? ' / '.$this->record['format'] : '')."\n".'Link: '.NFW::i()->absolute_path.'/files/'.$this->record['event_alias'].'/'.$this->record['competition_alias'].'/'.$pack_filename;
-				
-			if ($_POST['attach_file_id'] && !in_array('file_id.diz', $already_added)) {
-				$zip->addFromString('file_id.diz', $archive_description);
-			}
-		
-			$zip->setArchiveComment(iconv("UTF-8", 'cp1251', htmlspecialchars($archive_description)));
-			$zip->close();
-			chmod($pack_dir.'/'.$pack_filename, 0666);
-			NFW::i()->renderJSON(array('result' => 'success', 'url' => NFW::i()->absolute_path.'/files/'.$this->record['event_alias'].'/'.$this->record['competition_alias'].'/'.$this->record['title'].'.zip'));
-		}
-				
-		// Main save
-		$query = array('UPDATE' => $this->db_table, 'SET' => 'media_info=\''.NFW::i()->serializeArray(isset($_POST['media_info']) ? $_POST['media_info'] : null).'\'', 'WHERE' => 'id='.$this->record['id']);
-		if (!NFW::i()->db->query_build($query)) {
-			$this->error('Unable to update media_info', __FILE__, __LINE__, NFW::i()->db->error());
-			return false;
-		}
-		NFW::i()->renderJSON(array('result' => 'success', 'message' => 'Media settings updated.'));
-	}
-		
-    function actionDelete() {
+    function actionAdminDelete() {
     	$this->error_report_type = 'plain';
-    	if (!$this->load($_POST['record_id'])) return false;
+    	if (!$this->load($_GET['record_id'])) return false;
     	
     	// Remove attachments
     	$CMedia = new media();
-    	foreach ($this->record['attachments'] as $a) {
+    	if (isset($this->record['attachments'])) foreach ($this->record['attachments'] as $a) {
     		$CMedia->reload($a['id']);
     		$CMedia->delete();    		
     	}

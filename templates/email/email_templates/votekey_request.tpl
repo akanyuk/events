@@ -4,10 +4,10 @@ switch($get_variable) {
 		echo $language == 'English' ? 'Retroscene Events: votekey generated' : 'Retroscene Events: ключ голосования';
 		break;
 	case 'from': 
-		echo NFW::i()->cfg['email_from'];
+		echo NFW::i()->project_settings['email_from'];
 		break;
 	case 'from_name':
-		echo 'Retroscene Events';
+		echo NFW::i()->project_settings['email_from_name'];
 		break;
 	case 'message':
 ?>

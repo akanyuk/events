@@ -1,42 +1,78 @@
-<script type="text/javascript">
-$(document).ready(function(){
-	$('select[name="competition_id"], select[name="event_id"]').change(function(){
-		$(this).closest('form').submit();
-	}); 
-});
-</script>
-<form id="stats">
-	<legend>Voting statistics</legend>
-		
-	<div class="row">
-  		<div class="col-md-5">		
-			<select name="event_id" class="form-control"><?php foreach ($events as $e) {
-				echo '<option value="'.$e['id'].'"'.($e['id'] == $cur_event['id'] ? ' selected="selected"' : '').'>'.htmlspecialchars($e['title']).'</option>';
-			} ?></select>
-		</div>
-		<div class="col-md-7">
-			<select name="competition_id" class="form-control"><?php foreach ($competitions as $c) {
-				echo '<option value="'.$c['id'].'"'.($c['id'] == $cur_competition['id'] ? ' selected="selected"' : '').'>'.htmlspecialchars($c['title']).'</option>';
-			} ?></select>
-		</div>
-	</div>
-</form>
-<br />
-<style>
-/*			
-	.google-visualization-controls-categoryfilter-selected { max-width: inherit !important; }
-	.google-visualization-controls-categoryfilter-selected { max-width: 150px; }
-	.google-visualization-controls-categoryfilter-selected LI { white-space: nowrap; overflow: hidden; }
-*/
-	.google-visualization-controls-label { display: none; }
-</style>
-<?php if ($data): ?>
+<?php 
+NFW::i()->registerResource('jquery.activeForm');
+
+$CEvents = new events();
+$events = $CEvents->getRecords();
+
+$CCompetitoins = new competitions();
+$competitions = $CCompetitoins->getRecords();
+?>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">
+$(document).ready(function(){
+	$('select[id="competition_id"]').change(function(){
+		loadStatistic();
+	});
+	
+	$('select[id="event_id"]').change(function(){
+		$('select[id="competition_id"]').empty();
+
+		var curEvent = $(this).val();
+		
+		$('#competitions-full-list div').each(function(){
+			if ($(this).data('event-id') == curEvent) {
+				$('select[id="competition_id"]').append('<option value="' + $(this).data('id') + '">' + $(this).text() + '</option>');
+			} 
+		});
+
+		loadStatistic();
+		
+	}).trigger('change');
+
+	$('#chapter').on('click', 'a[role="tab"]', function (e) {
+	    loadStatistic($(this).attr('aria-controls'));
+	});	
+
+	function loadStatistic(chapter) {
+		if (!chapter) {
+			chapter = $('#chapter').find('li.active a').attr('aria-controls');
+		}
+		
+		var competition_id = $('select[id="competition_id"]').val();
+
+		if (chapter == 'timeline') {
+			$.post(null, { 'chapter': 'timeline', 'competition_id': competition_id}, function(response){
+
+				switch (response.result) {
+				case 'error':
+					$('div[id="timeline-container"]').html('<div class="alert alert-danger">' + response.message + '</div>');
+					break;
+				case 'empty':
+					$('div[id="timeline-container"]').html('<div class="alert alert-info">Empty result.</div>');
+					break;
+				case 'success':
+					$('div[id="timeline-container"]').html('<div id="colFilter_div"></div><div id="chart_div"></div>');							
+					drawChart(JSON.parse(response.data));
+					break;
+
+				}
+			}, 'json');
+		}
+
+		if (chapter == 'countries') {
+			$.post(null, { 'chapter': 'countries', 'competition_id': competition_id}, function(response){
+				$('div[id="countries-container"]').html(response);
+			}, 'html');
+		}
+	}
+});
+
+
+// Google charts
 google.load("visualization", "1", { packages:["corechart"] });
-google.setOnLoadCallback(drawChart);
-function drawChart() {
-  var data = new google.visualization.arrayToDataTable([<?php echo $data?>]);
+//google.setOnLoadCallback(drawChart);
+function drawChart(data) {
+  data = new google.visualization.arrayToDataTable(data);
 
   var columnsTable = new google.visualization.DataTable();
   columnsTable.addColumn('number', 'colIndex');
@@ -55,12 +91,7 @@ function drawChart() {
       chartType: 'LineChart',
       containerId: 'chart_div',
       dataTable: data,
-      options: {
-    	  'chartArea': { left:32 },
-          'title': '<?php echo htmlspecialchars($cur_event['title'].' / '.$cur_competition['title'])?> (Average vote)',
-          'width': 1000, 
-          'height': 500
-      }
+      options: { 'chartArea': { left:32 }, 'width': 1000, 'height': 500 }
   });
   
   var columnFilter = new google.visualization.ControlWrapper({
@@ -102,9 +133,38 @@ function drawChart() {
   columnFilter.draw();
 }
 </script>
+<style>
+	.tab-pane { padding-top: 20px; }
+	.google-visualization-controls-label { display: none; }
+</style>
 
-<div id="colFilter_div"></div>
-<div id="chart_div"></div>
-<?php else: ?>
-<div class="alert alert-info">Nothing found.</div>
-<?php endif; ?>	
+<div id="competitions-full-list" style="display: none;"><?php foreach ($competitions as $c) { ?>
+	<div data-event-id="<?php echo $c['event_id']?>" data-id="<?php echo $c['id']?>"><?php echo htmlspecialchars($c['title'])?></div>
+<?php } ?></div>
+
+<h1>Voting statistics</h1>
+	 
+<div class="row">
+	<div class="col-md-5">		
+		<select id="event_id" class="form-control"><?php foreach ($events as $e) {
+			echo '<option value="'.$e['id'].'">'.htmlspecialchars($e['title']).'</option>';
+		} ?></select>
+	</div>
+	<div class="col-md-7"><select id="competition_id" class="form-control"></select></div>
+</div>
+<br />
+
+<ul id="chapter" class="nav nav-tabs" role="tablist">
+	<li role="presentation" class="active"><a href="#timeline" aria-controls="timeline" role="tab" data-toggle="tab">Timeline</a></li>
+	<li role="presentation"><a href="#countries" aria-controls="countries" role="tab" data-toggle="tab">Countries</a></li>
+</ul>
+
+<div class="tab-content">
+	<div role="tabpanel" class="tab-pane active" id="timeline">
+		<div id="timeline-container"></div>
+	</div>
+	
+	<div role="tabpanel" class="tab-pane" id="countries">
+		<div id="countries-container"></div>
+	</div>
+</div>

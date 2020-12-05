@@ -6,7 +6,7 @@
 ?>
 <script type="text/javascript">
 $(document).ready(function(){
-	$('div[rel="countdown"]').each(function(){
+	$('div[role="countdown"]').each(function(){
 		var dateTo = new Date($(this).text());
 		$(this).countdown({
 			until: dateTo, 
@@ -19,21 +19,33 @@ $(document).ready(function(){
 });
 </script>				
 <style>
-	.timeline-record { padding: 5px !important; margin-bottom: 10px !important; }
-	.timeline-record HR { margin: 0 !important; }
+	.timeline .btn-fullscreen { font-weight: bold; }
+		
+	.timeline-record { 
+		border: 1px solid #888;
+		border-radius: 5px; 
+		background-color: #eee; 
+		padding: 2px; 
+		margin-bottom: 8px; 
+	}
+	.timeline-record HR { border: none; border-bottom: 1px dotted #888; margin: 0 !important; }
 	.timeline-record .countdown { float: right; text-align: right; font-family: Consolas, Lucida Console, Courier New, monospace; font-weight: bold; color: #fff; text-shadow: 1px 0 6px #F9FF2F;	}
-	.timeline-record .date { margin-bottom: 3px; padding: 0 5px; background-color: #328CAA; color: #fff; font-size: 85%; font-weight: bold; }
-	.timeline-record .desc { font-size: 90%;  }
+	.timeline-record .date { padding: 2px 5px; background-color: #444; color: #fff; font-size: 90%; font-weight: bold; }
+	.timeline-record .desc { background-color: #4a6b77; color: #fff; padding: 5px 10px; }
 </style>
-<div style="margin-bottom: 20px;">
-<?php foreach ($records as $record) { ?>
-	<div id="obj" class="timeline-record alert alert-info">
-   		<div class="date">
-   			<div rel="countdown" class="countdown"><?php echo date('r', $record['date_from'])?></div>
-   			<?php echo date('d.m.Y H:i', $record['date_from'])?>
-   		</div>
-   		<div class="desc"><?php echo str_replace('<br', '<hr', nl2br($record['content']))?></div>
-   	</div>   	
-<?php } ?>
-<a href="<?php echo NFW::i()->base_path?>timeline" class="btn btn-info btn-sm">Fullscreen Timeline</a>
+<div class="timeline">
+	<?php foreach ($records as $record) { ?>
+		<div id="obj" class="timeline-record">
+	   		<div class="date">
+	   			<div role="countdown" class="countdown"><?php echo date('r', $record['date_from'])?></div>
+	   			<?php echo date('d.m.Y H:i', $record['date_from'])?>
+	   		</div>
+	   		<div class="desc"><?php echo str_replace('<br', '<hr', nl2br($record['content']))?></div>
+	   	</div>   	
+	<?php } ?>
+	<div class="hidden-xs">
+		<div class="text-center" style="padding-top: 10px;">
+			<a href="<?php echo NFW::i()->base_path?>timeline" class="btn-fullscreen">Fullscreen Timeline</a>
+		</div>
+	</div>
 </div>

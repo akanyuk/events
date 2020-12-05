@@ -1,24 +1,40 @@
 <?php 
+NFW::i()->registerFunction('tmb');
+
+list ($records) = $records;
+
 $counter = 0;
-foreach ($news as $record) {
+foreach ($records as $record) {
 	$record_image = NFW::i()->assets('main/news-no-image.png');
-	foreach ($record['attachments'] as $a) {
+	foreach ($record['media'] as $a) {
 		if ($a['type'] != 'image') continue;
-		$record_image = $a['tmb_prefix'].'64.'.$a['extension'];
-		break;
+		$record_image = tmb($a, 64);
 	}
 ?>
-<div class="media">
-	<a class="pull-left" href="<?php echo NFW::i()->base_path.'news.html?id='.$record['id']?>"><img class="media-object" src="<?php echo $record_image?>" /></a>
-    <div class="media-body">
-    	<div class="pull-right"><span class="label label-info"><?php echo date('d.m.Y', $record['posted'])?></span></div>
-    	<h4 class="media-heading"><a href="<?php echo NFW::i()->base_path.'news.html?id='.$record['id']?>"><?php echo htmlspecialchars($record['title'])?></a></h4>
-    	<div class="clearfix"></div>
-    	<p><?php echo nl2br($record['announcement'])?></p>
-    </div>
-    <div class="clerafix"></div>
+<div class="hidden-md hidden-sm hidden-lg">
+	<div style="display: table-row;">
+		<div style="display: table-cell; vertical-align: top; width: 82px; text-align: left;">
+			<a style="display: inline-block;" href="<?php echo NFW::i()->base_path.'news.html?id='.$record['id']?>"><img class="media-object" src="<?php echo $record_image?>" /></a>
+			<div style="padding-top: 3px; font-weight: bold; font-size: 12px;"><?php echo date('d.m.Y', $record['posted'])?></div>
+		</div>
+		<div style="display: table-cell; vertical-align: top;">
+			<p><a href="<?php echo NFW::i()->base_path.'news.html?id='.$record['id']?>"><?php echo nl2br($record['announcement'])?></a></p>
+		</div>
+	</div>
 </div>
-<?php
-	echo $counter++ == count($news) - 1 ? '' : '<hr />'; 
-} 
+<div class="hidden-xs">
+	<div style="display: table-row; padding-bottom: 10px;">
+		<div style="display: table-cell; width: 80px; vertical-align: top; text-align: left;">
+			<a href="<?php echo NFW::i()->base_path.'news.html?id='.$record['id']?>"><img class="media-object" src="<?php echo $record_image?>" /></a>
+		</div>
+		<div style="display: table-cell; vertical-align: top;">
+			<div style="font-weight: bold; font-size: 12px;"><?php echo date('d.m.Y', $record['posted'])?></div>
+			<p><a href="<?php echo NFW::i()->base_path.'news.html?id='.$record['id']?>"><?php echo nl2br($record['announcement'])?></a></p>
+		</div>
+	</div>
+</div>
+<?php 
+	echo $counter++ == count($records) - 1 ? '' : '<hr />'; 
+}
+
 echo $paging_links;

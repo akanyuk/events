@@ -1,66 +1,70 @@
-<?php 
+<?php
+NFW::i()->assign('page_title', 'Новости / список');
+ 
 NFW::i()->registerResource('dataTables');
+NFW::i()->registerResource('dataTables/Scroller');
 ?>
 <script type="text/javascript">
 $(document).ready(function(){
 	// Action 'admin'
+	var config =  dataTablesDefaultConfig;
 	
-	var dataTablesConfig =  dataTablesDefaultConfig;
-
 	// Infinity scrolling
-	dataTablesConfig.bScrollInfinite = true;
-	dataTablesConfig.bScrollCollapse = true;
-	dataTablesConfig.iDisplayLength = 100;
-	dataTablesConfig.sScrollY = $(window).height() - $('table[id="news"]').offset().top - 102;
+	config.scrollY = $(window).height() - $('table[id="news"]').offset().top - 130;
+	config.deferRender = true;
+	config.scroller = true;
 
-	// AJAX-source
-	dataTablesConfig.sAjaxSource = '<?php echo $Module->formatURL('admin').'&part=list.js'?>';
-
-	dataTablesConfig.fnRowCallback = function( nRow, aData, iDisplayIndex ) {
-		// Make clickable URL
-		<?php if (NFW::i()->checkPermissions('news', 'update')): ?>
-		$('td:eq(0)', nRow).html('<a href="<?php echo $Module->formatURL('update')?>&record_id=' + aData[0].id + '" title="Редактировать параметры">' + aData[1] + '</a>');
-		<?php endif; ?>
+	// Server-side
+	config.bServerSide = true;
+	config.bProcessing = false;
+	config.sAjaxSource = '<?php echo $Module->formatURL('admin').'&part=list.js'?>';
+	config.fnServerData = function (sSource, aoData, fnCallback) {
+		$.ajax( {
+			'dataType': 'json', 
+			'type': "POST", 
+			'url': sSource, 
+			'data': aoData, 
+			'success': fnCallback
+		});
+	};
 		
-		// Dates
-		$('td:eq(1)', nRow).html(formatDateTime(aData[2]));
-		
-		return nRow;
-	}
-	
 	// Create columns
-	dataTablesConfig.aoColumns = [
-		{ 'bSearchable': false, 'bVisible': false },		// properties (ID...)
-	    { 'sClass': 'nowrap-column' },						// Title
-	    { 'bSearchable': false, 'sClass': 'nowrap-column' },// Posted
-	    { 'sClass': 'nowrap-column' }						// Posted By
+	config.columns = [
+		{ 'searchable': false, 'visible': false },		// properties (ID...)
+	    { 'className': 'force-wrap-column' },			// Title
+	    { 'className': 'nowrap-column' },				// Posted
+	    { 'className': 'nowrap-column' }				// Posted By
     ];
-		
-	dataTablesConfig.aaSorting = [[0,'desc']];
-	dataTablesConfig.oSearch = { 'sSearch': '<?php echo (isset($_GET['filter'])) ? htmlspecialchars($_GET['filter']) : ''?>' };
 
-	var oTable = $('table[id="news"]').dataTable(dataTablesConfig);
-	$(window).bind('resize', function () {
-	    oTable.fnAdjustColumnSizing();
-	});
+	config.order = [[0,'desc']];
+	config.search = { 'search': '<?php echo (isset($_GET['filter'])) ? htmlspecialchars($_GET['filter']) : ''?>' };
 	
-	// Custom filtering function 
-	$('.dataTables_filter').before($('div[id="custom-filters"]').html()).css('width', '60%');	
+	config.rowCallback = function(row, data, index) {
+		// Make clickable URL
+		$('td:eq(0)', row).html('<a href="<?php echo $Module->formatURL('update')?>&record_id=' + data[0].id + '" title="Редактировать новость">' + data[1] + '</a>');
+
+		// Dates
+		$('td:eq(1)', row).html(formatDateTime(data[2]));
+	}
+
+	var oTable = $('table[id="news"]').dataTable(config);
+
+	// Custom filtering function
+	$('div[id="news_length"]').empty().html($('div[id="custom-filters"]').html());
 	$('div[id="custom-filters"]').remove();
-
-
-	$(document).trigger('refresh');
 });
 </script>
+<style>
+	.force-wrap-column { white-space: normal !important;}
+</style>
+
 <div id="custom-filters" style="display: none;">
-	<div style="float: left;">
-		<?php if (NFW::i()->checkPermissions('news', 'insert')) : ?>
-			<a href="<?php echo $Module->formatURL('insert')?>" class="nfw-button nfw-button-small nfw-tooltip" icon="ui-icon-document" title="Добавить новость"></a>
-		<?php endif; ?>
-	</div>
+	<?php if (NFW::i()->checkPermissions('news', 'insert')) : ?>
+		<a href="<?php echo $Module->formatURL('insert')?>" class="btn btn-primary"><span class="glyphicon glyphicon-plus"></span> Добавить новость</a>
+	<?php endif; ?>
 </div>
 
-<table id="news" class="dataTables">
+<table id="news" class="table table-striped">
 	<thead>
 		<tr>
 			<th></th>

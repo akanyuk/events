@@ -1,184 +1,239 @@
 <?php
-NFW::i()->registerResource('dataTables');
+/**
+ * @var object $Module
+ */
+NFW::i()->assign('page_title', $Module->current_event['title'].' / works');
+
 NFW::i()->registerResource('jquery.activeForm');
+NFW::i()->registerResource('jquery.ui.interactions');
+NFW::i()->registerResource('bootstrap3.typeahead');
+
+NFW::i()->breadcrumb = array(
+	array('url' => 'admin/events?action=update&record_id='.$Module->current_event['id'], 'desc' => $Module->current_event['title']),
+	array('url' => 'admin/competitions?action=admin&event_id='.$Module->current_event['id'], 'desc' => 'Competitions'),
+	array('desc' => 'Works'),
+);
+
+ob_start();
+?>
+<div class="text-muted" style="font-size: 80%;">
+	Total: <span id="total-works-count" class="badge"></span>&nbsp;&nbsp;
+	Approved: <span id="approved-works-count" class="badge"></span>
+</div>
+<?php 
+NFW::i()->breadcrumb_status = ob_get_clean();
 ?>
 <script type="text/javascript">
 $(document).ready(function(){
-	// Action 'insert'
-	$(document).on('click', 'button[id="works-insert"]', function(){
-		$('div[id="works-container"]').empty().load('<?php echo $Module->formatURL('insert')?>&event_id=' + $('select[id="filter-event"]').val());
-		return false;
-	});
-
-	// Update positions
-	$(document).on('click', 'button[id="works-update-pos"]', function(){
-		$.post('<?php echo $Module->formatURL('update')?>&part=update_pos', oTable.find('input[rel="pos"]').serialize(), function(response){
-			if (response != 'success') {
-				alert(response);
-				return false;
-			}
-			
-			oTable.fnDraw();
-		});
-		return false;
-	});
-	
-	// Action 'admin'
-	var availableCompetitions = [];
-				
-	var dtCfg = dataTablesDefaultConfig;
-	dtCfg.aoColumns = [
-		{ 'bSortable': false, 'sClass': 'icon-column' }, 		// status icon
-		{ 'bSortable': false, 'sClass': 'nowrap-column right strong' },// Position
-	  	{ 'bSortable': false, 'sWidth': '100%'},				// Prod title
-		{ 'bSortable': false, 'sClass': 'nowrap-column' },		// Prod author
-	  	{ 'bSortable': false, 'sClass': 'nowrap-column' },		// Competition
-		{ 'bSortable': false, 'sClass': 'nowrap-column' },		// Platform
-		{ 'bSortable': false, 'sClass': 'nowrap-column' },		// Format
-		{ 'bSortable': false, 'sClass': 'nowrap-column' }		// posted
-	];
-	
-	dtCfg.aaSorting = [[1,'asc']];
+	// (Re) load works list
+	$(document).on('admin-reload-works-list', function(){
+		$('div[id="works"]').empty();
 		
-	// AjaxSource
-	// Server-side
-	dtCfg.bServerSide = true;
-	dtCfg.bProcessing = false;
-	dtCfg.sAjaxSource = '<?php echo $Module->formatURL('admin').'&part=list.js'?>';
-	dtCfg.fnServerData = function (sSource, aoData, fnCallback) {
-		aoData.push({ 'name':'event_id','value':  $('select[id="filter-event"]').val() });
-		aoData.push({ 'name':'competition_id','value':  $('select[id="filter-compo"]').val() });
+		$.get('<?php echo $Module->formatURL('admin').'&event_id='.$Module->current_event['id'].'&part=list'?>', function(response) {
+			if (response) {
+				$('div[id="works"]').append(response);
+				$('div[id="works"]').find('[data-toggle="tooltip"]').tooltip({ 'html': true });
 
-		$.ajax( {
-			'dataType': 'json', 
-			'type': "POST", 
-			'url': sSource, 
-			'data': aoData, 
-			'success': function(response){
-				// Update available competitions
-				availableCompetitions = [];
-				$('select[id="filter-compo"]').empty().append('<option value="-1">--- all compos ---</option>');
-
-				$.each(response.available_competitions, function(i, c) {
-					availableCompetitions[c.id] = c.title;
-					$('select[id="filter-compo"]').append('<option value="' + c.id + '"' + (c.id==response.current_competition ? ' selected="selected"' : '') + '>' + c.title + '</option>');
-				});
+				$('[id="total-works-count"]').text($('div[id="works"]').find('#counters').data('total'));
+				$('[id="approved-works-count"]').text($('div[id="works"]').find('#counters').data('approved'));
 				
-				$.uniform.update($('select[id="filter-compo"]'));
-				
-				fnCallback(response);
-			}			
+				updateSortable();
+				updateFilters();
+			}
 		});
-	}
-	
-	// Infinity scrolling
-	dtCfg.bScrollInfinite = true;
-	dtCfg.bScrollCollapse = true;
-	dtCfg.iDisplayLength = 100;
-	dtCfg.sScrollY = $(window).height() - $('table[id="works"]').offset().top - 102;
+	}).trigger('admin-reload-works-list');
 
-	// Save state
-	dtCfg.bStateSave = true;
-	dtCfg.iCookieDuration = 864000;
-	dtCfg.sCookiePrefix = '';
-	
-	// Search & filters
-	dtCfg.fnStateLoadParams = function(oSettings, oData) {
-		// Set initial state of filters
-		$('select[id="filter-event"] option[value="' + oData.event + '"]').attr('selected', 'selected');
-	};
-
-	dtCfg.fnStateSaveParams = function(oSettings, oData) {
-		oData.event = $('select[id="filter-event"]').val();
-	};
-
-	dtCfg.fnDrawCallback = function(oSettings) {
-		if (oSettings.fnRecordsDisplay()) {
-			$('button[id="works-update-pos"]').show();
+	// Filter by competition
+	$('select[id="filter-compo"]').change(function(){
+		var id = $(this).val();
+		
+		if (id == '-1') {
+			$('div[role="competiotion-works"]').find('.header').hide();
+			$('div[role="competiotion-works"]:first').find('.header').show();
+			$('div[role="competiotion-works"]').show();			
 		}
 		else {
-			$('button[id="works-update-pos"]').hide();
+			$('div[role="competiotion-works"]').hide();
+			$('div[role="competiotion-works"][id="' + id + '"]').find('.header').show();
+			$('div[role="competiotion-works"][id="' + id + '"]').show();
 		}
-	};
+	});
+
+	// Insert work
+	var insertDialog = $('div[id="works-insert-dialog"]');
+	insertDialog.modal({ 'show': false });
+
+	$(document).on('click', 'button[id="works-insert"]', function(e, message){
+		// Set default compo
+		var curFilteredCompo = $('select[id="filter-compo"]').val();
+		if (curFilteredCompo != '-1') {
+			$('select[name="competition_id"] option').removeAttr('selected');
+			$('select[name="competition_id"] option[value="' + curFilteredCompo + '"]').attr('selected', 'selected');
+		}
+		
+		insertDialog.find('form').resetForm().trigger('cleanErrors');
+		insertDialog.modal('show');
+	});
+
+	insertDialog.find('form').activeForm({
+		'success': function(response) {
+			insertDialog.modal('hide');
+			window.location.href = '<?php echo $Module->formatURL('update')?>&record_id=' + response.record_id;
+			return false;
+		}
+	});
+
+	// Platform typeahead
+	var aPlatforms = [];
+	<?php foreach ($Module->attributes['platform']['options'] as $p) echo 'aPlatforms.push(\''.htmlspecialchars($p).'\');'."\n"; ?>
+	$('input[name="platform"]').typeahead({ 
+		source: aPlatforms,
+		minLength: 0
+	}).attr('autocomplete', 'off');
 	
-	dtCfg.fnRowCallback = function(nRow, aData, iDisplayIndex) {
-		// Status icons
-		$('td:eq(0)', nRow).html('');
-		if (!aData[0].v || !aData[0].r) {
-			var strTitle = 'Status: <strong>' + aData[0].s + '</strong><br />';
-			strTitle = strTitle + 'Voting: <strong>' + (aData[0].v ? 'on' : 'off') + '</strong><br />';
-			strTitle = strTitle + 'Release: <strong>' + (aData[0].r ? 'on' : 'off') + '</strong><br />';
-			$('<div class="ui-icon ui-icon-alert" title="' + strTitle + '"></div>').tooltip({ 'show': false, 'hide': false }).appendTo($(nRow).find('td:eq(0)'));
-		}
+	$('button[id="works-insert-submit"]').click(function(){
+		insertDialog.find('form').submit();
+	});
 
-		<?php if (NFW::i()->checkPermissions('works', 'update')): ?>
-		// Position
-		if ($('select[id="filter-event"]').val() != '-1') {
-			$('td:eq(1)', nRow).html('<input rel="pos" name="pos[' + aData[0].id + ']" value="' + aData[1] + '" type="text" style="width: 15px;" maxlength="2" />');
-			$('td:eq(1)', nRow).find('input').spinner({ min: 1, max: 99 });
-		}
-
-		// Update
-		$('td:eq(2)', nRow).html('<a href="<?php echo $Module->formatURL('update')?>&record_id=' + aData[0].id + '">' + aData[2] + '</a>');
-		<?php endif; ?>
-
-		// Compo
-		$('td:eq(4)', nRow).html(availableCompetitions[aData[4]]);
+	// Generate permanent link
+	$(document).on('click', '#make-release-link', function(){
+		var obj = $(this);
+		var record_id = obj.closest('.record').attr('id');
 		
-		// Dates
-		$('td:eq(7)', nRow).html(formatDateTime(aData[7][0], true) + ' by ' + aData[7][1]);
-		
-		return nRow;
-	};
-		
-	var oTable = $('table[id="works"]').dataTable(dtCfg);
+		$.post('<?php echo NFW::i()->absolute_path?>/admin/works_media?action=make_release&record_id=' + record_id, function(response) {
+			if (response.result == 'success') {
+				obj.attr('href', decodeURIComponent(response.url));
+				obj.addClass('btn-success').removeClass('btn-default').removeAttr('id');
+			}
+			else {
+				alert(response.errors.general);
+			}
+		}, 'json');
 
-	
-	// Custom filtering function 
-	$('.dataTables_filter').prepend($('div[id="custom-filters"]').html()).css('width', '100%');
-	$('div[id="custom-filters"]').remove();
-
-	$('select[id="filter-event"], select[id="filter-compo"]').change(function(){
-		oTable.fnDraw();
-	}).uniform();
-
-	$(document).trigger('refresh');
+		return false;
+	});
 });
-</script>
 
-<div id="custom-filters" style="display: none;">
-	<div style="float: left; text-align: left;">
-		<select id="filter-event">
-<?php
-	foreach ($events as $e) { 
-		echo '<option value="'.$e['id'].'">'.htmlspecialchars($e['title']).'</option>';
-	} 
-?>
-		</select>
-		<select id="filter-compo"></select>
-	</div>
+updateFilters = function(){
+	$('select[id="filter-compo"]').empty().append('<option value="-1">All competitions</option>');
 	
-	<?php if (NFW::i()->checkPermissions('works', 'insert')): ?>	
-		<button id="works-insert" class="nfw-button" icon="ui-icon-circle-plus" title="Add record to selected event">Add work</button>
-	<?php endif; ?>
-	<?php if (NFW::i()->checkPermissions('works', 'update')): ?>	
-		<button id="works-update-pos" class="nfw-button" icon="ui-icon-disk">Update positions</button>
-	<?php endif; ?>
+	$('div[role="competiotion-works"]').each(function(){
+		var title = $(this).find('#competition-title').text();
+		var id = $(this).attr('id');
+		
+		$('select[id="filter-compo"]').append('<option value="' + id + '">' + title + '</option>');
+	});
+
+	$('select[id="filter-compo"]').trigger('change');
+}
+
+updateSortable = function(){
+ 	$('div[role="competiotion-works"]').sortable({
+		items: '.record',
+ 		axis: 'y', 
+ 		cursor: 'default',
+ 		stop: function(event, ui) {
+ 	 		var container = $(this);
+ 	 		
+ 	 		var aPositions = [];
+ 	 		var iCurPos = 1;
+ 	 		container.find('.record').each(function(){
+ 				aPositions.push({ 'record_id': $(this).attr('id'), 'position': iCurPos });
+ 				$(this).find('#position').text(iCurPos++);
+ 			});
+
+ 			// Update positions
+			$.post('<?php echo $Module->formatURL('set_pos')?>', { 'position': aPositions }, function(response){
+				if (response != 'success') {
+					alert(response);
+					return false;
+				}
+ 			});
+ 			return true;
+ 	 	}
+	});
+}
+
+</script>
+<style>
+@media (max-width: 768px) {
+	.works-menu BUTTON { margin-bottom: 20px; }
+}
+@media (min-width: 769px) {
+	.works-menu SELECT { width: auto; }
+	.works-menu BUTTON { float: right; }
+}
+
+#works > div { margin-bottom: 20px; }
+#works .header { background-color: #ddd; margin-bottom: 5px; }
+#works .header .cell { white-space: nowrap; padding: 0 10px; }
+#works .header .cell:nth-child(1) { text-align: center; font-size: 120%; } 
+#works .header .cell:nth-child(2) { text-align: center; font-size: 120%; }
+
+#works .record .cell { white-space: nowrap; padding: 10px; }
+
+#works .record:nth-child(2n) { background-color: #f4f4f4; }
+
+#works .record .cell:nth-child(1) { min-width: 40px; max-width: 40px; }
+#works .record .cell:nth-child(1) #position { text-align: right;  font-weight: bold; font-size: 22px; }
+@media (max-width: 768px) {
+	#works .record .cell:nth-child(1) { min-width: 74px; max-width: 74px; padding-top: 15px; padding-right: 0; vertical-align: top; text-align: center; }
+	#works .record .cell:nth-child(1) #position { display: inline-block; position: relative; top: -10px; left: -74px; padding: 3px 8px; font-size: 14px; background-color: #999; color: #fff; border-right: 1px solid #ccc; border-bottom: 1px solid #ccc; }
+	#works .record .cell:nth-child(1) .icons { margin-top: 8px; }
+	#works .record .cell:nth-child(1) .icons > div { display: inline-block; }
+}
+@media (min-width: 769px) {
+	#works .record .cell:nth-child(1) .icons-xs { display: none; }
+}
+
+#works .record .cell:nth-child(2) { min-width: 40px; max-width: 40px; text-align: center; }
+#works .record .cell:nth-child(3) { min-width: 40px; max-width: 40px; text-align: center; }
+#works .record .cell:nth-child(4) { max-width: 84px; padding: 5px 10px; text-align: center; }
+#works .record .cell:nth-child(4) IMG { max-height: 96px; }
+
+#works .record .cell:nth-child(5) { width: 100%; }
+#works .record .cell:nth-child(5) .title { display: block; font-weight: bold; }
+@media (max-width: 768px) {
+	#works .record .cell:nth-child(5) { vertical-align: top; white-space: normal; }
+	#works .record .cell:nth-child(5) .title { display: inline; }
+	#works .record .cell:nth-child(5) .by { font-weight: bold; }
+}
+
+#works .record .cell:nth-child(6) { min-width: 200px; max-width: 200px; text-align: center; }
+#works .record .cell:nth-child(7) { line-height: 15px; }
+
+#works .label-platform, #works .label-format { display: inline-block; padding: 3px 10px 4px 10px; }
+#works .label-platform { background-color: #6e3731; }
+#works .label-format { background-color: #31606e; }
+</style>
+
+<div id="works-insert-dialog" class="modal fade">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title">Insert work</h4>
+			</div>
+			<div class="modal-body">
+				<form action="<?php echo $Module->formatURL('insert').'&event_id='.$Module->current_event['id']?>">
+					<?php echo active_field(array('name' => 'competition_id', 'attributes'=>$Module->attributes['competition_id'], 'labelCols' => '2'))?>
+					<?php echo active_field(array('name' => 'title', 'attributes'=>$Module->attributes['title'], 'labelCols' => '2'))?>
+					<?php echo active_field(array('name' => 'author', 'attributes'=>$Module->attributes['author'], 'labelCols' => '2'))?>
+					<?php echo active_field(array('name' => 'platform', 'attributes'=>$Module->attributes['platform'], 'labelCols' => '2'))?>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button id="works-insert-submit" type="button" class="btn btn-primary"><span class="fa fa-floppy-o"></span> <?php echo NFW::i()->lang['Save changes']?></button>
+				<button type="button" class="btn btn-default" data-dismiss="modal"><?php echo NFW::i()->lang['Close']?></button>
+			</div>
+		</div>
+	</div>
 </div>
 
-<div id="works-container"></div>
+<div class="works-menu">
+	<button id="works-insert" class="btn btn-primary" title="Insert work"><span class="fa fa-plus"></span> Insert work</button>
+	<select id="filter-compo" class="form-control"></select>
 
-<table id="works" class="dataTables">
-	<thead>
-		<tr>
-			<th></th>
-			<th>Pos</th>
-			<th>Title</th>
-			<th>Author</th>
-			<th>Competition</th>
-			<th>Platform</th>
-			<th>Format</th>
-			<th>Posted</th>
-		</tr>
-	</thead>
-</table>
+</div>
+
+<div id="works"></div>

@@ -1,36 +1,53 @@
 <?php
 /***********************************************************************
-  Copyright (C) 2009-2013 Andrew nyuk Marinov (aka.nyuk@gmail.com)
+  Copyright (C) 2009-2017 Andrey nyuk Marinov (aka.nyuk@gmail.com)
   $Id$  
 
  ************************************************************************/
 class pages extends active_record {
-	var $path = '';
+	static $action_aliases = array(
+		'admin' => array(
+			array('module' => 'pages', 'action' => 'update'),
+			array('module' => 'pages', 'action' => 'media_upload'),
+			array('module' => 'pages', 'action' => 'media_modify'),
+		),
+		'advanced-admin' => array(
+			array('module' => 'pages', 'action' => 'insert'),
+			array('module' => 'pages', 'action' => 'delete'),
+		)
+	);
+	
 	var $attributes = array(
 		'title' => array('desc'=>'Заголовок страницы', 'type'=>'str', 'required'=>true, 'minlength'=>4, 'maxlength'=>255),
 		'content' => array('desc'=>'Содержимое страницы', 'type'=>'str', 'maxlength'=>1048576),
-		'path' => array('desc'=>'Относительный путь', 'type'=>'str', 'required'=>true, 'maxlength'=>255),
-		'elements' => array('desc'=>'Элементы', 'type'=>'custom'),
+		'path' => array('desc'=>'Относительный путь', 'type'=>'str', 'unique'=>true, 'maxlength'=>255),
+		'meta_keywords' => array('desc'=>'SEO: ключевые слова через&nbsp;запятую', 'type'=>'str', 'maxlength'=>255),
+		'meta_description' => array('desc'=>'SEO: описание страницы', 'type'=>'str', 'maxlength'=>255),
 		'is_active' => array('desc'=>'Страница активна', 'type'=>'bool')
 	);
 	
+	function __construct($record_id = false) {
+		return parent::__construct($record_id);
+	}
+	
 	function loadPage($path = false) {
-		if ($path === false) {
-			$path = preg_replace('/(^\/)|(\/$)|(\?.*)|(\/\?.*)/', '', $_SERVER['REQUEST_URI']);
-		}
+		$path = urldecode($path === false ? preg_replace('/(^\/)|(\/$)|(\?.*)|(\/\?.*)/', '', $_SERVER['REQUEST_URI']) : $path);
+		
+		if (!$this->load('\''.NFW::i()->db->escape($path).'\' OR LOWER(path)=\''.NFW::i()->db->escape($path.'?lang='.strtolower(NFW::i()->user['language'])).'\'', true)) return false;
+		
+		// Remove multilanguage addon
+		$this->record['path'] = preg_replace('/\?lang=.*$/', '', $this->record['path']);
 
-		$this->path = $path ? $path : '/';	// Index page
-		return $this->load($this->path, true);
+		$this->record['is_index_page'] = $this->record['path'] == '' ? true : false;
+		
+		return $this->record;
 	}
 		
 	protected function load($id, $load_by_path = false) {
-		$query = array(
-			'SELECT'	=> '*',
-			'FROM'		=> $this->db_table,
-		);
-		
+		$query = array('SELECT'	=> '*', 'FROM' => $this->db_table);
 		if ($load_by_path) {
-			$query['WHERE']	= 'path=\''.NFW::i()->db->escape($id).'\' OR path=\''.NFW::i()->db->escape(urldecode($id)).'\'';
+			$query['WHERE']	= 'path='.$id;
+			$query['ORDER BY'] = 'LENGTH(path) DESC';
 		}
 		else {
 			$query['WHERE']	= 'id='.intval($id);
@@ -41,7 +58,7 @@ class pages extends active_record {
 			return false;
 		}
 		if (!NFW::i()->db->num_rows($result)) {
-			$this->error('Record not found.', __FILE__, __LINE__, NFW::i()->db->error());
+			$this->error('Record not found: '.$id, __FILE__, __LINE__);
 			return false;
 		}
 		$this->db_record = $this->record = NFW::i()->db->fetch_assoc($result);
@@ -49,26 +66,32 @@ class pages extends active_record {
 		$CMedia = new media();
 		$this->record['attachments'] = $CMedia->getFiles(get_class($this), $this->record['id']); 
 		
-		// Load elements
-		$this->record['elements'] = NFW::i()->unserializeArray($this->record['elements']);
-		if (!empty($this->record['elements'])) {
-			$CElements = new elements();
-			foreach ($CElements->getRecords() as $e) {
-				if (in_array($e['id'], $this->record['elements'])) {
-					$this->record[$e['alias']] =  $e['content'];
-				}
-			}
-		}
-		
 		return $this->record;
 	}
 		
-	function getRecords() {
+	function getRecords($options = array()) {
+		$order_by = isset($options['ORDER BY']) ? $options['ORDER BY'] : 'edited DESC';
 		$query = array(
-			'SELECT'	=> 'id, title, path, is_active, posted, posted_by, posted_username',
+			'SELECT'	=> 'id, title, path, is_active, posted, posted_by, posted_username, edited, edited_by, edited_username',
 			'FROM'		=> $this->db_table,
-			'ORDER BY'	=> 'is_active DESC, id DESC'
+			'ORDER BY'	=> $order_by
 		);
+		if (isset($options['records_on_page']) && $options['records_on_page']) {
+			if (!$result = NFW::i()->db->query_build(array(
+				'SELECT'	=> 'COUNT(*)',
+				'FROM'		=> $this->db_table,
+			))) {
+				$this->error('Unable to count records', __FILE__, __LINE__, NFW::i()->db->error());
+				return false;
+			}
+			list($num_records) = NFW::i()->db->fetch_row($result);
+		
+			$this->num_pages = ceil($num_records / $options['records_on_page']);
+			$page = isset($options['page']) ? intval($options['page']) : 1;
+			$this->cur_page = ($page <= 1 || $page > $this->num_pages) ? 1 : $page;
+				
+			$query['LIMIT'] = $options['records_on_page'] * ($this->cur_page - 1).','.$options['records_on_page'];
+		}
 		
 		if (!$result = NFW::i()->db->query_build($query)) { 
 			$this->error('Unable to fetch records', __FILE__, __LINE__, NFW::i()->db->error());
@@ -86,55 +109,27 @@ class pages extends active_record {
 	    return $records;
 	}
 		
-	function validate() {
-		$errors = parent::validate();
+	function actionAdminAdmin() {
+		if (isset($_GET['part']) && $_GET['part'] == 'list.js') {
+			$this->error_report_type = 'plain';
 		
-		// Validate 'path' unique
-		$query = array(
-			'SELECT' 	=> '*',
-			'FROM'		=> $this->db_table,
-			'WHERE'		=>  'path=\''.NFW::i()->db->escape($this->record['path']).'\''
-		);
-		if ($this->record['id']) {
-			$query['WHERE'] .= ' AND id<>'.$this->record['id'];
+			$records = $this->getRecords();
+			if ($records === false) {
+				$this->error('Не удалось получить список страниц.', __FILE__, __LINE__);
+				return false;
+			}
+				
+			NFW::i()->stop($this->renderAction(array(
+				'records' => $records
+			), '_admin_list.js'));
 		}
-		if (!$result = NFW::i()->db->query_build($query)) {
-			$this->error('Unable to validate path', __FILE__, __LINE__, NFW::i()->db->error());
-			return false;
-		}
-		 
-		if (NFW::i()->db->num_rows($result)) {
-			$errors['path'] = 'Дублирование поля «'.$this->attributes['path']['desc'].'» недопустимо.';
-		}
-		 
-		return $errors;
-	}
 		
-	function actionAdmin() {
-		if (!isset($_GET['part']) || $_GET['part'] != 'list.js') {
-			return $this->renderAction();
-		}
-
-		$this->error_report_type = 'plain';
-		
-		$records = $this->getRecords();
-		if ($records === false) {
-			$this->error('Не удалось получить список страниц.', __FILE__, __LINE__);
-			return false;
-		}
-			
-		NFW::i()->stop($this->renderAction(array(
-			'records' => $records
-		), '_admin_list.js'));        
+		return $this->renderAction();				
 	}
 
-    function actionInsert() {
-    	$CMedia = new media();
-    	
+    function actionAdminInsert() {
     	if (empty($_POST)) {
-	        return $this->renderAction(array(
-	        	'media_form' => $CMedia->openSession(array('owner_class' => get_class($this), 'safe_filenames' => true, 'force_rename' => true))
-	        ));        
+	        return $this->renderAction();        
     	}
 	   	    	
 	   	// Saving
@@ -145,55 +140,29 @@ class pages extends active_record {
 			NFW::i()->renderJSON(array('result' => 'error', 'errors' => $errors));
 		}
 	   	
-		$this->record['elements'] = array();
-		$CElements = new elements();
-		foreach ($CElements->getRecords() as $e) {
-			if ($e['default']) {
-				$this->record['elements'][] = $e['id'];
-			}
-		}
-		$this->record['elements'] = NFW::i()->serializeArray($this->record['elements']);
-		
 	   	$this->save();
     	if ($this->error) {
 			NFW::i()->renderJSON(array('result' => 'error', 'errors' => array('general' => $this->last_msg)));
 		}
 
-		// Add media
+		// Confirm media, added via CKEditor
+		$CMedia = new media();
 		$CMedia->closeSession(get_class($this), $this->record['id']);
 		
-    	// Add service information
-		$query = array(
-			'UPDATE'	=> $this->db_table,
-			'SET'		=> '`posted_by`='.NFW::i()->user['id'].', `posted_username`=\''.NFW::i()->db->escape(NFW::i()->user['username']).'\', `poster_ip`=\''.logs::get_remote_address().'\', `posted`='.time(),
-			'WHERE'		=> '`id`='.$this->record['id']
-		);
-		if (!NFW::i()->db->query_build($query)) {
-			$this->error('Unable to update record', __FILE__, __LINE__, NFW::i()->db->error());
-			return false;
-		}
-				
 		NFW::i()->renderJSON(array('result' => 'success', 'record_id' => $this->record['id']));
     }
 
-	function actionUpdate() {
-		$this->error_report_type = (empty($_POST)) ? 'default' : 'active_form';
+	function actionAdminUpdate() {
+		$this->error_report_type = empty($_POST) ? 'default' : 'active_form';
 		
     	if (!$this->load($_GET['record_id'])) return false;
 		
-    	$CElements = new elements();
-    	
 	    if (empty($_POST)) {
-	    	$CMedia = new media();
-	        return $this->renderAction(array(
-	        	'elements' => $CElements->getRecords(),
-	        	'media_form' => $CMedia->openSession(array('owner_class' => get_class($this), 'owner_id' => $this->record['id'], 'safe_filenames' => true, 'force_rename' => true))
-	        ));
+	        return $this->renderAction();
     	}
 
 	   	// Save
 	   	$this->formatAttributes($_POST);
-	   	$this->record['elements'] = NFW::i()->serializeArray(isset($_POST['elements']) ? $_POST['elements'] : $this->record['elements']);
 		$errors = $this->validate();
 		if (!empty($errors)) {
 			NFW::i()->renderJSON(array('result' => 'error', 'errors' => $errors));
@@ -204,23 +173,10 @@ class pages extends active_record {
 			NFW::i()->renderJSON(array('result' => 'error', 'errors' => array('general' => $this->last_msg)));
 		}
 		
-		// Add service information
-		if ($is_updated) {
-			$query = array(
-				'UPDATE'	=> $this->db_table,
-				'SET'		=> '`edited_by`='.NFW::i()->user['id'].', `edited_username`=\''.NFW::i()->db->escape(NFW::i()->user['username']).'\', `edited_ip`=\''.logs::get_remote_address().'\', `edited`='.time(),
-				'WHERE'		=> '`id`='.$this->record['id']
-			);
-			if (!NFW::i()->db->query_build($query)) {
-				$this->error('Unable to update record', __FILE__, __LINE__, NFW::i()->db->error());
-				return false;
-			}
-		}
-				
 		NFW::i()->renderJSON(array('result' => 'success', 'is_updated' => $is_updated));
 	}
 	    
-    function actionDelete() {
+    function actionAdminDelete() {
     	$this->error_report_type = 'plain';
     	if (!$this->load($_POST['record_id'])) return false;
     	
@@ -232,6 +188,6 @@ class pages extends active_record {
     	}
     	    	 
    		$this->delete();
-    	NFW::i()->stop();
+    	NFW::i()->stop('success');
     }
 }

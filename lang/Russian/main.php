@@ -1,104 +1,90 @@
 <?php
-// Russian language file for main template
+/**
+ * @var $lang_main array
+ * @desc Russian language file for main template
+ */
 $lang_main = array(
-	'news' => 'Новости',
-	'latest news' => 'Новости',
-	
-	'days' 				=> 'дней',
-	'hours'				=> 'часов',
-	'minutes'			=> 'минут',
+	'days suffix'		=> array('день', 'дня', 'дней'),
+	'hours suffix'		=> array('час', 'часа', 'часов'),
+	'minutes suffix'	=> array('минута', 'минуты', 'минут'),
+	'today'				=> 'Сегодня',
+	'yesterday'			=> 'Вчера',
+		
+	'news' 				=> 'Новости',
+	'latest news' 		=> 'Новости',
+	'all news' 			=> 'Все новости',
+	'comments' 			=> 'Комментарии',
+	'latest comments' 	=> 'Комментарии',
+	'all comments' 		=> 'Все комментарии',
+	'days left' 		=> 'дней осталось',
 	'unavailable' 		=> 'недоступно',
-	'event closed' 		=> 'закончено',
 	'reception closed' 	=> 'завершено',
 	'voting closed' 	=> 'закончено',
-
-	'close button' => 'Закрыть',
-	
-	// register.html
-	'register' => array(
-		// email
-		'complete subject'			=> 'Retroscene Events: Welcome',
-		'restore password subject' 	=> 'Retroscene Events: восстановление пароля',
+	'choose button' 	=> 'Выбрать',
+	'search hint'		=> 'Поиск по названию или автору',
 		
-		// controler
-		'already registered'=> 'Вы уже зарегистрированы. Для регистрации другого пользователя Вам необходимо <a href="?action=logout">выйти из системы</a>.',
-		'complete desc' 	=> 'На указанный Вами E-mail адрес выслана инструкция для продолжения регистрации.',
-		'wrong key'			=> 'Указанный активационный ключ не подходит (возможно, истекло время его использования). Пожалуйста, запросите новый.',
+	'download' 			=> 'скачать',
 		
-		// template
-		'registration'		=> 'Зарегистрироваться',
-		'label info'		=> 'Данные учетной записи',
-		'username'			=> 'Логин',
-		'realname'			=> 'Полное имя',
-		'language'			=> 'Язык',
-		'country'			=> 'Страна',
-		'city'				=> 'Город',
-
-		'send'				=> 'Зарегистрироваться',
-		'captcha'			=> 'Защитный код',
-		'captcha info'		=> 'Для того, чтобы доказать, что вы не спам-бот, введите изображенные цифры.',
-		'label success'		=> 'Регистрация завершена',
-		
-		'activation'		=> 'Активация учетной записи',
-		'password'			=> 'Ваш новый пароль',
-		're-password'		=> 'Повторите ввод',
-		'activate'			=> 'Активировать учетную запись',
-		
-		'restore password' 			=> 'Восстановить пароль',
-		'restore password btn'		=> 'Забыли пароль?',
-		'restore password label' 	=> 'Запросить восстановление пароля',
-		'restore password info' 	=> 'После отправки данных новый пароль со ссылкой на его активацию будет выслан на&nbsp;Ваш e-mail адрес.',
-		'restore send'				=> 'Отправить запрос',
-		'restore complete caption'	=> 'Операция завершена',
-		'restore message'			=> 'Если вы правильно указали Ваш логин, то сообщение c инструкцией по активации нового пароля отправлено на Ваш E-mail адрес.',
-	),
-	
 	'cabinet prods' 	=> 'Мои работы',
 	'cabinet profile' 	=> 'Мой профиль',
 	'cabinet add work' 	=> 'Загрузить работу',
-	'cabinet' => array(
-		// Profile edit
-		'edit profile' => 'Профиль пользователя',
-		'save profile' => 'Сохранить изменения',
-		'edit password' => 'Смена пароля',
-		'old-password' => 'Старый пароль',
-		'do not change password' => 'Если Вы не хотите менять пароль – оставьте все три поля пустыми.',
-	),
+	'cabinet add work at'	=> 'Загрузить работу для',	
+	'cabinet add choose event'		=> 'Выберите событие',
+	'cabinet add choose event desc'	=> 'Выберите событие для загрузки работы',
 	
+	'latest events' 	=> 'Последние события',
+	'all events' 		=> 'Все события',
 	'events' 			=> 'События',
 	'event' 			=> 'Событие',
-	'events no open' 	=> 'В настоящее время нет мероприятий с открытым приемом работ.',
+	'events no open' 	=> 'В настоящее время нет событий с открытым приемом работ.',
+	'events not found' 	=> 'Событие не найдено.',
 	
-	'competition' 				=> 'Номинация',
-	'competions title' 			=> 'Номинация',
-	'competions type'			=> 'Тип работ',
-	'competions reception'		=> 'Прием работ',
-	'competions voting' 		=> 'Голосование',
-	'competions approved works-short'	=> 'Работ',
-	'competions approved works'			=> 'Прислано работ',
+	'competition' 						=> 'Номинация',
+	'competitions type'					=> 'Тип работ',
+	'competitions reception'			=> 'Прием работ',
+	'competitions voting' 				=> 'Голосование',
+	'competitions approved works-short'	=> 'Работ',
+    'competitions received works'		=> 'Прислано работ',
+	'competitions approved works'		=> 'Принято работ',
 
-	'works empty'	=> 'У Вас не загружено ни одной работы',
-	'works send' 	=> 'Отправить работу',
-	'works title' 	=> 'Название',
-	'works author' 	=> 'Автор',
+		
+	'works empty'		=> 'У Вас не загружено ни одной работы',
+	'works send' 		=> 'Отправить работу',
+	'works title' 		=> 'Название',
+	'works author' 		=> 'Автор',
+	'works author note' => 'Комментарий автора',
 	'works platform'	=> 'Платформа',
 	'works format'		=> 'Формат',
-	'works description'	=> 'Описание',
-	'works voting' 	=> 'Голосование',
-	'works status' 	=> 'Статус',
-	'works posted' 	=> 'Добавлена',
+	'works description'	=> 'Комментарий для организаторов',
+	'works description public'	=> 'Комментарий для зрителей',
+	'works description refs'	=> 'Отображать при голосовании дополнительные материалы (фазы, референсы и т.п.)',
+	'works description refs options' => array('Да', 'Нет', 'На усмотрение организаторов', 'Другое (в комментарии)'),
+		
+	'works voting' 		=> 'Голосование',
+	'works status' 		=> 'Статус',
 	
-	'works files'	=> 'Файлы',
+	'works tab main' 		=> 'Информация',
+	'works tab preview' 	=> 'Превью',
+		
+	'works permanent link' 	=> 'Постоянная ссылка',
+		
+	'works files'		=> 'Файлы',
+	'works add files' 	=> 'Дозагрузить файлы',
+	'works add files submit' => 'Отправить',
+	'works add file comment' => 'Комментарий',
 	'works filesize' => 'Размер',
 	'works uploaded' => 'Загружен',
 	'filestatus voting' => 'Файл будет доступен для скачивания во время голосования',
 	'filestatus image' => 'Файл будет отображаться в качестве изображения во время голосования и в публичном профиле работы',
 	'filestatus audio' => 'Файл будет использоваться в audio-плеере во время голосования и в публичном профиле работы',
 	'filestatus release' => 'Файл будет доступен для скачивания в публичном профиле работы, а так же будет добавлен в пак работ',
-	
-	'works upload info' => '<p>Загруженные файлы будут сохранены на сервере только после нажатия кнопки «Отправить работу».</p><p>Вы можете загрузить несколько файлов (скриншот, файл для голосования, архив для релиза), указав описания файлов в поле «Комментарий».</p><p>После проверки оргкомитетом на Ваш e-mail адрес будет выслано оповещение о&nbsp;текущем статусе работы.</p>',
-	'works upload success label' => 'Отправка работы завершена',
+
+	'works upload no file error' => 'Вы не добавили ни одного файла для загрузки.',
+		
+	'works upload info' => '<p>Загруженные файлы будут сохранены на сервере только после нажатия кнопки «Отправить работу».</p><p>Вы можете загрузить несколько файлов (скриншот, файл для голосования, архив для релиза).</p><p>После проверки оргкомитетом на Ваш e-mail адрес будет выслано оповещение о&nbsp;текущем статусе работы.</p>',
+    'works upload agree warning' => 'Вы должны согласиться с правилами загрузки работы.',
 	'works upload success message' => 'Работа успешно сохранена. После проверки оргкомитетом Вы получите e-mail оповещение о&nbsp;текущем статусе работы.',
+	'works added files success message' => 'Новые файлы добавлены в профиль работы.',
 	'works status desc' => array(
 		0 => 'Not checked yet',
 		1 => 'Verified',
@@ -121,9 +107,13 @@ $lang_main = array(
 	'works average_vote' => 'Средний балл',
 	'works num_votes' => 'Всего голосов',
 	'works total_scores' => 'Всего баллов',
+		
+	'works comments count' => 'Комментариев',
+	'works comments write' => 'Написать комментарий',
+	'works comments send' => 'Отправить',
+	'works comments attention register' => 'Только зарегистрированные пользователи могут оставлять комментарии.',
 	
 	'voting to' => 'Голосование до',
-	'voting download' => 'Скачать',
 	'voting audio not support' => 'Your browser does not support the audio element.<br />Please download file from link bellow.',
 	'voting votes' => array(
 		0 => 'Не Голосовать',
@@ -139,6 +129,7 @@ $lang_main = array(
 		10 => '10: Отлично'
 	),
 	'voting name' => 'Ваше имя или ник',
+	'voting vote' => 'Ваша оценка',
 	'voting note' => '<strong>Внимание!</strong> Ваши оценки и ник могут быть опубликованы организаторами демопати.',
 	'voting send' => 'Проголосовать!',
 	'voting error empty votelist' => 'Пожалуйста заполните оценки.',

@@ -1,19 +1,19 @@
 <?php 
 switch($get_variable) {
 	case 'subject':
-		echo $language == 'English' ? 'Retroscene Events: your prod was updated by operator' : 'Retroscene Events: Ваша работа обновлена оператором';
+		echo $language == 'English' ? 'Retroscene Events: your prod was updated by operator' : 'Retroscene Events: Ваша работа обновлена оператором';
 		break;
 	case 'from': 
-		echo NFW::i()->cfg['email_from'];
+		echo NFW::i()->project_settings['email_from'];
 		break;
 	case 'from_name':
-		echo 'Retroscene Events';
+		echo NFW::i()->project_settings['email_from_name'];
 		break;
 	case 'message':
 ?>
 <html><body>
 <?php if ($language == 'English'): ?>
-<p>Your prod at site "Retroscene Events" was updated by operator.</p>
+<p>Your prod at site "Retroscene Events" was updated by operator.</p>
 <p>You can check prod status in your <a href="<?php echo NFW::i()->absolute_path?>/cabinet/works?action=list">Private Office</a>.</p>
 <br />
 <p>(Please do not reply)</p>

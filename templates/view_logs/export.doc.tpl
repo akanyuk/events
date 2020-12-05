@@ -6,7 +6,6 @@ BODY, TD, TH, P { color: #000; font-family: Verdana, Arial, Helvetica, sans-seri
 TD, TH, P { margin: 0; padding: 0; font-size: 0.7em; }
 H1 { font: bold 1.2em Verdana, Arial, Helvetica, sans-serif; padding: 0.2em 0; }
 TABLE { border: none; border-collapse: collapse; padding: 0; }
-TABLE { border: none; width: 100%;  border-spacing: 10px; border-collapse: separate; }
 TD, TH { padding: 0.2em 0.8em; }
 TD.nw { white-space: nowrap; }
 TH { text-align: left; background-color: #cccccc; }
@@ -32,7 +31,7 @@ TR.odd TD { background-color:#eeeeee; }
 	</thead>
 	<tbody>
 		<?php foreach($logs as $log) { ?>
-			<tr class="{cycle values='odd,even'}">
+			<tr class="<?php echo $counter++%2 ? 'odd' : 'even'?>">
 				<td class="nw"><?php echo date('d.m.Y H:i:s', $log['posted'])?></td>
 				<td><?php echo htmlspecialchars($log['message_full'])?></td>
 				<td><?php echo htmlspecialchars($log['poster_username'])?></td>

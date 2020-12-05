@@ -1,43 +1,46 @@
-<?php 
+<?php
+NFW::i()->assign('page_title', 'Новости / добавить');
+ 
 NFW::i()->registerResource('jquery.activeForm');
 NFW::i()->registerResource('ckeditor');
-NFW::i()->registerFunction('ui_message');
 ?>
 <script type="text/javascript">
 $(document).ready(function(){
 	var f = $('form[id="news-insert"]');
 	f.activeForm({
- 		beforeSubmit: function(){
- 			$('div[id="news-insert-media"]').find('form').trigger('save-comments');
- 	 	},
 		success: function(response) {
 			window.location.href = '<?php echo $Module->formatURL('update')?>&record_id=' + response.record_id;
 		}
 	});
 
 	$('button[id="news-save"]').click(function(){
+		f.find('input[name="content"]').val($('textarea[id="content"]').val());
+		$('div[id="news-insert-media"]').find('form').trigger('save-comments');
 		f.submit();
 	});
 	
-	f.find('textarea[name="content"]').CKEDIT({ 'media': 'news', 'height': 200 });
-
-	$(document).trigger('refresh');
+	$('textarea[id="content"]').CKEDIT({ 'media': 'news', 'height': 200 });
 });
 </script>
 
-<form id="news-insert">
-	<textarea name="content" class="uniformed"></textarea>
-	<br />
+<textarea id="content"></textarea>
+<form id="news-insert" style="padding-top: 10px;">
+	<input name="content" type="hidden" />
 	<fieldset>
 		<legend>Параметры</legend>
-		<?php echo active_field(array('name' => 'title', 'attributes'=>$Module->attributes['title'], 'width'=>"500px;"))?>
-		<?php echo active_field(array('name' => 'announcement', 'attributes'=>$Module->attributes['announcement'], 'width'=>"500px;", 'height'=>"100px;"))?>
+		<?php echo active_field(array('name' => 'title', 'attributes'=>$Module->attributes['title']))?>
+       	<?php echo active_field(array('name' => 'announcement', 'attributes'=>$Module->attributes['announcement'], 'height'=>"100px;"))?>
 	</fieldset>
 </form>
 
-<div id="news-insert-media" style="padding-top: 1em; padding-left: 105px;">
-	<?php echo $media_form?>
+<div class="form-group">
+	<div class="col-md-9 col-md-offset-3">
+		<div id="news-insert-media"><?php echo $media_form?></div>
+	</div>
 </div>
-<div style="padding-top: 1em; padding-bottom: 1em; padding-left: 105px;">
-	<button id="news-save" class="nfw-button" icon="ui-icon-disk">Сохранить изменения</button>
-</div>			
+
+<div class="form-group">
+	<div class="col-md-3 col-md-offset-3">
+		<button id="news-save" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> <?php echo NFW::i()->lang['Save changes']?></button>
+	</div>
+</div>
