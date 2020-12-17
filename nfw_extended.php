@@ -16,12 +16,6 @@ class NFW_EXTENDED extends NFW {
 		// Глобально кодировка для mb-операций
 		mb_internal_encoding ('UTF-8');
 		
-		// Actual date (i.e. for debugging)
-		$this->actual_date = time();
-		if (isset($_COOKIE['DBG_ACTUAL_DATE']) && $result = strtotime($_COOKIE['DBG_ACTUAL_DATE'])) {
-			$this->actual_date = $result;
-		}
-		
 		parent::__construct($init_cfg);
 		
 		$this->resources_depends['main'] = array('resources' => array('jquery', 'bootstrap3.typeahead', 'font-awesome'));
@@ -37,7 +31,12 @@ class NFW_EXTENDED extends NFW {
 		if ($this->user['is_blocked']) {
 			NFW::i()->stop($this->lang['Errors']['Account_disabled'].' <a href=?action=logout>'.$this->lang['Logout'].'</a>', 'error-page');
 		}
-		
+
+        // Actual date (i.e. for debugging)
+        $this->actual_date = time();
+        if (isset($this->cfg['dbg']['userId']) && $this->user['id'] == $this->cfg['dbg']['userId'] && isset($this->cfg['dbg']['actualDate']) && $result = strtotime($this->cfg['dbg']['actualDate'])) {
+            $this->actual_date = $result;
+        }
 	}
 		
 	function checkPermissions($module = 1, $action = '', $additional = false) {

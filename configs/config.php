@@ -1,8 +1,4 @@
 <?php
-/**
- *
- * @var array $config
- */
 $config = array (
 	'zxgfx' => array(
 		'output_type' => 'png',
@@ -30,9 +26,9 @@ $config = array (
 	'db' => array (
 		'type' => 'mysql',
 		'host' => 'localhost',
-		'name' => 'events',
-		'username' => 'events',
-		'password' => 'Hb45Fy5fzLxyQnrH',
+		'name' => '',
+		'username' => '',
+		'password' => '',
 		'prefix' => '',
 		'p_connect' => false,
 	),
@@ -47,15 +43,13 @@ $config = array (
 
 	'write_logs' => true,
 	'use_browscap' => true,
-	#'use_get_browser' => false,
-		
+
 	'media' => array(
 		//'storage_path' => 'media',
-		//'media_controler' => 'media',
+		//'media_controller' => 'media',
 		'MAX_FILE_SIZE' => 33554432,		// MAX_FILE_SIZE # 16Mb
 		'MAX_SESSION_SIZE' => 33554432,		// MAX_SESSION_SIZE # 32Mb
-		// Кодировка файловой системы сервера
-		'fs_encoding' => defined('NFW_DEBUG') ? 'cp1251' : 'utf8',		
+		'fs_encoding' => 'utf8',            // Filesystem encoding
 			
 		//'tmb_max_width' => 2048,
 		'tmb_max_height' => 10240,		// increase max height special for ascii/ansi images
@@ -75,15 +69,3 @@ $config = array (
 		'title' => 'Events Control Panel',
 	),
 );
-
-if (!defined('NFW_DEBUG')) {
-    $config['PHPMailer'] = array(
-        'Mailer' => 'smtp',
-        'Host' => 'smtp.yandex.com:465',
-        'SMTPSecure' => 'ssl',
-        'SMTPAuth' => true,
-        'From'	=> 'boot@retroscene.org',
-        'Username' => 'boot@retroscene.org',
-        'Password' => '1IKUvsxN',
-    );
-}

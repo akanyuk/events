@@ -66,7 +66,7 @@ $lang_platform_description = array (
 		),
 	),
 
-	'БК 0010' => array(
+	'БК 0010-01' => array(
 		'default' => array(
 			'default' => array(
 				'Процессор: К1801ВМ1 3МГц, 32Kb RAM',
