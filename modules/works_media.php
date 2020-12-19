@@ -1,12 +1,7 @@
 <?php
-/***********************************************************************
-  Copyright (C) 2012-2018 Andrey nyuk Marinov (aka.nyuk@gmail.com)
-  $Id$
-  
-  Управление файлами работ работами.
-  
- ************************************************************************/
-
+/**
+ * @desc Управление файлами работ
+ */
 class works_media extends media {
 	static $action_aliases = array(
 		'update' => array(
@@ -47,7 +42,7 @@ class works_media extends media {
 		return true;
 	}
 	
-	private function generateDescription($works_record) {
+	function generateDescription($works_record) {
 		$description = 'Full name of prod: '.$works_record['title']."\n";
 		$description .= $works_record['author'] ? 'Author: '.$works_record['author']."\n" : '';
 		$description .= 'Event: '.$works_record['event_title'].' ('.(date('d.m.Y', $works_record['event_from']) == date('d.m.Y', $works_record['event_to']) ? date('d.m.Y', $works_record['event_from']) : date('d.m.Y', $works_record['event_from']).' - '.date('d.m.Y', $works_record['event_to'])).')'."\n";
@@ -243,14 +238,7 @@ class works_media extends media {
 		
 		$description = mb_convert_encoding($description, 'cp1251', 'UTF-8');
 		$zip->setArchiveComment($description);
-/*		
-		// Лучше без дескрипшена, чем кривое имя автора/прода.
-		if ($description = iconv("UTF-8", 'cp1251//IGNORE', $description)) {
-			$zip->setArchiveComment($description);
-		}
-	
-		//$zip->setArchiveComment(iconv("UTF-8", 'cp1251//IGNORE', $description));
-*/
+
 		$zip->close();
 		chmod($pack_dir.'/'.$release_basename, 0666);
 		

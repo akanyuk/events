@@ -130,7 +130,8 @@ class works53c extends works {
 		}
 
 		// generate file_id.diz
-		$insert_files[] = array('basename' => 'file_id.diz', 'data' => $this->generateDescription(), 'media_info' => array('release' => 1));
+        $wm = new works_media();
+		$insert_files[] = array('basename' => 'file_id.diz', 'data' => $wm->generateDescription($this->record), 'media_info' => array('release' => 1));
 		
 		$CMedia = new media();
 		$media_info = array();
