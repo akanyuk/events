@@ -62,7 +62,7 @@ if (!$page = $CPages->loadPage('events')) {
     NFW::i()->stop('inactive');
 }
 
-if (!$path_competition_alias || $CEvents->record['one_compo_event']) {
+if (!$path_competition_alias || ($CEvents->record['one_compo_event'] && !$path_work_id)) {
     // Event page
     $page['title'] = $CEvents->record['title'];
 
