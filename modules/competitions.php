@@ -47,11 +47,11 @@ class competitions extends active_record {
 			$record['reception_status']['text-class']  = 'text-muted';
 		}
 		elseif ($record['reception_from'] > NFW::i()->actual_date) {
-			$record['reception_status']['desc'] = '+'.NFW::i()->formatTimeDelta($record['reception_from']);
+			$record['reception_status']['desc'] = '+'.NFWX::i()->formatTimeDelta($record['reception_from']);
 			$record['reception_status']['informable'] = true;
 		}
 		elseif ($record['reception_from'] < NFW::i()->actual_date && $record['reception_to'] > NFW::i()->actual_date) {
-			$record['reception_status']['desc'] = 'NOW! +'.NFW::i()->formatTimeDelta($record['reception_to']);
+			$record['reception_status']['desc'] = 'NOW! +'.NFWX::i()->formatTimeDelta($record['reception_to']);
 			$record['reception_status']['text-class']  = 'text-danger';
 			$record['reception_status']['label-class'] = 'label-danger';
 			$record['reception_status']['informable'] = true;
@@ -66,11 +66,11 @@ class competitions extends active_record {
 			$record['voting_status']['text-class']  = 'text-muted';
 		}
 		elseif ($record['voting_from'] > NFW::i()->actual_date) {
-			$record['voting_status']['desc'] = '+'.NFW::i()->formatTimeDelta($record['voting_from']);
+			$record['voting_status']['desc'] = '+'.NFWX::i()->formatTimeDelta($record['voting_from']);
 			$record['voting_status']['informable'] = true;
 		}
 		elseif ($record['voting_from'] <= NFW::i()->actual_date && $record['voting_to'] >= NFW::i()->actual_date) {
-			$record['voting_status']['desc'] = 'NOW! +'.NFW::i()->formatTimeDelta($record['voting_to']);
+			$record['voting_status']['desc'] = 'NOW! +'.NFWX::i()->formatTimeDelta($record['voting_to']);
 			$record['voting_status']['text-class']  = 'text-danger';
 			$record['voting_status']['label-class'] = 'label-danger';
 			$record['voting_status']['available']  = true;
@@ -81,7 +81,7 @@ class competitions extends active_record {
 			$record['voting_status']['text-class']  = 'text-muted';
 		}
 		
-		if ((!$record['voting_from'] && !$record['voting_to']) || ($record['voting_to'] && $record['voting_to'] < NFW::i()->actual_date)){
+		if ((!$record['voting_from'] && !$record['voting_to']) || ($record['voting_to'] && $record['voting_to'] < NFWX::i()->actual_date)){
 			$record['release_status']['available'] = true;
 		}
 		
@@ -133,11 +133,11 @@ class competitions extends active_record {
 		}
 		
 		if (isset($filter['open_reception']) && $filter['open_reception']) {
-			$where[] = 'e.is_hidden=0 AND c.reception_from<'.NFW::i()->actual_date.' AND c.reception_to>'.NFW::i()->actual_date;
+			$where[] = 'e.is_hidden=0 AND c.reception_from<'.NFWX::i()->actual_date.' AND c.reception_to>'.NFWX::i()->actual_date;
 		}
 
 		if (isset($filter['open_voting']) && $filter['open_voting']) {
-			$where[] = 'e.is_hidden=0 AND c.voting_from<='.NFW::i()->actual_date.' AND c.voting_to>='.NFW::i()->actual_date;
+			$where[] = 'e.is_hidden=0 AND c.voting_from<='.NFWX::i()->actual_date.' AND c.voting_to>='.NFWX::i()->actual_date;
 		}
 		
 		$where = count($where) ? join(' AND ', $where) : null;
