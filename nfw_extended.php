@@ -1,7 +1,9 @@
 <?php
-define('NFW_CLASSNAME', 'NFW_EXTENDED');
+define('NFW_CLASSNAME', 'NFWX');
 
-class NFW_EXTENDED extends NFW {
+class NFWX extends NFW {
+    private static $_ext_instance;
+
     var $project_settings = array();
     var $notify_emails = array();
 
@@ -38,8 +40,15 @@ class NFW_EXTENDED extends NFW {
             $this->actual_date = $result;
         }
 	}
-		
-	function checkPermissions($module = 1, $action = '', $additional = false) {
+
+    /**
+     * @return self instance
+     */
+    public static function i() {
+        return self::$_ext_instance;
+    }
+
+    function checkPermissions($module = 1, $action = '', $additional = false) {
 		if (parent::checkPermissions($module, $action, $additional)) return true;
 
 		// Search
@@ -64,7 +73,7 @@ class NFW_EXTENDED extends NFW {
 			if (!$CCompetitions->record['id']) return false;
 		
 			// Add comments only if voting opened, or release opened
-			return $CCompetitions->record['voting_status']['available'] || $CCompetitions->record['release_status']['available'] ? true : false;
+			return $CCompetitions->record['voting_status']['available'] || $CCompetitions->record['release_status']['available'];
 		}
 		
 		
@@ -107,63 +116,63 @@ class NFW_EXTENDED extends NFW {
 		if ($module == 'check_manage_event' && in_array($action, $managed_events)) return true;
 		
 		if ($module == 'events' && $action == 'update') {
-			return isset($_GET['record_id']) && in_array($_GET['record_id'], $managed_events) ?  true : false;
+			return isset($_GET['record_id']) && in_array($_GET['record_id'], $managed_events);
 		}
 		
 		if (($module == 'events' || $module == 'events_preview' || $module == 'events_preview_large') && ($action == 'media_upload' || $action == 'media_modify')) {
-			return in_array($additional, $managed_events) ? true : false;
+			return in_array($additional, $managed_events);
 		}
 		
 		if ($module == 'competitions' && ($action == 'admin' || $action == 'insert')) {
-			return isset($_GET['event_id']) && in_array($_GET['event_id'], $managed_events) ? true : false;
+			return isset($_GET['event_id']) && in_array($_GET['event_id'], $managed_events);
 		}
 		
 		if ($module == 'competitions' && ($action == 'update' || $action == 'delete')) {
 			if (!isset($_GET['record_id'])) return false;
 			
 			$Competition = new competitions($_GET['record_id']);
-			return in_array($Competition->record['event_id'], $managed_events) ? true : false;
+			return in_array($Competition->record['event_id'], $managed_events);
 		}
 
 		if ($module == 'works' && in_array($action, array('admin', 'insert'))) {
-			return isset($_GET['event_id']) && in_array($_GET['event_id'], $managed_events) ? true : false;
+			return isset($_GET['event_id']) && in_array($_GET['event_id'], $managed_events);
 		}
 
 		if ($module == 'works' && in_array($action, array('update', 'delete'))) {
 			if (!isset($_GET['record_id'])) return false;
 				
 			$CWorks = new works($_GET['record_id']);
-			return in_array($CWorks->record['event_id'], $managed_events) ? true : false;
+			return in_array($CWorks->record['event_id'], $managed_events);
 		}
 
 		if ($module == 'works_media' && in_array($action, array('update_properties', 'convert_zx', 'file_id_diz', 'make_release', 'remove_release'))) {
 			if (!isset($_GET['record_id'])) return false;
 			
 			$CWorks = new works($_GET['record_id']);
-			return in_array($CWorks->record['event_id'], $managed_events) ? true : false;
+			return in_array($CWorks->record['event_id'], $managed_events);
 		}
 		
 		if ($module == 'works' && ($action == 'media_get' || $action == 'media_upload' || $action == 'media_modify') && $additional) {
 			if ($action == 'media_get' || $action == 'media_upload' || $action == 'media_modify') {
 				$CWorks = new works($additional);
-				return in_array($CWorks->record['event_id'], $managed_events) ? true : false;
+				return in_array($CWorks->record['event_id'], $managed_events);
 			}
 				
 			return true;
 		}
 
 		if ($module == 'vote' && in_array($action, array('admin', 'votekeys', 'votes', 'results'))) {
-			return isset($_GET['event_id']) && in_array($_GET['event_id'], $managed_events) ? true : false;
+			return isset($_GET['event_id']) && in_array($_GET['event_id'], $managed_events);
 		}
 		
 		if ($module == 'works_comments' && $action == 'delete') {
 			if (is_array($additional) && isset($additional['work_id'])) {
 				$CWorks = new works($additional['work_id']);
-				return in_array($CWorks->record['event_id'], $managed_events) ? true : false;
+				return in_array($CWorks->record['event_id'], $managed_events);
 			}
 			elseif(isset($_POST['record_id'])) {
 				$CWorksComments = new works_comments($_POST['record_id']);
-				return in_array($CWorksComments->record['event_id'], $managed_events) ? true : false;
+				return in_array($CWorksComments->record['event_id'], $managed_events);
 			}
 			else {
 				return false;
@@ -241,23 +250,7 @@ class NFW_EXTENDED extends NFW {
 		
 		return $filename;
 	} 
-	
-	function formatTimeDelta($time) {
-		NFW::i()->registerFunction('word_suffix');
-		$lang_main = NFW::i()->getLang('main');
-		
-		$left = $time - $this->actual_date;
-		if (intval($left/86400)) {
-			return intval($left/86400).' '.word_suffix(intval($left/86400), $lang_main['days suffix']);
-		}
-		elseif (intval($left/3600)) {
-			return intval($left/3600).' '.word_suffix(intval($left/3600), $lang_main['hours suffix']);
-		}
-		else {
-			return intval($left/60).' '.word_suffix(intval($left/60), $lang_main['minutes suffix']);
-		}
-	}
-	 
+
 	function sendNotify($tp, $event_id, $data = array(), $attachments = array()) {
 		foreach ($this->notify_emails as $email) {
 			email::sendFromTemplate($email, $tp, array('data' => $data));

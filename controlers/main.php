@@ -60,10 +60,10 @@ if ($path_event_alias && $CEvents->loadByAlias($path_event_alias)) {
 			array('desc' => $CEvents->record['title'])
 		);
 		
-		NFW::i()->main_og['title'] = $CEvents->record['title'];
-		NFW::i()->main_og['description'] = $CEvents->record['announcement_og'] ? $CEvents->record['announcement_og'] : strip_tags($CEvents->record['announcement']);
+		NFWX::i()->main_og['title'] = $CEvents->record['title'];
+		NFWX::i()->main_og['description'] = $CEvents->record['announcement_og'] ? $CEvents->record['announcement_og'] : strip_tags($CEvents->record['announcement']);
 		if ($CEvents->record['preview_img_large']) {
-			NFW::i()->main_og['image'] = tmb($CEvents->record['preview_large'], 500, 500, array('complementary' => true));
+			NFWX::i()->main_og['image'] = tmb($CEvents->record['preview_large'], 500, 500, array('complementary' => true));
 		}
 		
 		$competitions = $CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id'])));
@@ -109,11 +109,11 @@ if ($path_event_alias && $CEvents->loadByAlias($path_event_alias)) {
 			array('url' => $CEvents->record['alias'].'/'.$CCompetitions->record['alias'], 'desc' => $CCompetitions->record['title'])
 		);
 		
-		NFW::i()->main_og['title'] = $CWorks->record['display_title'];
-		NFW::i()->main_og['description'] = $CEvents->record['title'].' / '.$CCompetitions->record['title'];
+		NFWX::i()->main_og['title'] = $CWorks->record['display_title'];
+		NFWX::i()->main_og['description'] = $CEvents->record['title'].' / '.$CCompetitions->record['title'];
 		if ($CWorks->record['screenshot']) {
 			NFW::i()->registerFunction('cache_media');
-			NFW::i()->main_og['image'] = cache_media($CWorks->record['screenshot'], 640);
+			NFWX::i()->main_og['image'] = cache_media($CWorks->record['screenshot'], 640);
 		}
 		
 		$page['title'] = $CWorks->record['display_title'];
@@ -148,10 +148,10 @@ if ($path_event_alias && $CEvents->loadByAlias($path_event_alias)) {
 		);
 		setBreadcrumbDesc(null, $CCompetitions->record, 'competition');
 	
-		NFW::i()->main_og['title'] = $CCompetitions->record['title'];
-		NFW::i()->main_og['description'] = $CEvents->record['title'];
+		NFWX::i()->main_og['title'] = $CCompetitions->record['title'];
+		NFWX::i()->main_og['description'] = $CEvents->record['title'];
 		if ($CEvents->record['preview_img_large']) {
-			NFW::i()->main_og['image'] = tmb($CEvents->record['preview_large'], 500, 500, array('complementary' => true));
+			NFWX::i()->main_og['image'] = tmb($CEvents->record['preview_large'], 500, 500, array('complementary' => true));
 		}
 		
 		$page['title'] = $CCompetitions->record['title'];
