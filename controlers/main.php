@@ -221,12 +221,12 @@ function renderCompetitionPage($CCompetitions, $CEvents) {
         echo '<dl class="dl-horizontal dl-compo-status">';
         if ($compo['reception_from']) {
             echo '<dt>' . $lang_main['competitions reception'] . '</dt><dd><span class="label ' . $compo['reception_status']['label-class'] . '"><strong>' . $compo['reception_status']['desc'] . '</strong></span>';
-            echo ' <span class="dates"><span style="white-space: nowrap;">' . date('d.m.Y H:i', $compo['reception_from']) . ' -</span> <span style="white-space: nowrap;">' . date('d.m.Y H:i', $compo['reception_to']) . '</span></span></dd>';
+            echo ' <span class="dates" style="white-space: nowrap;">' . date('d.m.Y H:i', $compo['reception_from']) . ' - ' . date('d.m.Y H:i', $compo['reception_to']) . '</span></dd>';
         }
 
         if ($compo['voting_from']) {
             echo '<dt>' . $lang_main['competitions voting'] . '</dt><dd><span class="label ' . $compo['voting_status']['label-class'] . '"><strong>' . $compo['voting_status']['desc'] . '</strong></span>';
-            echo ' <span class="dates"><span style="white-space: nowrap;">' . date('d.m.Y H:i', $compo['voting_from']) . ' -</span> <span style="white-space: nowrap;">' . date('d.m.Y H:i', $compo['voting_to']) . '</span></span></dd>';
+            echo ' <span class="dates" style="white-space: nowrap;">' . date('d.m.Y H:i', $compo['voting_from']) . ' - ' . date('d.m.Y H:i', $compo['voting_to']) . '</span></dd>';
         }
 
         if (!$event['hide_works_count']) {
