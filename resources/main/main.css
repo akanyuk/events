@@ -98,6 +98,8 @@ h2.index-head { border-bottom: 1px solid #bbb; margin-bottom: 30px; }
     background: url("icons-16x16.png?201709143");
 }
 
+audio { width: 100%; }
+
 /* mobile improvement */
 
 .works-media-container P { margin: 0 0 2px; }

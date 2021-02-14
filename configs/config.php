@@ -1,5 +1,5 @@
 <?php
-$config = array (
+return array (
 	'zxgfx' => array(
 		'output_type' => 'png',
 		'output_scale' => 2,
@@ -47,8 +47,8 @@ $config = array (
 	'media' => array(
 		//'storage_path' => 'media',
 		//'media_controller' => 'media',
-		'MAX_FILE_SIZE' => 33554432,		// MAX_FILE_SIZE # 16Mb
-		'MAX_SESSION_SIZE' => 33554432,		// MAX_SESSION_SIZE # 32Mb
+		'MAX_FILE_SIZE' => 67108864,		// MAX_FILE_SIZE # 64Mb
+		'MAX_SESSION_SIZE' => 67108864,		// MAX_SESSION_SIZE # 64Mb
 		'fs_encoding' => 'utf8',            // Filesystem encoding
 			
 		//'tmb_max_width' => 2048,
