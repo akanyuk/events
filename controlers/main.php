@@ -213,36 +213,10 @@ function renderCompetitionPage($CCompetitions, $CEvents) {
             'single_work_page' => false
         ), '_voting');
     } elseif ($event['one_compo_event']) {
-        $lang_main = NFW::i()->getLang('main');
-
-        ob_start();
-        echo nl2br($compo['announcement']);
-
-        echo '<dl class="dl-horizontal dl-compo-status">';
-        if ($compo['reception_from']) {
-            echo '<dt>' . $lang_main['competitions reception'] . '</dt><dd><span class="label ' . $compo['reception_status']['label-class'] . '"><strong>' . $compo['reception_status']['desc'] . '</strong></span>';
-            echo ' <span class="dates" style="white-space: nowrap;">' . date('d.m.Y H:i', $compo['reception_from']) . ' - ' . date('d.m.Y H:i', $compo['reception_to']) . '</span></dd>';
-        }
-
-        if ($compo['voting_from']) {
-            echo '<dt>' . $lang_main['competitions voting'] . '</dt><dd><span class="label ' . $compo['voting_status']['label-class'] . '"><strong>' . $compo['voting_status']['desc'] . '</strong></span>';
-            echo ' <span class="dates" style="white-space: nowrap;">' . date('d.m.Y H:i', $compo['voting_from']) . ' - ' . date('d.m.Y H:i', $compo['voting_to']) . '</span></dd>';
-        }
-
-        if (!$event['hide_works_count']) {
-            if (!$compo['voting_works']) {
-                $label_class = 'label-default';
-            } elseif ($compo['voting_works'] < 3) {
-                $label_class = 'label-warning';
-            } else {
-                $label_class = 'label-success';
-            }
-
-            echo '<dt>' . $lang_main['competitions approved works'] . '</dt><dd><span class="label ' . $label_class . '"><strong>' . $compo['voting_works'] . '</strong></span></dd>';
-        }
-        echo '</dl>';
-
-        return ob_get_clean();
+        return $CCompetitions->renderAction(array(
+            'showWorksCount' => $event['hide_works_count'] ? false : true,
+            'competition' => $compo,
+        ), '_one_compo_event');
     } else {
         return nl2br($compo['announcement']);
     }
