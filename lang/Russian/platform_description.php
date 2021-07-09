@@ -84,7 +84,7 @@ $lang_platform_description = array (
 		'default' => array(
 			'default' => array(
 				'Процессор: К1801ВМ1 4МГц, 128Kb RAM',
-				'Экран 256х256, 4 цвета одноврменно из 8 возможных.',
+				'Экран 256х256, 4 цвета одновременно из 8 возможных.',
 			),
 		),
 	),
@@ -165,6 +165,16 @@ $lang_platform_description = array (
                 'Разрешение: 256х192, 256х224 или 256х240.',
                 'Цвет на точку. Палитра 64 цвета. Не более 31 цвета одновременно на экране.',
                 '<a href="http://chipwiki.ru/wiki/Master_System/Pixel_Art">Подробнее об ограничениях платформы</a>.',
+            ),
+        )
+    ),
+
+    'Atari ST' => array(
+        'picture' => array(
+            'default' => array(
+                'Low resolution: 320 × 200 (16 цветов), палитра 512 цветов',
+                'Medium resolution: 640 × 200 (4 цвета), палитра 512 цветов',
+                'High resolution: 640 × 400 (монохром)',
             ),
         )
     ),
