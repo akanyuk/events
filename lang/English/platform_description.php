@@ -153,12 +153,23 @@ $lang_platform_description = array (
 			),
 		)
 	),
+
     'Sega Master System' => array(
         'picture' => array(
             'default' => array(
                 '256х192, 256х224 or 256х240.',
                 '64 colors palette, 31 colors on-screen',
                 '<a href="http://chipwiki.ru/wiki/Master_System/Pixel_Art">Подробнее об ограничениях платформы</a>.',
+            ),
+        )
+    ),
+
+    'Atari ST' => array(
+        'picture' => array(
+            'default' => array(
+                'Low resolution: 320 × 200 (16 color), palette of 512 colors',
+                'Medium resolution: 640 × 200 (4 color), palette of 512 colors',
+                'High resolution: 640 × 400 (mono), monochrome',
             ),
         )
     ),
