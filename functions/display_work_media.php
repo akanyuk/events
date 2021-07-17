@@ -186,7 +186,7 @@ function display_work_media($work = array(), $options = array()) {
 	}
 
 	if ($options['rel'] != 'preview' && !$options['single']) {
-		echo ' <a href="'.NFW::i()->absolute_path.'/'.$work['event_alias'].'/'.$work['competition_alias'].'/'.$work['id'].'#comments">'.$lang_main['works comments count'].': '.($work['comments_count'] ? '<span class="badge">'.$work['comments_count'].'</span>' : $work['comments_count']).'</a>';
+		echo '<p><a href="'.NFW::i()->absolute_path.'/'.$work['event_alias'].'/'.$work['competition_alias'].'/'.$work['id'].'#comments">'.$lang_main['works comments count'].': '.($work['comments_count'] ? '<span class="badge">'.$work['comments_count'].'</span>' : $work['comments_count']).'</a></p>';
 	}
 	
 	echo '</div>';	# <div style="padding-top: 10px;">
