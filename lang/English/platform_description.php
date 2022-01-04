@@ -34,7 +34,7 @@ $lang_platform_description = array (
 	),
 	
 	'ZX Spectrum 128' => array(
-		'demo' => array(
+		'default' => array(
 			'default' => array(
 				'CPU Z80 3.5MHz, 128Kb RAM.',
 				'Screen 256х192, 15 colors, attributes 8x8, 2 colors per attribute.',
@@ -170,6 +170,18 @@ $lang_platform_description = array (
                 'Low resolution: 320 × 200 (16 color), palette of 512 colors',
                 'Medium resolution: 640 × 200 (4 color), palette of 512 colors',
                 'High resolution: 640 × 400 (mono), monochrome',
+            ),
+        )
+    ),
+
+    'Super Cassette Vision' => array(
+        'picture' => array(
+            'default' => array(
+                'Video processor: EPOCH TV-1',
+                'VRAM: 4 KB (2 × µPD4016C-2) + 2 KB (EPOCH TV-1 internal)',
+                'Colors: 16',
+                'Sprites: 128',
+                'Display: 309×246',
             ),
         )
     ),
