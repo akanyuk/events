@@ -118,7 +118,17 @@ $lang_platform_description = array (
 			),
 		)
 	),
-		
+
+    'Commodore С64' => array(
+        'picture' => array(
+            'default' => array(
+                '320×200px (2 unique colors in each 8×8 pixel block)',
+                '160×200px (3 unique colors + 1 common color in each 4×8 block)',
+                '16 colors'
+            ),
+        )
+    ),
+
 	'Game Boy Color' => array(
 		'picture' => array(
 			'default' => array(
@@ -135,6 +145,7 @@ $lang_platform_description = array (
 			),
 		)
 	),
+
 	'Sharp MZ-700' => array(
 		'picture' => array(
 			'default' => array(
@@ -200,6 +211,18 @@ $lang_platform_description = array (
                 '160×200px, 16 colors ("Mode 0")',
                 '320×200px, 4 colors ("Mode 1")',
                 '640×200px, 2 colors ("Mode 2")',
+                '27 colors palette',
+            ),
+            'Mode 0' => array(
+                '160×200px, 16 colors',
+                '27 colors palette',
+            ),
+            'Mode 1' => array(
+                '320×200px, 4 colors',
+                '27 colors palette',
+            ),
+            'Mode 2' => array(
+                '640×200px, 2 colors',
                 '27 colors palette',
             ),
         )
