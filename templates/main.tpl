@@ -77,7 +77,6 @@ $latest_news = $is_latest_news ? NFW::i()->renderNews(array('records_on_page' =>
 <link rel="apple-touch-icon" sizes="180x180" href="<?php echo NFW::i()->assets('main/favicon/apple-touch-icon-180x180.png')?>"/>
 <link rel="image_src" href="<?php echo NFW::i()->assets('main/favicon/image_src.png')?>" />
 <link rel="mask-icon" href="<?php echo NFW::i()->assets('main/favicon/safari-pinned-tab.svg')?>" <?php echo 'color="#707070"'?> />
-<link rel="mask-icon" href="/safari-pinned-tab.svg" <?php echo 'color="#707070"'?>>
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#707070">
 <meta name="msapplication-config" content="/browserconfig.xml"/>
@@ -194,7 +193,7 @@ $(document).ready(function(){
 					<li><a href="/admin"><span class="fa fa-cog"></span> Control panel</a></li>
 					<?php endif; ?>
 							
-					<li><a href="?action=logout"><span class="fa fa-sign-out-alt"></span><?php echo NFW::i()->lang['Logout']?></a></li>
+					<li><a href="?action=logout"><span class="fa fa-sign-out-alt"></span> <?php echo NFW::i()->lang['Logout']?></a></li>
 				</ul>
 				<?php endif; ?>
 			</div>
