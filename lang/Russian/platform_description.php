@@ -191,7 +191,7 @@ $lang_platform_description = array(
         )
     ),
 
-    'Amstrad CPC 464' => array(
+    'Amstrad CPC' => array(
         'default' => array(
             'default' => array(
                 'Процессор Z80 4MHz, 64Kb or 128Kb RAM',
