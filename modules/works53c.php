@@ -9,7 +9,7 @@ class works53c extends works {
 		return parent::__construct();
 	}
 
-	function validate() {
+	function validate($foo = false, $bar = false) {
 		$errors = active_record::validate($this->record, $this->attributes);
 	
 		if (!empty($errors)) {
@@ -31,15 +31,15 @@ class works53c extends works {
 		return true;
 	}
 	
-	public function loadFromUploadedFile($fileindex) {
+	public function loadFromUploadedFile($fileIndex) {
 		$lang_media = NFW::i()->getLang('media');
 
-		if (!isset($_FILES[$fileindex])) {
+		if (!isset($_FILES[$fileIndex])) {
 			$this->error($lang_media['Errors']['No_File'], __FILE__, __LINE__);
 			return false;
 		}
 
-		$file = $_FILES[$fileindex];
+		$file = $_FILES[$fileIndex];
 
 		// Make sure the upload went smooth
 		if ($file['error']) switch ($file['error']) {
@@ -54,7 +54,7 @@ class works53c extends works {
 				$this->error($lang_media['Errors']['No_File'], __FILE__, __LINE__);
 				return false;
 			default:
-				// No error occured, but was something actually uploaded?
+				// No error occurred, but was something actually uploaded?
 				if ($file['size'] == 0) {
 					$this->error($lang_media['Errors']['No_File'], __FILE__, __LINE__);
 					return false;
@@ -83,36 +83,41 @@ class works53c extends works {
 			return false;
 		}
 		
-		$CCompetitions = new competitions(NFW::i()->project_settings['53c_competition_id']);
+		$CCompetitions = new competitions(NFWX::i()->project_settings['53c_competition_id']);
 		if (!$CCompetitions->record['id']) {
 			$this->error('53c competition not found', __FILE__, __LINE__);
 			return false;
 		}
 
-		$reception_available = $CCompetitions->record['reception_from'] < NFW::i()->actual_date && $CCompetitions->record['reception_to'] > NFW::i()->actual_date ? 1 : 0;
+		$reception_available = $CCompetitions->record['reception_from'] < NFWX::i()->actual_date && $CCompetitions->record['reception_to'] > NFWX::i()->actual_date ? 1 : 0;
 		if (!$reception_available) {
 			$this->error('Reception 53c unavailable', __FILE__, __LINE__);
+            return false;
 		}
 
 		$this->record['title'] = $fields['Title'];
 		$this->record['author'] = $fields['Author'];
 		$this->record['platform'] = 'ZX Spectrum';
 		$this->record['format'] = '53c';
-		$this->record['competition_id'] = NFW::i()->project_settings['53c_competition_id'];
+		$this->record['competition_id'] = NFWX::i()->project_settings['53c_competition_id'];
 
-		if (!$this->validate()) return false;
+		if (!$this->validate()) {
+		    return false;
+        }
 
 		// Save
 		$this->save();
-		if ($this->error) return false;
+		if ($this->error) {
+		    return false;
+        }
 
 		$grid = pack('h*', str_repeat(str_repeat('55', 256).str_repeat('aa', 256), 12));
 
 		// Add files
 
 		$insert_files = array(
-			array('basename' => NFW::i()->safeFilename($this->record['title'].'.atr'), 'data' => $this->atr_data, 'media_info' => array('voting' => 1, 'release' => 1)),
-			array('basename' => NFW::i()->safeFilename($this->record['title'].'.scr'), 'data' => $grid.$this->atr_data, 'media_info' => array('voting' => 1, 'release' => 1)),
+			array('basename' => NFWX::i()->safeFilename($this->record['title'].'.atr'), 'data' => $this->atr_data, 'media_info' => array('voting' => 1, 'release' => 1)),
+			array('basename' => NFWX::i()->safeFilename($this->record['title'].'.scr'), 'data' => $grid.$this->atr_data, 'media_info' => array('voting' => 1, 'release' => 1)),
 		);
 
 		// Try to make png
@@ -126,7 +131,7 @@ class works53c extends works {
 		$ZXGFX->setBorderColor(0);
 		
 		if ($ZXGFX->loadData($grid.$this->atr_data)) {
-			$insert_files[] = array('basename' => NFW::i()->safeFilename($this->record['title'].'.'.NFW::i()->cfg['zxgfx']['output_type']), 'data' => $ZXGFX->generate(), 'media_info' => array('image' => 1, 'screenshot' => 1, 'release' => 1));
+			$insert_files[] = array('basename' => NFWX::i()->safeFilename($this->record['title'].'.'.NFW::i()->cfg['zxgfx']['output_type']), 'data' => $ZXGFX->generate(), 'media_info' => array('image' => 1, 'screenshot' => 1, 'release' => 1));
 		}
 
 		// generate file_id.diz
@@ -146,7 +151,7 @@ class works53c extends works {
 			return false;
 		}
 		
-		NFW::i()->sendNotify('works_add', $CCompetitions->record['event_id'], array('work' => $this->record));
+		NFWX::i()->sendNotify('works_add', $CCompetitions->record['event_id'], array('work' => $this->record));
 		return true;
 	}
 }
