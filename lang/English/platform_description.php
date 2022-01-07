@@ -119,7 +119,7 @@ $lang_platform_description = array (
 		)
 	),
 
-    'Commodore С64' => array(
+    'Commodore C64' => array(
         'picture' => array(
             'default' => array(
                 '320×200px (2 unique colors in each 8×8 pixel block)',
@@ -214,16 +214,13 @@ $lang_platform_description = array (
                 '27 colors palette',
             ),
             'Mode 0' => array(
-                '160×200px, 16 colors',
-                '27 colors palette',
+                '160×200px, 16 colors from 27 colors palette',
             ),
             'Mode 1' => array(
-                '320×200px, 4 colors',
-                '27 colors palette',
+                '320×200px, 4 colors from 27 colors palette',
             ),
             'Mode 2' => array(
-                '640×200px, 2 colors',
-                '27 colors palette',
+                '640×200px, 2 colors from 27 colors palette',
             ),
         )
     ),
