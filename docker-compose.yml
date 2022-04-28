@@ -1,0 +1,42 @@
+version: '3.7'
+services:
+  nginx:
+    build:
+      context: ./docker/nginx
+    ports:
+      - '80:80'
+    volumes:
+      - ${PROJECT_ROOT}:/opt/www
+    depends_on:
+      - php
+  php:
+    build:
+      context: ./docker/php
+    volumes:
+      - ${PROJECT_ROOT}:/opt/www
+  mysql:
+    image: mysql:latest
+    command: mysqld --sql_mode=""
+    ports:
+      - '3306:3306'
+    volumes:
+      - 'mysql-storage:/var/lib/mysql'
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=events
+
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
+    depends_on:
+      - mysql
+
+  maildev:
+    image: maildev/maildev
+    command: bin/maildev --web 80 --smtp 25 --hide-extensions STARTTLS
+    ports:
+      - "1080:80"
+
+volumes:
+  mysql-storage: null

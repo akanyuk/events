@@ -1,0 +1,1 @@
+docker-compose exec -T mysql mysql -uroot -proot events < %1

@@ -1,0 +1,3 @@
+@media (max-width: 768px) {
+	.btn-full-xs { display: block; width: 100%; }
+}	

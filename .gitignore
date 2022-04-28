@@ -1,1 +1,19 @@
 .idea
+
+# vendors
+vendor
+composer.lock
+
+# docker-compose related
+.env
+
+# project relates
+*.sql
+config.local.php
+debug.php
+var/images_cache
+var/protected_media
+public_html/assets
+public_html/cache
+public_html/files
+public_html/media
