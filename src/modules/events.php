@@ -328,7 +328,7 @@ class events extends active_record {
 	    	$results_txt = $_POST['results_txt'];
 	    	$results_filename = $_POST['results_filename'] ? htmlspecialchars($_POST['results_filename']) : 'results.txt';
 
-	    	if (!$fp = fopen(PROJECT_ROOT.'files/'.$this->record['alias'].'/'.$results_filename, 'w')) {
+	    	if (!$fp = fopen(PUBLIC_HTML.'/files/'.$this->record['alias'].'/'.$results_filename, 'w')) {
 	    		$this->error('Unable to open results file', __FILE__, __LINE__);
 	    		return false;
 	    	}
@@ -343,7 +343,7 @@ class events extends active_record {
     		$pack_filename = $_POST['pack_filename'] ? htmlspecialchars($_POST['pack_filename']) : $this->record['alias'].'-pack.zip';
     		
     		$zip = new ZipArchive();
-    		$zip->open(PROJECT_ROOT.'files/'.$this->record['alias'].'/'.$pack_filename, ZIPARCHIVE::OVERWRITE | ZIPARCHIVE::CREATE);
+    		$zip->open(PUBLIC_HTML.'/files/'.$this->record['alias'].'/'.$pack_filename, ZIPARCHIVE::OVERWRITE | ZIPARCHIVE::CREATE);
 
     		if (isset($_POST['attach_results_txt']) && $_POST['attach_results_txt']) {
     			$zip->addFromString(iconv("UTF-8", 'cp866', $results_filename), $results_txt);

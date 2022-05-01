@@ -6,14 +6,14 @@ services:
     ports:
       - '80:80'
     volumes:
-      - ${PROJECT_ROOT}:/opt/www
+      - ${WWW_ROOT}:/opt/www
     depends_on:
       - php
   php:
     build:
       context: ./docker/php
     volumes:
-      - ${PROJECT_ROOT}:/opt/www
+      - ${WWW_ROOT}:/opt/www
   mysql:
     image: mysql:latest
     command: mysqld --sql_mode=""

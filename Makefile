@@ -1,5 +1,3 @@
-PRINTF_FORMAT := "\033[35m%-18s\033[33m %s\033[0m\n"
-
 .PHONY: all up down help
 
 all: up

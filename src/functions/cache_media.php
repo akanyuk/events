@@ -11,8 +11,8 @@ function cache_media($record, $new_width = false, $new_height = false) {
 	    return '';
     }
 
-	if (!file_exists(PROJECT_ROOT.'cache/'.$basename)) {
-		copy($src_path, PROJECT_ROOT.'cache/'.$basename);
+	if (!file_exists(PUBLIC_HTML.'/cache/'.$basename)) {
+		copy($src_path, PUBLIC_HTML.'/cache/'.$basename);
 	}
 		
 	if ($new_width || $new_height) {
@@ -30,7 +30,7 @@ function cache_media($record, $new_width = false, $new_height = false) {
 * Размер превью определяется ключами --w% --h% в имени файла.
 */
 function _cache_media_tmb($basename, $tmb_width = 0, $tmb_height = 0) {
-	if (!file_exists(PROJECT_ROOT.'/cache/'.$basename)) {
+	if (!file_exists(PUBLIC_HTML.'/cache/'.$basename)) {
 	    return false;
     }
 
@@ -53,11 +53,11 @@ function _cache_media_tmb($basename, $tmb_width = 0, $tmb_height = 0) {
 	if (isset($path_parts['extension'])) {
 	    $tmb_filename = $tmb_filename.'.'.$path_parts['extension'];
     }
-	if (file_exists(PROJECT_ROOT.'/cache/'.$tmb_filename)) {
+	if (file_exists(PUBLIC_HTML.'/cache/'.$tmb_filename)) {
 	    return $tmb_dir.$tmb_filename;
     }
 
-	if (!$result = getimagesize(PROJECT_ROOT.'/cache/'.$basename)) {
+	if (!$result = getimagesize(PUBLIC_HTML.'/cache/'.$basename)) {
 	    return false;
     }
 	list($src_width, $src_height, $img_type) = $result;
@@ -101,22 +101,22 @@ function _cache_media_tmb($basename, $tmb_width = 0, $tmb_height = 0) {
 	// Create resized image
 	switch ($img_type) {
 		case 'jpg':
-			$src_img = @imagecreatefromjpeg(PROJECT_ROOT.'/cache/'.$basename);
+			$src_img = @imagecreatefromjpeg(PUBLIC_HTML.'/cache/'.$basename);
 			$img = imagecreatetruecolor($width, $height);
 			imagecopyresampled ($img, $src_img, 0,0,0,0, $width, $height, $src_width, $src_height);
-			imagejpeg($img, PROJECT_ROOT.'cache/'.$tmb_filename, media::JPEG_QUALITY);
+			imagejpeg($img, PUBLIC_HTML.'/cache/'.$tmb_filename, media::JPEG_QUALITY);
 			break;
 		case 'png':
-			$src_img = @imagecreatefrompng(PROJECT_ROOT.'/cache/'.$basename);
+			$src_img = @imagecreatefrompng(PUBLIC_HTML.'/cache/'.$basename);
 			$img = imagecreatetruecolor($width, $height);
 			imagecopyresampled ($img, $src_img, 0,0,0,0, $width, $height, $src_width, $src_height);
-			imagepng($img, PROJECT_ROOT.'cache/'.$tmb_filename);
+			imagepng($img, PUBLIC_HTML.'/cache/'.$tmb_filename);
 			break;
 		case 'gif':
-			$src_img = @imagecreatefromgif(PROJECT_ROOT.'/cache/'.$basename);
+			$src_img = @imagecreatefromgif(PUBLIC_HTML.'/cache/'.$basename);
 			$img = imagecreate($width, $height);
 			imagecopyresampled ($img, $src_img, 0,0,0,0, $width, $height, $src_width, $src_height);
-			imagegif($img, PROJECT_ROOT.'cache/'.$tmb_filename);
+			imagegif($img, PUBLIC_HTML.'/cache/'.$tmb_filename);
 			break;
         default:
             return false;

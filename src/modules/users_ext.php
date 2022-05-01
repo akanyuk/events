@@ -1,23 +1,12 @@
 <?php
-// $Id$
 
 /**
- * Расширенное уравления пользователями: регистрация, авторизация, смена пароля, редактирование профиля.
- *
- * @copyright 	2016-2017 Andrew nyuk Marinov
- * @author 		Andrey nyuk Marinov (aka.nyuk@gmail.com)
+ * Class users_ext
+ * @desc Расширенное управления пользователями: регистрация, авторизация, смена пароля, редактирование профиля
  */
-
 class users_ext extends users {
 	function __construct($record_id = false) {
 		$this->db_table = 'users';
-		
-		// Append custom users attributes
-		if (file_exists(PROJECT_ROOT.'include/configs/users_attributes.php')) {
-			include (PROJECT_ROOT.'include/configs/users_attributes.php');
-			$this->attributes = array_merge($this->attributes, $users_attributes);			
-		}
-		
 		return parent::__construct($record_id);
 	}
 

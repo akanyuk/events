@@ -1,12 +1,9 @@
 <?php
-/***********************************************************************
-  Copyright (C) 2009-2016 Andrey nyuk Marinow (aka.nyuk@gmail.com)
-  $Id$  
 
-   Модуль просмотра логов.
-  
- ************************************************************************/
-
+/**
+ * Class view_logs
+ * @desc Модуль просмотра логов
+ */
 class view_logs extends logs {
 	static $action_aliases = array(
 		'admin' => array(
@@ -19,16 +16,8 @@ class view_logs extends logs {
 	function __construct() {
 		$this->lang = NFW::i()->getLang('logs');
 		$this->kinds['Система'] = $this->lang['kinds'];
-		
-		// Define kinds for use in logs::write
-		if (file_exists(PROJECT_ROOT.'include/configs/logs_kinds.php')) {
-			include (PROJECT_ROOT.'include/configs/logs_kinds.php');
-			foreach($logs_kinds as $kind=>$a) {
-				$this->lang['kinds'][$kind] = $this->kinds[$a['optgroup']][$kind] = $a['desc'];
-			}
-		}
-				
-		return true;
+
+		return parent::__construct();
 	}
 	
 	private function getRecords($options = array()) {

@@ -121,7 +121,7 @@ class works53c extends works {
 		);
 
 		// Try to make png
-		require_once PROJECT_ROOT.'include/helpers/ZXGFX.php';
+		require_once SRC_ROOT.'/helpers/ZXGFX.php';
 		$ZXGFX = new ZXGFX();
 
 		$ZXGFX->setOutputType(NFW::i()->cfg['zxgfx']['output_type']);

@@ -173,7 +173,7 @@ function display_statistic_countries($competition_id) {
 	}
 	
 	require_once(NFW_ROOT.'helpers/SxGeo/SxGeo.php');
-	$SxGeo = new SxGeo(PROJECT_ROOT.'var/SxGeo.dat');
+	$SxGeo = new SxGeo(VAR_ROOT.'/SxGeo.dat');
 	
 	$stats = array();
 	$countries = array();

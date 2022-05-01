@@ -30,7 +30,7 @@ class works_media extends media {
 	private function deleteReleaseFile($works_record) {
 		if (!$works_record['release_basename']) return true;
 		
-		$filename = PROJECT_ROOT.'files/'.$works_record['event_alias'].'/'.$works_record['competition_alias'].'/'.$works_record['release_basename'];
+		$filename = PUBLIC_HTML.'/files/'.$works_record['event_alias'].'/'.$works_record['competition_alias'].'/'.$works_record['release_basename'];
 		
 		if (!file_exists($filename)) return true;
 		
@@ -90,8 +90,8 @@ class works_media extends media {
 			return false;
 		}
 		
-		require_once PROJECT_ROOT.'include/helpers/ZXGFX.php';
-		require_once PROJECT_ROOT.'include/helpers/GIFEncoder.php';
+		require_once SRC_ROOT.'/helpers/ZXGFX.php';
+		require_once SRC_ROOT.'helpers/GIFEncoder.php';
 		$ZXGFX = new ZXGFX();
 		
 		$ZXGFX->setOutputScale(NFW::i()->cfg['zxgfx']['output_scale']);
@@ -173,7 +173,7 @@ class works_media extends media {
 		// Remove old release
 		if (!$this->deleteReleaseFile($CWorks->record)) return false;
 		
-		$pack_dir = PROJECT_ROOT.'files/'.$CWorks->record['event_alias'].'/'.$CWorks->record['competition_alias'];
+		$pack_dir = PUBLIC_HTML.'/files/'.$CWorks->record['event_alias'].'/'.$CWorks->record['competition_alias'];
 		if (!file_exists($pack_dir)) {
 			if (!mkdir($pack_dir)) {
 				$this->error('Unable to make competition directory', __FILE__, __LINE__);
