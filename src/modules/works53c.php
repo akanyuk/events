@@ -120,10 +120,8 @@ class works53c extends works {
 			array('basename' => NFWX::i()->safeFilename($this->record['title'].'.scr'), 'data' => $grid.$this->atr_data, 'media_info' => array('voting' => 1, 'release' => 1)),
 		);
 
-		// Try to make png
-		require_once SRC_ROOT.'/helpers/ZXGFX.php';
+		// Trying to make png
 		$ZXGFX = new ZXGFX();
-
 		$ZXGFX->setOutputType(NFW::i()->cfg['zxgfx']['output_type']);
 		$ZXGFX->setOutputScale(NFW::i()->cfg['zxgfx']['output_scale']);
 		$ZXGFX->setPalette(NFW::i()->cfg['zxgfx']['palette']);

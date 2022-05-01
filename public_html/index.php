@@ -18,6 +18,9 @@ $config['include_paths'] = array(
     NFW_ROOT . '/',
 );
 $config['media']['secure_storage_full_path'] = VAR_ROOT . '/protected_media';
+$config['media']['images_cache_full_path'] = VAR_ROOT . '/images_cache';
+$config['admin_top_menu'] = SRC_ROOT . '/configs/admin_top_menu.php';
+$config['SxGeo.dat'] = VAR_ROOT . '/SxGeo.dat';
 
 require SRC_ROOT . '/nfw_extended.php';
 NFWX::run(array_merge($config, include(dirname(__DIR__) . '/config.local.php')));

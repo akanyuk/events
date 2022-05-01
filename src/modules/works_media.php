@@ -90,10 +90,7 @@ class works_media extends media {
 			return false;
 		}
 		
-		require_once SRC_ROOT.'/helpers/ZXGFX.php';
-		require_once SRC_ROOT.'helpers/GIFEncoder.php';
 		$ZXGFX = new ZXGFX();
-		
 		$ZXGFX->setOutputScale(NFW::i()->cfg['zxgfx']['output_scale']);
 		$ZXGFX->setPalette(NFW::i()->cfg['zxgfx']['palette']);
 		$ZXGFX->setOutputType($_POST['output_type'] == 'gif' ? 'gif' : 'png');
