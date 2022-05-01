@@ -49,39 +49,6 @@ class NFWX extends NFW {
         return self::$_ext_instance;
     }
 
-    // Set $this->user from defaults with reloaded language by various methods
-    function setLanguage($language = false) {
-        $lang_cookie = NFW::i()->cfg['cookie']['name'].'_lang';
-
-        // Try to load language from GET, COOKIE, or geo IP
-        if (isset($this->cfg['set_language_by_get']) && $this->cfg['set_language_by_get'] && isset($_GET['lang']) && in_array($_GET['lang'], $this->cfg['available_languages'])) {
-            $this->current_language = $_GET['lang'];
-            $_SERVER['REQUEST_URI'] = preg_replace('/(&?lang='.$_GET['lang'].')/', '', $_SERVER['REQUEST_URI']);
-            $_SERVER['REQUEST_URI'] = preg_replace('/(\?$)/', '', $_SERVER['REQUEST_URI']);
-            $this->setCookie($lang_cookie, $_GET['lang'], time() + 60*60*24*30);
-        }
-        elseif (isset($this->cfg['set_language_by_cookie']) && $this->cfg['set_language_by_cookie'] && isset($_COOKIE[$lang_cookie]) && in_array($_COOKIE[$lang_cookie], $this->cfg['available_languages'])) {
-            $this->current_language = $_COOKIE[$lang_cookie];
-        } elseif (isset($this->cfg['set_language_by_geoip']) && $this->cfg['set_language_by_geoip']) {
-            if (file_exists(VAR_ROOT.'/SxGeo.dat')) {
-                require_once(NFW_ROOT . 'helpers/SxGeo/SxGeo.php');
-                $SxGeo = new SxGeo(VAR_ROOT.'/SxGeo.dat');
-                $country = $SxGeo->get($_SERVER['REMOTE_ADDR']);
-                if (in_array($country, array('RU', 'UA', 'BY', 'KZ'))) {
-                    $this->current_language = 'Russian';
-                } else {
-                    $this->current_language = 'English';
-                }
-            }
-        } elseif (isset($this->cfg['default_language'])) {
-            $this->current_language = $this->cfg['default_language'];
-        } else {
-            $this->current_language = 'English';
-        }
-
-        $this->lang = $this->getLang('nfw_main');
-    }
-
     function checkPermissions($module = 1, $action = '', $additional = false) {
         if (parent::checkPermissions($module, $action, $additional)) return true;
 
