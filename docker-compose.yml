@@ -14,6 +14,7 @@ services:
       context: ./docker/php
     volumes:
       - ${WWW_ROOT}:/opt/www
+      - ${NFW_DEV}:/opt/www/vendor/akanyuk/nfw
   mysql:
     image: mysql:latest
     command: mysqld --sql_mode=""

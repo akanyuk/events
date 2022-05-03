@@ -1,5 +1,7 @@
-<?php 
-NFW::i()->registerFunction('page_is');
+<?php
+/**
+ * @var $top_menu array
+ */
 NFW::i()->registerFunction('limit_text');
 ?>
 <script type="text/javascript">
@@ -20,7 +22,7 @@ foreach ($top_menu as $m) {
 }
 echo '</ul></li>';
 
-foreach (adminSidebarEvents() as $event) { 
+foreach (adminSidebarEvents() as $event) {
 ?>
 		<li>
 			<a href="#" title="<?php echo htmlspecialchars($event['title'])?>"><span class="sidebar-nav-item"><?php echo htmlspecialchars(limit_text($event['title'], 24))?></span><span class="fa arrow"></span></a>
@@ -44,17 +46,17 @@ foreach (adminSidebarEvents() as $event) {
 				<li><a href="<?php echo NFW::i()->base_path.'admin/vote?event_id='.$event['id']?>"><span class="sidebar-nav-item-icon fa fa-poll"></span> Voting</a></li>
 			</ul>
 		</li>
-<?php 
+<?php
 }
 ?>
 	</ul>
 </nav>
 
-<?php 
+<?php
 function adminSidebarEvents() {
 	$managed_events = events::get_managed();
 	if (empty($managed_events)) return array();
-	
+
 	$query = array(
 		'SELECT'	=> 'e.id AS event_id, e.title AS event_title, c.id AS competition_id, c.title AS competition_title, w.id AS work_id, w.title AS work_title, w.position AS work_pos, w.author',
 		'FROM'		=> 'works AS w',
@@ -72,36 +74,33 @@ function adminSidebarEvents() {
 	if (!NFW::i()->db->num_rows($result)) {
 		return array();
 	}
-	
+
 	$events = $competitions = array();
-	$cur_competion = false;
 	while($r = NFW::i()->db->fetch_assoc($result)) {
-		
 		$event_key = false;
-		foreach ($events as $ekey=>$e) {
+		foreach ($events as $eKey=>$e) {
 			if ($e['id'] == $r['event_id']) {
-				$event_key = $ekey;
+				$event_key = $eKey;
 				break;
 			}
 		}
-		
+
 		if ($event_key !== false) {
 			$competition_found = false;
-			foreach ($events[$event_key]['competitions'] as $ckey=>$c) {
+			foreach ($events[$event_key]['competitions'] as $cKey=>$c) {
 				if ($c['id'] == $r['competition_id']) {
-					$events[$event_key]['competitions'][$ckey]['works'][] = array('id' => $r['work_id'], 'title' => $r['work_title'], 'position' => $r['work_pos'], 'author' => $r['author']);
+					$events[$event_key]['competitions'][$cKey]['works'][] = array('id' => $r['work_id'], 'title' => $r['work_title'], 'position' => $r['work_pos'], 'author' => $r['author']);
 					$competition_found = true;
 					break;
 				}
 			}
-			
+
 			if (!$competition_found) {
 				$events[$event_key]['competitions'][] = array('id' => $r['competition_id'], 'title' => $r['competition_title'], 'works' => array(
 					array('id' => $r['work_id'], 'title' => $r['work_title'], 'position' => $r['work_pos'], 'author' => $r['author'])
 				));
 			}
-		}
-		else {
+		} else {
 			// New record
 			$events[] = array('id' => $r['event_id'], 'title' => $r['event_title'], 'competitions' => array(
 				array('id' => $r['competition_id'], 'title' => $r['competition_title'], 'works' => array(
@@ -110,6 +109,6 @@ function adminSidebarEvents() {
 			));
 		}
 	}
-	
+
 	return $events;
 }
