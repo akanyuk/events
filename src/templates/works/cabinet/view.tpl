@@ -167,7 +167,10 @@ else {
 </ul>
 <div class="tab-content">
 	<div role="tabpanel" class="tab-pane in active" style="padding-top: 20px;" id="main"><?php echo $information_pane?></div>
-	<div role="tabpanel" class="tab-pane" id="preview"><?php echo display_work_media($Module->record, array('rel' => 'preview'))?></div>
+	<div role="tabpanel" class="tab-pane" id="preview">
+        <br />
+        <?php echo display_work_media($Module->record, array('rel' => 'preview'))?>
+    </div>
 </div>
 <?php 		
 }	
