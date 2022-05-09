@@ -36,9 +36,14 @@ if (isset($_COOKIE['votekey']) && $CVote->checkVotekey($_COOKIE['votekey'], $com
     }
 }
 
+$vote_options = array();
+
 if (!empty($hook_additional['event']['options'])) {
-    $vote_options = array();
     foreach ($hook_additional['event']['options'] as $v) {
+        $vote_options[$v['value']] = $v['label_' . NFW::i()->user['language']] ? $v['label_' . NFW::i()->user['language']] : $v['value'];
+    }
+} else if (isset($event['options']) && !empty($event['options'])) {
+    foreach ($event['options'] as $v) {
         $vote_options[$v['value']] = $v['label_' . NFW::i()->user['language']] ? $v['label_' . NFW::i()->user['language']] : $v['value'];
     }
 } else {

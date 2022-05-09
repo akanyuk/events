@@ -1,9 +1,16 @@
 <?php
+/**
+ * @var array $event
+ * @var array $competition
+ */
+
 NFW::i()->registerFunction('display_work_media');
 
 $lang_main = NFW::i()->getLang('main');
 
-echo nl2br($competition['announcement']);
+if (!$event['one_compo_event']) {
+    echo nl2br($competition['announcement']);
+}
 
 // Get release works
 $CWorks = new works();

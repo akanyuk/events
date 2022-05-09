@@ -316,7 +316,9 @@ class events extends active_record {
 	function actionAdminUpdate() {
 		$this->error_report_type = empty($_POST) ? 'default' : 'active_form';
 
-    	if (!$this->load($_GET['record_id'])) return false;
+    	if (!$this->load($_GET['record_id'])) {
+    	    return false;
+        }
 
     	$this->loadServicettributes();
     	
@@ -336,8 +338,7 @@ class events extends active_record {
 	    	fclose($fp);
 
 	    	NFW::i()->renderJSON(array('result' => 'success', 'url' => NFW::i()->absolute_path.'/files/'.$this->record['alias'].'/'.$results_filename));
-    	}
-    	elseif (isset($_POST['save_pack']) && $_POST['save_pack']) {
+    	} else if (isset($_POST['save_pack']) && $_POST['save_pack']) {
 	    	$results_txt = $_POST['results_txt'];
 	    	$results_filename = $_POST['results_filename'] ? htmlspecialchars($_POST['results_filename']) : 'results.txt';
     		$pack_filename = $_POST['pack_filename'] ? htmlspecialchars($_POST['pack_filename']) : $this->record['alias'].'-pack.zip';

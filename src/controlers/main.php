@@ -196,7 +196,9 @@ function renderCompetitionPage($CCompetitions, $CEvents) {
     $event = $CEvents->record;
 
     if ($compo['release_status']['available'] && $compo['release_works']) {
-        return $CCompetitions->renderAction(array('competition' => $compo), '_release');
+        return $CCompetitions->renderAction(array(
+            'competition' => $compo,
+            'event' => $event), '_release');
     } elseif ($compo['voting_status']['available'] && $compo['voting_works']) {
         // Get voting works
         $CWorks = new works();

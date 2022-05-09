@@ -5,7 +5,7 @@
 
 // Custom rendering: votelist, results.txt, etc...
 $custom_render = isset($_REQUEST['force-render']) ?  'update.'.$_REQUEST['force-render'] : false;
-if ($custom_render && file_exists(SRC_ROOT.'templates/events/admin/'.$custom_render.'.tpl')) {
+if ($custom_render && file_exists(SRC_ROOT.'/templates/events/admin/'.$custom_render.'.tpl')) {
 	NFW::i()->stop($Module->renderAction(array('request' => $_REQUEST), $custom_render));
 }
 

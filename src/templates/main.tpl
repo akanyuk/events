@@ -303,13 +303,14 @@ else {
 	
 			<?php echo $is_latest_comments ? '<div style="margin-bottom: 40px;"><h3><a href="'.NFW::i()->base_path.'comments.html">'.$lang_main['latest comments'].'</a></h3>'.$works_comments.'</div>' : ''?>
 
-			<?php /* zxbn.maros.pri.ee */ ?>
+			<?php if (!defined("NFW_DEBUG")): /* zxbn.maros.pri.ee */ ?>
 			<div class="text-center hidden-sm" style="margin-bottom: 40px;">
 				<div id="zxbn-container">
 					<ins data-revive-zoneid="<?php echo NFW::i()->lang['lang'] == 'ru' ? '5' : '8'?>" data-revive-id="7b21834437781b35285bb6ea887b8b50"></ins>
 					<script async src="//zxbn.maros.pri.ee/www/delivery/asyncjs.php"></script>
 				</div>
 			</div>
+            <?php endif; ?>
 				
 			<?php echo $is_latest_news ? '<h3><a href="'.NFW::i()->base_path.'news.html">'.$lang_main['latest news'].'</a></h3>'.$latest_news : ''?>
 		</div>
