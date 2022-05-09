@@ -211,7 +211,7 @@ $(document).ready(function(){
 					
 					<div class="form-group">
 						<div class="col-md-10 col-md-offset-2">
-							<button type="submit" class="btn btn-primary"><span class="fa fa-floppy-o"></span> <?php echo NFW::i()->lang['Save changes']?></button>
+							<button type="submit" class="btn btn-primary"><span class="fa fa-save"></span> <?php echo NFW::i()->lang['Save changes']?></button>
 						</div>
 					</div>
 				</form>
@@ -251,7 +251,7 @@ $(document).ready(function(){
 					</div>
 					<div style="padding-top: 20px;">
 						<button id="add-values-record" class="btn btn-default">Add value</button>
-						<button type="submit" name="form-send" class="btn btn-primary"><span class="fa fa-floppy-o"></span> <?php echo NFW::i()->lang['Save changes']?></button>
+						<button type="submit" name="form-send" class="btn btn-primary"><span class="fa fa-save"></span> <?php echo NFW::i()->lang['Save changes']?></button>
 					</div>
 				</form>		
 			</div>
@@ -332,7 +332,7 @@ $(document).ready(function(){
 											
 			      							<input type="text" class="form-control" name="results_filename" value="results.txt" maxlength="64" placeholder="results.txt">
 											<span class="input-group-btn">
-			        							<button name="save_results_txt" value="1" type="submit" class="btn btn-primary" type="button" title="Save results file"><span class="fa fa-floppy-o"></span></button>
+			        							<button name="save_results_txt" value="1" type="submit" class="btn btn-primary" title="Save results file"><span class="fa fa-save"></span></button>
 											</span>
 										</div>
 										<span class="help-block"></span>
@@ -374,7 +374,7 @@ $(document).ready(function(){
 											
 			      							<input type="text" class="form-control" name="pack_filename" value="<?php echo $Module->record['alias'].'-pack.zip'?>" maxlength="64" placeholder="<?php echo $Module->record['alias'].'-pack.zip'?>">
 											<span class="input-group-btn">
-			        							<button name="save_pack" value="1" type="submit" class="btn btn-primary" type="button" title="Save pack archive"><span class="fa fa-floppy-o"></span></button>
+			        							<button name="save_pack" value="1" type="submit" class="btn btn-primary" title="Save pack archive"><span class="fa fa-save"></span></button>
 											</span>
 										</div>
 										<span class="help-block"></span>

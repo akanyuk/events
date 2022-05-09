@@ -330,6 +330,10 @@ class events extends active_record {
 	    	$results_txt = $_POST['results_txt'];
 	    	$results_filename = $_POST['results_filename'] ? htmlspecialchars($_POST['results_filename']) : 'results.txt';
 
+            if (!file_exists(PUBLIC_HTML.'/files/'.$this->record['alias'])) {
+                mkdir(PUBLIC_HTML.'/files/'.$this->record['alias'], 0777);
+            }
+
 	    	if (!$fp = fopen(PUBLIC_HTML.'/files/'.$this->record['alias'].'/'.$results_filename, 'w')) {
 	    		$this->error('Unable to open results file', __FILE__, __LINE__);
 	    		return false;

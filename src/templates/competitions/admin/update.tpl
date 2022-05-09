@@ -78,7 +78,7 @@ $(document).ready(function(){
 			
 			<div class="row">
 				<div class="col-md-offset-2 col-md-4">
-					<button type="submit" class="btn btn-primary"><span class="fa fa-floppy-o"></span> <?php echo NFW::i()->lang['Save changes']?></button>
+					<button type="submit" class="btn btn-primary"><span class="fa fa-save"></span> <?php echo NFW::i()->lang['Save changes']?></button>
 				</div>
                 <div class="col-md-6 text-right" style="padding-top: 20px;">
                     <a id="competitions-delete" href="#" class="text-danger" title=""><span class="fa fa-times"></span> Delete competition</a>

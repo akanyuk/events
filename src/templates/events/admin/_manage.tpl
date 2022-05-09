@@ -98,7 +98,7 @@ $(document).ready(function(){
 	
 	<div class="form-group">
 		<div class="col-md-6 col-md-offset-2">
-			<button type="submit" class="btn btn-primary"><span class="fa fa-floppy-o"></span> <?php echo NFW::i()->lang['Save changes']?></button>
+			<button type="submit" class="btn btn-primary"><span class="fa fa-save"></span> <?php echo NFW::i()->lang['Save changes']?></button>
 		</div>
 	</div>			
 </form>

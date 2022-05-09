@@ -79,6 +79,6 @@ $(document).ready(function(){
 	<div id="values-area" class="settings"></div>
 	<div style="padding-top: 20px;">
 		<button id="add-values-record" class="btn btn-default">Add value</button>
-		<button type="submit" name="form-send" class="btn btn-primary"><span class="fa fa-floppy-o"></span> <?php echo NFW::i()->lang['Save changes']?></button>
+		<button type="submit" name="form-send" class="btn btn-primary"><span class="fa fa-save"></span> <?php echo NFW::i()->lang['Save changes']?></button>
 	</div>
 </form>

@@ -223,7 +223,7 @@ updateSortable = function(){
 				</form>
 			</div>
 			<div class="modal-footer">
-				<button id="works-insert-submit" type="button" class="btn btn-primary"><span class="fa fa-floppy-o"></span> <?php echo NFW::i()->lang['Save changes']?></button>
+				<button id="works-insert-submit" type="button" class="btn btn-primary"><span class="fa fa-save"></span> <?php echo NFW::i()->lang['Save changes']?></button>
 				<button type="button" class="btn btn-default" data-dismiss="modal"><?php echo NFW::i()->lang['Close']?></button>
 			</div>
 		</div>
