@@ -327,12 +327,12 @@ class events extends active_record {
 	    }
 
 		if (isset($_POST['save_results_txt']) && $_POST['save_results_txt']) {
-	    	$results_txt = $_POST['results_txt'];
-	    	$results_filename = $_POST['results_filename'] ? htmlspecialchars($_POST['results_filename']) : 'results.txt';
-
             if (!file_exists(PUBLIC_HTML.'/files/'.$this->record['alias'])) {
                 mkdir(PUBLIC_HTML.'/files/'.$this->record['alias'], 0777);
             }
+
+	    	$results_txt = $_POST['results_txt'];
+	    	$results_filename = $_POST['results_filename'] ? htmlspecialchars($_POST['results_filename']) : 'results.txt';
 
 	    	if (!$fp = fopen(PUBLIC_HTML.'/files/'.$this->record['alias'].'/'.$results_filename, 'w')) {
 	    		$this->error('Unable to open results file', __FILE__, __LINE__);
@@ -343,6 +343,10 @@ class events extends active_record {
 
 	    	NFW::i()->renderJSON(array('result' => 'success', 'url' => NFW::i()->absolute_path.'/files/'.$this->record['alias'].'/'.$results_filename));
     	} else if (isset($_POST['save_pack']) && $_POST['save_pack']) {
+            if (!file_exists(PUBLIC_HTML.'/files/'.$this->record['alias'])) {
+                mkdir(PUBLIC_HTML.'/files/'.$this->record['alias'], 0777);
+            }
+
 	    	$results_txt = $_POST['results_txt'];
 	    	$results_filename = $_POST['results_filename'] ? htmlspecialchars($_POST['results_filename']) : 'results.txt';
     		$pack_filename = $_POST['pack_filename'] ? htmlspecialchars($_POST['pack_filename']) : $this->record['alias'].'-pack.zip';

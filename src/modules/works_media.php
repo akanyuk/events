@@ -166,17 +166,25 @@ class works_media extends media {
 			$this->error('Nothing to add into archive!'."\n".'Please check alomost one "Release" button.', __FILE__, __LINE__);
 			return false;
 		}
-		
+
+        if (!file_exists(PUBLIC_HTML.'/files/'.$CWorks->record['event_alias'])) {
+            if (!mkdir(PUBLIC_HTML.'/files/'.$CWorks->record['event_alias'], 0777)) {
+                $this->error('Unable to make event directory', __FILE__, __LINE__);
+                return false;
+            }
+        }
+
 		// Remove old release
-		if (!$this->deleteReleaseFile($CWorks->record)) return false;
+		if (!$this->deleteReleaseFile($CWorks->record)) {
+		    return false;
+        }
 		
 		$pack_dir = PUBLIC_HTML.'/files/'.$CWorks->record['event_alias'].'/'.$CWorks->record['competition_alias'];
 		if (!file_exists($pack_dir)) {
-			if (!mkdir($pack_dir)) {
+			if (!mkdir($pack_dir, 0777)) {
 				$this->error('Unable to make competition directory', __FILE__, __LINE__);
 				return false;
 			}
-			chmod($pack_dir, 0777);
 		}
 		
 		// Try to generate custom release basename
