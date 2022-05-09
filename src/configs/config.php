@@ -37,7 +37,7 @@ return array(
         'name' => 'e1703',
         'domain' => '.' . $_SERVER['HTTP_HOST'],
         'path' => '/',
-        'secure' => 0,
+        'secure' => true,
         'expire' => 1209600    // The cookie expires after 14 days
     ),
 
