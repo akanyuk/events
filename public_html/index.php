@@ -13,6 +13,10 @@ define('PUBLIC_HTML', __DIR__);
 define('PROJECT_ROOT', __DIR__ . '/');
 
 $config = include(SRC_ROOT . '/configs/config.php');
+if (file_exists(dirname(__DIR__) . '/config.local.php')) {
+    $config = array_merge($config, include(dirname(__DIR__) . '/config.local.php'));
+}
+
 $config['include_paths'] = array(
     SRC_ROOT . '/',
     NFW_ROOT . '/',
@@ -24,4 +28,4 @@ $config['SxGeo.dat'] = VAR_ROOT . '/SxGeo.dat';
 $config['SxGeoCity.dat'] = VAR_ROOT . '/SxGeoCity.dat';
 
 require SRC_ROOT . '/nfw_extended.php';
-NFWX::run(array_merge($config, include(dirname(__DIR__) . '/config.local.php')));
+NFWX::run($config);
