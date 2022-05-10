@@ -2,7 +2,7 @@
   "require": {
     "ccampbell/chromephp": "^4.1",
     "akanyuk/speccy_gfx_converter": "^1.1.2",
-    "akanyuk/nfw": "^1.0.0",
+    "akanyuk/nfw": "^1.1.0",
     "ext-zip": "*",
     "ext-iconv": "*",
     "ext-mbstring": "*",
