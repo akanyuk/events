@@ -1,5 +1,7 @@
 <?php 
-	if (empty($comments)) return;
+	if (empty($comments)) {
+	    return;
+    }
 		
 	NFW::i()->registerFunction('friendly_date');
 	$lang_main = NFW::i()->getLang('main');

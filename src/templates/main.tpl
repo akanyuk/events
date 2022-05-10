@@ -16,7 +16,7 @@ if (NFW::i()->user['is_guest']) {
 $lang_main = NFW::i()->getLang('main');
 $lang_users = NFW::i()->getLang('users');
 
-// Собираем `meta_keywords` из конфига сайта и параметров страницы
+// Collecting `meta_keywords` from project and page setting
 $page['meta_keywords'] = isset($page['meta_keywords']) ? $page['meta_keywords'] : '';
 $page['meta_description'] = isset($page['meta_description']) ? $page['meta_description'] : '';
 $meta_keywords = array();
@@ -249,8 +249,7 @@ if ($page['path'] == '') {
 	NFW::i()->works_comments = $works_comments;
 	NFW::i()->latest_news = $latest_news;
 	echo NFW::i()->fetch(NFW::i()->findTemplatePath('pages/main/_index.tpl'));
-}
-else {
+} else {
 	echo $page_content;
 }
 ?>
