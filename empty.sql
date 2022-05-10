@@ -1,0 +1,384 @@
+-- Adminer 4.8.1 MySQL 8.0.29 dump
+
+SET NAMES utf8;
+SET time_zone = '+00:00';
+SET foreign_key_checks = 0;
+SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
+
+DROP TABLE IF EXISTS `competitions`;
+CREATE TABLE `competitions` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `event_id` int unsigned NOT NULL DEFAULT '0',
+  `position` int unsigned NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `alias` varchar(32) NOT NULL DEFAULT '',
+  `works_type` varchar(64) NOT NULL DEFAULT '',
+  `announcement` text,
+  `reception_from` int unsigned NOT NULL DEFAULT '0',
+  `reception_to` int unsigned NOT NULL DEFAULT '0',
+  `voting_from` int unsigned NOT NULL DEFAULT '0',
+  `voting_to` int unsigned NOT NULL DEFAULT '0',
+  `posted` int unsigned NOT NULL DEFAULT '0',
+  `posted_by` int unsigned NOT NULL DEFAULT '1',
+  `posted_username` varchar(128) NOT NULL DEFAULT '',
+  `poster_ip` varchar(39) DEFAULT NULL,
+  `edited` int unsigned DEFAULT NULL,
+  `edited_by` int unsigned DEFAULT NULL,
+  `edited_username` varchar(128) NOT NULL DEFAULT '',
+  `edited_ip` varchar(39) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
+
+INSERT INTO `competitions` (`id`, `event_id`, `position`, `title`, `alias`, `works_type`, `announcement`, `reception_from`, `reception_to`, `voting_from`, `voting_to`, `posted`, `posted_by`, `posted_username`, `poster_ip`, `edited`, `edited_by`, `edited_username`, `edited_ip`) VALUES
+(1,	1,	1,	'The competition',	'the_competition',	'demo',	'The competition announce',	1652130002,	1680296103,	0,	0,	1652170492,	5,	'admin',	'192.168.0.1',	1652170518,	5,	'admin',	'192.168.0.1');
+
+DROP TABLE IF EXISTS `elements`;
+CREATE TABLE `elements` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `alias` varchar(128) NOT NULL DEFAULT '',
+  `content` text,
+  `default` tinyint unsigned NOT NULL DEFAULT '1',
+  `editable` tinyint unsigned NOT NULL DEFAULT '1',
+  `visual_editor` tinyint unsigned NOT NULL DEFAULT '1',
+  `with_attachments` tinyint unsigned NOT NULL DEFAULT '0',
+  `posted` int unsigned NOT NULL DEFAULT '0',
+  `posted_by` int unsigned NOT NULL DEFAULT '1',
+  `posted_username` varchar(128) NOT NULL DEFAULT '',
+  `poster_ip` varchar(39) DEFAULT NULL,
+  `edited` int unsigned DEFAULT NULL,
+  `edited_by` int unsigned DEFAULT NULL,
+  `edited_username` varchar(128) NOT NULL DEFAULT '',
+  `edited_ip` varchar(39) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
+
+INSERT INTO `elements` (`id`, `title`, `alias`, `content`, `default`, `editable`, `visual_editor`, `with_attachments`, `posted`, `posted_by`, `posted_username`, `poster_ip`, `edited`, `edited_by`, `edited_username`, `edited_ip`) VALUES
+(1,	'Главное меню',	'main-menu',	'<ul>\n	<li><a href=\"/events\">События</a></li>\n	<li><a href=\"/news.html\">Новости</a></li>\n	<li><a href=\"/demoscene.html\">Демосцена</a></li>\n</ul>',	1,	1,	1,	0,	0,	1,	'',	NULL,	1411840103,	2,	'nyuk',	'91.215.205.251'),
+(2,	'Последние новости',	'latest-news',	'1',	1,	0,	0,	0,	0,	1,	'nyuk',	NULL,	NULL,	NULL,	'',	NULL),
+(3,	'Timeline',	'timeline',	'1',	0,	0,	0,	0,	0,	1,	'',	NULL,	NULL,	NULL,	'',	NULL);
+
+DROP TABLE IF EXISTS `events`;
+CREATE TABLE `events` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `is_hidden` tinyint unsigned NOT NULL DEFAULT '0',
+  `title` varchar(255) NOT NULL,
+  `alias` varchar(32) NOT NULL DEFAULT '',
+  `announcement` text,
+  `announcement_og` varchar(128) DEFAULT NULL COMMENT 'Announcement for Open Graph',
+  `date_from` int unsigned NOT NULL DEFAULT '0',
+  `date_to` int unsigned NOT NULL DEFAULT '0',
+  `content` text,
+  `hide_works_count` tinyint unsigned NOT NULL DEFAULT '0',
+  `one_compo_event` tinyint unsigned NOT NULL DEFAULT '0' COMMENT 'Event with only one compo',
+  `posted` int unsigned NOT NULL DEFAULT '0',
+  `options` text NOT NULL,
+  `posted_by` int unsigned NOT NULL DEFAULT '1',
+  `posted_username` varchar(128) NOT NULL DEFAULT '',
+  `poster_ip` varchar(39) DEFAULT NULL,
+  `edited` int unsigned DEFAULT NULL,
+  `edited_by` int unsigned DEFAULT NULL,
+  `edited_username` varchar(128) NOT NULL DEFAULT '',
+  `edited_ip` varchar(39) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
+
+INSERT INTO `events` (`id`, `is_hidden`, `title`, `alias`, `announcement`, `announcement_og`, `date_from`, `date_to`, `content`, `hide_works_count`, `one_compo_event`, `posted`, `options`, `posted_by`, `posted_username`, `poster_ip`, `edited`, `edited_by`, `edited_username`, `edited_ip`) VALUES
+(1,	0,	'The event',	'the_event',	'The event announce',	'',	1652130000,	1680296399,	'<p>The event description</p>',	0,	0,	1652170374,	'YTowOnt9',	5,	'admin',	'192.168.0.1',	1652170438,	5,	'admin',	'192.168.0.1');
+
+DROP TABLE IF EXISTS `events_managers`;
+CREATE TABLE `events_managers` (
+  `event_id` int unsigned NOT NULL,
+  `user_id` int unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`event_id`,`user_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
+
+
+DROP TABLE IF EXISTS `logs`;
+CREATE TABLE `logs` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `posted` int unsigned NOT NULL DEFAULT '0',
+  `poster` int unsigned NOT NULL DEFAULT '0',
+  `poster_username` varchar(64) DEFAULT NULL,
+  `ip` varchar(39) NOT NULL DEFAULT '0',
+  `url` varchar(255) NOT NULL DEFAULT '',
+  `message` text NOT NULL,
+  `additional` text,
+  `kind` int unsigned NOT NULL DEFAULT '0',
+  `user_agent` varchar(255) DEFAULT NULL,
+  `browser` varchar(64) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
+
+
+DROP TABLE IF EXISTS `media`;
+CREATE TABLE `media` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `position` int unsigned NOT NULL DEFAULT '0',
+  `owner_id` int unsigned NOT NULL DEFAULT '0',
+  `owner_class` varchar(32) NOT NULL DEFAULT '',
+  `session_id` varchar(16) DEFAULT NULL,
+  `secure_storage` tinyint unsigned NOT NULL DEFAULT '0',
+  `basename` varchar(255) NOT NULL DEFAULT '',
+  `filesize` int unsigned NOT NULL DEFAULT '0',
+  `comment` text,
+  `posted_by` int unsigned NOT NULL DEFAULT '0',
+  `posted_username` varchar(128) NOT NULL DEFAULT '',
+  `poster_ip` varchar(39) NOT NULL DEFAULT '',
+  `posted` int unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
+
+
+DROP TABLE IF EXISTS `media_sessions`;
+CREATE TABLE `media_sessions` (
+  `session_id` varchar(16) CHARACTER SET utf8mb3 COLLATE utf8_estonian_ci NOT NULL DEFAULT '',
+  `data` text,
+  `posted` int unsigned NOT NULL DEFAULT '0',
+  `posted_by` int unsigned NOT NULL DEFAULT '0',
+  UNIQUE KEY `session_id` (`session_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
+
+DROP TABLE IF EXISTS `news`;
+CREATE TABLE `news` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `announcement` text,
+  `content` text,
+  `meta_keywords` varchar(255) DEFAULT NULL,
+  `posted` int unsigned NOT NULL DEFAULT '0',
+  `posted_username` varchar(128) NOT NULL DEFAULT '',
+  `posted_by` int unsigned NOT NULL DEFAULT '1',
+  `poster_ip` varchar(39) DEFAULT NULL,
+  `edited` int unsigned DEFAULT NULL,
+  `edited_username` varchar(128) NOT NULL DEFAULT '',
+  `edited_by` int unsigned DEFAULT NULL,
+  `edited_ip` varchar(39) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
+
+
+DROP TABLE IF EXISTS `pages`;
+CREATE TABLE `pages` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `content` text,
+  `path` varchar(255) NOT NULL,
+  `meta_keywords` varchar(255) DEFAULT NULL,
+  `meta_description` varchar(255) DEFAULT NULL,
+  `is_active` int unsigned NOT NULL DEFAULT '1' COMMENT 'Страница активна',
+  `posted` int unsigned NOT NULL DEFAULT '0',
+  `posted_username` varchar(128) NOT NULL DEFAULT '',
+  `posted_by` int unsigned NOT NULL DEFAULT '1',
+  `poster_ip` varchar(39) DEFAULT NULL,
+  `edited` int unsigned DEFAULT NULL,
+  `edited_username` varchar(128) NOT NULL DEFAULT '',
+  `edited_by` int unsigned DEFAULT NULL,
+  `edited_ip` varchar(39) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
+
+INSERT INTO `pages` (`id`, `title`, `content`, `path`, `meta_keywords`, `meta_description`, `is_active`, `posted`, `posted_username`, `posted_by`, `poster_ip`, `edited`, `edited_username`, `edited_by`, `edited_ip`) VALUES
+(1,	'Retroscene events',	'',	'',	NULL,	NULL,	1,	1350668388,	'',	3,	'127.0.0.1',	1517481585,	'nyuk',	2,	'176.126.53.120'),
+(5,	'Новости',	'',	'news.html',	NULL,	NULL,	1,	1367867472,	'nyuk',	3,	'127.0.0.1',	1408806991,	'nyuk',	2,	'91.215.205.251'),
+(7,	'Регистрация',	'',	'register.html',	NULL,	NULL,	1,	1378050219,	'nyuk',	3,	'127.0.0.1',	1406099938,	'nyuk',	2,	'95.53.248.34'),
+(10,	'Private Office',	'',	'cabinet',	NULL,	NULL,	1,	1388433699,	'nyuk',	2,	'91.215.205.251',	NULL,	'',	NULL,	NULL),
+(11,	'События',	'',	'events',	NULL,	NULL,	1,	1388434504,	'nyuk',	2,	'91.215.205.251',	1403068978,	'nyuk',	2,	'95.53.248.34'),
+(13,	'Operator workflow',	'<h2>Панель администрирования</h2>\n\n<div class=\"alert alert-danger\">Функционал панели администрирования проверялся в браузерах Firefox и Chrome. Работа в других браузерах не гарантируется!</div>\n\n<h3>1. В разделе <strong>Events</strong> создать новую запись, где:</h3>\n\n<p><strong>Title</strong> - основной заголовок события.</p>\n\n<p><strong>alias</strong> - псевдоним, используемый в качестве имени каталога при формировании пака работ. Смену псевдонима необходимо согласовывать с администратором.</p>\n\n<p><strong>Date from / Date </strong><strong>to</strong> - даты начала и окончания события. Информационные поля, отображаемые в списке событий. На функционал сайта не влияют.</p>\n\n<p><strong>Announce</strong> - краткий анонс. Отображается в списке событий. Допустимо использование HTML-верстки. Перевод строки автоматически преобразуется в <em>&lt;</em><em>br /&gt;.</em></p>\n\n<p><strong>Disabled - </strong>временно скрыть мероприятие из списка событий.</p>\n\n<p>&nbsp;</p>\n\n<p>Ниже находится форма загрузки файлов. Загруженные файлы могут использоваться на усмотрение оператора. Если в качестве комментария к загруженному файлу указать &quot;<strong>announce&quot;</strong><strong>, </strong>то этот файл будет использоваться в качестве логотипа в списке событий. Загруженный файл должен быть изображением PNG/JPG/GIF размером 64х64 пикс.</p>\n\n<p>&nbsp;</p>\n\n<p><strong>Description -</strong> подробное описание события, отображаемое на сайте. Используется визуальный HTML-редактор. Загруженные ранее изображения и файлы можно автоматически прикреплять в текст: кнопка Image или Link, далее выбрать &quot;Browse Server&quot;.</p>\n\n<p><strong>Votelist -</strong> автоматическое формирование листов для голосования на патиплейс. Если был загружен логотип (см. выше), то он будет отобразится в листе голосования.</p>\n\n<p><strong>Builders </strong><strong>- </strong>раздел позволяет сформировать файл с результатами (results.txt) и пак работ. (см. ниже)</p>\n\n<p>&nbsp;</p>\n\n<h3>2. В разделе <strong>Competitions</strong> необходимые конкурсы.</h3>\n\n<p><strong>Title - </strong>название.</p>\n\n<p><strong>alias</strong> - псевдоним, используемый в качестве имени каталога при формировании пака работ.</p>\n\n<p><strong>Announce</strong> - краткий анонс. Отображается в разделе информации о номинации, при голосовании, при просмотре работ после голосования. Допустимо использование HTML-верстки. Перевод строки автоматически преобразуется в <em>&lt;</em><em>br /&gt;.</em></p>\n\n<p><strong>Works accepting start / Works accepting end</strong> - время начала и окончания приема работ. Если прием работ будет осуществляться не через сайт, например по электронной почте, то можно не указывать.</p>\n\n<p><strong>Voting start / Voting end </strong>- время голосования. До начала голосования просмотр работ посетителям сайта не доступен (кроме авторов). После окончания голосования работы остаются доступны для просмотра. Если не указаны ни время начала, ни время окончания голосования, то работы в этой номинации станут доступны для просмотра сразу после принятия (установки соответствующего статуса).</p>\n\n<p>&nbsp;</p>\n\n<h3>3. В разделе <strong>Works</strong> добавить работы.</h3>\n\n<p><strong>Title / </strong><strong>Author </strong>- название и автор работы (группа). Информация для отображения на сайте, в листах голосования, в файле результатов.</p>\n\n<p><strong>Platform - </strong>платформа. Можно выбрать из списка ранее введенных платформ или ввести вручную.</p>\n\n<p><strong>Format </strong>- необязательное поле для уточнения формата там, где это необходимо. Например, если в номинации участвует различная графика, то здесь можно указать SCR, GigaScreen, MGS...</p>\n\n<p><strong>Status</strong> - статус работы:</p>\n\n<p><em>Unchecked - статус, устанавливаемый при создании работы. Голосование: <strong>нет</strong>, релиз: <strong>нет</strong>.</em></p>\n\n<p><em>Checked - основной статус. Голосование: <strong>да</strong>, релиз: <strong>да</strong>.</em></p>\n\n<p><em>Disqualified - дисквалифицирована. Голосование: <strong>нет</strong>, релиз: <strong>нет</strong>.</em></p>\n\n<p><em>Feedback needed - ожидание. Голосование: <strong>нет</strong>, релиз: <strong>нет</strong>.</em></p>\n\n<p><em>Out of competition - вне конкурса. . Голосование: <strong>нет</strong>, релиз: <strong>да</strong>.</em></p>\n\n<p><strong>External HTML - </strong>вручную отформатированный HTML-код. Например, ролик на Youtube, ссылки на pouet.net, zxart.ee, zxaaa.net...</p>\n\n<p>Код, предоставляемая сервисом Youtube по умолчанию не совместима с дизайном сайта: будут перекрываться диалоговые окна. Чтобы этого не произошло необходимо использовать примерно такой код:</p>\n\n<pre>\n&lt;iframe width=&quot;640&quot; height=&quot;480&quot; src=&quot;//www.youtube.com/embed/2kNL8taPg5Q?wmode=transparent&quot; frameborder=&quot;0&quot; allowfullscreen&gt;&lt;/iframe&gt;</pre>\n\n<p>&nbsp;</p>\n\n<p><strong>Manage files</strong> - раздел для управления всеми загруженными файлами работы. Для каждого из файлов необходимо установить опции:</p>\n\n<p><strong>screenshot - </strong>отображается только в ЛК автора. Автоматически уменьшается по ширине до 160 пикс. Желательно не использовать слишком крупные изображения.</p>\n\n<p><strong>image - </strong>картинка, отображаемая при голосовании и при просмотре работы после голосования. Допустимые форматы: png, jpg, gif. Предпочтительный размер: 640х480 пикс. (2x-scale, small border в случае ZX Spectrum)</p>\n\n<p><strong>audio - </strong>файлы для прослушивания в браузере. Для лучшей совместимости желательно загрузить mp3 и ogg варианты.</p>\n\n<p><strong>voting - </strong>файл(ы), которые будут доступны для скачивания при голосовании.</p>\n\n<p><strong>release - </strong>файл(ы) для скачивания после голосования. Эти же файл будут упакованы в финальный пак работ. Предпочтительно загрузить zip-архив со всеми необходимыми файлами: сама работа, file_id.diz, steps... При создании пака такой архив будет автоматически &quot;перепакован&quot;.</p>\n\n<p>&nbsp;</p>\n\n<p><strong>Current permanent archive link</strong> - прямая ссылка на скачивание работы (если есть).<br />\nИмеет вид: <em>https://events.retroscene.org/files/%event_alias%/%competition_alias%/%title%.zip</em></p>\n\n<p>Ниже кнопка создания прямой ссылки. В архив попадут все файлы с опцией `release`. Можно автоматически сгенерировать и добавить в архив file_id.diz. Операция необратима!</p>\n\n<p>&nbsp;</p>\n\n<h3>4. Процесс голосования контролируется из раздела <strong>Voting.</strong></h3>\n\n<p><strong>Votekeys - </strong>все сгенерированные ключи голосование. Есть возможность добавить необходимое количество ключей.</p>\n\n<p><strong>Votes - </strong>все учтенные голоса. Здесь же нужно добавлять результаты голосования на патиплейс.</p>\n\n<p><strong>Results - </strong>предварительные результаты голосования. Кнопка &quot;Save results&quot; сохраняет результаты голосования в профиле работ. После этого результаты становятся видны посетителям сайта (при условии, что голосование закончилось). Действие отменить невозможно! Можно только перезаписать результаты более свежими.</p>\n\n<div class=\"alert alert-info\">Занятое работой место определяется значением &quot;Average&quot;. Если у двух работ одинаковый средний балл, то победитель выбирается по наибольшему значению &quot;Total&quot;. Если и общая сумма голосов одинакова, то работы считаются занявшими одно место.</div>\n\n<p>&nbsp;</p>\n\n<h2>Взаимодействие с автором</h2>\n\n<div class=\"alert alert-warning\">Желательно, чтобы работы загружались на сайт самим автором, а не оператором, т.к. в текущей версии сайта &quot;привязать&quot; работу к другому автору можно только вручную, по запросу администратору.</div>\n\n<p>При загрузке автор обязательно указывает заголовок, автора/группу (так, как это будет отображаться на сайте), платформу (выбирает из списка или вводит вручную).&nbsp; Остальные поля не обязательны.</p>\n\n<p>Отправить работу можно только загрузив хотя бы один файл. Если автор загрузил файлы, но не нажал кнопку &quot;Отправить работу&quot; и покинул страницу, то загруженные файлы будут потеряны. В текущей версии сайта автор не может дозагрузить файлы после отправки работы.</p>\n\n<p>В личном кабинете автор видит: название работы, автора, платформу, формат, статус, скриншот. Тремя отдельными списками отображаются: файлы, используемые при голосовании, файлы для релиза, все прочие файлы.</p>\n\n<p>Все файлы автор может скачать, но у незарегистрированных пользователей эти ссылки работать не будут.</p>\n\n<p>&nbsp;</p>\n\n<h2>Голосование</h2>\n\n<p>Голосование проводится на основной странице мероприятия: https://events.retroscene.org/%alias%</p>\n\n<p>Для участия в голосовании необходимо запросить ключ, который высылается на указанный e-mail адрес. Если посетитель повторно запросил ключ на тот же самый e-mail, то новый ключ сгенерирован не будет. Вместо этого будет отправлен тот же самый ключ.</p>\n\n<p>Голосовать за одни и те же работы можно сколько угодно раз, но учтен будет только последний сабмит. Сайт запоминает проставленные оценки. При повторном заходе на страницу оценки будут автоматически загружены (только если используется тот же самый компьютер и браузер). Последний использованный ключ голосования и указанное имя запоминаются после нажатия &quot;Проголосовать&quot;.</p>\n\n<p>&nbsp;</p>\n\n<h2>После голосования</h2>\n\n<p>После окончания голосования все работы останутся доступны для просмотра. После того, как оператор сохранит результаты голосования (кнопка &quot;Save results&quot;), эта будет доступна посетителям сайта.</p>\n\n<p>Перед сохранением файла results.txt оператор может вручную добавить в него необходимый текст: ASCII-арт и пр.</p>\n\n<p>При сборке пака работ файл с результатами добавляется только, если установлена галочка &quot; Attach `results.txt` into archive&quot;. &nbsp;В архив попадает не сохраненный ранее файл, а текущее содержимое поля &quot;results.txt&quot;.</p>\n\n<p>Все файлы сохраняются на сервер, в каталог <em>/files/%alias%. </em>После сохранения на экране отобразится ссылка для скачивания.</p>',	'operator-workflow.html',	NULL,	NULL,	1,	1402253332,	'nyuk',	2,	'91.215.205.251',	1402697562,	'nyuk',	2,	'91.215.205.251'),
+(21,	'API help 0.03',	'<h1>API сайта events.retroscene.org</h1>\r\n\r\n<p>версия: 0.03<br />\r\nдата: 2019-01-11</p>\r\n\r\n<h3>1.1 Общая информация</h3>\r\n\r\n<p>Взаимодействие с API сайта производится по адресу <strong><a href=\"https://events.retroscene.org/api\">https://events.retroscene.org/api</a></strong><br />\r\nПараметры запроса со стороны клиента передаются с помощью POST-запроса. Ответ сервера по умолчанию &ndash; XML. Если в POST или GET запросе клиента установлен параметр <strong>ResponseType</strong> со значением json, то ответ сервера переформатируется в JSON.</p>\r\n\r\n<p>Для тестирования API можно использовать следующую страницу: <strong><a href=\"https://events.retroscene.org/api_test\">https://events.retroscene.org/api_test</a></strong></p>\r\n\r\n<h3>1.2 Общие поля ответа API</h3>\r\n\r\n<p>Каждый ответе серверв возвращает следующие обязательные поля:<br />\r\n<strong>Status: </strong>результат обработки запроса. success &ndash; успешно, error &ndash; ошибка.<br />\r\n<strong>IsGuest</strong> - признак авторизации на сайте. 0 - нет, 1 - да.<br />\r\n<strong>Username</strong> - имя пользователя, в данный момент авторизовнного на сайте.</p>\r\n\r\n<h3>1.3 Формат сообщения об ошибке</h3>\r\n\r\n<p>В случае ошибки сервер возвращает ответ следующего содержания:<br />\r\n<strong>Message</strong> - текстовое сообщение с ошибкой.</p>\r\n\r\n<pre>\r\n&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;\r\n&lt;Document&gt;\r\n&nbsp; &lt;Status&gt;error&lt;/Status&gt;\r\n&nbsp; &lt;Message&gt;&laquo;Title&raquo; is required field.&lt;/Message&gt;\r\n&nbsp; &lt;Username&gt;nyuk&lt;/Username&gt;\r\n&nbsp; &lt;IsGuest&gt;0&lt;/IsGuest&gt;\r\n&lt;/Document&gt;</pre>\r\n\r\n<h3>&nbsp;</h3>\r\n\r\n<h2>2. Запросы к API</h2>\r\n\r\n<h3>2.1 Получение статуса текущего компо 53c</h3>\r\n\r\n<p>URL запроса: <strong>https://events.retroscene.org/api/competitions/get53c</strong></p>\r\n\r\n<p>Возвращаемые поля:</p>\r\n\r\n<p><strong>Competition -&gt; Title</strong> &ndash; название компо<br />\r\n<strong>Competition -&gt; EventTitle</strong> &ndash; название события (пати)<br />\r\n<strong>Competition -&gt; ReceptionAvailable</strong> &ndash; прием работ открыт: 1, закрыт: 0<br />\r\n<strong>Competition -&gt; ReceptionFrom</strong> &ndash; начало приема работ, дата в формате UNIX TIMESTAMP<br />\r\n<strong>Competition -&gt; ReceptionTo</strong> &ndash; окончание приема работ, дата в формате UNIX TIMESTAMP<br />\r\n<strong>Competition -&gt; VotingFrom</strong> &ndash; начало голосования, дата в формате UNIX TIMESTAMP<br />\r\n<strong>Competition -&gt; VotingTo</strong> &ndash; окончание голосования, дата в формате UNIX TIMESTAMP</p>\r\n\r\n<p>Пример ответа сервера:</p>\r\n\r\n<pre>\r\n&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;\r\n&lt;Document&gt;\r\n&nbsp; &lt;Status&gt;success&lt;/Status&gt;\r\n&nbsp; &lt;Username&gt;nyuk&lt;/Username&gt;\r\n&nbsp; &lt;IsGuest&gt;0&lt;/IsGuest&gt;\r\n&nbsp; &lt;Competition&gt;\r\n&nbsp;&nbsp; &nbsp;&lt;Title&gt;Тестирование 53c&lt;/Title&gt; \r\n&nbsp;&nbsp;&nbsp; &lt;EventTitle&gt;Artfield 2016&lt;/EventTitle&gt;\r\n&nbsp;&nbsp; &nbsp;&lt;ReceptionAvailable&gt;1&lt;/ReceptionAvailable&gt;\r\n&nbsp;&nbsp; &nbsp;&lt;ReceptionFrom&gt;1476306000&lt;/ReceptionFrom&gt;\r\n&nbsp;&nbsp; &nbsp;&lt;ReceptionTo&gt;1483217940&lt;/ReceptionTo&gt;\r\n&nbsp;&nbsp; &nbsp;&lt;VotingFrom&gt;1483218000&lt;/VotingFrom&gt;\r\n&nbsp;&nbsp; &nbsp;&lt;VotingTo&gt;1483218000&lt;/VotingTo&gt;\r\n&nbsp; &lt;/Competition&gt;\r\n&lt;/Document&gt;</pre>\r\n\r\n<h3>2.2 Загрузка работы на 53c компо</h3>\r\n\r\n<p>URL запроса: <strong>https://events.retroscene.org/api/competitions/upload53c</strong></p>\r\n\r\n<p>Передаваемые POST-запросом поля:</p>\r\n\r\n<p><strong>Title </strong>&ndash; название работы.<br />\r\n<strong>Author</strong> &ndash; имя автора.</p>\r\n\r\n<p>Файл работы должен быть в формате <strong>атрибутной графики ZX Spectrum (768 байт)</strong></p>\r\n\r\n<p>Файл передается с помощью стандартной процедуры загрузки файла &ndash; multipart/form-data. Имя поля, содержащего данные &ndash; любое.</p>\r\n\r\n<p>В случае успешного добавления работы сервер возвращает статус <strong>success</strong></p>\r\n\r\n<h3>2.3 Получение списка текущих и предстоящих событий</h3>\r\n\r\n<p>URL запроса: <strong>https://events.retroscene.org/api/events/upcoming-current</strong></p>\r\n\r\n<p>Возвращаемые поля:</p>\r\n\r\n<p><strong>Events -&gt; Event::ID</strong> &ndash; идентификатор события<br />\r\n<strong>Events -&gt; Event -&gt; Title</strong> &ndash; название события<br />\r\n<strong>Events -&gt; Event -&gt; URL</strong> &ndash; основной адрес события<br />\r\n<strong>Events -&gt; Event -&gt; Announcement</strong> &ndash; анонс события<br />\r\n<strong>Events -&gt; Event -&gt; DateFrom</strong> &ndash; начало события, дата в формате UNIX TIMESTAMP<br />\r\n<strong>Events -&gt; Event -&gt; DateTo</strong> &ndash; окончание события, дата в формате UNIX TIMESTAMP<br />\r\n<strong>Events -&gt; Event -&gt; IsLogo</strong> &ndash; есть логотип: 1, нет логотипа: 0<br />\r\n<strong>Events -&gt; Event -&gt; Logo</strong> &ndash; URL логотипа</p>\r\n\r\n<p>Пример ответа сервера:</p>\r\n\r\n<pre>\r\n&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt; \r\n&lt;Document&gt; \r\n  &lt;Status&gt;success&lt;/Status&gt; \r\n  &lt;Username&gt;nyuk&lt;/Username&gt; \r\n  &lt;IsGuest&gt;0&lt;/IsGuest&gt; \r\n  &lt;Events&gt; \r\n    &lt;Event&gt; \r\n	  &lt;Title&gt;Multimatograf 2018&lt;/Title&gt; \r\n	  &lt;URL&gt;http://events.local/mf2018&lt;/URL&gt; \r\n	  &lt;Announcement&gt;Демопати для настоящих ценителей олдскула, демоспирита и просто хорошего общения. Oldscool aimed demoparty in Vologda city, Russia.&lt;/Announcement&gt; \r\n	  &lt;DateFrom&gt;1524862800&lt;/DateFrom&gt; \r\n	  &lt;DateTo&gt;1525035599&lt;/DateTo&gt; \r\n	  &lt;IsLogo&gt;&lt;/IsLogo&gt; \r\n	  &lt;Logo&gt;http://events.local/assets/main/news-no-image.png&lt;/Logo&gt; \r\n	&lt;/Event&gt; \r\n  &lt;/Events&gt; \r\n&lt;/Document&gt;</pre>\r\n\r\n<h3>2.4 Получение списка работ</h3>\r\n\r\n<p>URL запроса: <strong>https://events.retroscene.org/api/works/get</strong></p>\r\n\r\n<p>Передаваемые параметры:</p>\r\n\r\n<p><strong>EventID</strong><strong> </strong>&ndash; идентификатор события. Если не указан, или 0, то все события.<br />\r\n<strong>CompetitionID</strong><strong> </strong>&ndash; идентификатор компо. Если не указан, или 0, то все компо.<br />\r\n<strong>Limit</strong><strong> </strong>&ndash; количество возвращаемых работ. Максимальное значение 99.<br />\r\n<strong>Offset</strong><strong> </strong>&ndash; Смещение (возвращать работы начиная с указанной позиции).</p>\r\n\r\n<p><em>Параметры можно передавать как в GET, так и в POST-переменных.</em></p>\r\n\r\n<p>Возвращаемые поля:</p>\r\n\r\n<p><strong>Filtered</strong> &ndash; общее количество отфильтрованных работ<br />\r\n<strong>Fetched</strong> &ndash; количество возвращемых работ</p>\r\n\r\n<p><strong>Works -&gt; Work::ID</strong> &ndash; идентификатор работы<br />\r\n<strong>Works -&gt; Work-&gt; Title</strong> &ndash; название работы<br />\r\n<strong>Works -&gt; Work-&gt; Author</strong> &ndash; автор работы<br />\r\n<strong>Works -&gt; Work-&gt; URL</strong> &ndash; URL-адрес страницы работы на events.retroscene.org<br />\r\n<strong>Works -&gt; Work-&gt; ReleaseURL</strong> &ndash; URL-адрес ссылки для скачивания работы. Если адрес не указан, возвращается пустое значение</p>\r\n\r\n<p><strong>Works -&gt; Work-&gt; Competition::ID</strong> &ndash; идентификатор компо<br />\r\n<strong>Works -&gt; Work-&gt; Competition -&gt; Title</strong> &ndash; название компо<br />\r\n<strong>Works -&gt; Work-&gt; Competition -&gt; WorksType</strong> &ndash; тип работ. Возможные варианты: <em>demo, picture, music, other</em></p>\r\n\r\n<p><strong>Works -&gt; Work-&gt; Event::ID</strong> &ndash; идентификатор события<br />\r\n<strong>Works -&gt; Work-&gt; Event -&gt; Title</strong> &ndash; название события<br />\r\n<strong>Works -&gt; Work-&gt; Event -&gt; DateFrom</strong> &ndash; начало события, дата в формате UNIX TIMESTAMP<br />\r\n<strong>Works -&gt; Work-&gt; Event -&gt; DateTo</strong> &ndash; окончание события, дата в формате UNIX TIMESTAMP</p>\r\n\r\n<p>Пример ответа сервера:</p>\r\n\r\n<pre>\r\n&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt; \r\n&lt;Document&gt; \r\n  &lt;Status&gt;success&lt;/Status&gt; \r\n  &lt;Username&gt;nyuk&lt;/Username&gt; \r\n  &lt;IsGuest&gt;0&lt;/IsGuest&gt; \r\n&nbsp; &lt;Filtered&gt;1811&lt;/Filtered&gt;\r\n&nbsp; &lt;Fetched&gt;99&lt;/Fetched&gt;\r\n&nbsp; &lt;Works&gt;\r\n&nbsp;&nbsp;&nbsp; &lt;Work ID=&quot;2026&quot;&gt;\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;Title&gt;Dead President&lt;/Title&gt;\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;Author&gt;Dalthon ^ Joker&lt;/Author&gt;\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;URL&gt;https://events.retroscene.org/dhl2019/LowEnd_1k_gfx/2026&lt;/URL&gt;\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;ReleaseURL&gt;https://events.retroscene.org/files/dhl2019/LowEnd_1k_gfx/dead_president.zip&lt;/ReleaseURL&gt;\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;Competition ID=&quot;352&quot;&gt;\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;Title&gt;LowEnd 1kb Procedural Graphics&lt;/Title&gt;\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;WorksType&gt;picture&lt;/WorksType&gt;\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/Competition&gt;\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;Event ID=&quot;39&quot;&gt;\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;Title&gt;DiHalt 2019 Lite&lt;/Title&gt;\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;DateFrom&gt;1546549200&lt;/DateFrom&gt;\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;DateTo&gt;1546808399&lt;/DateTo&gt;\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/Event&gt;\r\n&nbsp;&nbsp;&nbsp; &lt;/Work&gt;\r\n&nbsp; &lt;/Works&gt;\r\n&lt;/Document&gt;</pre>',	'api_help.html',	NULL,	NULL,	1,	1441644747,	'nyuk',	2,	'91.215.205.251',	1547156292,	'nyuk',	2,	'176.108.147.177'),
+(24,	'Комментарии',	'',	'comments.html',	NULL,	NULL,	1,	1452493318,	'nyuk',	2,	'95.53.248.34',	1507499362,	'nyuk',	2,	'176.108.145.39');
+
+DROP TABLE IF EXISTS `permissions`;
+CREATE TABLE `permissions` (
+  `role` varchar(32) DEFAULT NULL,
+  `module` varchar(32) NOT NULL DEFAULT '0',
+  `action` varchar(32) NOT NULL DEFAULT '',
+  `description` varchar(255) DEFAULT NULL,
+  UNIQUE KEY `role` (`role`,`module`,`action`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
+
+INSERT INTO `permissions` (`role`, `module`, `action`, `description`) VALUES
+('dm-000.base',	'admin',	'',	'Доступ к панели администрирования'),
+('dm-000.base',	'profile',	'admin',	'Редактирование своего профиля'),
+('dm-000.base',	'events',	'admin',	'Events: view'),
+('dm-000.base',	'users',	'read',	'Пользователи: просмотр'),
+('dm-005.timeline',	'timeline',	'admin',	'Manage timeline'),
+('dm-010.demoparty',	'events',	'update',	'Events: update'),
+('dm-010.demoparty',	'competitions',	'update',	'Competitions: full control'),
+('dm-010.demoparty',	'works',	'update',	'Works: full control'),
+('dm-010.demoparty',	'vote',	'admin',	'Votings: full control'),
+('dm-020.site',	'news',	'admin',	'Новости: администрирование'),
+('dm-020.site',	'pages',	'admin',	'Страницы: просмотр и редактирование'),
+('dm-020.site',	'pages',	'advanced-admin',	'Страницы: добавление и удаление'),
+('dm-100.admin',	'events',	'manage',	'Events: full control'),
+('dm-100.admin',	'pages',	'advanced-admin',	'Страницы: добавление и удаление'),
+('dm-100.admin',	'permissions',	'update',	'Права пользователей: редактирование'),
+('dm-100.admin',	'settings',	'update',	'Настройки: просмотр и редактирование'),
+('dm-100.admin',	'users',	'update',	'Пользователи: редактирование'),
+('dm-100.admin',	'view_logs',	'admin',	'Просмотр логов');
+
+DROP TABLE IF EXISTS `settings`;
+CREATE TABLE `settings` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `is_admin` tinyint unsigned NOT NULL DEFAULT '1',
+  `name` varchar(255) NOT NULL,
+  `varname` varchar(64) NOT NULL DEFAULT '',
+  `attributes` text,
+  `values` text,
+  `edited` int unsigned NOT NULL DEFAULT '0',
+  `edited_by` int unsigned NOT NULL DEFAULT '1',
+  `edited_username` varchar(128) NOT NULL DEFAULT '',
+  `edited_ip` varchar(39) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
+
+INSERT INTO `settings` (`id`, `is_admin`, `name`, `varname`, `attributes`, `values`, `edited`, `edited_by`, `edited_username`, `edited_ip`) VALUES
+(1,	1,	'Project Settings',	'project_settings',	'meta_description.desc = SEO: meta_description\r\nmeta_description.type=str\r\n\r\nmeta_keywords.desc = SEO: meta_keywords\r\nmeta_keywords.type=str\r\n\r\nemail_from.desc = e-mail in notifies\r\nemail_from.type=str\r\n\r\nemail_from_name.desc = Sender name in notifies\r\nemail_from_name.type=str\r\n\r\ncountdown_date.desc = Countdown date (Mon DD, YYYY)\r\ncountdown_date.type = str\r\n\r\ncountdown_desc.desc = Countdown description (HTML, nl2br)\r\ncountdown_desc.type = textarea\r\n\r\nworks_youtube_tpl.desc = YouTube HTML template<br />Use %id% for videoID\r\nworks_youtube_tpl.type = textarea\r\n\r\n53c_internal_editor.desc = 53c internal editor\r\n53c_internal_editor.type = bool\r\n\r\n53c_competition_id.desc = 53c competition ID\r\n53c_competition_id.type = int',	'YToxOntpOjA7YTo5OntzOjE2OiJtZXRhX2Rlc2NyaXB0aW9uIjtzOjE2OiJEZW1vc2NlbmUgZXZlbnRzIjtzOjEzOiJtZXRhX2tleXdvcmRzIjtzOjg1OiJEZW1vc2NlbmUsINC00LXQvNC+0YHRhtC10L3QsCwg0LTQtdC80L7Qv9Cw0YLQuCwgWlgtU3BlY3RydW0sIEF0YXJpLCBDb21tb2RvcmUsIEFtaWdhIjtzOjEwOiJlbWFpbF9mcm9tIjtzOjE5OiJib290QHJldHJvc2NlbmUub3JnIjtzOjE1OiJlbWFpbF9mcm9tX25hbWUiO3M6MTk6ImJvb3RAcmV0cm9zY2VuZS5vcmciO3M6MTQ6ImNvdW50ZG93bl9kYXRlIjtzOjExOiJKYW4gNiwgMjAyMiI7czoxNDoiY291bnRkb3duX2Rlc2MiO3M6NjQ6IjxhIGhyZWY9Imh0dHA6Ly9kaWhhbHQub3JnLnJ1LyI+PHN0cm9uZz5EaUhhbHQgMjAyMjwvc3Ryb25nPjwvYT4iO3M6MTc6IndvcmtzX3lvdXR1YmVfdHBsIjtzOjExNToiPGlmcmFtZSB3aWR0aD0iNjQwIiBoZWlnaHQ9IjM2MCIgc3JjPSJodHRwczovL3d3dy55b3V0dWJlLmNvbS9lbWJlZC8laWQlIiBmcmFtZWJvcmRlcj0iMCIgYWxsb3dmdWxsc2NyZWVuPjwvaWZyYW1lPiI7czoxOToiNTNjX2ludGVybmFsX2VkaXRvciI7aToxO3M6MTg6IjUzY19jb21wZXRpdGlvbl9pZCI7aTo0ODU7fX0=',	1639421587,	2,	'nyuk',	'176.108.146.60'),
+(2,	1,	'Notify e-mails',	'notify_emails',	'email.desc = E-mail\r\nemail.type = email\r\nemail.style = width: 500px;\r\nemail.required = 1',	'YTowOnt9',	1652166861,	5,	'admin',	'172.31.0.1'),
+(3,	1,	'Main menu',	'main_menu',	'desc.desc = Title\r\ndesc.type = str\r\ndesc.required = 1\r\n\r\ndesc_en.desc = Title EN\r\ndesc_en.type = str\r\ndesc_en.required = 1\r\n\r\npath.desc = Path\r\npath.type = str\r\npath.required = 1',	'YTozOntpOjA7YTozOntzOjQ6ImRlc2MiO3M6MTQ6ItCh0L7QsdGL0YLQuNGPIjtzOjc6ImRlc2NfZW4iO3M6NjoiRXZlbnRzIjtzOjQ6InBhdGgiO3M6NjoiZXZlbnRzIjt9aToxO2E6Mzp7czo0OiJkZXNjIjtzOjIyOiLQmtC+0LzQvNC10L3RgtCw0YDQuNC4IjtzOjc6ImRlc2NfZW4iO3M6ODoiQ29tbWVudHMiO3M6NDoicGF0aCI7czoxMzoiY29tbWVudHMuaHRtbCI7fWk6MjthOjM6e3M6NDoiZGVzYyI7czoxNDoi0J3QvtCy0L7RgdGC0LgiO3M6NzoiZGVzY19lbiI7czo0OiJOZXdzIjtzOjQ6InBhdGgiO3M6OToibmV3cy5odG1sIjt9fQ==',	1652167104,	5,	'admin',	'172.31.0.1'),
+(4,	1,	'Works types',	'works_type',	'alias.desc = Alias\r\nalias.type = str\r\nalias.width = 200px;\r\nalias.required = 1\r\n\r\ndesc.desc = Description\r\ndesc.type = str\r\ndesc.width = 400px;\r\ndesc.required = 1',	'YTo0OntpOjA7YToyOntzOjU6ImFsaWFzIjtzOjQ6ImRlbW8iO3M6NDoiZGVzYyI7czo0OiJEZW1vIjt9aToxO2E6Mjp7czo1OiJhbGlhcyI7czo3OiJwaWN0dXJlIjtzOjQ6ImRlc2MiO3M6NzoiUGljdHVyZSI7fWk6MjthOjI6e3M6NToiYWxpYXMiO3M6NToibXVzaWMiO3M6NDoiZGVzYyI7czo1OiJNdXNpYyI7fWk6MzthOjI6e3M6NToiYWxpYXMiO3M6NToib3RoZXIiO3M6NDoiZGVzYyI7czo1OiJPdGhlciI7fX0=',	1388647670,	2,	'nyuk',	'91.215.205.251');
+
+DROP TABLE IF EXISTS `timeline`;
+CREATE TABLE `timeline` (
+  `date_from` int unsigned NOT NULL DEFAULT '0',
+  `content` text
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
+
+
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE `users` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `is_blocked` tinyint unsigned NOT NULL DEFAULT '0',
+  `is_group` tinyint unsigned NOT NULL DEFAULT '0',
+  `group_id` int unsigned NOT NULL DEFAULT '4',
+  `username` varchar(200) NOT NULL DEFAULT '',
+  `password` varchar(40) NOT NULL DEFAULT '',
+  `salt` varchar(12) DEFAULT NULL,
+  `email` varchar(80) NOT NULL DEFAULT '',
+  `realname` varchar(40) DEFAULT NULL,
+  `language` varchar(25) NOT NULL DEFAULT 'English',
+  `country` varchar(2) NOT NULL,
+  `city` varchar(100) NOT NULL,
+  `registered` int unsigned NOT NULL DEFAULT '0',
+  `registration_ip` varchar(39) NOT NULL DEFAULT '0.0.0.0',
+  `activate_key` varchar(8) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `dvs_users_registered_idx` (`registered`),
+  KEY `dvs_users_username_idx` (`username`(8))
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
+
+INSERT INTO `users` (`id`, `is_blocked`, `is_group`, `group_id`, `username`, `password`, `salt`, `email`, `realname`, `language`, `country`, `city`, `registered`, `registration_ip`, `activate_key`) VALUES
+(3,	0,	1,	0,	'Users',	'users',	NULL,	'admins',	NULL,	'English',	'',	'',	0,	'0.0.0.0',	NULL),
+(4,	0,	1,	0,	'Unverified',	'users',	NULL,	'admins',	NULL,	'English',	'',	'',	0,	'0.0.0.0',	NULL),
+(5,	0,	0,	3,	'admin',	'620a4b8ea9427ba7c1319ace975a7ebb6aaa12ac',	'jl8AxfdLhVVN',	'',	'Administrator',	'English',	'',	'',	1382809375,	'127.0.0.1',	NULL);
+
+DROP TABLE IF EXISTS `users_role`;
+CREATE TABLE `users_role` (
+  `user_id` int unsigned NOT NULL,
+  `role` varchar(32) NOT NULL DEFAULT '',
+  UNIQUE KEY `user_id` (`user_id`,`role`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
+
+INSERT INTO `users_role` (`user_id`, `role`) VALUES
+(5,	'dm-000.base'),
+(5,	'dm-005.timeline'),
+(5,	'dm-010.demoparty'),
+(5,	'dm-020.site'),
+(5,	'dm-100.admin');
+
+DROP TABLE IF EXISTS `votekeys`;
+CREATE TABLE `votekeys` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `event_id` int unsigned NOT NULL DEFAULT '0',
+  `votekey` varchar(20) NOT NULL DEFAULT '',
+  `email` varchar(80) NOT NULL DEFAULT '',
+  `useragent` varchar(255) NOT NULL DEFAULT '',
+  `posted` int unsigned NOT NULL DEFAULT '0',
+  `poster_ip` varchar(39) NOT NULL DEFAULT '0.0.0.0',
+  `is_used` tinyint unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
+
+
+DROP TABLE IF EXISTS `votes`;
+CREATE TABLE `votes` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `event_id` int unsigned NOT NULL DEFAULT '0',
+  `work_id` int unsigned NOT NULL DEFAULT '0',
+  `votekey_id` int unsigned NOT NULL DEFAULT '0',
+  `vote` int NOT NULL DEFAULT '0',
+  `username` varchar(200) NOT NULL DEFAULT '',
+  `useragent` varchar(255) NOT NULL DEFAULT '',
+  `posted` int unsigned NOT NULL DEFAULT '0',
+  `poster_ip` varchar(39) NOT NULL DEFAULT '0.0.0.0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
+
+
+DROP TABLE IF EXISTS `works`;
+CREATE TABLE `works` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `competition_id` int NOT NULL DEFAULT '0',
+  `status` int unsigned NOT NULL DEFAULT '0',
+  `position` int unsigned NOT NULL DEFAULT '0',
+  `title` varchar(200) NOT NULL DEFAULT '',
+  `author` varchar(200) NOT NULL DEFAULT '',
+  `author_note` text,
+  `description` text,
+  `platform` varchar(64) NOT NULL DEFAULT '',
+  `format` varchar(128) DEFAULT NULL,
+  `external_html` text COMMENT 'Внешний HTML (youtube, vimeo)',
+  `media_info` text,
+  `release_basename` varchar(255) DEFAULT NULL,
+  `place` int unsigned DEFAULT NULL,
+  `num_votes` int unsigned DEFAULT NULL,
+  `total_scores` int DEFAULT NULL,
+  `average_vote` decimal(5,2) DEFAULT NULL,
+  `iqm_vote` decimal(5,2) DEFAULT NULL,
+  `posted` int unsigned NOT NULL DEFAULT '0',
+  `posted_by` int unsigned NOT NULL DEFAULT '1',
+  `posted_username` varchar(128) DEFAULT NULL,
+  `poster_ip` varchar(39) DEFAULT NULL,
+  `edited` int unsigned DEFAULT NULL,
+  `edited_by` varchar(200) DEFAULT NULL,
+  `edited_username` varchar(128) DEFAULT NULL,
+  `edited_ip` varchar(39) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
+
+
+DROP TABLE IF EXISTS `works_comments`;
+CREATE TABLE `works_comments` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `work_id` int unsigned NOT NULL DEFAULT '0',
+  `message` text,
+  `posted` int unsigned NOT NULL DEFAULT '0',
+  `posted_username` varchar(128) NOT NULL DEFAULT '',
+  `posted_by` int unsigned NOT NULL DEFAULT '1',
+  `poster_ip` varchar(39) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
+
+
+DROP TABLE IF EXISTS `works_links`;
+CREATE TABLE `works_links` (
+  `work_id` int unsigned NOT NULL DEFAULT '0',
+  `position` int unsigned NOT NULL DEFAULT '0',
+  `url` varchar(255) NOT NULL DEFAULT '',
+  `title` varchar(64) NOT NULL DEFAULT '',
+  PRIMARY KEY (`work_id`,`url`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
+
+
+DROP TABLE IF EXISTS `works_managers_notes`;
+CREATE TABLE `works_managers_notes` (
+  `work_id` int unsigned NOT NULL DEFAULT '0',
+  `user_id` int unsigned NOT NULL DEFAULT '0',
+  `is_checked` int unsigned NOT NULL DEFAULT '0',
+  `is_marked` int unsigned NOT NULL DEFAULT '0',
+  `comment` text,
+  PRIMARY KEY (`work_id`,`user_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
+
+
+-- 2022-05-10 08:16:11

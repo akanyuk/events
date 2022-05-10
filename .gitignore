@@ -8,7 +8,6 @@ composer.lock
 .env
 
 # project relates
-*.sql
 config.local.php
 debug.php
 var/images_cache

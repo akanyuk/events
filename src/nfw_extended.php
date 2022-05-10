@@ -4,12 +4,14 @@ define('NFW_CLASSNAME', 'NFWX');
 class NFWX extends NFW {
     private static $_ext_instance;
 
+    // Come from `settings` DB table
     var $project_settings = array();
     var $notify_emails = array();
+    var $main_menu = array();
 
     var $actual_date = false;
 
-    var $main_og = array();             # метатеги для Open Graph
+    var $main_og = array();             # мета теги для Open Graph
     var $main_login_form = true;        # форма авторизации, по умолчанию включена
     var $main_search_box = true;        # строка поиска, по умолчанию включена
     var $main_right_pane = true;        # правая панель, по умолчанию включена
@@ -177,7 +179,9 @@ class NFWX extends NFW {
 
     function renderNews($options = array()) {
         $CNews = new news();
-        if (!$records = $CNews->getRecords($options)) return false;
+        if (!$records = $CNews->getRecords($options)) {
+            return false;
+        }
 
         // Generate paging links
         $baseURL = isset($options['pagination_baseurl']) ? $options['pagination_baseurl'] : NFW::i()->absolute_path . '/news.html';

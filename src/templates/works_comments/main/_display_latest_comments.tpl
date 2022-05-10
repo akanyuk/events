@@ -1,8 +1,4 @@
 <?php 
-	if (empty($comments)) {
-	    return;
-    }
-		
 	NFW::i()->registerFunction('friendly_date');
 	$lang_main = NFW::i()->getLang('main');
 ?>
@@ -53,7 +49,7 @@
 		echo '<div class="work-title"><a href="'.$url.'" title="'.htmlspecialchars($comment['work_title']).'">'.htmlspecialchars($comment['event_title'].' / '.$comment['work_title']).'</a></div>';
 		echo '<div class="posted">'.friendly_date($comment['posted'], $lang_main).' '.date('H:i', $comment['posted']).' by '.htmlspecialchars($comment['posted_username']).'</div>';
 		echo '<div class="shadow">&nbsp;</div>';
-		echo '<div class="clerafix"></div>';
+		echo '<div class="clearfix"></div>';
    		echo '<div class="message">'.nl2br(htmlspecialchars($comment['message'])).'</div>';
 		echo $counter++ == count($comments) - 1 ? '' : '<hr />'; 
 	} 
