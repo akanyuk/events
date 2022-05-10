@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<browserconfig>
+    <msapplication>
+        <tile>
+            <square150x150logo src="http://events.retroscene.org/assets/main/favicon/mstile-150x150.png?v2"/>
+            <TileColor>#707070</TileColor>
+        </tile>
+    </msapplication>
+</browserconfig>
