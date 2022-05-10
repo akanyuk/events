@@ -1,8 +1,8 @@
 <?php
 /**
- * @var object $Module
- * @var integer $work_id
- * @var array $comments
+ * @var $Module works_comments
+ * @var $work_id integer
+ * @var $comments array
  */
 NFW::i()->registerResource('jquery.activeForm');
 NFW::i()->registerFunction('friendly_date');
@@ -14,8 +14,8 @@ $allow_delete = NFW::i()->checkPermissions('works_comments', 'delete', array('wo
 <script type="text/javascript">
 $(document).ready(function(){
 	<?php if (NFW::i()->checkPermissions('works_comments', 'add_comment')):?>
-	var acF = $('form[id="works-comments-add"]');
-	acF.activeForm({
+    const acF = $('form[id="works-comments-add"]');
+    acF.activeForm({
 		'success': function(response){
 			acF.resetForm();
 			$(document).trigger('works-comments-load');
@@ -24,7 +24,7 @@ $(document).ready(function(){
 
 	$(document).on('works-comments-load', function(){
 		$.get('/works_comments?action=comments_list&work_id=<?php echo $work_id?>', function(response){
-			if (response.result == 'success') {
+			if (response.result === 'success') {
 				$('div[id="work-comments"]').empty();
 				$.each(response.comments, function() {
 					var tpl = $('div[id="works-comments-record-template"]').html();
@@ -45,7 +45,7 @@ $(document).ready(function(){
 		if (!confirm('Delete this comment?')) return false;
 
 		$.post('/works_comments?action=delete', { record_id: $(this).attr('id') }, function(response){
-			if (response != 'success') {
+			if (response !== 'success') {
 				alert(response);
 				return false;
 			}
