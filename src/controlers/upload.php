@@ -7,35 +7,39 @@ if (count($pathParts) > 2) {
     NFW::i()->stop(404);
 }
 
-$lang_main = NFW::i()->getLang("main");
-
-$title = $lang_main['cabinet add work'];
-$path = "upload";
-$redirectSuffix = "";
-
-$event = false;
-if (count($pathParts) == 2) {
-    $event = eventFromAlias($pathParts[1]);
-    if ($event !== false) {
-        $title = $event['title']." / ".$title;
-        $path .= "/".$event['alias'];
-        $redirectSuffix = "&event_id=".$event['id'];
-    }
-}
+$event = count($pathParts) == 2 ? eventFromAlias($pathParts[1]) : false;
 
 if (NFW::i()->user['is_guest']) {
+    $lang_main = NFW::i()->getLang("main");
+
     NFWX::i()->main_search_box = false;
     NFWX::i()->main_right_pane = false;
 
+    $pageTitle = $lang_main['cabinet add work'];
+    $uploadLegend = $lang_main['cabinet add work'];
+    $path = "upload";
+
+    if ($event !== false) {
+        $pageTitle = htmlspecialchars($event['title'])." / ".$pageTitle;
+        $uploadLegend = htmlspecialchars($event['title'])." / ".$uploadLegend;
+        $path .= "/".$event['alias'];
+
+        NFWX::i()->main_og['title'] = $pageTitle;
+        NFWX::i()->main_og['description'] = $event['announcement_og'] ? $event['announcement_og'] : strip_tags($event['announcement']);
+        if ($event['preview_img_large']) {
+            NFWX::i()->main_og['image'] = tmb($event['preview_large'], 500, 500, array('complementary' => true));
+        }
+    }
+
     NFW::i()->assign('page', array(
-        'title' => $title,
+        'title' => $pageTitle,
         'path' => implode("/", $pathParts),
-        'content' => renderLoginRequired($event),
+        'content' => renderLoginRequired($uploadLegend),
     ));
     NFW::i()->display('main.tpl');
 }
 
-header("Location:/cabinet/works?action=add".$redirectSuffix);
+header("Location:/cabinet/works?action=add".($event === false) ? "" : "&event_id=".$event['id']);
 
 /**
  * @param string $path
@@ -57,7 +61,11 @@ function eventFromAlias($path = "") {
     return false;
 }
 
-function renderLoginRequired($event) {
+/**
+ * @param $uploadLegend string
+ * @return string
+ */
+function renderLoginRequired($uploadLegend) {
     NFW::i()->registerResource('jquery.activeForm');
     $lang_users = NFW::i()->getLang('users');
     $lang_main = NFW::i()->getLang("main");
@@ -75,7 +83,7 @@ function renderLoginRequired($event) {
     </script>
     <form id="login" class="form-horizontal">
         <fieldset>
-            <legend><?php echo ($event === false ? "" : htmlspecialchars($event['title'])." / ").$lang_main['cabinet add work'] ?></legend>
+            <legend><?php echo $uploadLegend ?></legend>
 
             <div class="alert alert-info"><?php echo $lang_main['upload info'] ?></div>
 
