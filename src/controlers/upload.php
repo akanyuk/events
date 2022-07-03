@@ -92,7 +92,7 @@ function renderLoginRequired($uploadLegend) {
 
             <div class="form-group">
                 <div class="col-md-7 col-md-offset-1">
-                    <button name="login" class="btn btn-primary"
+                    <button name="login" class="btn btn-default"
                             type="submit"><?php echo NFW::i()->lang['GoIn'] ?></button>
                     &nbsp;<a
                             href="<?php echo NFW::i()->base_path ?>users?action=restore_password"><?php echo $lang_users['Restore password'] ?></a><br/>
@@ -101,7 +101,7 @@ function renderLoginRequired($uploadLegend) {
             <br/>
             <div class="form-group">
                 <div class="col-md-7 col-md-offset-1">
-                    <a class="btn btn-default"
+                    <a class="btn btn-primary"
                        href="<?php echo NFW::i()->base_path ?>users?action=register"><?php echo $lang_users['Registration'] ?></a>
                 </div>
             </div>
