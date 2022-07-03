@@ -150,5 +150,5 @@ $lang_main = array(
     '53c reception form' => 'Prod submission begins at',
 
     // /upload link
-    'upload info' => 'To upload the prof, you need to log in or <a href="/users?action=register">register</a>.',
+    'upload info' => 'To upload the prod, you need to log in or <a href="/users?action=register">register</a>.',
 );

@@ -39,7 +39,7 @@ if (NFW::i()->user['is_guest']) {
     NFW::i()->display('main.tpl');
 }
 
-header("Location:/cabinet/works?action=add".($event === false) ? "" : "&event_id=".$event['id']);
+header("Location:/cabinet/works?action=add".($event === false ? "" : "&event_id=".$event['id']));
 
 /**
  * @param string $path
