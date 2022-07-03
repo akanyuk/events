@@ -15,9 +15,9 @@ elseif (!$page['is_active']) {
 }
 
 NFW::i()->current_controler = 'cabinet';
-NFW::i()->main_search_box = false;
+NFWX::i()->main_search_box = false;
 
-// Determine module, disable subdirs
+// Determine module, disable subdirectories
 @list($foo, $bar, $module, $wrong) = explode('/', parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 if ($wrong) {
 	NFW::i()->stop(NFW::i()->lang['Errors']['Bad_request'], 'error-page');
