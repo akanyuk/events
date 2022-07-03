@@ -8,8 +8,8 @@ if (isset($_POST['competition_id']) && isset($_POST['chapter']) && in_array($_PO
 // Main form
 $CPages = new pages();
 
-NFW::i()->main_search_box = false;		
-NFW::i()->main_right_pane = false;		
+NFWX::i()->main_search_box = false;
+NFWX::i()->main_right_pane = false;
 
 NFW::i()->assign('page', array(
 	'title' => 'Voting statistics',
@@ -187,10 +187,7 @@ function display_statistic_countries($competition_id) {
 		else {
 			$stats[$record['title']][$key] = 1;
 		}
-		
-		
 	}
-	
 
 	// Generate output
 	
