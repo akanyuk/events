@@ -69,7 +69,7 @@ $(document).ready(function(){
 		
 		<?php echo active_field(array('name' => 'description', 'attributes' => $Module->attributes['description'], 'desc' => $lang_main['works description']))?>
 		
-		<?php echo NFW::i()->hook("works_add_form_append", $Module->current_event['alias'])?>
+		<?php echo NFWX::i()->hook("works_add_form_append", $Module->current_event['alias'])?>
 	</form>
 
 	<div class="row">
@@ -88,6 +88,9 @@ echo $CMedia->openSession(array(
 	<div class="row">
 		<div class="col-md-offset-3 col-md-9">
 			<div class="alert alert-info dm-alert-cond"><?php echo $lang_main['works upload info']?></div>
+
+            <?php echo NFWX::i()->hook("works_add_form_before_submit", $Module->current_event['alias'])?>
+
 			<button id="add-work" class="btn btn-primary"><?php echo $lang_main['works send']?></button>
 		</div>
 	</div>
