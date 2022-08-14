@@ -565,7 +565,7 @@ class vote extends active_record {
 
             $accepted = NFWX::i()->hook(
                 "vote_accept_vote",
-                $CEvents->record['event_alias'],
+                $CEvents->record['alias'],
                 array('vote' => $vote)
             );
 
