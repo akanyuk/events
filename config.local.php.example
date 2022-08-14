@@ -1,5 +1,12 @@
 <?php
 return array(
+    'cookie' => array(
+        'name' => 'e1703',
+        'domain' => '.' . $_SERVER['HTTP_HOST'],
+        'path' => '/',
+        'secure' => false,
+        'expire' => 99999999
+    ),
     'db' => array(
         'type' => 'mysqli',
         'host' => 'mysql',

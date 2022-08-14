@@ -287,6 +287,10 @@ class NFWX extends NFW {
     }
 
     function hook($hook_name, $alias = "", $hook_additional = array()) {
+        if (function_exists($hook_name)) {
+            return $hook_name($hook_additional);
+        }
+
         if (!file_exists(SRC_ROOT . '/hooks/' . $alias . '/' . $hook_name . '.php')) {
             return "";
         }

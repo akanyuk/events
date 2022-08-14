@@ -90,7 +90,7 @@ class competitions extends active_record {
 		
 	protected function load($id, $options = array()) {
 		$query = array(
-			'SELECT' => 'c.*, e.title AS event_title',
+			'SELECT' => 'c.*, e.title AS event_title, e.alias AS event_alias',
 			'FROM' => $this->db_table.' AS c',
 			'JOINS'		=> array(
 				array(
