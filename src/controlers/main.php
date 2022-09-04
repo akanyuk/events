@@ -1,12 +1,12 @@
 <?php
+$pathParts = explode('/', parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 
 // Try to do some action
-
 if (isset($_GET['action'])) {
     // Determine module and action
+    $module = count($pathParts) > 0 ? $pathParts[1] : '';
     $action = $_GET['action'];
 
-    @list($foo, $module) = explode('/', parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
     $classname = NFW::i()->getClass($module, true);
     if (!class_exists($classname)) {
         NFW::i()->stop(NFW::i()->lang['Errors']['Bad_request'], 'plain');
@@ -41,9 +41,11 @@ $CCompetitions = new competitions();
 
 $lang_main = NFW::i()->getLang('main');
 
-@list($foo, $path_event_alias, $path_competition_alias, $path_work_id) = explode('/', parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+$eventAlias = count($pathParts) > 1 ? $pathParts[1] : '';
+$competitionAlias = count($pathParts) > 2 ? $pathParts[2] : '';
+$workID = count($pathParts) > 3 ? $pathParts[3] : '';
 
-if (!$path_event_alias || !$CEvents->loadByAlias($path_event_alias)) {
+if (!$eventAlias || !$CEvents->loadByAlias($eventAlias)) {
     // Normal page
     if (!$page = $CPages->loadPage()) {
         NFW::i()->stop(404);
@@ -62,7 +64,7 @@ if (!$page = $CPages->loadPage('events')) {
     NFW::i()->stop('inactive');
 }
 
-if (!$path_competition_alias || ($CEvents->record['one_compo_event'] && !$path_work_id)) {
+if (!$competitionAlias || ($CEvents->record['one_compo_event'] && !$workID)) {
     // Event page
     $page['title'] = $CEvents->record['title'];
 
@@ -103,19 +105,19 @@ if (!$path_competition_alias || ($CEvents->record['one_compo_event'] && !$path_w
     NFW::i()->display('main.tpl');
 }
 
-if (!$CCompetitions->loadByAlias($path_competition_alias, $CEvents->record['id'])) {
+if (!$CCompetitions->loadByAlias($competitionAlias, $CEvents->record['id'])) {
     NFW::i()->stop(404);
 }
 
-if ($path_work_id) {
+if ($workID) {
     // Work page
-    $CWorks = new works($path_work_id);
+    $CWorks = new works($workID);
     if (!$CWorks->record['id'] || $CWorks->record['competition_id'] != $CCompetitions->record['id']) {
         NFW::i()->stop(404);
     }
 
     NFW::i()->breadcrumb = array(
-        array('url' => 'events', 'desc' => $page['title']),
+        array('url' => 'events', 'desc' => $lang_main['events']),
         array('url' => $CEvents->record['alias'], 'desc' => $CEvents->record['title']),
         array('url' => $CEvents->record['alias'] . '/' . $CCompetitions->record['alias'], 'desc' => $CCompetitions->record['title'])
     );
@@ -151,7 +153,7 @@ if ($path_work_id) {
 } else {
     // Competition page
     NFW::i()->breadcrumb = array(
-        array('url' => 'events', 'desc' => $page['title']),
+        array('url' => 'events', 'desc' => $lang_main['events']),
         array('url' => $CEvents->record['alias'], 'desc' => $CEvents->record['title']),
         array('desc' => $CCompetitions->record['title'])
     );
@@ -191,7 +193,7 @@ function setBreadcrumbDesc($event, $competition, $by) {
     }
 }
 
-function renderCompetitionPage($CCompetitions, $CEvents) {
+function renderCompetitionPage($CCompetitions, $CEvents): string {
     $compo = $CCompetitions->record;
     $event = $CEvents->record;
 
