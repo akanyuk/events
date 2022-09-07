@@ -251,8 +251,8 @@ class works extends active_record {
 		$filter = isset($options['filter']) ? $options['filter'] : array();
 		$limit = isset($options['limit']) ? intval($options['limit']) : false;
 		$offset = isset($options['offset']) ? intval($options['offset']) : false;
-		$skip_pagination = isset($options['skip_pagination']) && $options['skip_pagination'] ? true : false;
-		$fetch_manager_note = isset($options['fetch_manager_note']) && $options['fetch_manager_note'] ? true : false;
+		$skip_pagination = isset($options['skip_pagination']) && $options['skip_pagination'];
+		$fetch_manager_note = isset($options['fetch_manager_note']) && $options['fetch_manager_note'];
 		
 		if (!$skip_pagination) {
 			// Count total records
@@ -344,7 +344,7 @@ class works extends active_record {
 			}
 			list($num_filtered) = NFW::i()->db->fetch_row($result);
 			if (!$num_filtered) {
-				return $skip_pagination ? array() : array(array(), $total_records, 0);
+				return array(array(), $total_records, 0);
 			}
 		} else {
             $num_filtered = 0;
@@ -393,9 +393,14 @@ class works extends active_record {
 			$records[] = $record;
 		}
 
-		if (isset($options['load_attachments']) && $options['load_attachments']) {
+        if (isset($options['load_attachments']) && $options['load_attachments']) {
 			$CMedia = new media();
-			foreach ($CMedia->getFiles(get_class($this), $ids, array('order_by' => 'position')) as $a) {
+			$getFilesOptions = array(
+			    'order_by' => 'position',
+                'skipLoadIcons' => isset($options['load_attachments_icons']) ? !$options['load_attachments_icons'] : false,
+            );
+
+			foreach ($CMedia->getFiles(get_class($this), $ids, $getFilesOptions) as $a) {
 				foreach ($records as $key=>$record) {
 					if ($record['id'] != $a['owner_id']) continue;
 						
@@ -418,13 +423,13 @@ class works extends active_record {
 		while ($link = NFW::i()->db->fetch_assoc($result)) {
 			$links[$link['work_id']][] = array('title' => $link['title'], 'url' => $link['url']);
 		}
-		
-		foreach ($records as $key=>$record) {
+
+        foreach ($records as $key=>$record) {
 			$record['links'] = $links[$record['id']];
 			
 			$records[$key] = $this->formatRecord($record);
 		};
-		
+
 		// Load comments count
 		$CWorksComments = new works_comments();
 		$CWorksComments->loadCounters($records);
@@ -464,7 +469,9 @@ class works extends active_record {
     	$records = $this->getRecords(array(
     		'filter' => array('posted_by' => NFW::i()->user['id'], 'allow_hidden' => true),
     		'ORDER BY' => 'e.date_from DESC, c.position, w.position',
-    		'load_attachments' => true, 'skip_pagination' => true
+    		'load_attachments' => true,
+            'load_attachments_icons' => false,
+            'skip_pagination' => true
     	));
     	 
 		return $this->renderAction(array('records' => $records));
