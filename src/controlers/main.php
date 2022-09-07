@@ -206,6 +206,7 @@ function renderCompetitionPage($CCompetitions, $CEvents): string {
         $CWorks = new works();
         list($voting_works) = $CWorks->getRecords(array(
             'load_attachments' => true,
+            'load_attachments_icons' => false,
             'filter' => array('voting_only' => true, 'competition_id' => $compo['id']),
             'ORDER BY' => 'w.position'
         ));
