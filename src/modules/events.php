@@ -241,11 +241,17 @@ class events extends active_record {
 	    	// Load records previews
 	    	$CMedia = new media();
 	    	
-	    	foreach ($CMedia->getFiles('events_preview', $ids) as $a) {
+	    	foreach ($CMedia->getFiles(
+	    	    'events_preview',
+                $ids,
+                array('skipLoadIcons' => true)) as $a) {
 	    		$previews[$a['owner_id']] = $a;
 	    	}
 	    	
-	    	foreach ($CMedia->getFiles('events_preview_large', $ids) as $a) {
+	    	foreach ($CMedia->getFiles(
+	    	    'events_preview_large',
+                $ids,
+                array('skipLoadIcons' => true)) as $a) {
 	    		$preview_larges[$a['owner_id']] = $a;
 	    	}
 	    }

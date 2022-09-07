@@ -50,16 +50,16 @@ if (!empty($current)) {
     }
 }
 
-echo '<div class="well well-sm">';
-echo '<input id="works-search" class="form-control" placeholder="' . $lang_main['search hint'] . '" />';
-echo '</div>';
-
 if (!empty($upcoming)) {
     $layout = empty($current) || count($upcoming) < 2 ? 'big' : 'small';
     foreach ($upcoming as $record) {
         displayIndexEvent($record, $layout);
     }
 }
+
+echo '<div class="well well-sm">';
+echo '<input id="works-search" class="form-control" placeholder="' . $lang_main['search hint'] . '" />';
+echo '</div>';
 
 if ($works_comments !== false) {
     echo '<div class="hidden-md hidden-sm hidden-lg">';

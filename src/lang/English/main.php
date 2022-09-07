@@ -37,7 +37,7 @@ $lang_main = array(
     'events no open' => 'Opened events not found.',
     'events not found' => 'Events not found.',
 
-    'competition' => 'Сompetition',
+    'competition' => 'Competition',
     'competitions type' => 'Works type',
     'competitions reception' => 'Reception',
     'competitions voting' => 'Voting',
@@ -111,7 +111,7 @@ $lang_main = array(
     'works comments attention register' => 'Only registered users can write comments.',
 
     'voting to' => 'Voting ends on',
-    'voting audio not support' => 'Ваш браузер не поддерживает воспроизведение аудио.<br />Вы можете скачать данный аудиофайл по ссылке ниже.',
+    'voting audio not support' => 'Your browser not supported audio play.<br />You can download this file by link bellow.',
     'voting votes' => array(
         0 => 'Skip voting',
         1 => '1: Very bad',
@@ -127,28 +127,28 @@ $lang_main = array(
     ),
     'voting name' => 'Your name or nick',
     'voting vote' => 'Your vote',
-    'voting note' => '<strong>Attention!</strong> Your votes and your name may be published by demoparty orgs.',
+    'voting note' => '<strong>Attention!</strong> Your votes and your name may be published by demoparty organizers.',
     'voting send' => 'Do vote!',
     'voting error empty votelist' => 'Please fill votes',
     'voting error wrong username' => 'Please fill your name.',
     'voting error wrong votekey' => 'Wrong votekey.',
     'voting success note' => 'Your vote accepted.',
 
-    'votekey-request note' => 'Votekey will be send to given e-mail address. <br />E-mail address never be published by demoparty orgs.',
+    'votekey-request note' => 'Votekey will be send to given e-mail address. <br />E-mail address never be published by demoparty organizers.',
     'votekey-request email label' => 'E-mail address',
     'votekey-request' => 'Request votekey',
     'votekey-another' => 'Another votekey',
     'votekey-request long' => 'Request votekey',
     'votekey-request send' => 'Send request',
     'votekey-request wrong email' => 'Incorrect e-mail address',
-    'votekey-request success note' => 'New votekey succesfully generated and sended to given e-mail address.',
-    'votekey-request success note2' => 'Votekey succesfully sended to given e-mail address.',
+    'votekey-request success note' => 'New votekey successfully generated and sent to given e-mail address.',
+    'votekey-request success note2' => 'Votekey successfully sent to given e-mail address.',
 
     'votelist nickname' => 'Your nickname / realname',
-    'votelist note' => '<p>В поле «Vote» напротив работы поставьте оценку от <strong>1 до 10</strong>, которой на Ваш взгляд заслуживает работа.</p><p>Если Вы затрудняетесь с оценкой, или просто не хотите голосовать - оставьте соответствующее поле пустым.</p><p>В свободном месте после названия работы Вы можете оставить свой комментарий.</p>',
+    'votelist note' => '',
 
     '53c reception form' => 'Prod submission begins at',
 
-    // /upload link
+    // upload link
     'upload info' => 'To upload the prod, you need to log in or <a href="/users?action=register">register</a>.',
 );
