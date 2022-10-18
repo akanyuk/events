@@ -116,7 +116,7 @@ class vote extends active_record {
     }
 
     // Load results for given works array
-    private function getResults($event_id, $options = array()) {
+    public function getResults($event_id, $options = array()) {
         $votekey_status = isset($options['votekey_status']) ? $options['votekey_status'] : -1;
         $place_order = isset($options['place_order']) ? $options['place_order'] : 'avg';
 
