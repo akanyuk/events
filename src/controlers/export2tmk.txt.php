@@ -1,5 +1,4 @@
 <?php 
-
 $CEvents = new events(isset($_GET['event_id']) ? $_GET['event_id'] : false);
 if (!$CEvents->record['id']) {
 	NFW::i()->stop(404);
@@ -9,13 +8,20 @@ if (!in_array($CEvents->record['id'], events::get_managed())) {
 	NFW::i()->stop(404);
 }
 
+$event = array(
+	'eventTitle' => $CEvents->record['title'],
+	'eventAlias' => $CEvents->record['alias']
+);
+
 $CCompetitions = new competitions();
 $cur_index = 1;
 $compos = $c2i = array();
 foreach ($CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id']))) as $c) {
 	$c2i[$c['id']] = $cur_index;
-	
+
 	$compos[$cur_index] = array(
+		'compoId' => $c['id'],
+		'compoAlias' => $c['alias'],
 		'compoName' => $c['title'],
 		'compoWorksType' => $c['works_type']				
 	);
@@ -30,7 +36,7 @@ foreach ($CCompetitions->getRecords(array('filter' => array('event_id' => $CEven
 			$compos[$cur_index]['compoMode'] = 2;
 			break;
 		case 'music':
-			$compos[$cur_index]['compoShowAuthor'] = 3;
+			$compos[$cur_index]['compoShowAuthor'] = 0;
 			$compos[$cur_index]['compoMode'] = 2;
 			break;
 		case 'other':
@@ -56,28 +62,52 @@ foreach ($CWorks->getRecords(array(
 }
 
 $works = array();
-foreach ($compos as $compo_index=>$c) {
+foreach ($compos as $compo_index => $c) {
 	$works[$compo_index] = array();
 	$cur_index = 1;
 	foreach ($works_plain as $w) {
 		if ($c2i[$w['competition_id']] == $compo_index) {
+			$screenshot = array(
+				'url' => $w['screenshot']['url'],
+				'filesize' => $w['screenshot']['filesize'],
+				'mime_type' => $w['screenshot']['mime_type']
+			);
+
 			$images = array();
-			foreach ($w['image_files'] as $f) $images[] = $f['url'];
+			foreach ($w['image_files'] as $f)
+				$images[] = array(
+					'url' => $f['url'],
+					'filesize' => $f['filesize'],
+					'mime_type' => $f['mime_type']
+				);
 			
 			$audio = array();
-			foreach ($w['audio_files'] as $f) $audio[] = $f['url'];
+			foreach ($w['audio_files'] as $f)
+				$audio[] = array(
+					'url' => $f['url'],
+					'filesize' => $f['filesize'],
+					'mime_type' => $f['mime_type']
+				);
 				
 			$voting_files = array();
-			foreach ($w['voting_files'] as $f) $voting_files[] = $f['url'];
-				
+			foreach ($w['voting_files'] as $f)
+				$voting_files[] = array(
+					'url' => $f['url'],
+					'filesize' => $f['filesize'],
+					'mime_type' => $f['mime_type']
+				);
+
 			$works[$compo_index][$cur_index++] = array(
+				'workId' => $w['id'],
 				'workTitle' => $w['title'],
 				'workAuthor' => $w['author'],
+				'workAuthorNote' => $w['author_note'],
 				'Platform' => $w['platform'],
 				'Format' => $w['format'],
 				'Images' => $images,
 				'Audio' => $audio,
-				'VotingFiles' => $voting_files
+				'VotingFiles' => $voting_files,
+				'Screenshot' => $screenshot
 			);
 		}
 	}
@@ -86,12 +116,16 @@ foreach ($compos as $compo_index=>$c) {
 ob_start();
 if (isset($_GET['ResponseType']) && $_GET['ResponseType'] == 'json') {
 	echo json_encode(array(
+		'event' => $event,
 		'compos' => $compos,
 		'works' => $works
 		)
 	);
 }
 else {
+	echo '$event = ';
+	var_export($event); echo ';';
+	echo "\n\n";
 	echo '$compos = ';
 	var_export($compos); echo ';';
 	echo "\n\n";
@@ -108,30 +142,4 @@ compoMode:
 2 - internal show images (jpg, png)
 3 - internal show audio (mp3/ogg)
 4 - internal show video (mp4)
-
-$compos = array(
-1 => array(
-'compoName' => 'HiEnd 1k Intro',
-'compoShowAuthor' => 1,
-'compoMode' => 1,
-),
-2 => array(
-'compoName' => 'HiEnd 16mb Demo',
-'compoShowAuthor' => 1,
-'compoMode' => 1,
-),
-);
-$works = array(
-1 => array(
-1 => array(
-'workTitle' => 'ii',
-'workAuthor' => 'g0blinish',
-),
-2 => array(
-'workTitle' => 'Tet 1k intro',
-'workAuthor' => 'Sh',
-),
-
-),
-);
- */
+*/
