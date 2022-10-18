@@ -39,30 +39,35 @@ class vote extends active_record {
         return $votekey;
     }
 
-    private function getVotekeys($options = array()) {
-        $filter = isset($options['filter']) ? $options['filter'] : array();
-
+    private function getVotekeys($eventID, $options = array()) {
         // Generate 'WHERE' string
-        $where = array();
+        $where = array(
+            'event_id = ' . intval($eventID)
+        );
 
-        if (isset($filter['event_id']) && $filter['event_id'] != '-1') $where[] = 'event_id = ' . intval($filter['event_id']);
-
-        // not strong "WHERE"
-        if (isset($options['free_filter'])) {
-            $where[] = '(votekey LIKE \'%' . NFW::i()->db->escape($options['free_filter']) . '%\' OR email LIKE \'%' . NFW::i()->db->escape($options['free_filter']) . '%\' OR poster_ip LIKE \'%' . NFW::i()->db->escape($options['free_filter']) . '%\')';
+        // Search string
+        $filter = $where;
+        if (isset($options['search'])) {
+            $filter[] = '(votekey LIKE \'%' . NFW::i()->db->escape($options['search']) . '%\' OR email LIKE \'%' . NFW::i()->db->escape($options['search']) . '%\' OR poster_ip LIKE \'%' . NFW::i()->db->escape($options['search']) . '%\')';
         }
 
-        $where = empty($where) ? '' : join(' AND ', $where);
-
         // Count total records
-        if (!$result = NFW::i()->db->query_build(array('SELECT' => 'COUNT(*)', 'FROM' => 'votekeys'))) {
+        if (!$result = NFW::i()->db->query_build(array(
+            'SELECT' => 'COUNT(*)',
+            'FROM' => 'votekeys',
+            'WHERE' => join(' AND ', $where),
+        ))) {
             $this->error('Unable to count records', __FILE__, __LINE__, NFW::i()->db->error());
             return false;
         }
         list($total_records) = NFW::i()->db->fetch_row($result);
 
         // Count filtered values
-        if (!$result = NFW::i()->db->query_build(array('SELECT' => 'COUNT(*)', 'FROM' => 'votekeys', 'WHERE' => $where))) {
+        if (!$result = NFW::i()->db->query_build(array(
+            'SELECT' => 'COUNT(*)',
+            'FROM' => 'votekeys',
+            'WHERE' => join(' AND ', $filter),
+        ))) {
             $this->error('Unable to count filtered records', __FILE__, __LINE__, NFW::i()->db->error());
             return false;
         }
@@ -74,7 +79,7 @@ class vote extends active_record {
         if (!$result = NFW::i()->db->query_build(array(
             'SELECT' => '*',
             'FROM' => 'votekeys',
-            'WHERE' => $where,
+            'WHERE' => join(' AND ', $filter),
             'ORDER BY' => 'posted DESC',
             'LIMIT' => (isset($options['offset']) ? intval($options['offset']) : null) . (isset($options['limit']) ? ',' . intval($options['limit']) : null),
         ))) {
@@ -231,15 +236,21 @@ class vote extends active_record {
         if (isset($filter['event_id']) && $filter['event_id'] != '-1') $where[] = 'v.event_id = ' . intval($filter['event_id']);
         if (isset($filter['competition_id']) && $filter['competition_id'] != '-1') $where[] = 'w.competition_id = ' . intval($filter['competition_id']);
 
-        // not strong "WHERE"
-        if (isset($options['free_filter'])) {
-            $where[] = '(w.title LIKE \'%' . NFW::i()->db->escape($options['free_filter']) . '%\' OR vk.votekey LIKE \'%' . NFW::i()->db->escape($options['free_filter']) . '%\' OR vk.email LIKE \'%' . NFW::i()->db->escape($options['free_filter']) . '%\' OR v.username LIKE \'%' . NFW::i()->db->escape($options['free_filter']) . '%\' OR v.poster_ip LIKE \'%' . NFW::i()->db->escape($options['free_filter']) . '%\')';
+        // Search
+        $search = $where;
+        if (isset($options['search'])) {
+            $search[] = '(w.title LIKE \'%' . NFW::i()->db->escape($options['search']) . '%\' OR vk.votekey LIKE \'%' . NFW::i()->db->escape($options['search']) . '%\' OR vk.email LIKE \'%' . NFW::i()->db->escape($options['search']) . '%\' OR v.username LIKE \'%' . NFW::i()->db->escape($options['search']) . '%\' OR v.poster_ip LIKE \'%' . NFW::i()->db->escape($options['search']) . '%\')';
         }
 
         $where = empty($where) ? '' : join(' AND ', $where);
+        $search = empty($search) ? '' : join(' AND ', $search);
 
         // Count total records
-        if (!$result = NFW::i()->db->query_build(array('SELECT' => 'COUNT(*)', 'FROM' => 'votes'))) {
+        if (!$result = NFW::i()->db->query_build(array(
+            'SELECT' => 'COUNT(*)',
+            'FROM' => 'votes AS v',
+            'WHERE' => $where,
+        ))) {
             $this->error('Unable to count records', __FILE__, __LINE__, NFW::i()->db->error());
             return false;
         }
@@ -261,7 +272,7 @@ class vote extends active_record {
             'SELECT' => 'COUNT(*)',
             'FROM' => 'votes AS v',
             'JOINS' => $joins,
-            'WHERE' => $where
+            'WHERE' => $search
         ))) {
             $this->error('Unable to count filtered records', __FILE__, __LINE__, NFW::i()->db->error());
             return false;
@@ -275,7 +286,7 @@ class vote extends active_record {
             'SELECT' => 'v.*, vk.votekey, vk.email AS votekey_email, w.title AS work_title, w.author AS work_author, w.place AS work_place',
             'FROM' => 'votes AS v',
             'JOINS' => $joins,
-            'WHERE' => $where,
+            'WHERE' => $search,
             'ORDER BY' => isset($options['ORDER BY']) ? $options['ORDER BY'] : 'v.posted DESC',
             'LIMIT' => (isset($options['offset']) ? intval($options['offset']) : null) . (isset($options['limit']) ? ',' . intval($options['limit']) : null),
         ))) {
@@ -494,12 +505,13 @@ class vote extends active_record {
         } elseif (isset($_GET['part']) && $_GET['part'] == 'list.js') {
             $this->error_report_type = 'plain';
 
-            list($records, $iTotalRecords, $iTotalDisplayRecords) = $this->getVotekeys(array(
-                'limit' => $_POST['iDisplayLength'],
-                'offset' => $_POST['iDisplayStart'],
-                'filter' => array('event_id' => $CEvents->record['id']),
-                'free_filter' => isset($_POST['sSearch']) && trim($_POST['sSearch']) ? trim($_POST['sSearch']) : null,
-            ));
+            list($records, $iTotalRecords, $iTotalDisplayRecords) = $this->getVotekeys(
+                $CEvents->record['id'],
+                array(
+                    'limit' => $_POST['iDisplayLength'],
+                    'offset' => $_POST['iDisplayStart'],
+                    'search' => isset($_POST['sSearch']) && trim($_POST['sSearch']) ? trim($_POST['sSearch']) : null,
+                ));
 
             NFW::i()->stop($this->renderAction(array(
                 'records' => $records,
@@ -525,7 +537,7 @@ class vote extends active_record {
                 'limit' => $_POST['iDisplayLength'],
                 'offset' => $_POST['iDisplayStart'],
                 'filter' => array('event_id' => $CEvents->record['id']),
-                'free_filter' => isset($_POST['sSearch']) && trim($_POST['sSearch']) ? trim($_POST['sSearch']) : null,
+                'search' => isset($_POST['sSearch']) && trim($_POST['sSearch']) ? trim($_POST['sSearch']) : null,
             ));
 
             NFW::i()->stop($this->renderAction(array(
