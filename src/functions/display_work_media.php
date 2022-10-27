@@ -29,6 +29,7 @@ function display_work_media($work = array(), $options = array()) {
 		'pixeljoint.com' 		=> array('title' => 'Pixeljoint',	'bg_pos' => '-192px 0px'),
 		'github.com' 			=> array('title' => 'GitHub',		'bg_pos' => '-208px 0px'),
 		'scenemusic.net' 		=> array('title' => 'Nectarine',	'bg_pos' => '-224px 0px'),
+		'scenestream.net' 		=> array('title' => 'Nectarine',	'bg_pos' => '-224px 0px'),
 		'bandcamp.com' 			=> array('title' => 'Bandcamp',		'bg_pos' => '-240px 0px'),
 	);
 	
