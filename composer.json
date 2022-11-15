@@ -7,6 +7,9 @@
     "ext-iconv": "*",
     "ext-mbstring": "*",
     "ext-gd": "*",
-    "ext-json": "*"
+    "ext-json": "*",
+    "ext-dom": "*",
+    "ext-simplexml": "*",
+    "ext-libxml": "*"
   }
 }
