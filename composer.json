@@ -10,6 +10,7 @@
     "ext-json": "*",
     "ext-dom": "*",
     "ext-simplexml": "*",
-    "ext-libxml": "*"
+    "ext-libxml": "*",
+    "webonyx/graphql-php": "^14.11"
   }
 }

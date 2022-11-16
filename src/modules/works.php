@@ -288,9 +288,9 @@ class works extends active_record {
 		// Collect statuses
 		$vs = $rs = array();
 		foreach ($this->attributes['status']['options'] as $s) {
-			if ($s['voting']) {
-				$vs[] = $s['id'];
-			}
+            if ($s['voting']) {
+                $vs[] = $s['id'];
+            }
 			if ($s['release']) {
 				$rs[] = $s['id'];
 			}
@@ -303,17 +303,17 @@ class works extends active_record {
 		if (isset($filter['release_only']) && $filter['release_only']) {
 			$where[] = 'w.status IN ('.implode(',', $rs).')';
 		}
-		
+
 		if (isset($filter['released_only']) && $filter['released_only']) {
 			$where[] = 'w.status IN ('.implode(',', $rs).')';
 			$where[] = 'e.is_hidden=0';
-			$where[] = 'c.voting_to<='.NFW::i()->actual_date;
+			$where[] = 'c.voting_to<='.NFWX::i()->actual_date;
 		}
 		
 		if (isset($filter['search_main']) && $filter['search_main']) {
 			$where[] = 'w.status IN ('.implode(',', array_unique(array_merge($vs, $rs))).')';
 			$where[] = 'e.is_hidden=0';
-			$where[] = 'c.voting_from<='.NFW::i()->actual_date;
+			$where[] = 'c.voting_from<='.NFWX::i()->actual_date;
 			$where[] = '(w.title LIKE \'%'.NFW::i()->db->escape($filter['search_main']).'%\' OR w.author LIKE \'%'.NFW::i()->db->escape($filter['search_main']).'%\')';
 		}
 		
