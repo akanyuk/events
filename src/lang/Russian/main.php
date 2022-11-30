@@ -106,6 +106,7 @@ $lang_main = array(
     'works num_votes' => 'Всего голосов',
     'works total_scores' => 'Всего баллов',
 
+    'works your comment' => 'Ваш комментарии. Будет виден всем посетителям сайта',
     'works comments count' => 'Комментариев',
     'works comments write' => 'Написать комментарий',
     'works comments send' => 'Отправить',
@@ -130,7 +131,6 @@ $lang_main = array(
     'voting vote' => 'Ваша оценка',
     'voting note' => '<strong>Внимание!</strong> Ваши оценки и ник могут быть опубликованы организаторами демопати.',
     'voting send' => 'Проголосовать!',
-    'voting error empty votelist' => 'Пожалуйста заполните оценки.',
     'voting error wrong username' => 'Пожалуйста укажите имя.',
     'voting error wrong votekey' => 'Ключ голосования не найден.',
     'voting success note' => 'Ваш голос принят.',

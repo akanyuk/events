@@ -2,12 +2,10 @@
 /**
  * @var array $event
  * @var array $competition
- * @var bool $single_work_page
- * @var array $voting_works
- * @var array $work
+ * @var array $works
  */
 
-$result = NFWX::i()->hook("competitions_voting", $event['alias'], array('event' => $event, 'competition' => $competition, 'voting_works' => $voting_works));
+$result = NFWX::i()->hook("competitions_voting", $event['alias'], array('event' => $event, 'competition' => $competition, 'voting_works' => $works));
 if ($result === "stop_execution") {
     return;
 }
@@ -169,30 +167,26 @@ if (!empty($hook_additional['event']['options'])) {
     </div>
 </div>
 
-<?php echo $single_work_page ? '' : nl2br($competition['announcement']) ?>
+<?php echo count($works) == 1 ? '' : nl2br($competition['announcement']) ?>
 
 <form id="voting" class="active-form" action="/vote?action=add_vote">
     <input type="hidden" name="competition_id" value="<?php echo $competition['id'] ?>"/>
     <?php
-    if ($single_work_page) {
-        echo '<input type="hidden" name="work_id" value="' . $work['id'] . '" />';
-        echo display_work_media($work, array('rel' => 'voting', 'single' => true)) . '<hr />';
-    } else {
-        foreach ($voting_works as $work) {
-            echo display_work_media($work, array('rel' => 'voting', 'single' => false, 'vote_options' => $vote_options)) . '<hr />';
-        }
+    foreach ($works as $work) {
+        echo display_work_media($work, array('rel' => 'voting', 'single' => count($works) == 1, 'vote_options' => $vote_options)) . '<hr />';
     }
 
     echo '<br />';
 
     echo active_field(array(
         'name' => 'username',
-        'value' => NFW::i()->user['realname'] ? htmlspecialchars(NFW::i()->user['realname']) : htmlspecialchars(NFW::i()->user['username']),
+        'value' => isset(NFW::i()->user['realname']) && NFW::i()->user['realname'] ? htmlspecialchars(NFW::i()->user['realname']) : "",
         'type' => 'str',
         'desc' => $lang_main['voting name'],
         'required' => true,
         'maxlength' => 64,
         'vertical' => true,
+        'width' => '640px',
     ));
     ?>
     <div class="form-group" data-active-container="votekey">
@@ -225,15 +219,6 @@ if (!empty($hook_additional['event']['options'])) {
     <div class="form-group" data-active-container="general-message">
         <span class="help-block"></span>
     </div>
-
-    <?php if ($single_work_page): ?>
-        <div class="form-group">
-            <label class="control-label" for="votes"><strong><?php echo $lang_main['voting vote'] ?></strong></label>
-            <select name="votes[<?php echo $work['id'] ?>]" id="<?php echo $work['id'] ?>" class="form-control">
-                <?php foreach ($vote_options as $i => $d) echo '<option value="' . $i . '">' . $d . '</option>'; ?>
-            </select>
-        </div>
-    <?php endif; ?>
 
     <div class="form-group">
         <button type="submit" class="btn btn-lg btn-primary"><?php echo $lang_main['voting send'] ?></button>
