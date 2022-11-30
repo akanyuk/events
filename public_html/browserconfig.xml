@@ -2,7 +2,7 @@
 <browserconfig>
     <msapplication>
         <tile>
-            <square150x150logo src="http://events.retroscene.org/assets/main/favicon/mstile-150x150.png?v2"/>
+            <square150x150logo src="https://events.retroscene.org/assets/main/favicon/mstile-150x150.png?v2"/>
             <TileColor>#707070</TileColor>
         </tile>
     </msapplication>
