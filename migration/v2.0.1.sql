@@ -1,0 +1,1 @@
+ALTER TABLE `works_comments` ADD `votekey_id` int(10) unsigned NOT NULL AFTER `work_id`;

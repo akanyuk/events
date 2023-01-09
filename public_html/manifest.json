@@ -2,12 +2,12 @@
     "name": "",
     "icons": [
         {
-            "src": "http://events.retroscene.org/assets/main/favicon/android-chrome-192x192.png",
+            "src": "https://events.retroscene.org/assets/main/favicon/android-chrome-192x192.png",
             "sizes": "192x192",
             "type": "image/png"
         },
         {
-            "src": "http://events.retroscene.org/assets/main/favicon/android-chrome-256x256.png",
+            "src": "https://events.retroscene.org/assets/main/favicon/android-chrome-256x256.png",
             "sizes": "256x256",
             "type": "image/png"
         }

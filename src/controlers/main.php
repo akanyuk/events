@@ -138,8 +138,7 @@ if ($workID) {
         $page['content'] = $CCompetitions->renderAction(array(
             'event' => $CEvents->record,
             'competition' => $CCompetitions->record,
-            'work' => $CWorks->record,
-            'single_work_page' => true
+            'works' => [$CWorks->record],
         ), '_voting');
     } else {
         NFW::i()->stop(404);
@@ -214,8 +213,7 @@ function renderCompetitionPage($CCompetitions, $CEvents): string {
         return $CCompetitions->renderAction(array(
             'event' => $event,
             'competition' => $compo,
-            'voting_works' => $voting_works,
-            'single_work_page' => false
+            'works' => $voting_works,
         ), '_voting');
     } elseif ($event['one_compo_event']) {
         return $CCompetitions->renderAction(array(

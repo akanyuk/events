@@ -127,7 +127,7 @@ h2.index-head { border-bottom: 1px solid #bbb; margin-bottom: 30px; }
 .works-media-container .header h2 { margin: 0; }
 .works-media-container .header h3 { margin: 0; }
 
-.works-media-container .platform-description { font-size: 11.5px; }
+.works-media-container .platform-description { font-size: 12px; }
 
 .works-media-container .author-note {
 	display: inline-block;
@@ -178,12 +178,18 @@ audio { width: 100%; }
 	.works-media-container .img-container IMG { width: 100%; }
 	.works-media-container #external-html IFRAME { width: 100%; height: 256px; }
 	.works-media-container .links .item { display: block; }
+
+	.works-media-container TEXTAREA.work-comment { width: 100%; height: 100px; }
+	.works-media-container SELECT.work-vote { width: 100%; }
 }
 
 @media (min-width: 769px) {
 	.breadcrumb-status-mobile { display: none;	}
 	.lang-change-xs { display: none; }
 	.owl-carousel .owl-item img { width: inherit !important; display: inline !important; }
+
+	.works-media-container TEXTAREA.work-comment { width: 640px; height: 100px; }
+	.works-media-container SELECT.work-vote { width: 640px; }
 }
 
 .dm-nav .lang-change { color: #fff; font-size: 80%; font-weight: bold; float: right; padding-top: 12px; padding-right: 20px; }
