@@ -391,42 +391,7 @@ class vote extends active_record {
         }
 
         $event_id = $CCompetitions->record['event_id'];
-
         $lang_main = NFW::i()->getLang('main');
-        $this->errors = array();
-
-        $CWorks = new works();
-        $single_work_id = isset($_POST['work_id']) && $_POST['work_id'] ? intval($_POST['work_id']) : false;
-        $available_works = array();
-        foreach ($CWorks->getRecords(array('filter' => array('voting_only' => true, 'competition_id' => $CCompetitions->record['id']), 'skip_pagination' => true)) as $w) {
-            if ($w['id'] == $single_work_id || !$single_work_id) {
-                $available_works[] = $w['id'];
-            }
-        }
-
-        $votes = array();
-        foreach ($_POST['votes'] as $work_id => $vote) {
-            $vote = intval($vote);
-            $accepted = NFWX::i()->hook(
-                "vote_accept_vote",
-                $CCompetitions->record['event_alias'],
-                array('vote' => $vote)
-            );
-
-            if ($accepted !== "accepted" && $vote == 0) {
-                continue;
-            }
-
-            if (!in_array($work_id, $available_works)) {
-                continue;
-            }
-
-            $votes[] = array('work_id' => $work_id, 'vote' => $vote);
-        }
-
-        if (empty($votes)) {
-            $this->errors['general-message'] = $lang_main['voting error empty votelist'];
-        }
 
         // Check votekey
         $votekey = isset($_POST['votekey']) ? trim($_POST['votekey']) : false;
@@ -442,6 +407,45 @@ class vote extends active_record {
         if (!empty($this->errors)) {
             NFW::i()->renderJSON(array('result' => 'error', 'errors' => $this->errors));
             return false;
+        }
+        $this->errors = array();
+
+        $CWorks = new works();
+        $single_work_id = isset($_POST['work_id']) && $_POST['work_id'] ? intval($_POST['work_id']) : false;
+        $available_works = array();
+        foreach ($CWorks->getRecords(array('filter' => array('voting_only' => true, 'competition_id' => $CCompetitions->record['id']), 'skip_pagination' => true)) as $w) {
+            if ($w['id'] == $single_work_id || !$single_work_id) {
+                $available_works[] = $w['id'];
+            }
+        }
+
+        $votes = array();
+        $commentsDuringVoting = array();
+        foreach ($_POST['votes'] as $work_id => $vote) {
+            if (!in_array($work_id, $available_works)) {
+                continue;
+            }
+
+            if (isset($_POST['comment'][$work_id]) && strlen($_POST['comment'][$work_id]) < 2048) {
+                $commentsDuringVoting[$work_id] = $_POST['comment'][$work_id];
+            }
+
+            $vote = intval($vote);
+            $accepted = NFWX::i()->hook(
+                "vote_accept_vote",
+                $CCompetitions->record['event_alias'],
+                array('vote' => $vote)
+            );
+
+            if ($accepted !== "accepted" && $vote == 0) {
+                continue;
+            }
+
+            $votes[] = array('work_id' => $work_id, 'vote' => $vote);
+        }
+
+        foreach ($commentsDuringVoting as $workID => $comment) {
+            works_comments::upsertCommentByVotekey($votekey_id, $workID, $comment, $username);
         }
 
         // Prune old votes with same votekey

@@ -105,6 +105,7 @@ $lang_main = array(
     'works num_votes' => 'Number of votes',
     'works total_scores' => 'Total scores',
 
+    'works your comment' => 'Your comments. It will be visible to all site visitors',
     'works comments count' => 'Comments',
     'works comments write' => 'Write comment',
     'works comments send' => 'Send comment',
@@ -129,7 +130,6 @@ $lang_main = array(
     'voting vote' => 'Your vote',
     'voting note' => '<strong>Attention!</strong> Your votes and your name may be published by demoparty organizers.',
     'voting send' => 'Do vote!',
-    'voting error empty votelist' => 'Please fill votes',
     'voting error wrong username' => 'Please fill your name.',
     'voting error wrong votekey' => 'Wrong votekey.',
     'voting success note' => 'Your vote accepted.',
