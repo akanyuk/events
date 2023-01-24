@@ -8,14 +8,6 @@ $(document).ready(function(){
 		});
 	});
 
-	// Stop other audio's
-	$('audio').on('play', function() {
-	    $('audio').not(this).each(function(index, audio) {
-	        audio.pause();
-	        audio.stop();
-	    });
-	});
-	
 	if ($.blockUI) {
 		$.blockUI.defaults.message = null;
 		$.blockUI.defaults.fadeOut = 0;
