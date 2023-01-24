@@ -352,5 +352,6 @@ if (!NFWX::i()->main_right_pane) {
     </div>
 </div>
 
+<?php echo NFW::i()->fetch(NFW::i()->findTemplatePath('_main_bottom_script.tpl'));?>
 </body>
 </html>
