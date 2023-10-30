@@ -13,7 +13,7 @@ $lang_main = NFW::i()->getLang('main');
 
 if (empty($_POST)) {
 	if (!NFW::i()->project_settings['53c_internal_editor']) {
-		NFW::i()->stop('Please use improved 53c editor: <a href="http://53c.verve.space/">53c.verve.space</a>', 'error-page');
+		NFW::i()->stop('Please use improved 53c editor: <a href="http://53c.retroscene.org/">53c.retroscene.org</a>', 'error-page');
 	}
 	
 	NFW::i()->assign('attributes', array(
