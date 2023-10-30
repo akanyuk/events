@@ -73,7 +73,7 @@ switch (parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)) {
         apiSuccess($dom, $Event);
         break;
 	case '/api/competitions/get53c':
-		$CCompetitions = new competitions(NFW::i()->project_settings['53c_competition_id']);
+		$CCompetitions = new competitions(NFWX::i()->project_settings['53c_competition_id']);
 		if (!$CCompetitions->record['id']) {
 			apiError('53c competition not found');
 		}
@@ -83,7 +83,7 @@ switch (parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)) {
 			apiError('Event for 53c competition not found');
 		}
 		
-		$reception_available = $CCompetitions->record['reception_from'] < NFW::i()->actual_date && $CCompetitions->record['reception_to'] > NFW::i()->actual_date ? 1 : 0;
+		$reception_available = $CCompetitions->record['reception_from'] < NFWX::i()->actual_date && $CCompetitions->record['reception_to'] > NFWX::i()->actual_date ? 1 : 0;
 		
 		$dom = startXML();
 		$competition = $dom->createElement('Competition');
@@ -176,20 +176,20 @@ function apiError($message) {
 
 /**
  * @param $dom DomDocument
- * @param $childs array
-  */
-function apiSuccess($dom, $childs = array()) {
+ * @param $children array
+ */
+function apiSuccess(DomDocument $dom, $children = array()) {
 	$document = $dom->createElement('Document');
     $document->appendChild($dom->createElement('Status', 'success'));
 
-	foreach (is_array($childs) ? $childs : array($childs) as $child) {
+	foreach (is_array($children) ? $children : array($children) as $child) {
 		$document->appendChild($child);
 	}
 
     writeResponse($dom, $document);
 }
 
-function startXML() {
+function startXML(): DomDocument {
     $dom = new DomDocument;
     $dom->preserveWhiteSpace = false;
     $dom->formatOutput = true;
@@ -201,7 +201,7 @@ function startXML() {
  * @param $dom DomDocument
  * @param $document DOMElement
  */
-function writeResponse($dom, $document) {
+function writeResponse(DomDocument $dom, DOMElement $document) {
     $document->appendChild($dom->createElement('Username', NFW::i()->user['username']));
     $document->appendChild($dom->createElement('IsGuest', NFW::i()->user['is_guest'] ? '1' : '0'));
 

@@ -29,6 +29,7 @@ function display_work_media($work = array(), $options = array()) {
 		'pixeljoint.com' 		=> array('title' => 'Pixeljoint',	'bg_pos' => '-192px 0px'),
 		'github.com' 			=> array('title' => 'GitHub',		'bg_pos' => '-208px 0px'),
 		'scenemusic.net' 		=> array('title' => 'Nectarine',	'bg_pos' => '-224px 0px'),
+		'scenestream.net' 		=> array('title' => 'Nectarine',	'bg_pos' => '-224px 0px'),
 		'bandcamp.com' 			=> array('title' => 'Bandcamp',		'bg_pos' => '-240px 0px'),
 	);
 	
@@ -132,13 +133,11 @@ function display_work_media($work = array(), $options = array()) {
 	
 	if ($work['release_link']) {
 		$links[] = array('is_dl' => true, 'url' => $work['release_link']['url'], 'title' => $lang_main['download'].' '.strtoupper(pathinfo($work['release_link']['url'], PATHINFO_EXTENSION)).' ('.$work['release_link']['filesize_str'].')');
-	}
-	elseif (($options['rel'] == 'voting' || $options['rel'] == 'preview')  && !empty($work['voting_files'])) {
+	} else if (($options['rel'] == 'voting' || $options['rel'] == 'preview')  && !empty($work['voting_files'])) {
 		foreach ($work['voting_files'] as $f) {
 			$links[] = array('is_dl' => true, 'url' => cache_media($f), 'title' => $lang_main['download'].' '.strtoupper($f['extension']).' ('.$f['filesize_str'].')');
 		}
-	}
-	elseif ($options['rel'] == 'release' && !empty($work['release_files'])) {
+	} else if ($options['rel'] == 'release' && !empty($work['release_files'])) {
 		foreach ($work['release_files'] as $f) {
 			$links[] = array('is_dl' => true, 'url' => cache_media($f), 'title' => $lang_main['download'].' '.strtoupper($f['extension']).' ('.$f['filesize_str'].')');
 		}
@@ -150,7 +149,6 @@ function display_work_media($work = array(), $options = array()) {
 		echo '<div class="links">';
 		
 		foreach ($links as $l) {
-			
 			if (isset($l['is_dl']) &&  $l['is_dl']) {
 				$title = $l['title'];
 				$bg_pos = $links_icons['download']['bg_pos'];
@@ -171,26 +169,30 @@ function display_work_media($work = array(), $options = array()) {
 		echo '</div>';
 	}
 
-	echo '<div style="padding-top: 10px;">';
-	
+    if ($options['rel'] != 'preview' && !$options['single']) {
+        echo '<div style="padding-top: 10px;"><a href="'.NFW::i()->absolute_path.'/'.$work['event_alias'].'/'.$work['competition_alias'].'/'.$work['id'].'#comments">'.$lang_main['works comments count'].': '.($work['comments_count'] ? '<span class="badge">'.$work['comments_count'].'</span>' : $work['comments_count']).'</a></div>';
+    }
+
+	echo '<div style="padding-top: 15px;">';
 	if ($options['rel'] == 'voting' && isset($options['vote_options']) && !empty($options['vote_options'])) {
-		echo '<select name="votes['.$work['id'].']" id="'.$work['id'].'" class="form-control" style="display: inline;">';
+		echo '<select name="votes['.$work['id'].']" id="'.$work['id'].'" class="form-control work-vote" style="display: inline;">';
 		foreach ($options['vote_options'] as $i=>$d) echo '<option value="'.$i.'">'.$d.'</option>';
-		echo '</select>&nbsp;';
-	}
-	elseif ($options['rel'] == 'release' && $work['num_votes']) {
+		echo '</select>';
+	} elseif ($options['rel'] == 'release' && $work['num_votes']) {
 		echo 'vts:<strong>'.$work['num_votes'].'</strong> pts:<strong>'.$work['total_scores'].'</strong> avg:<strong>'.$work['average_vote'].'</strong>';
 		if (isset($work['iqm_vote']) && $work['iqm_vote'] > 0) {
             echo ' iqm:<strong>'.$work['iqm_vote'].'</strong>';
         }
 	}
+	echo '</div>'; # <div style="padding-top: 10px;">
 
-	echo '</div>';	# <div style="padding-top: 10px;">
-
-    if ($options['rel'] != 'preview' && !$options['single']) {
-        echo '<div style="padding-top: 10px;"><a href="'.NFW::i()->absolute_path.'/'.$work['event_alias'].'/'.$work['competition_alias'].'/'.$work['id'].'#comments">'.$lang_main['works comments count'].': '.($work['comments_count'] ? '<span class="badge">'.$work['comments_count'].'</span>' : $work['comments_count']).'</a></div>';
+    if ($options['rel'] == 'voting') {
+        echo '
+            <div style="padding-top: 10px;">
+                <textarea class="form-control work-comment" name="comment['.$work['id'].']" placeholder="'.$lang_main['works your comment'].'"></textarea>
+            </div>';
     }
 
-	echo '</div>';	# <div class="works-media-container">
+    echo '</div>';	# <div class="works-media-container">
 	return ob_get_clean();
 }
