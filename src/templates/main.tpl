@@ -195,6 +195,11 @@ $latest_news = $is_latest_news ? NFWX::i()->renderNews(array('records_on_page' =
                         <li>
                             <a href="<?php echo NFW::i()->base_path ?>users?action=register"><?php echo $lang_users['Registration'] ?></a>
                         </li>
+                        <li>
+                            <a href="<?php echo NFW::i()->base_path ?>sceneid?action=performAuth"><img
+                                        src="<?php echo NFW::i()->assets("main/SceneID_Icon_200x32.png") ?>"
+                                        alt="Sign in with SceneID"/></a>
+                        </li>
                     </ul>
                 <?php else: ?>
                     <ul class="nav navbar-nav">
@@ -311,6 +316,12 @@ if (!NFWX::i()->main_right_pane) {
                             <a class="btn btn-primary"
                                href="<?php echo NFW::i()->base_path ?>users?action=register"><?php echo $lang_users['Registration'] ?></a>
                         </div>
+
+                        <div style="padding-top: 20px;">
+                            <a href="<?php echo NFW::i()->base_path ?>sceneid?action=performAuth"><img
+                                        src="<?php echo NFW::i()->assets("main/SceneID_Icon_200x32.png") ?>"
+                                        alt="Sign in with SceneID"/></a>
+                        </div>
                     </fieldset>
                 </form>
 
@@ -352,6 +363,6 @@ if (!NFWX::i()->main_right_pane) {
     </div>
 </div>
 
-<?php echo NFW::i()->fetch(NFW::i()->findTemplatePath('_main_bottom_script.tpl'));?>
+<?php echo NFW::i()->fetch(NFW::i()->findTemplatePath('_main_bottom_script.tpl')); ?>
 </body>
 </html>

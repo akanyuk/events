@@ -64,4 +64,10 @@ return array(
     'admin' => array(
         'title' => 'Events Control Panel',
     ),
+
+    'SceneID3' => array(
+        "clientID" => "",
+        "clientSecret" => "",
+        "redirectURI" => "",
+    ),
 );
