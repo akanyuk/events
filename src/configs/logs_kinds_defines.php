@@ -1,0 +1,2 @@
+<?php
+const LOGS_KIND_LOGIN_SCENEID = 10000;

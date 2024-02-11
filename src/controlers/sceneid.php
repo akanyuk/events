@@ -28,7 +28,7 @@ try {
     $sceneID->ProcessAuthResponse();
     $me = $sceneID->Me();
 } catch (Exception $e) {
-    header("Location: /");
+    NFW::i()->stop("Process auth response error: " . $e->getMessage(), "error-page");
     exit;
 }
 
@@ -37,5 +37,31 @@ if (!isset($me["success"]) || !$me["success"]) {
     exit;
 }
 
-echo "<pre>"; var_export($me);
+$sceneIdEmail = $me["user"]["email"] ?? "";
+
+if ($sceneIdEmail == "") {
+    NFW::i()->stop("Empty e-mail responded from sceneID", "error-page");
+}
+
+$query = [
+    'SELECT' => '*',
+    'FROM' => 'users',
+    'WHERE' => 'email=\'' . NFW::i()->db->escape($sceneIdEmail) . '\''
+];
+if (!$result = NFW::i()->db->query_build($query)) {
+    NFW::i()->stop("Search user error: ".NFW::i()->db->error()['error_msg'], "error-page");
+}
+if (NFW::i()->db->num_rows($result)) {
+    NFW::i()->user = NFW::i()->db->fetch_assoc($result);
+    $CUsers = new users();
+    $CUsers->cookie_update(NFW::i()->user);
+    logs::write(LOGS_KIND_LOGIN_SCENEID);
+    header("Location: /");
+    exit;
+}
+
+// TODO: register as new user
+
+echo "<pre>";
+var_export($me);
 exit;

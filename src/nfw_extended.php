@@ -20,6 +20,9 @@ class NFWX extends NFW {
         // Глобально кодировка для mb-операций
         mb_internal_encoding('UTF-8');
 
+        // Define kinds for use in logs::write
+        require_once (SRC_ROOT.'/configs/logs_kinds_defines.php');
+
         parent::__construct($init_cfg);
         self::$_ext_instance = $this;
 
