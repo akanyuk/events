@@ -15,7 +15,7 @@ if (isset($_GET['action']) && $_GET['action'] == "performAuth") {
     try {
         $sceneID->GetClientCredentialsToken();
     } catch (SceneID3AuthException $e) {
-        exit("SceneID3->GetClientCredentialsToken failed");
+        NFW::i()->stop("SceneID3->GetClientCredentialsToken failed error: " . $e->getMessage(), "error-page");
     }
 
     $sceneID->Reset();
@@ -29,7 +29,6 @@ try {
     $me = $sceneID->Me();
 } catch (Exception $e) {
     NFW::i()->stop("Process auth response error: " . $e->getMessage(), "error-page");
-    exit;
 }
 
 if (!isset($me["success"]) || !$me["success"]) {
