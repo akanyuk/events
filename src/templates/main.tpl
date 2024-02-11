@@ -327,7 +327,7 @@ if (!NFWX::i()->main_right_pane) {
 
             <?php elseif (!NFW::i()->user['is_guest']): ?>
                 <div class="menu-block">
-                    <p>Welcome, <strong><?php echo htmlspecialchars(NFW::i()->user['username']) ?></strong></p>
+                    <p>Welcome, <strong><?php echo htmlspecialchars(NFW::i()->user['realname']) ?></strong></p>
                     <ul class="nav nav-pills nav-stacked">
                         <?php if (NFW::i()->checkPermissions('admin')): ?>
                             <li><a href="/admin">Control panel</a></li>
