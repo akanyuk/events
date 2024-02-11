@@ -10,12 +10,18 @@ class view_logs extends logs {
 			array('module' => 'view_logs', 'action' => 'export'),
 		)
 	);
-		
-	var $kinds = array();
+
+    var array $kinds = array();
 	
 	function __construct() {
 		$this->lang = NFW::i()->getLang('logs');
-		$this->kinds['Система'] = $this->lang['kinds'];
+		$this->kinds['System'] = $this->lang['kinds'];
+
+        include_once(SRC_ROOT . '/configs/logs_kinds_defines.php');
+        $logsKinds = include(SRC_ROOT . '/configs/logs_kinds.php');
+        foreach ($logsKinds as $kind => $a) {
+            $this->lang['kinds'][$kind] = $this->kinds[$a['optgroup']][$kind] = $a['desc'];
+        }
 
 		return parent::__construct();
 	}
