@@ -53,23 +53,23 @@ $CMedia = new media();
 ?>
 <script type="text/javascript">
 $(document).ready(function(){
-	var wuF = $('form[id="works-update"]');
-	wuF.activeForm({
-		'beforeSubmit': function(d,f,o) {
-			var isLinksErrror = false;
-			
-			$('#work-links').find('#record').each(function(){
-				input = $(this).find('input[data-type="links-url"]'); 
-				if (input.val()) {
+    const wuF = $('form[id="works-update"]');
+    wuF.activeForm({
+		'beforeSubmit': function() {
+            let isLinksError = false;
+
+            $('#work-links').find('#record').each(function(){
+                const input = $(this).find('input[data-type="links-url"]');
+                if (input.val()) {
 					input.parent().removeClass('has-error');
 				}
 				else {
 					input.parent().addClass('has-error');
-					isLinksErrror = true;					
+					isLinksError = true;
 				}				
 			});
 
-			if (isLinksErrror) {
+			if (isLinksError) {
 				$.jGrowl('Please fill out all links field.', { theme: 'error' });
 				return false;
 			}
@@ -77,32 +77,33 @@ $(document).ready(function(){
 			return true;
 		},		
 		success: function(response) {
- 			if (response.is_updated) {
+ 			if (response['is_updated']) {
  				$.jGrowl('Work profile updated.');
  			}
 		}
 	});
 
-	$('[role="works-update"]').click(function(){
+	$('[data-role="works-update"]').click(function(){
 		wuF.submit();
 	});
 	
 	// Status buttons
-	$('[role="status-change-buttons"]').click(function(){
-		$('[role="status-change-buttons"]').removeClass('active btn-info');
+	$('[data-role="status-change-buttons"]').click(function(){
+		$('[data-role="status-change-buttons"]').removeClass('active btn-info');
 		$(this).addClass('active btn-info');
 
 		$('input[name="status"]').val($(this).data('status-id'));
-		
-		$('#status-description').html($(this).data('description'));
-		$('#status-description').removeClass('alert-default alert-success alert-info alert-warning alert-danger');
-		$('#status-description').addClass('alert-' + $(this).data('css-class'));
+
+        const obj = $('#status-description');
+        obj.html($(this).data('description'));
+        obj.removeClass('alert-default alert-success alert-info alert-warning alert-danger');
+        obj.addClass('alert-' + $(this).data('css-class'));
 	});
-	$('[role="status-change-buttons"][class~="active"]').trigger('click');
+	$('[data-role="status-change-buttons"][class~="active"]').trigger('click');
 	
 	
 	// Platform typeahead
-	var aPlatforms = [];
+	let aPlatforms = [];
 	<?php foreach ($Module->attributes['platform']['options'] as $p) echo 'aPlatforms.push('.json_encode($p).');'."\n"; ?>
 	$('input[name="platform"]').typeahead({ source: aPlatforms, minLength: 0 }).attr('autocomplete', 'off');
 
@@ -111,13 +112,13 @@ $(document).ready(function(){
 	
  	$('#work-links').sortable({ items: '#record', axis: 'y', handle: '.icon' });
 
- 	$(document).on('click', '[data-action="toggle-title"]', function(event){
+ 	$(document).on('click', '[data-action="toggle-title"]', function(){
  	 	$(this).closest('div[id="record"]').find('input[data-type="links-title"]').closest('div').toggle();
  	 	return false;
 	});
 
  	$(document).on('click', '[data-action="remove-link"]', function(event){
- 	 	if ($(this).closest('div[id="record"]').attr('data-rel') == 'update') {
+ 	 	if ($(this).closest('div[id="record"]').attr('data-rel') === 'update') {
  	 		if (!confirm('Remove link?')) {
  	 			event.preventDefault();
  	 	 		return false;
@@ -129,8 +130,8 @@ $(document).ready(function(){
 	});
  	
  	$('button[id="add-link"]').click(function(){
- 	 	var tpl = $('div[id="links-record-template"]').html();
- 	 	$('div[id="work-links"]').append(tpl);
+        const tpl = $('div[id="links-record-template"]').html();
+        $('div[id="work-links"]').append(tpl);
  	 	$('input[data-type="links-title"]:last').typeahead({ source: aTitles, minLength: 1, items: 20, showHintOnFocus: true }).focus();
  	 	$('input[data-type="links-url"]:last').focus();
  	 	 	 	
@@ -138,21 +139,21 @@ $(document).ready(function(){
 	});
 
 	// Autocomplete link title
-	var aTitles = [];
+	let aTitles = [];
 	<?php foreach ($titles as $t) echo 'aTitles.push(\''.htmlspecialchars($t).'\');'."\n"; ?>
 	$('input[data-type="links-title"]').typeahead({ source: aTitles, minLength: 1, items: 20, showHintOnFocus: true });
 
 	// Generate YouTube embed html
-	$(document).on('click', '[data-action="auto-youtube"]', function(event){
-		var url = $(this).closest('#record').find('input[data-type="links-url"]').val();
-		var videoID = url.match(/(?:https?:\/{2})?(?:w{3}\.)?youtu(?:be)?\.(?:com|be)(?:\/watch\?v=|\/)([^\s&]+)/);
-		
-		if (videoID != null) {
-			var tpl = '<?php echo NFW::i()->project_settings['works_youtube_tpl']?>';
-			tpl = tpl.replace('%id%', videoID[1]);
+	$(document).on('click', '[data-action="auto-youtube"]', function(){
+        const url = $(this).closest('#record').find('input[data-type="links-url"]').val();
+        const videoID = url.match(/(?:https?:\/{2})?(?:w{3}\.)?youtu(?:be)?\.(?:com|be)(?:\/watch\?v=|\/)([^\s&]+)/);
 
-			var existVal = wuF.find('[name="external_html"]').val();
-			wuF.find('[name="external_html"]').val(existVal ? existVal + "\n\n" + tpl : tpl);
+        if (videoID != null) {
+            let tpl = '<?php echo NFWX::i()->project_settings['works_youtube_tpl']?>';
+            tpl = tpl.replace('%id%', videoID[1]);
+
+            const existVal = wuF.find('[name="external_html"]').val();
+            wuF.find('[name="external_html"]').val(existVal ? existVal + "\n\n" + tpl : tpl);
 		} else { 
 			$.jGrowl('The youtube url is not valid.', { theme: 'error' });
 		}
@@ -160,19 +161,18 @@ $(document).ready(function(){
 		return false;
 	});
 
-
-	$('[role="works-delete"]').click(function(){
+	$('[data-role="works-delete"]').click(function(){
 		if (!confirm("Remove work?\nCAN NOT BE UNDONE!")) return false;
 
 		$.post('<?php echo $Module->formatURL('delete').'&record_id='.$Module->record['id']?>', function(response){
-			response == 'success' ? window.location.href = '<?php echo $Module->formatURL().'?event_id='.$Module->record['event_id']?>' : alert(response);
+			response === 'success' ? window.location.href = '<?php echo $Module->formatURL().'?event_id='.$Module->record['event_id']?>' : alert(response);
 		});
 		return false;
 	});	
 });
 </script>
 <style>
-	.author-note { white-space: pre; font-family: monochrome; overflow: auto; }
+	.author-note { white-space: pre; font-family: monospace; overflow: auto; }
 	#status-description { margin-top: 10px; margin-bottom: 0; padding: 10px 15px; font-size: 85%; }
 	#work-links .fa-youtube { padding-left: 2px; }
 </style>
@@ -190,7 +190,7 @@ $(document).ready(function(){
 				</span>
 			</div>
 			<div class="input-group"  style="width: 100%; display: none;">
-				<input type="text" class="form-control" data-type="links-title" autocomplete="off" name="links[title][]" placeholder="Cutom title (not requiered)" />
+				<input type="text" class="form-control" data-type="links-title" autocomplete="off" name="links[title][]" placeholder="Custom title (not required)" />
 			</div>
 		</div>
 	</div>
@@ -221,7 +221,7 @@ $(document).ready(function(){
 					<div class="col-md-10">	
 						<div id="status-buttons" class="btn-group" role="group">
 						<?php foreach ($Module->attributes['status']['options'] as $s) { ?>
-							<button role="status-change-buttons" data-status-id="<?php echo $s['id']?>" data-css-class="<?php echo $s['css-class']?>" type="button" class="<?php echo 'btn btn-default '.($Module->record['status'] == $s['id'] ? 'active btn-info' : '')?>" title="<?php echo $s['desc']?>" data-description="<?php echo $s['desc_full'].'<br />Voting: <strong>'.($s['voting'] ? 'On' : 'Off').'</strong>. Release: <strong>'.($s['release'] ? 'On' : 'Off').'</strong>'?>"><span class="<?php echo $s['icon']?>"></span></button>
+							<button data-role="status-change-buttons" data-status-id="<?php echo $s['id']?>" data-css-class="<?php echo $s['css-class']?>" type="button" class="<?php echo 'btn btn-default '.($Module->record['status'] == $s['id'] ? 'active btn-info' : '')?>" title="<?php echo $s['desc']?>" data-description="<?php echo $s['desc_full'].'<br />Voting: <strong>'.($s['voting'] ? 'On' : 'Off').'</strong>. Release: <strong>'.($s['release'] ? 'On' : 'Off').'</strong>'?>"><span class="<?php echo $s['icon']?>"></span></button>
 						<?php } ?>
 						</div>
 						<div id="status-description" class="alert alert-info"></div>
@@ -276,7 +276,7 @@ $(document).ready(function(){
 									</span>
 								</div>
 								<div class="input-group"  style="width: 100%; display: <?php echo $v['title'] ? 'block' : 'none'?>;">
-									<input type="text" class="form-control" data-type="links-title" autocomplete="off" name="links[title][]" value="<?php echo $v['title']?>" placeholder="Cutom title (not requiered)" />
+									<input type="text" class="form-control" data-type="links-title" autocomplete="off" name="links[title][]" value="<?php echo $v['title']?>" placeholder="Custom title (not required)" />
 								</div>
 							</div>
 						</div>
@@ -294,7 +294,7 @@ $(document).ready(function(){
 		<div class="col-md-7">
 			<div class="row">
 				<div class="col-md-5 col-md-offset-2">
-					<button role="works-update" class="btn btn-lg btn-primary btn-full-xs"><span class="fa fa-save"></span> <?php echo NFW::i()->lang['Save changes']?></button>
+					<button data-role="works-update" class="btn btn-lg btn-primary btn-full-xs"><span class="fa fa-save"></span> <?php echo NFW::i()->lang['Save changes']?></button>
 				</div>
 				<div class="col-md-5" style="padding-top: 10px;">
 					<label class="checkbox-inline">
@@ -304,7 +304,7 @@ $(document).ready(function(){
 			</div>
 		</div>
 		<div class="col-md-5 text-right" style="padding-top: 20px;">
-			<a role="works-delete" href="#" class="text-danger" title=""><span class="fa fa-times"></span> Delete work</a>		
+			<a data-role="works-delete" href="#" class="text-danger" title=""><span class="fa fa-times"></span> Delete work</a>
 		</div>
 	</div>
 
