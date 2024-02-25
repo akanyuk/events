@@ -1,10 +1,7 @@
 <?php
-/***********************************************************************
- * Copyright (C) 2012-2018 Andrey nyuk Marinov (aka.nyuk@gmail.com)
- * $Id$
- *
- * Управление авторскими работами.
- ************************************************************************/
+/**
+ * @desc Manage works
+ */
 
 class works extends active_record {
     static $action_aliases = array(
@@ -17,6 +14,8 @@ class works extends active_record {
             array('module' => 'works', 'action' => 'my_status'),
             array('module' => 'works', 'action' => 'delete'),
             array('module' => 'works_media', 'action' => 'update_properties'),
+            array('module' => 'works_media', 'action' => 'rename_file'),
+            array('module' => 'works_media', 'action' => 'preview_zx'),
             array('module' => 'works_media', 'action' => 'convert_zx'),
             array('module' => 'works_media', 'action' => 'file_id_diz'),
             array('module' => 'works_media', 'action' => 'make_release'),

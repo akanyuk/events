@@ -6,7 +6,6 @@
  */
 
 NFW::i()->registerResource('jquery.activeForm');
-NFW::i()->registerResource('colorbox');                // images preview
 NFW::i()->registerResource('jquery.jgrowl');
 NFW::i()->registerResource('bootstrap3.typeahead');
 NFW::i()->registerResource('jquery.ui.interactions');
@@ -117,7 +116,7 @@ NFW::i()->breadcrumb = array(
                 const existVal = wuF.find('[name="external_html"]').val();
                 wuF.find('[name="external_html"]').val(existVal ? existVal + "\n\n" + tpl : tpl);
             } else {
-                $.jGrowl('The youtube url is not valid.', {theme: 'error'});
+                $.jGrowl('The youtube url is not valid', {theme: 'error'});
             }
 
             return false;
@@ -187,18 +186,23 @@ NFW::i()->breadcrumb = array(
                     </div>
                 </form>
 
-                <h3>Links</h3>
+                <br />
                 <form id="works-update-links"
                       action="<?php echo $Module->formatURL('update_links') . '&record_id=' . $Module->record['id'] ?>">
-                    <div id="work-links" class="settings" style="padding-bottom: 10px;">
-                        <?php foreach ($Module->record['links'] as $v) { ?>
-                            <div id="record" class="record" data-rel="update">
-                                <div class="cell"><span class="icon fa fa-sort" title="Sort"></span></div>
-                                <div class="cell" style="width: 100%;">
-                                    <div class="input-group" style="margin-bottom: 3px;">
-                                        <input type="text" class="form-control" data-type="links-url" autocomplete="off"
-                                               name="links[url][]" value="<?php echo $v['url'] ?>" placeholder="Url"/>
-                                        <span class="input-group-btn">
+                    <fieldset>
+                        <legend>Links</legend>
+
+                        <div id="work-links" class="settings" style="padding-bottom: 10px;">
+                            <?php foreach ($Module->record['links'] as $v) { ?>
+                                <div id="record" class="record" data-rel="update">
+                                    <div class="cell"><span class="icon fa fa-sort" title="Sort"></span></div>
+                                    <div class="cell" style="width: 100%;">
+                                        <div class="input-group" style="margin-bottom: 3px;">
+                                            <input type="text" class="form-control" data-type="links-url"
+                                                   autocomplete="off"
+                                                   name="links[url][]" value="<?php echo $v['url'] ?>"
+                                                   placeholder="Url"/>
+                                            <span class="input-group-btn">
 										<button data-action="toggle-title" class="btn btn-default" tabindex="-1"
                                                 title="Show custom tittle"><span
                                                     class="glyphicon glyphicon-chevron-down"></span></button>
@@ -209,29 +213,30 @@ NFW::i()->breadcrumb = array(
                                                 title="Remove link"><span
                                                     class="glyphicon glyphicon-remove"></span></button>
 									</span>
-                                    </div>
-                                    <div class="input-group"
-                                         style="width: 100%; display: <?php echo $v['title'] ? 'block' : 'none' ?>;">
-                                        <input type="text" class="form-control" data-type="links-title"
-                                               autocomplete="off"
-                                               name="links[title][]" value="<?php echo $v['title'] ?>"
-                                               placeholder="Custom title (not required)"/>
+                                        </div>
+                                        <div class="input-group"
+                                             style="width: 100%; display: <?php echo $v['title'] ? 'block' : 'none' ?>;">
+                                            <input type="text" class="form-control" data-type="links-title"
+                                                   autocomplete="off"
+                                                   name="links[title][]" value="<?php echo $v['title'] ?>"
+                                                   placeholder="Custom title (not required)"/>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        <?php } ?>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="col-md-12">
-                            <div class="pull-right">
-                                <button id="add-link" class="btn btn-default"><span class="fa fa-plus"></span>
-                                </button>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Save links</button>
-                            <div class="clear-fix"></div>
+                            <?php } ?>
                         </div>
-                    </div>
+
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <div class="pull-right">
+                                    <button id="add-link" class="btn btn-default"><span class="fa fa-plus"></span>
+                                    </button>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save links</button>
+                                <div class="clear-fix"></div>
+                            </div>
+                        </div>
+                    </fieldset>
                 </form>
             </div>
 
@@ -337,6 +342,7 @@ NFW::i()->breadcrumb = array(
             </div>
         </div>
 
+        <hr/>
         <h3>Files</h3>
         <div id="media-form-container">
             <?php
