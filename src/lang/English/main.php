@@ -141,8 +141,7 @@ $lang_main = array(
     'votekey-request long' => 'Request votekey',
     'votekey-request send' => 'Send request',
     'votekey-request wrong email' => 'Incorrect e-mail address',
-    'votekey-request success note' => 'New votekey successfully generated and sent to given e-mail address.',
-    'votekey-request success note2' => 'Votekey successfully sent to given e-mail address.',
+    'votekey-request success note' => 'Votekey successfully generated and sent to given e-mail address.',
 
     'votelist nickname' => 'Your nickname / realname',
     'votelist note' => '',

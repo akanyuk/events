@@ -287,7 +287,7 @@ class vote extends active_record {
             'FROM' => 'votes AS v',
             'JOINS' => $joins,
             'WHERE' => $search,
-            'ORDER BY' => isset($options['ORDER BY']) ? $options['ORDER BY'] : 'v.posted DESC',
+            'ORDER BY' => $options['ORDER BY'] ?? 'v.posted DESC',
             'LIMIT' => (isset($options['offset']) ? intval($options['offset']) : null) . (isset($options['limit']) ? ',' . intval($options['limit']) : null),
         ))) {
             $this->error('Unable to fetch records', __FILE__, __LINE__, NFW::i()->db->error());
@@ -304,33 +304,11 @@ class vote extends active_record {
         return array($records, $total_records, $num_filtered);
     }
 
-    function getVotekey($data) {
-        $lang_main = NFW::i()->getLang('main');
-
-        $CEvents = new events(isset($data['event_id']) ? $data['event_id'] : false);
-        if (!$CEvents->record['id']) {
-            $this->error('System error: wrong `event_id`');
-            return false;
-        }
-
-        $CCompetitions = new competitions();
-        $competitions = $CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id'], 'open_voting' => true)));
-        if (empty($competitions)) {
-            $this->error('System error: Voting closed for this event');
-            return false;
-        }
-
-        $email = isset($data['email']) ? trim($data['email']) : false;
-        if (!$email || !$this->is_valid_email($email)) {
-            $this->error($lang_main['votekey-request wrong email']);
-            return false;
-        }
-
-        // Check if email already exist
+    function getVotekey(int $eventID, string $email): string {
         $query = array(
             'SELECT' => 'votekey',
             'FROM' => 'votekeys',
-            'WHERE' => 'email=\'' . NFW::i()->db->escape($email) . '\' AND event_id=' . $CEvents->record['id'],
+            'WHERE' => 'email=\'' . NFW::i()->db->escape($email) . '\' AND event_id=' . $eventID,
         );
         if (!$result = NFW::i()->db->query_build($query)) {
             $this->error('Unable to search votekey', __FILE__, __LINE__, NFW::i()->db->error());
@@ -339,13 +317,14 @@ class vote extends active_record {
 
         if (NFW::i()->db->num_rows($result)) {
             list($votekey) = NFW::i()->db->fetch_row($result);
-            $message = $lang_main['votekey-request success note2'];
-        } else {
-            if (!$votekey = $this->generateVotekey($CEvents->record['id'], $email)) return false;
-            $message = $lang_main['votekey-request success note'];
+            return $votekey;
         }
 
-        return array('votekey' => $votekey, 'email' => $email, 'event' => $CEvents->record, 'message' => $message);
+        if (!$votekey = $this->generateVotekey($eventID, $email)) {
+            return false;
+        }
+
+        return $votekey;
     }
 
     public function checkVotekey($votekey, $event_id) {
@@ -362,24 +341,46 @@ class vote extends active_record {
     }
 
     function actionMainRequestVotekey() {
-        if ($result = $this->getVotekey($_POST)) {
-            email::sendFromTemplate($result['email'], 'votekey_request', array(
-                'event' => $result['event'],
-                'votekey' => $result['votekey'],
-                'language' => NFW::i()->user['language']
-            ));
-
-            NFW::i()->renderJSON(array('result' => 'success', 'message' => $result['message']));
-        } else {
+        $CEvents = new events($_POST['event_id'] ?? false);
+        if (!$CEvents->record['id']) {
+            $this->error('System error: wrong `event_id`');
             NFW::i()->renderJSON(array('result' => 'error', 'errors' => array('email' => $this->last_msg)));
         }
+
+        $CCompetitions = new competitions();
+        $competitions = $CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id'], 'open_voting' => true)));
+        if (empty($competitions)) {
+            $this->error('System error: Voting closed for this event');
+            NFW::i()->renderJSON(array('result' => 'error', 'errors' => array('email' => $this->last_msg)));
+        }
+
+        $lang_main = NFW::i()->getLang('main');
+
+        $email = isset($_POST['email']) ? trim($_POST['email']) : false;
+        if (!$email || !$this->is_valid_email($email)) {
+            $this->error($lang_main['votekey-request wrong email']);
+            NFW::i()->renderJSON(array('result' => 'error', 'errors' => array('email' => $this->last_msg)));
+        }
+
+        $votekey = $this->getVotekey($CEvents->record['id'], $email);
+        if ($this->error) {
+            NFW::i()->renderJSON(array('result' => 'error', 'errors' => array('email' => $this->last_msg)));
+        }
+
+        email::sendFromTemplate($email, 'votekey_request', array(
+            'event' => $CEvents->record,
+            'votekey' => $votekey,
+            'language' => NFW::i()->user['language']
+        ));
+
+        NFW::i()->renderJSON(array('result' => 'success', 'message' => $lang_main['votekey-request success note']));
     }
 
     function actionMainAddVote() {
         $this->error_report_type = 'active_form';
 
         // Check for system errors
-        $CCompetitions = new competitions(isset($_POST['competition_id']) ? $_POST['competition_id'] : false);
+        $CCompetitions = new competitions($_POST['competition_id'] ?? false);
         if (!$CCompetitions->record['id']) {
             $this->error('System error: wrong `event_id`', __FILE__, __LINE__);
             return false;
@@ -483,7 +484,7 @@ class vote extends active_record {
     }
 
     function actionAdminAdmin() {
-        $CEvents = new events(isset($_GET['event_id']) ? $_GET['event_id'] : false);
+        $CEvents = new events($_GET['event_id'] ?? false);
         if (!$CEvents->record['id']) {
             $this->error($CEvents->last_msg, __FILE__, __LINE__);
             return false;
@@ -493,7 +494,7 @@ class vote extends active_record {
     }
 
     function actionAdminVotekeys() {
-        $CEvents = new events(isset($_GET['event_id']) ? $_GET['event_id'] : false);
+        $CEvents = new events($_GET['event_id'] ?? false);
         if (!$CEvents->record['id']) {
             $this->error($CEvents->last_msg, __FILE__, __LINE__);
             return false;
@@ -528,7 +529,7 @@ class vote extends active_record {
     }
 
     function actionAdminVotes() {
-        $CEvents = new events(isset($_GET['event_id']) ? $_GET['event_id'] : false);
+        $CEvents = new events($_GET['event_id'] ?? false);
         if (!$CEvents->record['id']) {
             $this->error($CEvents->last_msg, __FILE__, __LINE__);
             return false;
@@ -557,7 +558,7 @@ class vote extends active_record {
     function actionAdminAddVote() {
         $this->error_report_type = 'active_form';
 
-        $CEvents = new events(isset($_GET['event_id']) ? $_GET['event_id'] : false);
+        $CEvents = new events($_GET['event_id'] ?? false);
         if (!$CEvents->record['id']) {
             $this->error($CEvents->last_msg, __FILE__, __LINE__);
             return false;
@@ -611,7 +612,7 @@ class vote extends active_record {
     }
 
     function actionAdminResults() {
-        $CEvents = new events(isset($_GET['event_id']) ? $_GET['event_id'] : false);
+        $CEvents = new events($_GET['event_id'] ?? false);
         if (!$CEvents->record['id']) {
             $this->error($CEvents->last_msg, __FILE__, __LINE__);
             return false;
@@ -650,11 +651,11 @@ class vote extends active_record {
     }
 }
 
-function sortByPos($a, $b) {
+function sortByPos($a, $b): int {
     return $a['position'] < $b['position'] ? 1 : -1;
 }
 
-function sortByAverageTotal($a, $b) {
+function sortByAverageTotal($a, $b): int {
     if ($a['average_vote'] == $b['average_vote']) {
         return $a['total_scores'] < $b['total_scores'] ? 1 : -1;
     }
@@ -662,7 +663,7 @@ function sortByAverageTotal($a, $b) {
     return $a['average_vote'] < $b['average_vote'] ? 1 : -1;
 }
 
-function sortByScoresTotal($a, $b) {
+function sortByScoresTotal($a, $b): int {
     if ($a['total_scores'] == $b['total_scores']) {
         return $a['num_votes'] < $b['num_votes'] ? 1 : -1;
     }
@@ -670,7 +671,7 @@ function sortByScoresTotal($a, $b) {
     return $a['total_scores'] < $b['total_scores'] ? 1 : -1;
 }
 
-function sortByIQM($a, $b) {
+function sortByIQM($a, $b): int {
     if ($a['iqm_vote'] == $b['iqm_vote']) {
         return $a['total_scores'] < $b['total_scores'] ? 1 : -1;
     }
