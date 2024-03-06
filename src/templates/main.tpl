@@ -27,8 +27,8 @@ foreach (explode(',', NFW::i()->project_settings['meta_keywords'] . ',' . $page[
 }
 $meta_keywords = implode(',', array_unique($meta_keywords));
 
-$is_latest_news = page_is('news.html') || NFW::i()->current_controler != 'main' ? false : true;
-$is_latest_comments = page_is('comments.html') || NFW::i()->current_controler != 'main' ? false : true;
+$is_latest_news = !(page_is('news.html') || NFW::i()->current_controler != 'main');
+$is_latest_comments = !(page_is('comments.html') || NFW::i()->current_controler != 'main');
 
 // Generate change language links
 $lang_links = array(
@@ -46,12 +46,6 @@ if ($countdown > 0) {
     echo '<div class="clearfix"></div>';
     echo '</div>';
 }
-
-$CTimeline = new timeline();
-$timeline = $CTimeline->renderAction(array('Module' => $CTimeline), '_timeline');
-if ($timeline != '') {
-    echo '<div style="margin-bottom: 50px;">' . $timeline . '</div>';
-}
 $countdowns_main = ob_get_clean();
 
 // Comments
@@ -66,12 +60,12 @@ $latest_news = $is_latest_news ? NFWX::i()->renderNews(array('records_on_page' =
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo NFW::i()->lang['lang'] ?>">
-<head><title><?php echo isset($page_title) ? $page_title : $page['title'] ?></title>
+<head><title><?php echo $page_title ?? $page['title'] ?></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta http-equiv="Content-Language" content="ru"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description"
-          content="<?php echo $page['meta_description'] ? $page['meta_description'] : NFWX::i()->project_settings['meta_description'] ?>"/>
+          content="<?php echo $page['meta_description'] ?: NFWX::i()->project_settings['meta_description'] ?>"/>
     <meta name="keywords" content="<?php echo $meta_keywords ?>"/>
 
     <link rel="icon" type="image/png" sizes="16x16"
@@ -274,7 +268,6 @@ if (!NFWX::i()->main_right_pane) {
                 echo NFW::i()->fetch(
                     NFW::i()->findTemplatePath('pages/main/_index.tpl'),
                     array(
-                        'timeline' => $timeline,
                         'latest_news' => $latest_news,
                         'works_comments' => $works_comments,
                     )

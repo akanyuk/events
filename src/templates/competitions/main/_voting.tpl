@@ -3,6 +3,7 @@
  * @var array $event
  * @var array $competition
  * @var array $works
+ * @var array $votekey Preloaded from request or user profile votekey
  */
 
 $result = NFWX::i()->hook("competitions_voting", $event['alias'], array('event' => $event, 'competition' => $competition, 'voting_works' => $works));
@@ -19,33 +20,17 @@ NFW::i()->registerFunction('active_field');
 
 $lang_main = NFW::i()->getLang('main');
 
-// Load saved votekey
-$CVote = new vote();
-$votekey = false;
-
-if (isset($_COOKIE['votekey']) && $CVote->checkVotekey($_COOKIE['votekey'], $competition['event_id'])) {
-    $votekey = $_COOKIE['votekey'];
-} elseif (!NFW::i()->user['is_guest']) {
-    $result = $CVote->getVotekey(array('event_id' => $competition['event_id'], 'email' => NFW::i()->user['email']));
-
-    if ($result['votekey']) {
-        NFW::i()->setCookie('votekey', $result['votekey']);
-        $votekey = $result['votekey'];
-    }
-}
-
-$vote_options = array();
-
+$votingOptions = array();
 if (!empty($hook_additional['event']['options'])) {
     foreach ($hook_additional['event']['options'] as $v) {
-        $vote_options[$v['value']] = $v['label_' . NFW::i()->user['language']] ? $v['label_' . NFW::i()->user['language']] : $v['value'];
+        $votingOptions[$v['value']] = $v['label_' . NFW::i()->user['language']] ? $v['label_' . NFW::i()->user['language']] : $v['value'];
     }
-} else if (isset($event['options']) && !empty($event['options'])) {
+} else if (!empty($event['options'])) {
     foreach ($event['options'] as $v) {
-        $vote_options[$v['value']] = $v['label_' . NFW::i()->user['language']] ? $v['label_' . NFW::i()->user['language']] : $v['value'];
+        $votingOptions[$v['value']] = $v['label_' . NFW::i()->user['language']] ? $v['label_' . NFW::i()->user['language']] : $v['value'];
     }
 } else {
-    $vote_options = $lang_main['voting votes'];
+    $votingOptions = $lang_main['voting votes'];
 }
 ?>
 <script type="text/javascript">
@@ -135,11 +120,6 @@ if (!empty($hook_additional['event']['options'])) {
         }
     });
 </script>
-<style>
-    FORM#request-votekey .help-block {
-        color: #800;
-    }
-</style>
 
 <div id="request-votekey-dialog" class="modal fade">
     <div class="modal-dialog">
@@ -173,7 +153,7 @@ if (!empty($hook_additional['event']['options'])) {
     <input type="hidden" name="competition_id" value="<?php echo $competition['id'] ?>"/>
     <?php
     foreach ($works as $work) {
-        echo display_work_media($work, array('rel' => 'voting', 'single' => count($works) == 1, 'vote_options' => $vote_options)) . '<hr />';
+        echo display_work_media($work, array('rel' => 'voting', 'single' => count($works) == 1, 'vote_options' => $votingOptions)) . '<hr />';
     }
 
     echo '<br />';
