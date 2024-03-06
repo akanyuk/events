@@ -1,6 +1,5 @@
 <?php
 /**
- * @var $timeline string Pre rendered timeline HTML content
  * @var $latest_news string Pre rendered latest news HTML content
  * @var $works_comments string Pre rendered works comments HTML content
  */
@@ -41,9 +40,6 @@ foreach ($lastEvents as $record) {
         }
     </style>
 <?php
-// Pre rendered in 'main.tpl'
-echo '<div class="hidden-md hidden-lg" style="margin-bottom: 10px;">' . $timeline . '</div>';
-
 if (!empty($current)) {
     foreach ($current as $record) {
         displayIndexEvent($record, 'full');
@@ -61,7 +57,7 @@ echo '<div class="well well-sm">';
 echo '<input id="works-search" class="form-control" placeholder="' . $lang_main['search hint'] . '" />';
 echo '</div>';
 
-if ($works_comments !== false) {
+if ($works_comments) {
     echo '<div class="hidden-md hidden-sm hidden-lg">';
     echo '<h2 class="index-head">' . $lang_main['latest comments'] . '</h2>';
     echo $works_comments;
@@ -85,7 +81,7 @@ if ($works_comments !== false) {
 if (!empty($past)) {
     echo '<h2 class="index-head">' . $lang_main['latest events'] . '</h2>';
     foreach ($past as $record) {
-        displayIndexEvent($record, 'small');
+        displayIndexEvent($record);
     }
 }
 
@@ -98,7 +94,7 @@ if (count($lastEvents) > 0) {
     <?php
 }
 
-if ($latest_news !== false) {
+if ($latest_news) {
     echo '<div class="hidden-md hidden-sm hidden-lg">';
     echo '<h2 class="index-head">' . $lang_main['latest news'] . '</h2>';
     echo $latest_news;
@@ -139,7 +135,7 @@ function displayIndexEvent($record, $layout = 'small') {
                 <div class="row">
                     <div class="col-sm-12 col-md-5">
                         <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>">
-                            <img src="<?php echo $record['preview_img_large'] ? $record['preview_img_large'] : NFW::i()->assets('main/current-event-large.png') ?>"
+                            <img src="<?php echo $record['preview_img_large'] ?: NFW::i()->assets('main/current-event-large.png') ?>"
                                  style="width: 100%; margin-top: 20px;" alt=""/>
                         </a>
                     </div>
@@ -176,7 +172,7 @@ function displayIndexEvent($record, $layout = 'small') {
             <div class="index-current-event" style="padding-bottom: 20px;">
                 <div class="row">
                     <div class="col-sm-12 col-md-5">
-                        <img src="<?php echo $record['preview_img_large'] ? $record['preview_img_large'] : NFW::i()->assets('main/current-event-large.png') ?>"
+                        <img src="<?php echo $record['preview_img_large'] ?: NFW::i()->assets('main/current-event-large.png') ?>"
                              style="width: 100%; margin-top: 20px;" alt=""/>
                     </div>
                     <div class="col-sm-12 col-md-7">

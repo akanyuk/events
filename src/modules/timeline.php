@@ -1,12 +1,7 @@
 <?php
-/***********************************************************************
-  Copyright (C) 2009-2017 Andrey nyuk Marinov (aka.nyuk@gmail.com)
-  $Id$  
-  
- ************************************************************************/
 class timeline extends active_record {
-	function __construct($record_id = false) {
-		$result = parent::__construct($record_id);
+	function __construct() {
+		$result = parent::__construct();
 
 		// Prune old records
 		NFW::i()->db->query_build(array('DELETE' => $this->db_table, 'WHERE' => 'date_from < '.time()));
@@ -14,7 +9,7 @@ class timeline extends active_record {
 		return $result;
 	}
 		
-	function getRecords($options = array()) {
+	function getRecords() {
 		if (!$result = NFW::i()->db->query_build(array('SELECT' => '*', 'FROM' => $this->db_table, 'ORDER BY' => 'date_from'))) { 
 			$this->error('Unable to fetch records', __FILE__, __LINE__, NFW::i()->db->error());
 			return false;
