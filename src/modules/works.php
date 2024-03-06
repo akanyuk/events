@@ -593,11 +593,8 @@ class works extends active_record {
     }
 
     function actionAdminAdmin() {
-        // Main action
-        if (!$this->loadEditorOptions($_GET['event_id'])) return false;
-
-        if (!isset($_GET['part']) || $_GET['part'] != 'list') {
-            return $this->renderAction();
+        if (!$this->loadEditorOptions($_GET['event_id'])) {
+            return false;
         }
 
         $records = $this->getRecords(array(
@@ -605,11 +602,16 @@ class works extends active_record {
                 'event_id' => $this->current_event['id'],
                 'allow_hidden' => true,
             ),
+            'ORDER BY' => 'c.position, w.posted',
             'fetch_manager_note' => true,
             'load_attachments' => true,
             'skip_pagination' => true,
         ));
-        NFW::i()->stop($this->renderAction(array('records' => $records), '_admin_list'));
+
+        return $this->renderAction([
+            'records' => $records,
+            'defaultCompetition' => intval(reset($this->attributes['competition_id']['options'])['id']),
+        ]);
     }
 
     // Update positions

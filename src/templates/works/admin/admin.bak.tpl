@@ -1,48 +1,47 @@
 <?php
 /**
  * @var object $Module
- * @var array $records
- * @var int $defaultCompetition
  */
-
-// Create tree of works, count works
-$countTotal = count($records);
-$countApproved = 0;
-$curCompo = 0;
-$recordsTree = array();
-foreach ($records as $r) {
-    if ($curCompo != $r['competition_id']) {
-        $curCompo = $r['competition_id'];
-        $recordsTree[$curCompo] = array('title' => $r['competition_title'], 'works' => array());
-    }
-
-    $recordsTree[$curCompo]['works'][] = $r;
-
-    if ($r['status_info']['voting'] && $r['status_info']['release']) {
-        $countApproved++;
-    }
-}
-
 NFW::i()->assign('page_title', $Module->current_event['title'].' / works');
+
 NFW::i()->registerResource('jquery.activeForm');
 NFW::i()->registerResource('jquery.ui.interactions');
 NFW::i()->registerResource('bootstrap3.typeahead');
-NFW::i()->breadcrumb = [
-	['url' => 'admin/events?action=update&record_id='.$Module->current_event['id'], 'desc' => $Module->current_event['title']],
-	['desc' => 'Works'],
-];
+
+NFW::i()->breadcrumb = array(
+	array('url' => 'admin/events?action=update&record_id='.$Module->current_event['id'], 'desc' => $Module->current_event['title']),
+	array('desc' => 'Works'),
+);
 
 ob_start();
 ?>
 <div class="text-muted" style="font-size: 80%;">
-	Total: <span class="badge"><?php echo $countTotal?></span>&nbsp;&nbsp;
-	Approved: <span class="badge"><?php echo $countApproved?></span>
+	Total: <span id="total-works-count" class="badge"></span>&nbsp;&nbsp;
+	Approved: <span id="approved-works-count" class="badge"></span>
 </div>
 <?php 
 NFW::i()->breadcrumb_status = ob_get_clean();
 ?>
 <script type="text/javascript">
 $(document).ready(function(){
+	// (Re) load works list
+	$(document).on('admin-reload-works-list', function(){
+		$('div[id="works"]').empty();
+		
+		$.get('<?php echo $Module->formatURL('admin').'&event_id='.$Module->current_event['id'].'&part=list'?>', function(response) {
+			if (response) {
+				$('div[id="works"]').append(response);
+				$('div[id="works"]').find('[data-toggle="tooltip"]').tooltip({ 'html': true });
+
+				$('[id="total-works-count"]').text($('div[id="works"]').find('#counters').data('total'));
+				$('[id="approved-works-count"]').text($('div[id="works"]').find('#counters').data('approved'));
+				
+				updateSortable();
+				updateFilters();
+			}
+		});
+	}).trigger('admin-reload-works-list');
+
 	// Filter by competition
 	$('select[id="filter-compo"]').change(function(){
         const id = $(this).val();
@@ -235,21 +234,4 @@ updateSortable = function(){
 	<select id="filter-compo" class="form-control"></select>
 </div>
 
-<?php foreach ($recordsTree as $competition_id => $c):?>
-    <h3><?php echo htmlspecialchars($c['title'])?></h3>
-    <?php foreach ($c['works'] as $r): ?>
-        <div class="media">
-            <div class="media-left">
-                <a href="<?php echo $Module->formatURL('update').'&record_id='.$r['id']?>">
-                    <img class="media-object" src="<?php echo $r['screenshot'] ? $r['screenshot']['tmb_prefix'].'64' : NFW::i()->assets('main/news-no-image.png')?>" alt="" />
-                </a>
-            </div>
-            <div class="media-body">
-                <h4 class="media-heading">
-                    <a href="<?php echo $Module->formatURL('update').'&record_id='.$r['id']?>"><?php echo htmlspecialchars($r['title'])?> by <?php echo htmlspecialchars($r['author'])?></a>
-                </h4>
-                ...
-            </div>
-        </div>
-    <?php endforeach; ?>
-<?php endforeach; ?>
+<div id="works"></div>

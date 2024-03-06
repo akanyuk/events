@@ -29,7 +29,6 @@ foreach ($records_tree as $competition_id => $c) {
 					
 		<div class="settings">
 			<div class="header hidden-xs">
-				<div class="cell"></div>
 				<div class="cell"><span class="fa fa-wheelchair" title="Personal status"></span></div>
 				<div class="cell"><span class="fa fa-globe" title="Global status"></span></div>
 				<div class="cell"></div>
@@ -43,28 +42,26 @@ foreach ($records_tree as $competition_id => $c) {
 	<div class="cell">
 		<div class="hidden-sm hidden-md hidden-lg" style="float: left;">
 			<a href="<?php echo $Module->formatURL('update').'&record_id='.$r['id']?>">
-				<img src="<?php echo $r['screenshot'] ? $r['screenshot']['tmb_prefix'].'64' : NFW::i()->assets('main/news-no-image.png')?>" />
+				<img src="<?php echo $r['screenshot'] ? $r['screenshot']['tmb_prefix'].'64' : NFW::i()->assets('main/news-no-image.png')?>"  alt=""/>
 			</a>
 			
 			<div class="icons">
 				<?php if ($r['managers_notes_is_marked']): ?>
 					<div data-toggle="tooltip" title="<?php echo htmlspecialchars(nl2br($r['managers_notes_comment']))?>" class="text-danger"><span class="fa fa-question-circle"></span></div>			
 				<?php elseif ($r['managers_notes_is_checked']): ?>
-					<div data-toggle="tooltip" title="I checked this prod" class="text-success"><span class="fa fa-check-circle"></span></div>
+					<div data-toggle="tooltip" title="I have checked this work" class="text-success"><span class="fa fa-check-circle"></span></div>
 				<?php else: ?>
-					<div data-toggle="tooltip" title="Not checked by myself" class="text-muted"><span class="fa fa-question-circle"></span></div>
+					<div data-toggle="tooltip" title="I have not checked this work" class="text-muted"><span class="fa fa-question-circle"></span></div>
 				<?php endif; ?>
 				<div data-toggle="tooltip" title="<?php echo '<strong>'.$r['status_info']['desc'].'</strong><br />Voting: '.($r['status_info']['voting'] ? 'On' : 'Off').'<br />Release: '.($r['status_info']['release'] ? 'On' : 'Off')?>" class="text text-<?php echo $r['status_info']['css-class']?>"><span class="<?php echo $r['status_info']['icon']?>"></span></div>
 			</div>
 		</div>
-		
-		<div id="position"><?php echo $r['position']?></div>
 	</div>
 	<div class="cell hidden-xs">
 		<?php if ($r['managers_notes_is_marked']): ?>
 			<div data-toggle="tooltip" title="<?php echo htmlspecialchars(nl2br($r['managers_notes_comment']))?>" class="text-warning"><span class="fa fa-question-circle"></span></div>			
 		<?php elseif ($r['managers_notes_is_checked']): ?>
-			<div data-toggle="tooltip" title="I checked this prod" class="text-success"><span class="fa fa-check-circle"></span></div>
+			<div data-toggle="tooltip" title="I have checked this work" class="text-success"><span class="fa fa-check-circle"></span></div>
 		<?php endif; ?>
 	</div>
 	<div class="cell hidden-xs">
