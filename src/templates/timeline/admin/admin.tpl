@@ -1,25 +1,30 @@
 <?php
+/**
+ * @var array $records
+ */
+
 NFW::i()->assign('page_title', 'Timeline');
 
 NFW::i()->registerResource('jquery.activeForm');
 NFW::i()->registerResource('jquery.activeForm/bootstrap-datetimepicker.min.js');
 NFW::i()->registerResource('jquery.activeForm/bootstrap-datetimepicker.min.css');
 NFW::i()->registerResource('jquery.activeForm/bootstrap-datetimepicker.ru.js');
+NFW::i()->registerResource('jquery.jgrowl');
 
 $now =  time() - time()%3600 + 3600;
 ?>
 <script type="text/javascript">
 $(document).ready(function(){
  	// Action 'update'
- 	
- 	var f = $('form[id="timeline"]');
- 	f.activeForm({
-		success: function(response) {
-			//window.location.reload();
+
+    const f = $('form[id="timeline"]');
+    f.activeForm({
+		success: function() {
+            $.jGrowl('Timeline saved');
 		}
 	});
 
- 	$(document).on('click', '*[data-action="remove-values-record"]', function(event){
+ 	$(document).on('click', '*[data-action="remove-values-record"]', function(){
  	 	$(this).closest('div[id="record"]').remove();
 	});
 
@@ -30,15 +35,16 @@ $(document).ready(function(){
 	});
 
  	f.addValue = function(timestamp, description) {
- 	 	var tpl = $('div[id="timeline-record-template"]').html().replace(/%description%/g, description);
- 	 	$(this).find('div[id="values-area"]').append(tpl);
+        const record = $('<div>');
+        record.append($('div[id="timeline-record-template"]').html().replace(/%description%/g, description))
+        $(this).find('div[id="values-area"]').append(record);
 
  		// Datepicker
-		var dp = $(this).find('input[role="datepicker"]');
-		var container = dp.closest('div');
-		var name = dp.attr('name');
+        const dp = record.find('input[id="datepicker"]');
+        const container = dp.closest('div');
+        const name = dp.attr('name');
 
-		dp.attr({ 'readonly': '1' }).removeAttr('name role');
+        dp.attr({ 'readonly': '1' }).removeAttr('name role');
 		container.append('<input name="' + name + '" value="' + timestamp + '" type="hidden" />');
 		
 		dp.datetimepicker({ 
@@ -52,8 +58,8 @@ $(document).ready(function(){
 			'startDate': '<?php echo date('d.m.Y H:i')?>',
 			'endDate': '<?php echo date('d.m.Y H:i', time() + 86400 * 365)?>'
 		}).on('changeDate', function(e) {
-		    var TimeZoned = new Date(e.date.setTime(e.date.getTime() + (e.date.getTimezoneOffset() * 60000)));
-		    dp.datetimepicker('setDate', TimeZoned);				
+            const TimeZoned = new Date(e.date.setTime(e.date.getTime() + (e.date.getTimezoneOffset() * 60000)));
+            dp.datetimepicker('setDate', TimeZoned);
 		    container.find('input[name="' + name + '"]').val(TimeZoned.valueOf() / 1000);
 		});
 
@@ -68,7 +74,7 @@ $(document).ready(function(){
 <div id="timeline-record-template" style="display: none;">
 	<div id="record" class="record">
 		<div class="cell">
-			<div class="cell"><input name="date_from[]" role="datepicker" type="text" class="form-control" style="display: inline; width: 150px;" /></div>
+			<div class="cell"><input name="date_from[]" id="datepicker" type="text" class="form-control" style="display: inline; width: 150px;" /></div>
 			<div class="cell"><textarea name="content[]" class="form-control" style="width: 400px; height: 56px;">%description%</textarea></div>
 			<div class="cell"><button data-action="remove-values-record" class="btn btn-danger btn-xs" title="<?php echo NFW::i()->lang['Remove']?>"><span class="glyphicon glyphicon-remove"></span></button></div>
 		</div>
