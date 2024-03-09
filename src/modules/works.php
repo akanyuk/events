@@ -7,6 +7,8 @@ class works extends active_record {
     static $action_aliases = array(
         'update' => array(
             array('module' => 'works', 'action' => 'admin'),
+            array('module' => 'works', 'action' => 'get_pos'),
+            array('module' => 'works', 'action' => 'set_pos'),
             array('module' => 'works', 'action' => 'insert'),
             array('module' => 'works', 'action' => 'update_work'),
             array('module' => 'works', 'action' => 'update_status'),
@@ -603,7 +605,6 @@ class works extends active_record {
                 'allow_hidden' => true,
             ),
             'ORDER BY' => 'c.position, w.posted',
-            'fetch_manager_note' => true,
             'load_attachments' => true,
             'skip_pagination' => true,
         ));
@@ -614,22 +615,57 @@ class works extends active_record {
         ]);
     }
 
-    // Update positions
+    function actionAdminGetPos() {
+        $records = $this->getRecords(array(
+            'filter' => array(
+                'competition_id' => $_POST['competition_id'] ?? 0,
+                'allow_hidden' => true,
+                'voting_only' => true,
+            ),
+            'load_attachments' => true,
+            'skip_pagination' => true,
+        ));
+        $result = [];
+        foreach ($records as $r) {
+            if (!NFW::i()->checkPermissions('check_manage_event', $r['event_id'])) {
+                continue;
+            }
+
+            $result[] = [
+                'id' => $r['id'],
+                'title' => $r['title'],
+                'author' => $r['author'],
+                'icon' => $r['screenshot'] ? $r['screenshot']['tmb_prefix'] . '64' : NFW::i()->assets('main/news-no-image.png'),
+            ];
+        }
+
+        NFWX::i()->jsonSuccess($result);
+    }
+
     function actionAdminSetPos() {
-        $this->error_report_type = 'plain';
+        $pos = 1;
+        foreach ($_POST['work'] as $id) {
+            if (!$this->load($id)) {
+                continue;
+            }
 
-        foreach ($_POST['position'] as $r) {
-            if (!$this->load($r['record_id'])) continue;
+            if (!NFW::i()->checkPermissions('check_manage_event', $this->record['event_id'])) {
+                continue;
+            }
 
-            if (!NFW::i()->checkPermissions('check_manage_event', $this->record['event_id'])) continue;
-
-            if (!NFW::i()->db->query_build(array('UPDATE' => $this->db_table, 'SET' => 'position=' . intval($r['position']), 'WHERE' => 'id=' . $this->record['id']))) {
+            if (!NFW::i()->db->query_build(
+                array(
+                    'UPDATE' => $this->db_table,
+                    'SET' => 'position=' . $pos++,
+                    'WHERE' => 'id=' . $this->record['id'],
+                )
+            )) {
                 $this->error('Unable to update positions', __FILE__, __LINE__, NFW::i()->db->error());
-                return false;
+                NFWX::i()->jsonError(400, $this->last_msg);
             }
         }
 
-        NFW::i()->stop('success');
+        NFWX::i()->jsonSuccess();
     }
 
     function actionAdminInsert() {

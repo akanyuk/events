@@ -14,9 +14,18 @@ NFW::i()->assign('page_title', $Module->record['title'] . ' / edit');
 
 NFW::i()->breadcrumb = array(
     array('url' => 'admin/events?action=update&record_id=' . $Module->record['event_id'], 'desc' => $Module->record['event_title']),
-    array('url' => 'admin/works?event_id=' . $Module->record['event_id'], 'desc' => $Module->record['competition_title']),
+    array('url' => 'admin/works?event_id=' . $Module->record['event_id'].'&filter_competition='.$Module->record['competition_id'], 'desc' => $Module->record['competition_title']),
     array('desc' => $Module->record['title']),
 );
+
+ob_start();
+?>
+<div class="text-muted" style="display: inline-block; font-size: 11px; line-height: 12px;">
+    Posted: <?php echo date('d.m.Y H:i', $Module->record['posted']) . ' (' . $Module->record['posted_username'] . ')' ?>
+    <?php echo $Module->record['edited'] ? '<br />Updated: ' . date('d.m.Y H:i', $Module->record['edited']) . ' (' . $Module->record['edited_username'] . ')' : '' ?>
+</div>
+<?php
+NFW::i()->breadcrumb_status = ob_get_clean();
 ?>
 <script type="text/javascript">
     $(document).ready(function () {
@@ -146,63 +155,56 @@ NFW::i()->breadcrumb = array(
     }
 </style>
 
-<ul class="nav nav-tabs" role="tablist">
-    <li role="presentation" class="active"><a href="#main" aria-controls="main" role="tab" data-toggle="tab">Main</a>
-    </li>
-    <li role="presentation"><a href="#todo" aria-controls="files" role="tab" data-toggle="tab">Todo</a></li>
-</ul>
-<div class="tab-content">
-    <div role="tabpanel" class="tab-pane in active" style="padding-top: 20px;" id="main">
-        <div class="row">
-            <div class="col-md-6" style="padding-bottom: 20px;">
-                <form id="works-update"
-                      action="<?php echo $Module->formatURL('update_work') . '&record_id=' . $Module->record['id'] ?>">
+<div class="row">
+    <div class="col-md-6" style="padding-bottom: 20px;">
+        <form id="works-update"
+              action="<?php echo $Module->formatURL('update_work') . '&record_id=' . $Module->record['id'] ?>">
 
-                    <div class="col-md-12">
-                        <?php echo active_field(array('name' => 'title', 'value' => $Module->record['title'], 'attributes' => $Module->attributes['title'], 'vertical' => true)) ?>
-                    </div>
-                    <div class="col-md-12">
-                        <?php echo active_field(array('name' => 'author', 'value' => $Module->record['author'], 'attributes' => $Module->attributes['author'], 'vertical' => true)) ?>
-                    </div>
-                    <div class="col-md-12">
-                        <?php echo active_field(array('name' => 'competition_id', 'value' => $Module->record['competition_id'], 'attributes' => $Module->attributes['competition_id'], 'vertical' => true)) ?>
-                    </div>
-                    <div class="col-md-12">
-                        <?php echo active_field(array('name' => 'platform', 'value' => $Module->record['platform'], 'attributes' => $Module->attributes['platform'], 'inputCols' => '6', 'vertical' => true)) ?>
-                    </div>
-                    <div class="col-md-12">
-                        <?php echo active_field(array('name' => 'format', 'value' => $Module->record['format'], 'attributes' => $Module->attributes['format'], 'inputCols' => '6', 'vertical' => true)) ?>
-                    </div>
-                    <div class="col-md-12">
-                        <?php echo active_field(array('name' => 'author_note', 'value' => $Module->record['author_note'], 'attributes' => $Module->attributes['author_note'], 'height' => "60px;", 'vertical' => true)) ?>
-                    </div>
-                    <div class="col-md-12">
-                        <?php echo active_field(array('name' => 'external_html', 'value' => $Module->record['external_html'], 'attributes' => $Module->attributes['external_html'], 'height' => "100px;", 'vertical' => true)) ?>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <button type="submit" class="btn btn-primary">Save work settings</button>
-                        </div>
-                    </div>
-                </form>
+            <div class="col-md-12">
+                <?php echo active_field(array('name' => 'title', 'value' => $Module->record['title'], 'attributes' => $Module->attributes['title'], 'vertical' => true)) ?>
+            </div>
+            <div class="col-md-12">
+                <?php echo active_field(array('name' => 'author', 'value' => $Module->record['author'], 'attributes' => $Module->attributes['author'], 'vertical' => true)) ?>
+            </div>
+            <div class="col-md-12">
+                <?php echo active_field(array('name' => 'competition_id', 'value' => $Module->record['competition_id'], 'attributes' => $Module->attributes['competition_id'], 'vertical' => true)) ?>
+            </div>
+            <div class="col-md-12">
+                <?php echo active_field(array('name' => 'platform', 'value' => $Module->record['platform'], 'attributes' => $Module->attributes['platform'], 'inputCols' => '6', 'vertical' => true)) ?>
+            </div>
+            <div class="col-md-12">
+                <?php echo active_field(array('name' => 'format', 'value' => $Module->record['format'], 'attributes' => $Module->attributes['format'], 'inputCols' => '6', 'vertical' => true)) ?>
+            </div>
+            <div class="col-md-12">
+                <?php echo active_field(array('name' => 'author_note', 'value' => $Module->record['author_note'], 'attributes' => $Module->attributes['author_note'], 'height' => "60px;", 'vertical' => true)) ?>
+            </div>
+            <div class="col-md-12">
+                <?php echo active_field(array('name' => 'external_html', 'value' => $Module->record['external_html'], 'attributes' => $Module->attributes['external_html'], 'height' => "100px;", 'vertical' => true)) ?>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary">Save work settings</button>
+                </div>
+            </div>
+        </form>
 
-                <br />
-                <form id="works-update-links"
-                      action="<?php echo $Module->formatURL('update_links') . '&record_id=' . $Module->record['id'] ?>">
-                    <fieldset>
-                        <legend>Links</legend>
+        <br/>
+        <form id="works-update-links"
+              action="<?php echo $Module->formatURL('update_links') . '&record_id=' . $Module->record['id'] ?>">
+            <fieldset>
+                <legend>Links</legend>
 
-                        <div id="work-links" class="settings" style="padding-bottom: 10px;">
-                            <?php foreach ($Module->record['links'] as $v) { ?>
-                                <div id="record" class="record" data-rel="update">
-                                    <div class="cell"><span class="icon fa fa-sort" title="Sort"></span></div>
-                                    <div class="cell" style="width: 100%;">
-                                        <div class="input-group" style="margin-bottom: 3px;">
-                                            <input type="text" class="form-control" data-type="links-url"
-                                                   autocomplete="off"
-                                                   name="links[url][]" value="<?php echo $v['url'] ?>"
-                                                   placeholder="Url"/>
-                                            <span class="input-group-btn">
+                <div id="work-links" class="settings" style="padding-bottom: 10px;">
+                    <?php foreach ($Module->record['links'] as $v) { ?>
+                        <div id="record" class="record" data-rel="update">
+                            <div class="cell"><span class="icon fa fa-sort" title="Sort"></span></div>
+                            <div class="cell" style="width: 100%;">
+                                <div class="input-group" style="margin-bottom: 3px;">
+                                    <input type="text" class="form-control" data-type="links-url"
+                                           autocomplete="off"
+                                           name="links[url][]" value="<?php echo $v['url'] ?>"
+                                           placeholder="Url"/>
+                                    <span class="input-group-btn">
 										<button data-action="toggle-title" class="btn btn-default" tabindex="-1"
                                                 title="Show custom tittle"><span
                                                     class="glyphicon glyphicon-chevron-down"></span></button>
@@ -213,167 +215,161 @@ NFW::i()->breadcrumb = array(
                                                 title="Remove link"><span
                                                     class="glyphicon glyphicon-remove"></span></button>
 									</span>
-                                        </div>
-                                        <div class="input-group"
-                                             style="width: 100%; display: <?php echo $v['title'] ? 'block' : 'none' ?>;">
-                                            <input type="text" class="form-control" data-type="links-title"
-                                                   autocomplete="off"
-                                                   name="links[title][]" value="<?php echo $v['title'] ?>"
-                                                   placeholder="Custom title (not required)"/>
-                                        </div>
-                                    </div>
                                 </div>
-                            <?php } ?>
+                                <div class="input-group"
+                                     style="width: 100%; display: <?php echo $v['title'] ? 'block' : 'none' ?>;">
+                                    <input type="text" class="form-control" data-type="links-title"
+                                           autocomplete="off"
+                                           name="links[title][]" value="<?php echo $v['title'] ?>"
+                                           placeholder="Custom title (not required)"/>
+                                </div>
+                            </div>
+                        </div>
+                    <?php } ?>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <div class="pull-right">
+                            <button id="add-link" class="btn btn-default"><span class="fa fa-plus"></span>
+                            </button>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save links</button>
+                        <div class="clear-fix"></div>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">Work status</h4>
+            </div>
+            <div class="panel-body">
+                <div data-active-container="status" class="form-group">
+                    <form id="update-status"
+                          action="<?php echo $Module->formatURL('update_status') . '&record_id=' . $Module->record['id'] ?>">
+                        <input name="status" type="hidden" value="<?php echo $Module->record['status'] ?>"/>
+
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <div id="status-buttons" class="btn-group" role="group">
+                                    <?php foreach ($Module->attributes['status']['options'] as $s) { ?>
+                                        <button data-role="status-change-buttons"
+                                                data-status-id="<?php echo $s['id'] ?>"
+                                                data-css-class="<?php echo $s['css-class'] ?>" type="button"
+                                                class="<?php echo 'btn btn-default ' . ($Module->record['status'] == $s['id'] ? 'active btn-info' : '') ?>"
+                                                title="<?php echo $s['desc'] ?>"
+                                                data-description="<?php echo $s['desc_full'] . '<br />Voting: <strong>' . ($s['voting'] ? 'On' : 'Off') . '</strong>. Release: <strong>' . ($s['release'] ? 'On' : 'Off') . '</strong>' ?>">
+                                            <span class="<?php echo $s['icon'] ?>"></span></button>
+                                    <?php } ?>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="form-group">
                             <div class="col-md-12">
-                                <div class="pull-right">
-                                    <button id="add-link" class="btn btn-default"><span class="fa fa-plus"></span>
-                                    </button>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Save links</button>
-                                <div class="clear-fix"></div>
+                                <div id="status-description" class="alert alert-info"></div>
                             </div>
                         </div>
-                    </fieldset>
-                </form>
-            </div>
 
-            <div class="col-md-6">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h4 class="panel-title">Work status</h4>
-                    </div>
-                    <div class="panel-body">
-                        <div data-active-container="status" class="form-group">
-                            <form id="update-status"
-                                  action="<?php echo $Module->formatURL('update_status') . '&record_id=' . $Module->record['id'] ?>">
-                                <input name="status" type="hidden" value="<?php echo $Module->record['status'] ?>"/>
-
-                                <div class="form-group">
-                                    <div class="col-md-12">
-                                        <div id="status-buttons" class="btn-group" role="group">
-                                            <?php foreach ($Module->attributes['status']['options'] as $s) { ?>
-                                                <button data-role="status-change-buttons"
-                                                        data-status-id="<?php echo $s['id'] ?>"
-                                                        data-css-class="<?php echo $s['css-class'] ?>" type="button"
-                                                        class="<?php echo 'btn btn-default ' . ($Module->record['status'] == $s['id'] ? 'active btn-info' : '') ?>"
-                                                        title="<?php echo $s['desc'] ?>"
-                                                        data-description="<?php echo $s['desc_full'] . '<br />Voting: <strong>' . ($s['voting'] ? 'On' : 'Off') . '</strong>. Release: <strong>' . ($s['release'] ? 'On' : 'Off') . '</strong>' ?>">
-                                                    <span class="<?php echo $s['icon'] ?>"></span></button>
-                                            <?php } ?>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <div class="col-md-12">
-                                        <div id="status-description" class="alert alert-info"></div>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <div class="col-md-12">
-                                        <label>Status reason (displayed to the author)</label>
-                                        <textarea class="form-control"
-                                                  name="status_reason"><?php echo $Module->record['status_reason'] ?></textarea>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <div class="col-md-12">
-                                        <button type="submit" class="btn btn-primary">Update status</button>
-                                    </div>
-                                </div>
-                            </form>
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <label>Status reason (displayed to the author)</label>
+                                <textarea class="form-control"
+                                          name="status_reason"><?php echo $Module->record['status_reason'] ?></textarea>
+                            </div>
                         </div>
-                    </div>
+
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <button type="submit" class="btn btn-primary">Update status</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
+            </div>
+        </div>
 
-                <?php if ($Module->record['description']): ?>
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h4 class="panel-title">Author's comment</h4>
-                        </div>
-                        <div class="panel-body author-note"><?php echo htmlspecialchars($Module->record['description']) ?></div>
-                    </div>
-                <?php endif; ?>
+        <?php if ($Module->record['description']): ?>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">Author's comment</h4>
+                </div>
+                <div class="panel-body author-note"><?php echo htmlspecialchars($Module->record['description']) ?></div>
+            </div>
+        <?php endif; ?>
 
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h4 class="panel-title">Personal note (only for you)</h4>
-                    </div>
-                    <div class="panel-body">
-                        <form id="works-my-status"
-                              action="<?php echo $Module->formatURL('my_status') . '&record_id=' . $Module->record['id'] ?>">
-                            <div class="form-group">
-                                <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">Personal note (only for you)</h4>
+            </div>
+            <div class="panel-body">
+                <form id="works-my-status"
+                      action="<?php echo $Module->formatURL('my_status') . '&record_id=' . $Module->record['id'] ?>">
+                    <div class="form-group">
+                        <div class="col-md-12">
                                     <textarea class="form-control"
                                               name="comment"><?php echo $personalNote['comment'] ?></textarea>
 
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="col-md-12">
-                                    <label class="checkbox-inline">
-                                        <input type="hidden" name="is_checked" value="0"/>
-                                        <input type="checkbox" name="is_checked"
-                                               value="1" <?php echo $personalNote['is_checked'] ? ' checked="checked"' : '' ?>/>
-                                        Checked
-                                    </label>
-
-                                    <label class="checkbox-inline">
-                                        <input type="hidden" name="is_marked" value="0"/>
-                                        <input type="checkbox" name="is_marked"
-                                               value="1" <?php echo $personalNote['is_marked'] ? ' checked="checked"' : '' ?>/>
-                                        Marked
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="col-md-12">
-                                    <button type="submit" class="btn btn-primary">Set your note</button>
-                                </div>
-                            </div>
-                        </form>
+                        </div>
                     </div>
-                </div>
-            </div>
-        </div>
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            <label class="checkbox-inline">
+                                <input type="hidden" name="is_checked" value="0"/>
+                                <input type="checkbox" name="is_checked"
+                                       value="1" <?php echo $personalNote['is_checked'] ? ' checked="checked"' : '' ?>/>
+                                Checked
+                            </label>
 
-        <hr/>
-        <h3>Files</h3>
-        <div id="media-form-container">
-            <?php
-            $CMedia = new media();
-            echo $CMedia->openSession(
-                array(
-                    'owner_class' => get_class($Module),
-                    'owner_id' => $Module->record['id'],
-                    'secure_storage' => true,
-                    'MAX_SESSION_SIZE' => 1024 * 1024 * 256,
-                    'template' => '_admin_works_media',
-                ),
-                array('owner' => $Module->record)
-            );
-            ?>
-        </div>
-
-        <br/>
-        <br/>
-        <div class="panel panel-danger">
-            <div class="panel-heading">
-                <h4 class="panel-title">Danger Zone</h4>
-            </div>
-            <div class="panel-body">
-                <button class="btn btn-danger" data-role="works-delete">Delete work permanently</button>
+                            <label class="checkbox-inline">
+                                <input type="hidden" name="is_marked" value="0"/>
+                                <input type="checkbox" name="is_marked"
+                                       value="1" <?php echo $personalNote['is_marked'] ? ' checked="checked"' : '' ?>/>
+                                Marked
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            <button type="submit" class="btn btn-primary">Set your note</button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+</div>
 
-    <div role="tabpanel" class="tab-pane" style="padding-top: 20px;" id="todo">
-        <h2>TODO</h2>
+<hr/>
+<h3>Files</h3>
+<div id="media-form-container">
+    <?php
+    $CMedia = new media();
+    echo $CMedia->openSession(
+        array(
+            'owner_class' => get_class($Module),
+            'owner_id' => $Module->record['id'],
+            'secure_storage' => true,
+            'MAX_SESSION_SIZE' => 1024 * 1024 * 256,
+            'template' => '_admin_works_media',
+        ),
+        array('owner' => $Module->record)
+    );
+    ?>
+</div>
+
+<br/>
+<br/>
+<div class="panel panel-danger">
+    <div class="panel-heading">
+        <h4 class="panel-title">Danger Zone</h4>
+    </div>
+    <div class="panel-body">
+        <button class="btn btn-danger" data-role="works-delete">Delete work permanently</button>
     </div>
 </div>
 

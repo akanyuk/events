@@ -43,7 +43,7 @@ $(function () {
 
             mediaContainer.appendRow(response);
 
-            form.find('*[id="session-size"]').text(number_format(response.iSessionSize/1048576, 2, '.', ' '));
+            form.find('*[id="session-size"]').text(number_format(response.iSessionSize / 1048576, 2, '.', ' '));
         }
     });
 
@@ -76,14 +76,14 @@ $(function () {
     mediaContainer.sortable({
         items: 'div[role="record"]',
         axis: 'y',
-        update: function() {
+        update: function () {
             const aPositions = [];
             let iCurPos = 1;
-            mediaContainer.find('[id="record"]').each(function(){
-                aPositions.push({ 'id': $(this).data('id'), 'position': iCurPos++ });
+            mediaContainer.find('[id="record"]').each(function () {
+                aPositions.push({'id': $(this).data('id'), 'position': iCurPos++});
             });
 
-            $.post('<?php echo NFW::i()->base_path.'media.php?action=sort&session_id='.$session_id?>', { 'positions': aPositions }, function(response){
+            $.post('<?php echo NFW::i()->base_path . 'media.php?action=sort&session_id=' . $session_id?>', {'positions': aPositions}, function (response) {
                 if (response !== 'success') {
                     alert(response);
                 }
@@ -92,7 +92,7 @@ $(function () {
         }
     });
 
-    mediaContainer.appendRow = function(data) {
+    mediaContainer.appendRow = function (data) {
         let tpl = form.find('#record-template').html();
 
         tpl = tpl.replace(/%id%/g, data.id);
@@ -107,8 +107,7 @@ $(function () {
 
         if (data.type === 'image') {
             tpl = tpl.replace(/%iconsrc%/g, 'src="' + data.tmb_prefix + '64x64-cmp.' + data.extension + '"');
-        }
-        else {
+        } else {
             tpl = tpl.replace(/%iconsrc%/g, 'src="' + data.icons['64x64'] + '"');
         }
 
@@ -116,7 +115,7 @@ $(function () {
     };
 
     // Properties buttons
-    $(document).on('click', '[role="<?php echo $session_id?>-prop"]', function(){
+    $(document).on('click', '[role="<?php echo $session_id?>-prop"]', function () {
         $(this).hasClass('active') ? $(this).removeClass('active btn-info') : $(this).addClass('active btn-info');
 
         // Only one screenshot allowed
@@ -128,7 +127,7 @@ $(function () {
 
         // Save properties immediately
         var aPost = [];
-        mediaContainer.find('[id="record"]').each(function(){
+        mediaContainer.find('[id="record"]').each(function () {
             aPost.push({
                 'id': $(this).data('id'),
                 'screenshot': $(this).find('button[id="screenshot"].active').length,
@@ -156,7 +155,7 @@ $(function () {
     });
 
     // Rename file
-    renameDialog.modal({ 'show': false });
+    renameDialog.modal({'show': false});
     $(document).on('click', '[id="works-media-rename"]', function (e) {
         e.preventDefault();
 
@@ -181,7 +180,7 @@ $(function () {
     });
 
     // ZX SCR
-    zxScrDialog.modal({ 'show': false });
+    zxScrDialog.modal({'show': false});
     $(document).on('click', '[id="works-media-zx-spectrum-scr"]', function (e) {
         e.preventDefault();
 
@@ -236,7 +235,7 @@ $(function () {
 
     zxScrDialog.find('button[id="make"]').click(function () {
         var borderColor = 0;
-        $('[id="border-buttons"] .btn').each(function(i, obj) {
+        $('[id="border-buttons"] .btn').each(function (i, obj) {
             if ($(obj).data('checked') === "1") {
                 borderColor = parseInt($(obj).data('value'));
             }
@@ -281,7 +280,7 @@ $(function () {
             return;
         }
 
-       $.post('<?php echo NFW::i()->base_path?>media.php?action=remove', {'file_id': recordRow.data('id')}, function (response) {
+        $.post('<?php echo NFW::i()->base_path?>media.php?action=remove', {'file_id': recordRow.data('id')}, function (response) {
             if (response !== 'success') {
                 $.jGrowl(response, {theme: 'error'});
                 return;
@@ -292,8 +291,8 @@ $(function () {
     });
 
     // file_id.diz
-    form.find('button[id="file_id.diz"]').click(function(){
-        $.post('<?php echo NFW::i()->base_path.'admin/works_media?action=file_id_diz&record_id='.$owner_id?>',  function(response) {
+    form.find('button[id="file_id.diz"]').click(function () {
+        $.post('<?php echo NFW::i()->base_path . 'admin/works_media?action=file_id_diz&record_id=' . $owner_id?>', function (response) {
             if (response.result !== 'success') {
                 alert(response['last_message']);
                 return;
@@ -307,27 +306,38 @@ $(function () {
 
 
     $('form[id="make-release"]').activeForm({
-        'action': '<?php echo NFW::i()->base_path.'admin/works_media?action=make_release&record_id='.$owner_id?>',
-        'success': function(response) {
+        action: '<?php echo NFW::i()->base_path . 'admin/works_media?action=make_release&record_id=' . $owner_id?>',
+        error: function (response) {
+            alert(response.message);
+        },
+        success: function (response) {
             const sUrl = decodeURIComponent(response.url);
             $('span[id="permanent-link"]').html('<a href="' + sUrl + '">' + sUrl + '</a>');
             $('button[id="media-remove-release"]').show();
         }
     });
 
-    $('button[id="media-remove-release"]').click(function(){
-        if (!confirm('Remove release file?')) return false;
+    $('button[id="media-remove-release"]').click(function () {
+        if (!confirm('Remove release file?')) {
+            return false;
+        }
 
-        $.post('<?php echo NFW::i()->base_path.'admin/works_media?action=remove_release&record_id='.$owner_id?>', function(response) {
-            if (response !== 'success') {
-                alert(response);
+        $.ajax('<?php echo NFW::i()->base_path . 'admin/works_media?action=remove_release&record_id=' . $owner_id?>',
+            {
+                dataType: "json",
+                success: function () {
+                    $('span[id="permanent-link"]').html('<em>none</em>');
+                    $('button[id="media-remove-release"]').hide();
+                    $.jGrowl('File removed');
+                },
+                error: function (response) {
+                    if (response['responseJSON']['errors']['general'] === undefined) {
+                        return
+                    }
+                    alert(response['responseJSON']['errors']['general']);
+                }
             }
-            else {
-                $('span[id="permanent-link"]').html('<em>none</em>');
-                $('button[id="media-remove-release"]').hide();
-                $.jGrowl('File removed.');
-            }
-        });
+        );
 
         return false;
     });

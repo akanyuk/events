@@ -194,36 +194,34 @@ class works_media extends media {
 	}
 
 	function actionAdminMakeRelease() {
-		$this->error_report_type = 'active_form';
-		
 		$CWorks = new works($_GET['record_id']);
 		if (!$CWorks->record['id']) {
 			$this->error($CWorks->last_msg, __FILE__, __LINE__);
-			return false;
+            NFWX::i()->jsonError(400, $this->last_msg);
 		}
 		
 		if (empty($CWorks->record['release_files'])) {
 			$this->error('Nothing to add into archive!'."\n".'Please check almost one "Release" button.', __FILE__, __LINE__);
-			return false;
+            NFWX::i()->jsonError(400, $this->last_msg);
 		}
 
         if (!file_exists(PUBLIC_HTML.'/files/'.$CWorks->record['event_alias'])) {
             if (!mkdir(PUBLIC_HTML.'/files/'.$CWorks->record['event_alias'], 0777)) {
                 $this->error('Unable to make event directory', __FILE__, __LINE__);
-                return false;
+                NFWX::i()->jsonError(400, $this->last_msg);
             }
         }
 
 		// Remove old release
 		if (!$this->deleteReleaseFile($CWorks->record)) {
-		    return false;
+            NFWX::i()->jsonError(400, $this->last_msg);
         }
 		
 		$pack_dir = PUBLIC_HTML.'/files/'.$CWorks->record['event_alias'].'/'.$CWorks->record['competition_alias'];
 		if (!file_exists($pack_dir)) {
-			if (!mkdir($pack_dir, 0777)) {
+			if (!mkdir($pack_dir)) {
 				$this->error('Unable to make competition directory', __FILE__, __LINE__);
-				return false;
+                NFWX::i()->jsonError(400, $this->last_msg);
 			}
 		}
 		
@@ -232,7 +230,7 @@ class works_media extends media {
 			
 			if (file_exists($pack_dir.'/'.$result.'.zip')) {
 				$this->error('File "'.$result.'.zip" already exist!', __FILE__, __LINE__);
-				return false;
+                NFWX::i()->jsonError(400, $this->last_msg);
 			}
 			
 			$release_basename = $result.'.zip';
@@ -243,7 +241,7 @@ class works_media extends media {
 			
 			if (file_exists($pack_dir.'/'.$release_basename)) {
 				$this->error('File "'.$release_basename.'" already exist!', __FILE__, __LINE__);
-				return false;
+                NFWX::i()->jsonError(400, $this->last_msg);
 			}
 		}
 		
@@ -252,7 +250,7 @@ class works_media extends media {
 		$zip = new ZipArchive();
 		if ($zip->open($pack_dir.'/'.$release_basename, ZIPARCHIVE::OVERWRITE | ZIPARCHIVE::CREATE) !== TRUE) {
 			$this->error('Unable to create zip-archive', __FILE__, __LINE__);
-			return false;
+            NFWX::i()->jsonError(400, $this->last_msg);
 		}
 		
 		$already_added = array();
@@ -289,10 +287,10 @@ class works_media extends media {
 		
 		if (!NFW::i()->db->query_build(array('UPDATE' => 'works', 'SET' => 'release_basename=\''.NFW::i()->db->escape($release_basename).'\'', 'WHERE' => 'id='.$CWorks->record['id']))) {
 			$this->error('Unable to update release file', __FILE__, __LINE__, NFW::i()->db->error());
-			return false;
+            NFWX::i()->jsonError(400, $this->last_msg);
 		}
-		
-		NFW::i()->renderJSON(array('result' => 'success', 'url' => rawurlencode($release_link)));		
+
+        NFWX::i()->jsonSuccess(['result' => 'success', 'url' => rawurlencode($release_link)]);
 	}
 	
 	function actionAdminRemoveRelease() {
@@ -301,11 +299,13 @@ class works_media extends media {
 		$CWorks = new works($_GET['record_id']);
 		if (!$CWorks->record['id']) {
 			$this->error($CWorks->last_msg, __FILE__, __LINE__);
-			return false;
+            NFWX::i()->jsonError(400, $this->last_msg);
 		}
 		
-		if (!$this->deleteReleaseFile($CWorks->record)) return false;
-		
-		NFW::i()->stop('success');
+		if (!$this->deleteReleaseFile($CWorks->record)) {
+            NFWX::i()->jsonError(400, $this->last_msg);
+        }
+
+        NFWX::i()->jsonSuccess();
 	}
 }
