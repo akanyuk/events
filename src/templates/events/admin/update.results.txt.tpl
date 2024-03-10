@@ -26,9 +26,6 @@ if ($layout_type == "diver") {
 	
 	echo '   '.htmlspecialchars($Module->record['title'])."\n";
 	echo '   '.date('d.m.Y', $Module->record['date_from']).'-'.date('d.m.Y', $Module->record['date_to'])."\n";
-	echo "\n";
-	echo '   '.'Official results'."\n";
-	echo "\n";
 
 	$header =  " # title                                                            vts pts  avg";
 	$cur_competition = false;
@@ -74,9 +71,6 @@ if ($layout_type == "diver") {
 else {
 	echo htmlspecialchars($Module->record['title'])."\n";
 	echo date('d.m.Y', $Module->record['date_from']).'-'.date('d.m.Y', $Module->record['date_to'])."\n";
-	echo "\n";
-	echo 'Official results'."\n";
-	echo "\n";
 
 	$cur_competition = false;
 	foreach ($release_works as $w) {

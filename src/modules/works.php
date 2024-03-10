@@ -1,6 +1,6 @@
 <?php
 /**
- * @desc Manage works
+ * @desc Managing works
  */
 
 class works extends active_record {

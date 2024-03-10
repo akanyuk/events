@@ -1,11 +1,8 @@
 <?php
-/***********************************************************************
-  Copyright (C) 2009-2018 Andrey nyuk Marinov (aka.nyuk@gmail.com)
-  $Id$
+/**
+ * @desc Managing events
+ */
 
-  События: пати, стэндалон-компо...
-
- ************************************************************************/
 class events extends active_record {
 	static $action_aliases = array(
 		'update' => array(
@@ -33,12 +30,12 @@ class events extends active_record {
 	    'hide_works_count' => array('desc'=>'Hide works count', 'type'=>'bool'),
 	);
 
-	protected $service_attributes = array(	
+	protected array $service_attributes = array(
 		'is_hidden' => array('desc'=>'Event disabled', 'type'=>'bool'),
 		'alias' => array('desc'=>'Event alias', 'type'=>'str', 'required'=>true, 'minlength'=>2, 'maxlength'=>32),
 	);
 	
-	var $options_attributes = array(
+	var array $options_attributes = array(
 		'label_Russian' => array('desc' => 'Label [RU]', 'type' => 'str', 'style' => 'width: 300px;', 'required' =>	0),
 		'label_English' => array('desc' => 'Label [EN]', 'type' => 'str', 'style' => 'width: 300px;', 'required' =>	0),
 		'value' => array('desc' => 'Value', 'type' => 'str', 'style' =>	'width: 100px;', 'required' =>	1)
@@ -348,67 +345,6 @@ class events extends active_record {
 	    	fclose($fp);
 
 	    	NFW::i()->renderJSON(array('result' => 'success', 'url' => NFW::i()->absolute_path.'/files/'.$this->record['alias'].'/'.$results_filename));
-    	} else if (isset($_POST['save_pack']) && $_POST['save_pack']) {
-            if (!file_exists(PUBLIC_HTML.'/files/'.$this->record['alias'])) {
-                mkdir(PUBLIC_HTML.'/files/'.$this->record['alias'], 0777);
-            }
-
-	    	$results_txt = $_POST['results_txt'];
-	    	$results_filename = $_POST['results_filename'] ? htmlspecialchars($_POST['results_filename']) : 'results.txt';
-    		$pack_filename = $_POST['pack_filename'] ? htmlspecialchars($_POST['pack_filename']) : $this->record['alias'].'-pack.zip';
-    		
-    		$zip = new ZipArchive();
-    		$zip->open(PUBLIC_HTML.'/files/'.$this->record['alias'].'/'.$pack_filename, ZIPARCHIVE::OVERWRITE | ZIPARCHIVE::CREATE);
-
-    		if (isset($_POST['attach_results_txt']) && $_POST['attach_results_txt']) {
-    			$zip->addFromString(iconv("UTF-8", 'cp866', $results_filename), $results_txt);
-    		}
-
-    		// Add works
-    		$competitions = isset($_POST['competitions']) && is_array($_POST['competitions']) ? $_POST['competitions'] : array();
-    		$CWorks = new works();
-    		list($release_works) = $CWorks->getRecords(array('load_attachments' => true, 'filter' => array('release_only' => true, 'event_id' => $this->record['id'])));
-    		foreach ($release_works as $w) {
-    			if (!in_array($w['competition_id'], $competitions)) continue;
-
-    			$already_added = array();	// Check filenames duplicate
-    			foreach ($w['release_files'] as $a) {
-    				if ($a['mime_type'] == 'application/zip') {
-    					// Repack zip-archive
-    					$ezip = zip_open($a['fullpath']);
-    					while ($zip_entry = zip_read($ezip)) {
-    						if (zip_entry_open($ezip, $zip_entry, "r")) {
-    							$zip->addFromString(iconv("UTF-8", 'cp866', $w['competition_alias'].'/'.$w['title']).'/'.zip_entry_name($zip_entry), zip_entry_read($zip_entry, zip_entry_filesize($zip_entry)));
-    							zip_entry_close($zip_entry);
-    						}
-    					}
-    				}
-    				else {
-	    				$basename = in_array($a['basename'], $already_added) ? $a['id'].'_'.$a['basename'] : $a['basename'];
-	    				$already_added[] = $a['basename'];
-	    		 		$zip->addFile($a['fullpath'], iconv("UTF-8", 'cp866', $w['competition_alias'].'/'.$w['title'].'/'.$basename));
-    				}
-    			}
-    		}
-
-    		// Attach media
-    		if (isset($_POST['attach_media']) && $_POST['attach_media'] && !empty($this->record['attachments'])) {
-    			$media_info = array();
-    			foreach ($this->record['attachments'] as $a) {
-    				$zip->addFile($a['fullpath'], iconv("UTF-8", 'cp866', $a['basename']));
-    				if ($a['comment']) {
-    					$media_info[] = $a['basename'].' - '.$a['comment'];
-    				}
-    			}
-    			
-    			if (!empty($media_info)) {
-    				$zip->addFromString('media-info.txt', implode("\n", $media_info));
-    			}
-    		}
-    		
-    		$zip->setArchiveComment(htmlspecialchars($this->record['title'])."\n".date('d.m.Y', $this->record['date_from']).'-'.date('d.m.Y', $this->record['date_to'])."\n".NFW::i()->absolute_path);
-    		$zip->close();
-    		NFW::i()->renderJSON(array('result' => 'success', 'url' => NFW::i()->absolute_path.'/files/'.$this->record['alias'].'/'.$pack_filename));
     	}
 
 	   	// Save

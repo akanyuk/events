@@ -1,6 +1,6 @@
 <?php
-	NFW::i()->main_search_box = false;
-	NFW::i()->main_right_pane = false;
+	NFWX::i()->main_search_box = false;
+	NFWX::i()->main_right_pane = false;
 	
 	NFW::i()->registerResource('jquery.activeForm');
     active_field('set_defaults', array('labelCols' => 2, 'inputCols' => 10));

@@ -25,7 +25,7 @@ if (NFW::i()->user['is_guest']) {
         $path .= "/".$event['alias'];
 
         NFWX::i()->main_og['title'] = $pageTitle;
-        NFWX::i()->main_og['description'] = $event['announcement_og'] ? $event['announcement_og'] : strip_tags($event['announcement']);
+        NFWX::i()->main_og['description'] = $event['announcement_og'] ?: strip_tags($event['announcement']);
         if ($event['preview_img_large']) {
             NFWX::i()->main_og['image'] = tmb($event['preview_large'], 500, 500, array('complementary' => true));
         }
@@ -45,7 +45,7 @@ header("Location:/cabinet/works?action=add".($event === false ? "" : "&event_id=
  * @param string $path
  * @return bool|array
  */
-function eventFromAlias($path = "") {
+function eventFromAlias(string $path = "") {
     $CEvents = new events();
     if (!$CEvents->loadByAlias($path)) {
         return false;
@@ -65,7 +65,8 @@ function eventFromAlias($path = "") {
  * @param $uploadLegend string
  * @return string
  */
-function renderLoginRequired($uploadLegend) {
+function renderLoginRequired(string $uploadLegend): string
+{
     NFW::i()->registerResource('jquery.activeForm');
     $lang_users = NFW::i()->getLang('users');
     $lang_main = NFW::i()->getLang("main");
