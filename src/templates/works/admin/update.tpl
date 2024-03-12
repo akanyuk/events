@@ -14,7 +14,7 @@ NFW::i()->assign('page_title', $Module->record['title'] . ' / edit');
 
 NFW::i()->breadcrumb = array(
     array('url' => 'admin/events?action=update&record_id=' . $Module->record['event_id'], 'desc' => $Module->record['event_title']),
-    array('url' => 'admin/works?event_id=' . $Module->record['event_id'].'&filter_competition='.$Module->record['competition_id'], 'desc' => $Module->record['competition_title']),
+    array('url' => 'admin/works?event_id=' . $Module->record['event_id'] . '&filter_competition=' . $Module->record['competition_id'], 'desc' => $Module->record['competition_title']),
     array('desc' => $Module->record['title']),
 );
 
@@ -27,126 +27,6 @@ ob_start();
 <?php
 NFW::i()->breadcrumb_status = ob_get_clean();
 ?>
-<script type="text/javascript">
-    $(document).ready(function () {
-        const wuF = $('form[id="works-update"]');
-        wuF.activeForm({
-            success: function () {
-                $.jGrowl('Work profile updated');
-            }
-        });
-
-        // Platform typeahead
-        let aPlatforms = [];
-        <?php foreach ($Module->attributes['platform']['options'] as $p) echo 'aPlatforms.push(' . json_encode($p) . ');' . "\n"; ?>
-        $('input[name="platform"]').typeahead({source: aPlatforms, minLength: 0}).attr('autocomplete', 'off');
-
-        // Work status
-        $('[data-role="status-change-buttons"]').click(function () {
-            $('[data-role="status-change-buttons"]').removeClass('active btn-info');
-            $(this).addClass('active btn-info');
-
-            $('input[name="status"]').val($(this).data('status-id'));
-
-            const obj = $('#status-description');
-            obj.html($(this).data('description'));
-            obj.removeClass('alert-default alert-success alert-info alert-warning alert-danger');
-            obj.addClass('alert-' + $(this).data('css-class'));
-        });
-        $('[data-role="status-change-buttons"][class~="active"]').trigger('click');
-
-        $('form[id="update-status"]').activeForm({
-            success: function () {
-                $.jGrowl('Status updated');
-            }
-        });
-
-        // Personal note form
-        $('form[id="works-my-status"]').activeForm({
-            success: function () {
-                $.jGrowl('Personal note saved');
-            }
-        });
-
-        // LINKS
-
-        $('#work-links').sortable({items: '#record', axis: 'y', handle: '.icon'});
-
-        $(document).on('click', '[data-action="toggle-title"]', function () {
-            $(this).closest('div[id="record"]').find('input[data-type="links-title"]').closest('div').toggle();
-            return false;
-        });
-
-        $(document).on('click', '[data-action="remove-link"]', function (event) {
-            if ($(this).closest('div[id="record"]').attr('data-rel') === 'update') {
-                if (!confirm('Remove link?')) {
-                    event.preventDefault();
-                    return false;
-                }
-            }
-
-            $(this).closest('div[id="record"]').remove();
-            return false;
-        });
-
-        $('button[id="add-link"]').click(function () {
-            const tpl = $('div[id="links-record-template"]').html();
-            $('div[id="work-links"]').append(tpl);
-            $('input[data-type="links-title"]:last').typeahead({
-                source: aTitles,
-                minLength: 1,
-                items: 20,
-                showHintOnFocus: true
-            }).focus();
-            $('input[data-type="links-url"]:last').focus();
-
-            return false;
-        });
-
-        // Autocomplete link title
-        let aTitles = [];
-        <?php foreach ($linkTitles as $t) echo 'aTitles.push(\'' . htmlspecialchars($t) . '\');' . "\n"; ?>
-        $('input[data-type="links-title"]').typeahead({
-            source: aTitles,
-            minLength: 1,
-            items: 20,
-            showHintOnFocus: true
-        });
-
-        // Generate YouTube embed html
-        $(document).on('click', '[data-action="auto-youtube"]', function () {
-            const url = $(this).closest('#record').find('input[data-type="links-url"]').val();
-            const videoID = url.match(/(?:https?:\/{2})?(?:w{3}\.)?youtu(?:be)?\.(?:com|be)(?:\/watch\?v=|\/)([^\s&]+)/);
-
-            if (videoID != null) {
-                let tpl = '<?php echo NFWX::i()->project_settings['works_youtube_tpl']?>';
-                tpl = tpl.replace('%id%', videoID[1]);
-
-                const existVal = wuF.find('[name="external_html"]').val();
-                wuF.find('[name="external_html"]').val(existVal ? existVal + "\n\n" + tpl : tpl);
-            } else {
-                $.jGrowl('The youtube url is not valid', {theme: 'error'});
-            }
-
-            return false;
-        });
-
-        $('form[id="works-update-links"]').activeForm({
-            success: function () {
-                $.jGrowl('Work links updated');
-            }
-        });
-
-        $('[data-role="works-delete"]').click(function () {
-            if (!confirm("Remove work?\nCAN NOT BE UNDONE!")) return false;
-
-            $.post('<?php echo $Module->formatURL('delete') . '&record_id=' . $Module->record['id']?>', function (response) {
-                response === 'success' ? window.location.href = '<?php echo $Module->formatURL() . '?event_id=' . $Module->record['event_id']?>' : alert(response);
-            });
-            return false;
-        });
-    });
-</script>
 <style>
     .author-note {
         white-space: pre;
@@ -184,6 +64,7 @@ NFW::i()->breadcrumb_status = ob_get_clean();
             <div class="row">
                 <div class="col-md-12">
                     <button type="submit" class="btn btn-primary">Save work settings</button>
+                    <button id="works-preview" class="btn btn-default">Preview</button>
                 </div>
             </div>
         </form>
@@ -370,6 +251,165 @@ NFW::i()->breadcrumb_status = ob_get_clean();
     </div>
     <div class="panel-body">
         <button class="btn btn-danger" data-role="works-delete">Delete work permanently</button>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        const wuF = $('form[id="works-update"]');
+        wuF.activeForm({
+            success: function () {
+                $.jGrowl('Work profile updated');
+            }
+        });
+
+        // Platform typeahead
+        let aPlatforms = [];
+        <?php foreach ($Module->attributes['platform']['options'] as $p) echo 'aPlatforms.push(' . json_encode($p) . ');' . "\n"; ?>
+        $('input[name="platform"]').typeahead({source: aPlatforms, minLength: 0}).attr('autocomplete', 'off');
+
+        // Work status
+        $('[data-role="status-change-buttons"]').click(function () {
+            $('[data-role="status-change-buttons"]').removeClass('active btn-info');
+            $(this).addClass('active btn-info');
+
+            $('input[name="status"]').val($(this).data('status-id'));
+
+            const obj = $('#status-description');
+            obj.html($(this).data('description'));
+            obj.removeClass('alert-default alert-success alert-info alert-warning alert-danger');
+            obj.addClass('alert-' + $(this).data('css-class'));
+        });
+        $('[data-role="status-change-buttons"][class~="active"]').trigger('click');
+
+        // Preview
+        const previewModal = $('div[id="works-preview-dialog"]');
+        previewModal.modal({'show': false});
+
+        $(document).on('click', 'button[id="works-preview"]', function (e) {
+            e.preventDefault();
+            $.ajax(
+                '<?php echo $Module->formatURL('preview') . '&record_id=' . $Module->record['id']?>',
+                {
+                    method: "post",
+                    data: wuF.serialize(),
+                    dataType: "json",
+                    success: function (response) {
+                        previewModal.find('[id="content"]').html(response.content);
+                        previewModal.modal('show');
+                    },
+                    error: function (response) {
+                        if (response['responseJSON']['errors']['general'] === undefined) {
+                            return
+                        }
+                        alert(response['responseJSON']['errors']['general']);
+                    }
+                }
+            );
+        });
+
+        $('form[id="update-status"]').activeForm({
+            success: function () {
+                $.jGrowl('Status updated');
+            }
+        });
+
+        // Personal note form
+        $('form[id="works-my-status"]').activeForm({
+            success: function () {
+                $.jGrowl('Personal note saved');
+            }
+        });
+
+        // LINKS
+
+        $('#work-links').sortable({items: '#record', axis: 'y', handle: '.icon'});
+
+        $(document).on('click', '[data-action="toggle-title"]', function () {
+            $(this).closest('div[id="record"]').find('input[data-type="links-title"]').closest('div').toggle();
+            return false;
+        });
+
+        $(document).on('click', '[data-action="remove-link"]', function (event) {
+            if ($(this).closest('div[id="record"]').attr('data-rel') === 'update') {
+                if (!confirm('Remove link?')) {
+                    event.preventDefault();
+                    return false;
+                }
+            }
+
+            $(this).closest('div[id="record"]').remove();
+            return false;
+        });
+
+        $('button[id="add-link"]').click(function () {
+            const tpl = $('div[id="links-record-template"]').html();
+            $('div[id="work-links"]').append(tpl);
+            $('input[data-type="links-title"]:last').typeahead({
+                source: aTitles,
+                minLength: 1,
+                items: 20,
+                showHintOnFocus: true
+            }).focus();
+            $('input[data-type="links-url"]:last').focus();
+
+            return false;
+        });
+
+        // Autocomplete link title
+        let aTitles = [];
+        <?php foreach ($linkTitles as $t) echo 'aTitles.push(\'' . htmlspecialchars($t) . '\');' . "\n"; ?>
+        $('input[data-type="links-title"]').typeahead({
+            source: aTitles,
+            minLength: 1,
+            items: 20,
+            showHintOnFocus: true
+        });
+
+        // Generate YouTube embed html
+        $(document).on('click', '[data-action="auto-youtube"]', function () {
+            const url = $(this).closest('#record').find('input[data-type="links-url"]').val();
+            const videoID = url.match(/(?:https?:\/{2})?(?:w{3}\.)?youtu(?:be)?\.(?:com|be)(?:\/watch\?v=|\/)([^\s&]+)/);
+
+            if (videoID != null) {
+                let tpl = '<?php echo NFWX::i()->project_settings['works_youtube_tpl']?>';
+                tpl = tpl.replace('%id%', videoID[1]);
+
+                const existVal = wuF.find('[name="external_html"]').val();
+                wuF.find('[name="external_html"]').val(existVal ? existVal + "\n\n" + tpl : tpl);
+            } else {
+                $.jGrowl('The youtube url is not valid', {theme: 'error'});
+            }
+
+            return false;
+        });
+
+        $('form[id="works-update-links"]').activeForm({
+            success: function () {
+                $.jGrowl('Work links updated');
+            }
+        });
+
+        $('[data-role="works-delete"]').click(function () {
+            if (!confirm("Remove work?\nCAN NOT BE UNDONE!")) return false;
+
+            $.post('<?php echo $Module->formatURL('delete') . '&record_id=' . $Module->record['id']?>', function (response) {
+                response === 'success' ? window.location.href = '<?php echo $Module->formatURL() . '?event_id=' . $Module->record['event_id']?>' : alert(response);
+            });
+            return false;
+        });
+    });
+</script>
+
+<div id="works-preview-dialog" class="modal fade">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Preview</h4>
+            </div>
+            <div id="content" class="modal-body"></div>
+        </div>
     </div>
 </div>
 

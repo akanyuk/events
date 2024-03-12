@@ -93,7 +93,7 @@ if (!empty($competitions)) {
                 <?php if ($c['is_link']): ?>
                     <a href="<?php echo NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
                 <?php else: ?>
-                    <a href="#<?php echo $c['alias'] ?>"><?php echo $c['position'] . '. ' . htmlspecialchars($c['title']) ?></a>
+                    <a href="#<?php echo $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
                 <?php endif; ?>
             </div>
             <div class="counter"><?php echo $c['count_label'] ?></div>

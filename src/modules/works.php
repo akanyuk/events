@@ -10,6 +10,7 @@ class works extends active_record {
             array('module' => 'works', 'action' => 'get_pos'),
             array('module' => 'works', 'action' => 'set_pos'),
             array('module' => 'works', 'action' => 'insert'),
+            array('module' => 'works', 'action' => 'preview'),
             array('module' => 'works', 'action' => 'update_work'),
             array('module' => 'works', 'action' => 'update_status'),
             array('module' => 'works', 'action' => 'update_links'),
@@ -722,6 +723,27 @@ class works extends active_record {
         ]);
     }
 
+    function actionAdminPreview() {
+        if (!$this->load($_GET['record_id']) || !$this->loadEditorOptions($this->record['event_id'])) {
+            NFWX::i()->jsonError(400, $this->last_msg);
+        }
+
+        ChromePhp::log($_POST);
+
+        $this->formatAttributes($_POST, array(
+            'title' => $this->attributes['title'],
+            'author' => $this->attributes['author'],
+            'competition_id' => $this->attributes['competition_id'],
+            'platform' => $this->attributes['platform'],
+            'format' => $this->attributes['format'],
+            'author_note' => $this->attributes['author_note'],
+            'external_html' => $this->attributes['external_html'],
+        ));
+
+        NFW::i()->registerFunction("display_work_media");
+        NFWX::i()->jsonSuccess(["content" => display_work_media($this->record, array('rel' => 'preview'))]);
+    }
+
     function actionAdminUpdateWork() {
         if (!$this->load($_GET['record_id']) || !$this->loadEditorOptions($this->record['event_id'])) {
             NFWX::i()->jsonError(400, $this->last_msg);
@@ -730,7 +752,6 @@ class works extends active_record {
         $this->formatAttributes($_POST, array(
             'title' => $this->attributes['title'],
             'author' => $this->attributes['author'],
-            'competition_id' => $this->attributes['competition_id'],
             'platform' => $this->attributes['platform'],
             'format' => $this->attributes['format'],
             'author_note' => $this->attributes['author_note'],
