@@ -33,6 +33,24 @@ NFW::i()->breadcrumb_status = ob_get_clean();
         font-family: monospace;
         overflow: auto;
     }
+
+    .modal-backdrop.in {
+        opacity: .9;
+    }
+
+    #works-preview-dialog .modal-dialog {
+        height: 100%;
+        margin: 0 auto;
+    }
+
+    #works-preview-dialog .modal-content {
+        border-radius: 0;
+    }
+
+    #works-preview-dialog iframe.preview {
+        width: 100%;
+        border: none;
+    }
 </style>
 
 <div class="row">
@@ -286,6 +304,10 @@ NFW::i()->breadcrumb_status = ob_get_clean();
         const previewModal = $('div[id="works-preview-dialog"]');
         previewModal.modal({'show': false});
 
+        previewModal.on('shown.bs.modal', function () {
+            previewModal.find('iframe').css("height", previewModal.height()-40);
+        });
+
         $(document).on('click', 'button[id="works-preview"]', function (e) {
             e.preventDefault();
             $.ajax(
@@ -295,7 +317,7 @@ NFW::i()->breadcrumb_status = ob_get_clean();
                     data: wuF.serialize(),
                     dataType: "json",
                     success: function (response) {
-                        previewModal.find('[id="content"]').html(response.content);
+                        previewModal.find('iframe').attr("srcdoc", response.content);
                         previewModal.modal('show');
                     },
                     error: function (response) {
@@ -321,7 +343,7 @@ NFW::i()->breadcrumb_status = ob_get_clean();
             }
         });
 
-        // LINKS
+        // Links
 
         $('#work-links').sortable({items: '#record', axis: 'y', handle: '.icon'});
 
@@ -404,11 +426,10 @@ NFW::i()->breadcrumb_status = ob_get_clean();
 <div id="works-preview-dialog" class="modal fade">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-body">
+                <iframe class="preview"></iframe>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">Preview</h4>
             </div>
-            <div id="content" class="modal-body"></div>
         </div>
     </div>
 </div>

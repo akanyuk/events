@@ -74,7 +74,7 @@ $(function () {
 
     // Sortable `media`
     mediaContainer.sortable({
-        items: 'div[role="record"]',
+        items: 'div[id="record"]',
         axis: 'y',
         update: function () {
             const aPositions = [];

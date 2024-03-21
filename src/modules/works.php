@@ -728,8 +728,6 @@ class works extends active_record {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
-        ChromePhp::log($_POST);
-
         $this->formatAttributes($_POST, array(
             'title' => $this->attributes['title'],
             'author' => $this->attributes['author'],
@@ -741,7 +739,11 @@ class works extends active_record {
         ));
 
         NFW::i()->registerFunction("display_work_media");
-        NFWX::i()->jsonSuccess(["content" => display_work_media($this->record, array('rel' => 'preview'))]);
+        NFWX::i()->jsonSuccess(["content" =>
+            NFWX::i()->renderPage(NFW::i()->fetch(SRC_ROOT.'/templates/works/admin/preview.tpl',
+                ["record" => $this->record],
+            )),
+        ]);
     }
 
     function actionAdminUpdateWork() {
