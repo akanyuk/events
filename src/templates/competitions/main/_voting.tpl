@@ -152,7 +152,9 @@ if (!empty($hook_additional['event']['options'])) {
 <form id="voting" class="active-form" action="/vote?action=add_vote">
     <input type="hidden" name="competition_id" value="<?php echo $competition['id'] ?>"/>
     <?php
+    $curPos = 1;
     foreach ($works as $work) {
+        $work['position'] = $curPos++;
         echo display_work_media($work, array('rel' => 'voting', 'single' => count($works) == 1, 'vote_options' => $votingOptions)) . '<hr />';
     }
 

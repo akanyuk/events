@@ -75,7 +75,7 @@ if (isset($_GET['key']) && $CVote->checkVotekey($_GET['key'], $CEvents->record['
     if ($CVote->checkVotekey($_COOKIE['votekey'], $CEvents->record["id"])) {
         $votekey = $_COOKIE['votekey'];
     } else {
-        NFW::i()->setCookie('votekey', null, 0);
+        NFW::i()->setCookie('votekey', null);
     }
 } else if (!NFW::i()->user['is_guest']) {
     $result = $CVote->getVotekey($CEvents->record["id"], NFW::i()->user['email']);
@@ -134,6 +134,14 @@ if ($workID) {
     // Work page
     $CWorks = new works($workID);
     if (!$CWorks->record['id'] || $CWorks->record['competition_id'] != $CCompetitions->record['id']) {
+        NFW::i()->stop(404);
+    }
+
+    if ($CCompetitions->record['voting_status']['available'] && !$CWorks->record['status_info']['voting']) {
+        NFW::i()->stop(404);
+    }
+
+    if ($CCompetitions->record['release_status']['available'] && !$CWorks->record['status_info']['release']) {
         NFW::i()->stop(404);
     }
 

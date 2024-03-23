@@ -3,25 +3,6 @@
 $managed_events = events::get_managed();
 
 // local actions
-/*
-if (isset($_GET['action']) && $_GET['action'] =='works_set_checked') {
-	$CWorks = new works($_POST['record_id']);
-	if (!$CWorks->record['id']) {
-		NFW::i()->stop('Prod not found!');
-	}
-	
-	if (!in_array($CWorks->record['event_id'], $managed_events)) {
-		NFW::i()->stop('Permissions denied.');
-	}
-	
-	list($result, $msg) = markWorkChecked($CWorks->record['id']);
-	if (!$result) {
-		NFW::i()->stop($msg);
-	}
-	
-	NFW::i()->stop('success');
-}
-*/
 
 if (isset($_GET['action']) && $_GET['action'] =='works_set_checked_all') {
 	if (empty($managed_events)) {
@@ -122,7 +103,7 @@ $(document).ready(function(){
 	
 	$('[role="works-set-checked-all"]').click(function(){
 		$.post('?action=works_set_checked_all', function(response){
-			response == 'success' ? window.location.reload() : alert(response);
+			response === 'success' ? window.location.reload() : alert(response);
 		});
 	});
 });

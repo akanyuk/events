@@ -68,7 +68,7 @@ function display_work_media($work = array(), $options = array()) {
 	if ($options['rel'] == 'voting' && !$options['single']) {
 		$header_number = '<h3>'.$work['position'].'.</h3>';
 	} elseif($options['rel'] == 'release' && $work['place']) {
-		$header_number = '<span class="label label-success" style="font-size: 150%;">'.$work['place'].'</span>';
+		$header_number = '<span class="label label-place" style="font-size: 150%;">'.$work['place'].'</span>';
 	} else {
 		$header_number = false;
 	}
@@ -170,7 +170,7 @@ function display_work_media($work = array(), $options = array()) {
 	}
 
     if ($options['rel'] != 'preview' && !$options['single']) {
-        echo '<div style="padding-top: 10px;"><a href="'.NFW::i()->absolute_path.'/'.$work['event_alias'].'/'.$work['competition_alias'].'/'.$work['id'].'#comments">'.$lang_main['works comments count'].': '.($work['comments_count'] ? '<span class="badge">'.$work['comments_count'].'</span>' : $work['comments_count']).'</a></div>';
+        echo '<div style="padding-top: 10px;"><a class="btn btn-default" href="'.NFW::i()->absolute_path.'/'.$work['event_alias'].'/'.$work['competition_alias'].'/'.$work['id'].'#comments">'.$lang_main['works comments count'].' '.($work['comments_count'] ? '<span class="badge">'.$work['comments_count'].'</span>' : '').'</a></div>';
     }
 
 	echo '<div style="padding-top: 15px;">';

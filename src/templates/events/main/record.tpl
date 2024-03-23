@@ -37,7 +37,7 @@ if (!empty($competitions)) {
             <div id="<?php echo $c['alias'] ?>" style="position: relative; top: -60px;"></div>
             <h3>
                 <?php if ($c['is_link']): ?>
-                    <a href="<?php echo NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] ?>"><?php echo $c['position'] . '.' . htmlspecialchars($c['title']) ?></a>
+                    <a href="<?php echo NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
                 <?php else: ?>
                     <?php echo htmlspecialchars($c['title']) ?>
                 <?php endif; ?>
@@ -91,9 +91,9 @@ if (!empty($competitions)) {
         <div class="item">
             <div class="header">
                 <?php if ($c['is_link']): ?>
-                    <a href="<?php echo NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] ?>"><?php echo $c['position'] . '.' . htmlspecialchars($c['title']) ?></a>
+                    <a href="<?php echo NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
                 <?php else: ?>
-                    <a href="#<?php echo $c['alias'] ?>"><?php echo $c['position'] . '. ' . htmlspecialchars($c['title']) ?></a>
+                    <a href="#<?php echo $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
                 <?php endif; ?>
             </div>
             <div class="counter"><?php echo $c['count_label'] ?></div>
