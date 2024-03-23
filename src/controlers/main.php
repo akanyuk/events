@@ -25,13 +25,13 @@ if (isset($_GET['action'])) {
     }
 
     // Экшен должен останавливаться сам.
-    // На всякий случай стопим.
+    // На всякий случай принудительная остановка
     NFW::i()->stop();
 }
 
-// -------------------------------------------
-//  Normal page: events, competitions, works
-// -------------------------------------------
+// -------------
+//  Normal page
+// -------------
 
 NFW::i()->registerFunction('tmb');
 
@@ -57,11 +57,32 @@ if (!$eventAlias || !$CEvents->loadByAlias($eventAlias)) {
     NFW::i()->display('main.tpl');
 }
 
-// Event / Competition
+// Page with event, competition or work
+
 if (!$page = $CPages->loadPage('events')) {
     NFW::i()->stop(404);
 } elseif (!$page['is_active']) {
     NFW::i()->stop('inactive');
+}
+
+// Loading votekey from request, cookie or registered user data
+$votekey = "";
+$CVote = new vote();
+if (isset($_GET['key']) && $CVote->checkVotekey($_GET['key'], $CEvents->record['id'])) {
+    $votekey = $_GET['key'];
+    NFW::i()->setCookie('votekey', $_GET['key']);
+} else if (isset($_COOKIE['votekey'])) {
+    if ($CVote->checkVotekey($_COOKIE['votekey'], $CEvents->record["id"])) {
+        $votekey = $_COOKIE['votekey'];
+    } else {
+        NFW::i()->setCookie('votekey', null);
+    }
+} else if (!NFW::i()->user['is_guest']) {
+    $result = $CVote->getVotekey($CEvents->record["id"], NFW::i()->user['email']);
+    if ($result) {
+        $votekey = $result;
+        NFW::i()->setCookie('votekey', $votekey);
+    }
 }
 
 if (!$competitionAlias || ($CEvents->record['one_compo_event'] && !$workID)) {
@@ -74,7 +95,7 @@ if (!$competitionAlias || ($CEvents->record['one_compo_event'] && !$workID)) {
     );
 
     NFWX::i()->main_og['title'] = $CEvents->record['title'];
-    NFWX::i()->main_og['description'] = $CEvents->record['announcement_og'] ? $CEvents->record['announcement_og'] : strip_tags($CEvents->record['announcement']);
+    NFWX::i()->main_og['description'] = $CEvents->record['announcement_og'] ?: strip_tags($CEvents->record['announcement']);
     if ($CEvents->record['preview_img_large']) {
         NFWX::i()->main_og['image'] = tmb($CEvents->record['preview_large'], 500, 500, array('complementary' => true));
     }
@@ -86,7 +107,7 @@ if (!$competitionAlias || ($CEvents->record['one_compo_event'] && !$workID)) {
         $c = reset($competitions);
         $CCompetitions->reload($c['id']);
 
-        $content = $CEvents->record['content'] . renderCompetitionPage($CCompetitions, $CEvents);
+        $content = $CEvents->record['content'] . renderCompetitionPage($CCompetitions, $CEvents, $votekey);
         setBreadcrumbDesc(null, $CCompetitions->record, 'competition');
 
         $competitions = array();    // prevent default competitions list
@@ -113,6 +134,14 @@ if ($workID) {
     // Work page
     $CWorks = new works($workID);
     if (!$CWorks->record['id'] || $CWorks->record['competition_id'] != $CCompetitions->record['id']) {
+        NFW::i()->stop(404);
+    }
+
+    if ($CCompetitions->record['voting_status']['available'] && !$CWorks->record['status_info']['voting']) {
+        NFW::i()->stop(404);
+    }
+
+    if ($CCompetitions->record['release_status']['available'] && !$CWorks->record['status_info']['release']) {
         NFW::i()->stop(404);
     }
 
@@ -166,7 +195,7 @@ if ($workID) {
 
     $page['title'] = $CCompetitions->record['title'];
     $page['content'] = $CCompetitions->renderAction(array(
-        'content' => renderCompetitionPage($CCompetitions, $CEvents),
+        'content' => renderCompetitionPage($CCompetitions, $CEvents, $votekey),
         'event' => $CEvents->record,
         'competitions' => $CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id']))),
     ), 'record');
@@ -192,7 +221,7 @@ function setBreadcrumbDesc($event, $competition, $by) {
     }
 }
 
-function renderCompetitionPage($CCompetitions, $CEvents): string {
+function renderCompetitionPage($CCompetitions, $CEvents, string $votekey): string {
     $compo = $CCompetitions->record;
     $event = $CEvents->record;
 
@@ -214,10 +243,11 @@ function renderCompetitionPage($CCompetitions, $CEvents): string {
             'event' => $event,
             'competition' => $compo,
             'works' => $voting_works,
+            'votekey' => $votekey,
         ), '_voting');
     } elseif ($event['one_compo_event']) {
         return $CCompetitions->renderAction(array(
-            'showWorksCount' => $event['hide_works_count'] ? false : true,
+            'showWorksCount' => !$event['hide_works_count'],
             'competition' => $compo,
         ), '_one_compo_event');
     } else {

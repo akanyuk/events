@@ -289,6 +289,27 @@ class NFWX extends NFW {
         return true;
     }
 
+    function jsonError(int $errorCode, $req = array()) {
+        if (is_array($req)) {
+            $response = [
+                'errors' => $req,
+            ];
+        } else {
+            $response = [
+                'errors' => [
+                    'general' => $req,
+                ],
+            ];
+        }
+
+        http_response_code($errorCode);
+        NFW::i()->stop(json_encode($response));
+    }
+
+    function jsonSuccess($message = array()) {
+        NFW::i()->stop(json_encode($message));
+    }
+
     function hook($hook_name, $alias = "", $hook_additional = array()) {
         if (function_exists($hook_name)) {
             return $hook_name($hook_additional);

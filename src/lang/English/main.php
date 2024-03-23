@@ -59,6 +59,8 @@ $lang_main = array(
 
     'works voting' => 'Voting',
     'works status' => 'Status',
+    'works release' => 'Release',
+    'works reason' => 'Reason',
 
     'works tab main' => 'Main',
     'works tab preview' => 'Preview',
@@ -91,12 +93,12 @@ $lang_main = array(
         5 => 'Wait preselection',
     ),
     'works status desc full' => array(
-        0 => 'The prod is being processed by the organizing committee.',
-        1 => 'The prod is accepted.',
-        2 => 'Work is disqualified.',
-        3 => 'Awaiting author\'s feedback.',
-        4 => 'Prod will not be shown on the demoparty, but will be included in the release pack.',
-        5 => 'Prod wait to preselect.'
+        0 => 'The prod is being processed by the organizers',
+        1 => 'The prod is accepted',
+        2 => 'Work is disqualified',
+        3 => 'Awaiting author\'s feedback',
+        4 => 'Prod will not be shown on the demoparty, but will be included in the release pack',
+        5 => 'Prod wait to preselect'
     ),
 
     'works details' => 'Prods',
@@ -141,8 +143,7 @@ $lang_main = array(
     'votekey-request long' => 'Request votekey',
     'votekey-request send' => 'Send request',
     'votekey-request wrong email' => 'Incorrect e-mail address',
-    'votekey-request success note' => 'New votekey successfully generated and sent to given e-mail address.',
-    'votekey-request success note2' => 'Votekey successfully sent to given e-mail address.',
+    'votekey-request success note' => 'Votekey successfully generated and sent to given e-mail address.',
 
     'votelist nickname' => 'Your nickname / realname',
     'votelist note' => '',

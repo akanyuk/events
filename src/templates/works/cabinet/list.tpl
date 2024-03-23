@@ -4,104 +4,70 @@ $lang_main = NFW::i()->getLang('main');
 NFW::i()->assign('page_title', $lang_main['cabinet prods']);
 
 NFW::i()->breadcrumb = array(
-	array('desc' => $lang_main['cabinet prods']),
+    array('desc' => $lang_main['cabinet prods']),
 );
 
 if (empty($records)) {
-?>		
-	<div class="jumbotron">
-		<h1>Hey, <?php echo htmlspecialchars(NFW::i()->user['realname'])?>!</h1>
-		<p><?php echo $lang_main['works empty']?></p>
-		<p><a href="?action=add" class="btn btn-primary btn-lg" role="button"><?php echo $lang_main['cabinet add work']?></a></p>
-	</div>
-<?php
-	return;
+    ?>
+    <div class="jumbotron">
+        <h1>Hey, <?php echo htmlspecialchars(NFW::i()->user['realname']) ?>!</h1>
+        <p><?php echo $lang_main['works empty'] ?></p>
+        <p><a href="?action=add" class="btn btn-primary btn-lg"
+              role="button"><?php echo $lang_main['cabinet add work'] ?></a></p>
+    </div>
+    <?php
+    return;
 }
 
 ?>
-<script type="text/javascript">
-$(document).ready(function(){
-	// status hints
-	$('div[data-toggle="tooltip"]').tooltip({ 'animation': false, 'html': true });
-});
-</script>
-<style>
-.my-prods {	display: table;	}
-.my-prods .record { display: table-row; }
-.my-prods .cell { display: table-cell; white-space: nowrap; padding: 5px 10px; }
+<table class="table table-condensed">
+    <?php foreach ($records as $r): ?>
+        <?php
+        switch ($r['place']) {
+            case 0:
+                $ePrefix = '';
+                break;
+            case 1:
+                $ePrefix = '<span class="label label-place">'.$r['place'] . 'st</span>&nbsp;at ';
+                break;
+            case 2:
+                $ePrefix = '<span class="label label-place">'.$r['place'] . 'nd</span>&nbsp;at ';
+                break;
+            case 3:
+                $ePrefix = '<span class="label label-place">'.$r['place'] . 'rd</span>&nbsp;at ';
+                break;
+            default:
+                $ePrefix = '<span class="label label-place">'.$r['place'] . 'th</span>&nbsp;at ';
+                break;
+        }
+        ?>
+        <tr class="<?php echo $r['status_info']['css-class'] == "success" ? "" : $r['status_info']['css-class'] ?>"
+            title="<?php echo $r['status_info']['desc'] ?>">
+            <td>
+                <a href="<?php echo NFW::i()->base_path . 'cabinet/works?action=view&record_id=' . $r['id'] ?>">
+                    <img src="<?php echo $r['screenshot'] ? $r['screenshot']['tmb_prefix'] . '64' : NFW::i()->assets('main/news-no-image.png') ?>"
+                         alt=""/>
+                </a>
+            </td>
+            <td style="width:100%;">
+                <a href="<?php echo NFW::i()->base_path . 'cabinet/works?action=view&record_id=' . $r['id'] ?>">
+                    <?php echo htmlspecialchars($r['title']) . ' by&nbsp;' . htmlspecialchars($r['author']) ?>
+                </a>
 
-.my-prods .record:nth-child(odd) { background-color: #f4f4f4; }
+                <div>
+                    <?php echo $ePrefix . htmlspecialchars($r['event_title']) . ', ' . htmlspecialchars($r['competition_title']) ?>
+                </div>
 
-.my-prods .record .cell:nth-child(1) { vertical-align: middle; font-size: 120%; }
-.my-prods .record .cell:nth-child(2) { text-align: center; }
-.my-prods .record .cell:nth-child(2) IMG { max-height: 96px; }
-
-.my-prods .record .cell:nth-child(3) { width: 100%; vertical-align: top; }
-@media (max-width: 768px) {
-	.my-prods .record .cell:nth-child(3) { white-space: inherit; }
-}
-.my-prods .record .cell:nth-child(4) { text-align: center; vertical-align: middle; }
-
-.my-prods .title, .my-prods .event { overflow: hidden; }
-.my-prods .title { font-weight: bold; }
-.my-prods .event { font-size: 13px; color: #999; }
-</style>
-<div class="my-prods">
-<?php 
-	foreach ($records as $record) {
-		switch ($record['place']) {
-			case 0:
-				$eprefix = '';
-				break;
-			case 1:
-				$eprefix = $record['place'].'st at ';
-				break;
-			case 2:
-				$eprefix = $record['place'].'nd at ';
-				break;
-			case 3:
-				$eprefix = $record['place'].'rd at ';
-				break;
-			default:
-				$eprefix = $record['place'].'th at ';
-				break;
-		}
-?>
-<div class="record">
-	<div class="cell hidden-xs">
-		<div data-toggle="tooltip" title="<?php echo '<strong>'.$record['status_info']['desc'].'</strong><br />Voting: '.($record['status_info']['voting'] ? 'On' : 'Off').'<br />Release: '.($record['status_info']['release'] ? 'On' : 'Off')?>" class="text text-<?php echo $record['status_info']['css-class']?>"><span class="<?php echo $record['status_info']['icon']?>"></span></div>
-	</div>
-	<div class="cell">
-		<a href="<?php echo NFW::i()->base_path.'cabinet/works?action=view&record_id='.$record['id']?>">
-			<img src="<?php echo $record['screenshot'] ? $record['screenshot']['tmb_prefix'].'64' : NFW::i()->assets('main/news-no-image.png')?>" />
-		</a>
-
-		<div class="hidden-sm hidden-md hidden-lg" style="font-size: 120%;">			
-			<div data-toggle="tooltip" title="<?php echo '<strong>'.$record['status_info']['desc'].'</strong><br />Voting: '.($record['status_info']['voting'] ? 'On' : 'Off').'<br />Release: '.($record['status_info']['release'] ? 'On' : 'Off')?>" class="text text-<?php echo $record['status_info']['css-class']?>"><span class="<?php echo $record['status_info']['icon']?>"></span></div>
-		</div>
-	</div>
-	<div class="cell">
-		<div class="title">
-			<a href="<?php echo NFW::i()->base_path.'cabinet/works?action=view&record_id='.$record['id']?>">
-				<?php echo htmlspecialchars($record['title']).' <nobr>by '.htmlspecialchars($record['author']).'</nobr>'?>
-			</a>
-		</div>
-		
-		<div class="event">
-			<?php echo $eprefix.'<nobr>'.htmlspecialchars($record['event_title']).'</nobr> / <nobr>'.htmlspecialchars($record['competition_title']).'</nobr>'?>
-		</div>
-		
-		<div class="hidden-sm hidden-md hidden-lg">
-			<div class="label label-primary label-platform"><?php echo htmlspecialchars($record['platform'])?></div>
-			<?php echo $record['format'] ? '<div class="label label-primary label-platform label-format">'.htmlspecialchars($record['format']).'</div>' : ''?>
-		</div>
-	</div>
-	<div class="cell hidden-xs">
-		<div>
-			<div class="label label-primary label-platform"><?php echo htmlspecialchars($record['platform'])?></div>
-		</div>
-		<?php echo $record['format'] ? '<div class="label label-primary label-platform label-format">'.htmlspecialchars($record['format']).'</div>' : ''?>
-	</div>
-</div>	
-<?php } ?>	
-</div>
+                <?php if ($r['status_reason']): ?>
+                    <div class="text-warning small"><span class="fa fa-exclamation-triangle"></span> <?php echo $r['status_reason'] ?></div>
+                <?php endif ?>
+            </td>
+            <td style="text-align: center;">
+                <div class="label label-platform"><?php echo htmlspecialchars($r['platform']) ?></div>
+                <?php if ($r['format']): ?>
+                    <div class="label label-format"><?php echo htmlspecialchars($r['format']) ?></div>
+                <?php endif; ?>
+            </td>
+        </tr>
+    <?php endforeach; ?>
+</table>
