@@ -29,8 +29,14 @@ if ($Module->record['total_scores']) {
     $placeTitle[] = $lang_main['works total_scores'] . ':&nbsp;<strong>' . $Module->record['total_scores'] . '</strong>';
 }
 
-// Is prod visible in public
-$isPublished = $CCompetitions->record['release_status']['available'] || $CCompetitions->record['voting_status']['available'];
+// Is the prod visible in public
+if ($CCompetitions->record['voting_status']['available'] && $Module->record['status_info']['voting']) {
+    $isPublished = true;
+} else if ($CCompetitions->record['release_status']['available'] && $Module->record['status_info']['release']) {
+    $isPublished = true;
+} else {
+    $isPublished = false;
+}
 
 // Success dialog
 NFW::i()->registerFunction('ui_dialog');
