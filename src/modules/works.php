@@ -40,7 +40,7 @@ class works extends active_record {
             ['id' => 0, 'voting' => false, 'release' => false, 'css-class' => 'warning', 'icon' => 'fa fa-question'],         // Unchecked
             ['id' => 1, 'voting' => true, 'release' => true, 'css-class' => 'success', 'icon' => 'fa fa-check-circle'],       // Checked
             ['id' => 2, 'voting' => false, 'release' => false, 'css-class' => 'danger', 'icon' => 'fa fa-ban'],               // Disqualified
-            ['id' => 3, 'voting' => false, 'release' => false, 'css-class' => 'warning', 'icon' => 'fa fa-question'],         // Feedback needed
+            ['id' => 3, 'voting' => false, 'release' => false, 'css-class' => 'warning', 'icon' => 'fas fa-pause-circle'],    // Feedback needed
             ['id' => 4, 'voting' => false, 'release' => true, 'css-class' => 'danger', 'icon' => 'fa fa-exclamation-circle'], // Out of competition
             ['id' => 5, 'voting' => false, 'release' => true, 'css-class' => 'info', 'icon' => 'fa fa-hourglass-half'],       // Wait preselect
         )),
