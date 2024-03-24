@@ -1,7 +1,7 @@
 <?php
 /**
  * @var $latest_news string Pre rendered latest news HTML content
- * @var $works_comments string Pre rendered works comments HTML content
+ * @var $worksComments string Pre rendered works comments HTML content
  */
 
 // Index page
@@ -57,22 +57,16 @@ echo '<div class="well well-sm">';
 echo '<input id="works-search" class="form-control" placeholder="' . $lang_main['search hint'] . '" />';
 echo '</div>';
 
-if ($works_comments) {
+if ($worksComments) {
     echo '<div class="hidden-md hidden-sm hidden-lg">';
     echo '<h2 class="index-head">' . $lang_main['latest comments'] . '</h2>';
-    echo $works_comments;
+    echo $worksComments;
     echo '<div style="margin-top: 20px; margin-bottom: 40px;">';
     echo '<a class="btn btn-lg btn-events-main" href="' . NFW::i()->base_path . 'comments.html">' . $lang_main['all comments'] . '</a>';
     echo '</div>';
     echo '</div>';
 }
-
-#zxbn.maros.pri.ee ?>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('#zxbn-container').clone().appendTo('#zxbn-index-container');
-        });
-    </script>
+?>
     <div class="hidden-md hidden-lg" style="margin-bottom: 40px; text-align: center;">
         <div id="zxbn-index-container"></div>
     </div><?php
@@ -145,15 +139,11 @@ function displayIndexEvent($record, $layout = 'small') {
                         </h2>
                         <div style="font-weight: bold;"><?php echo $record['dates_desc'] ?></div>
                         <div style="font-size: 200%"><?php echo $record['status_label'] ?></div>
+                        <?php if ($record['announcement']): ?>
+                            <div style="padding-top: 20px;"><?php echo nl2br($record['announcement']) ?></div>
+                        <?php endif; ?>
                     </div>
                 </div>
-                <?php if ($record['announcement']): ?>
-                    <div class="row">
-                        <div class="col-sm-12 col-md-12">
-                            <div style="padding-top: 20px;"><?php echo nl2br($record['announcement']) ?></div>
-                        </div>
-                    </div>
-                <?php endif; ?>
             </div>
             <?php
             break;
@@ -183,13 +173,6 @@ function displayIndexEvent($record, $layout = 'small') {
                         <div style="font-size: 200%"><?php echo $record['status_label'] ?></div>
                     </div>
                 </div>
-                <?php if ($record['announcement']): ?>
-                    <div class="row">
-                        <div class="col-sm-12 col-md-12">
-                            <div style="padding-top: 20px;"><?php echo nl2br($record['announcement']) ?></div>
-                        </div>
-                    </div>
-                <?php endif; ?>
 
                 <?php if (!empty($competitions)): ?>
                     <div class="hidden-sm hidden-md hidden-lg">

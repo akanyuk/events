@@ -106,6 +106,13 @@ function renderLoginRequired(string $uploadLegend): string
                        href="<?php echo NFW::i()->base_path ?>users?action=register"><?php echo $lang_users['Registration'] ?></a>
                 </div>
             </div>
+            <div class="form-group">
+                <div class="col-md-7 col-md-offset-1">
+                    <a href="<?php echo NFW::i()->base_path ?>sceneid?action=performAuth"><img
+                                src="<?php echo NFW::i()->assets("main/SceneID_Icon_200x32.png") ?>"
+                                alt="Sign in with SceneID"/></a>
+                </div>
+            </div>
         </fieldset>
     </form>
     <?php
