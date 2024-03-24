@@ -171,6 +171,9 @@ function displayIndexEvent($record, $layout = 'small') {
                         </h2>
                         <div style="font-weight: bold;"><?php echo $record['dates_desc'] ?></div>
                         <div style="font-size: 200%"><?php echo $record['status_label'] ?></div>
+                        <?php if ($record['announcement']): ?>
+                            <div style="padding-top: 20px;"><?php echo nl2br($record['announcement']) ?></div>
+                        <?php endif; ?>
                     </div>
                 </div>
 
