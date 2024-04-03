@@ -740,7 +740,7 @@ class works extends active_record {
 
         NFW::i()->registerFunction("display_work_media");
         NFWX::i()->jsonSuccess(["content" =>
-            NFWX::i()->renderPage(NFW::i()->fetch(SRC_ROOT.'/templates/works/admin/preview.tpl',
+            NFWX::i()->renderPage(NFW::i()->fetch(SRC_ROOT . '/templates/works/admin/preview.tpl',
                 ["record" => $this->record],
             )),
         ]);
@@ -754,6 +754,7 @@ class works extends active_record {
         $this->formatAttributes($_POST, array(
             'title' => $this->attributes['title'],
             'author' => $this->attributes['author'],
+            'competition_id' => $this->attributes['competition_id'],
             'platform' => $this->attributes['platform'],
             'format' => $this->attributes['format'],
             'author_note' => $this->attributes['author_note'],
