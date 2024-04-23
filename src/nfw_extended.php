@@ -1,5 +1,5 @@
 <?php
-define('NFW_CLASSNAME', 'NFWX');
+const NFW_CLASSNAME = 'NFWX';
 
 class NFWX extends NFW {
     private static $_ext_instance;
@@ -101,7 +101,7 @@ class NFWX extends NFW {
         // Права проверяются позже, средствами модуля
         $bypass_module = array(
             'competitions' => array('set_pos', 'set_dates'),
-            'works' => array('set_pos'),
+            'works' => array('get_pos', 'set_pos'),
         );
         if (isset($bypass_module[$module]) && in_array($action, $bypass_module[$module])) return true;
 
@@ -142,17 +142,31 @@ class NFWX extends NFW {
             return isset($_GET['event_id']) && in_array($_GET['event_id'], $managed_events);
         }
 
-        if ($module == 'works' && in_array($action, array('update', 'delete'))) {
-            if (!isset($_GET['record_id'])) return false;
+        if ($module == 'works' && in_array($action, array('update', 'delete', 'preview', 'update_work', 'update_status', 'update_links', 'my_status'))) {
+            if (!isset($_GET['record_id'])) {
+                return false;
+            }
 
             $CWorks = new works($_GET['record_id']);
             return in_array($CWorks->record['event_id'], $managed_events);
         }
 
-        if ($module == 'works_media' && in_array($action, array('update_properties', 'convert_zx', 'file_id_diz', 'make_release', 'remove_release'))) {
-            if (!isset($_GET['record_id'])) return false;
+        if ($module == 'works_media' && in_array($action, array('update_properties', 'file_id_diz', 'make_release', 'remove_release'))) {
+            if (!isset($_GET['record_id'])) {
+                return false;
+            }
 
             $CWorks = new works($_GET['record_id']);
+            return in_array($CWorks->record['event_id'], $managed_events);
+        }
+
+        if ($module == 'works_media' && in_array($action, array('rename_file', 'preview_zx', 'convert_zx'))) {
+            $CMedia = new media($_POST['file_id']);
+            if ($CMedia->record['owner_class'] != "works") {
+                return false;
+            }
+
+            $CWorks = new works($CMedia->record['owner_id']);
             return in_array($CWorks->record['event_id'], $managed_events);
         }
 

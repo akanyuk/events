@@ -23,6 +23,14 @@ A system of events focused on demoparty: acceptance of works, voting, counting a
 * Create default `config.local.php` and `debug.php` (if need) 
   from `config.local.php.example` and `debug.php.example` files
   
+* Allow access to write in:
+`public_html/assets`,
+`public_html/cache`, 
+`public_html/files`, 
+`public_html/media` and all subfolders,
+`var/images_cache`,
+`var/protected_media`,
+
 * Open `http://localhost` in browser and login with username `admin` password `admin`
 
 ## Installation without docker
