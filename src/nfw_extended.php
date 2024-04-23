@@ -1,5 +1,5 @@
 <?php
-define('NFW_CLASSNAME', 'NFWX');
+const NFW_CLASSNAME = 'NFWX';
 
 class NFWX extends NFW {
     private static $_ext_instance;

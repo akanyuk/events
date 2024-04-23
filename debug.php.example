@@ -1,7 +1,7 @@
 <?php
 error_reporting(E_ALL);
 
-define('NFW_DEBUG', '1');
-define('NFW_LOG_GENERATED_TIME', '1');
-define('NFW_SEPARATED_RESOURCES', '1');
-define('NFW_NO_SET_NAMES', '1');
+const NFW_DEBUG = '1';
+const NFW_LOG_GENERATED_TIME = '1';
+const NFW_SEPARATED_RESOURCES = '1';
+const NFW_NO_SET_NAMES = '1';

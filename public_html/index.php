@@ -7,10 +7,10 @@ require '../vendor/autoload.php';
 define('SRC_ROOT', dirname(__DIR__) . '/src');
 define('VAR_ROOT', dirname(__DIR__) . '/var');
 define('NFW_ROOT', dirname(__DIR__) . '/vendor/akanyuk/nfw/');
-define('PUBLIC_HTML', __DIR__);
+const PUBLIC_HTML = __DIR__;
 
 // Used by NFW framework. Must be pointed to www root
-define('PROJECT_ROOT', __DIR__ . '/');
+const PROJECT_ROOT = __DIR__ . '/';
 
 $config = include(SRC_ROOT . '/configs/config.php');
 if (file_exists(dirname(__DIR__) . '/config.local.php')) {
