@@ -89,6 +89,16 @@ $lang_platform_description = array(
         ),
     ),
 
+    'БК 0011М + 2AY' => array(
+        'default' => array(
+            'default' => array(
+                'Процессор: К1801ВМ1 4МГц, 128Kb RAM',
+                'Экран 256х256, 4 цвета одновременно из 8 возможных.',
+                'Два звуковых чипа AY-3-8912 / YM2149.',
+            ),
+        ),
+    ),
+
     'MSX' => array(
         'picture' => array(
             'default' => array(
