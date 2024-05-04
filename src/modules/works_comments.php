@@ -114,7 +114,7 @@ class works_comments extends active_record {
                 ),
             ),
             'WHERE' => $where,
-            'ORDER BY' => isset($options['ORDER BY']) ? $options['ORDER BY'] : 'wc.id',
+            'ORDER BY' => $options['ORDER BY'] ?? 'wc.id',
         );
 
         // ----------------
@@ -159,7 +159,7 @@ class works_comments extends active_record {
     }
 
     function displayLatestComments() {
-        $comments = $this->getRecords(array('records_on_page' => 5, 'ORDER BY' => 'wc.id DESC'));
+        $comments = $this->getRecords(array('records_on_page' => 10, 'ORDER BY' => 'wc.id DESC'));
         if (count($comments) == 0) {
             return false;
         }
