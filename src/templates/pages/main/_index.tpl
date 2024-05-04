@@ -65,11 +65,6 @@ if ($worksComments) {
     echo '</div>';
     echo '</div>';
 }
-?>
-    <div class="hidden-md hidden-lg" style="margin-bottom: 40px; text-align: center;">
-        <div id="zxbn-index-container"></div>
-    </div><?php
-
 
 if (!empty($past)) {
     echo '<h2 class="index-head">' . $lang_main['latest events'] . '</h2>';
@@ -85,16 +80,6 @@ if (count($lastEvents) > 0) {
            href="<?php echo NFW::i()->absolute_path ?>/events"><?php echo $lang_main['all events'] ?></a>
     </div>
     <?php
-}
-
-if ($worksComments) {
-    echo '<div class="hidden-md hidden-sm hidden-lg">';
-    echo '<h2 class="index-head">' . $lang_main['latest comments'] . '</h2>';
-    echo $worksComments;
-    echo '<div style="margin-top: 20px; margin-bottom: 40px;">';
-    echo '<a class="btn btn-lg btn-events-main" href="' . NFW::i()->base_path . 'comments.html">' . $lang_main['all comments'] . '</a>';
-    echo '</div>';
-    echo '</div>';
 }
 
 function displayIndexEvent($record, $layout = 'small'): void {
