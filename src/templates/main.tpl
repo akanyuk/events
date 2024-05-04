@@ -27,7 +27,6 @@ foreach (explode(',', NFW::i()->project_settings['meta_keywords'] . ',' . $page[
 }
 $meta_keywords = implode(',', array_unique($meta_keywords));
 
-$is_latest_news = !(page_is('news.html') || NFW::i()->current_controler != 'main');
 $is_latest_comments = !(page_is('comments.html') || NFW::i()->current_controler != 'main');
 
 // Generate change language links
@@ -54,9 +53,6 @@ if ($is_latest_comments) {
     $CWorksComments = new works_comments();
     $works_comments = $CWorksComments->displayLatestComments();
 }
-
-// latest news
-$latest_news = $is_latest_news ? NFWX::i()->renderNews(array('records_on_page' => 3, 'skip_pagination' => true, 'template' => 'latest')) : '';
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo NFW::i()->lang['lang'] ?>">
@@ -241,7 +237,6 @@ if (!empty(NFW::i()->breadcrumb)) {
     echo NFW::i()->breadcrumb_status;
     echo '</div>';
 
-    //echo '<li><a href="/">Home</a> <span class="divider">/</span></li>';
     foreach (NFW::i()->breadcrumb as $b) {
         echo isset($b['url']) ? '<li><a href="' . NFW::i()->base_path . $b['url'] . '">' . htmlspecialchars($b['desc']) . '</a></li>' : '<li class="active">' . htmlspecialchars($b['desc']) . '</li>';
     }
@@ -268,8 +263,7 @@ if (!NFWX::i()->main_right_pane) {
                 echo NFW::i()->fetch(
                     NFW::i()->findTemplatePath('pages/main/_index.tpl'),
                     array(
-                        'latest_news' => $latest_news,
-                        'works_comments' => $works_comments,
+                        'worksComments' => $works_comments,
                     )
                 );
             } else {
@@ -340,7 +334,6 @@ if (!NFWX::i()->main_right_pane) {
             <?php endif; ?>
 
             <?php echo $is_latest_comments && $works_comments !== false ? '<div style="margin-bottom: 40px;"><h3><a href="' . NFW::i()->base_path . 'comments.html">' . $lang_main['latest comments'] . '</a></h3>' . $works_comments . '</div>' : '' ?>
-            <?php echo $is_latest_news && $latest_news !== false ? '<h3><a href="' . NFW::i()->base_path . 'news.html">' . $lang_main['latest news'] . '</a></h3>' . $latest_news : '' ?>
         </div>
     </div>
 </div>

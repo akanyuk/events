@@ -1,6 +1,5 @@
 <?php
 /**
- * @var $latest_news string Pre rendered latest news HTML content
  * @var $worksComments string Pre rendered works comments HTML content
  */
 
@@ -88,17 +87,17 @@ if (count($lastEvents) > 0) {
     <?php
 }
 
-if ($latest_news) {
+if ($worksComments) {
     echo '<div class="hidden-md hidden-sm hidden-lg">';
-    echo '<h2 class="index-head">' . $lang_main['latest news'] . '</h2>';
-    echo $latest_news;
-    echo '<div style="margin-bottom: 10px;">';
-    echo '<a class="btn btn-lg btn-events-main" href="' . NFW::i()->base_path . 'news.html">' . $lang_main['all news'] . '</a>';
+    echo '<h2 class="index-head">' . $lang_main['latest comments'] . '</h2>';
+    echo $worksComments;
+    echo '<div style="margin-top: 20px; margin-bottom: 40px;">';
+    echo '<a class="btn btn-lg btn-events-main" href="' . NFW::i()->base_path . 'comments.html">' . $lang_main['all comments'] . '</a>';
     echo '</div>';
     echo '</div>';
 }
 
-function displayIndexEvent($record, $layout = 'small') {
+function displayIndexEvent($record, $layout = 'small'): void {
     switch ($layout) {
         case 'small':
             ?>
