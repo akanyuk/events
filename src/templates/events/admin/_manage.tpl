@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var $Module events
+ */
+
 NFW::i()->registerResource('bootstrap3.typeahead');
 NFW::i()->registerFunction('active_field');
 
@@ -33,9 +37,9 @@ while($cur_record = NFW::i()->db->fetch_assoc($result)) {
 ?>
 <script type="text/javascript">
 $(document).ready(function(){
-	var emF = $('form[id="events-manage"]');
-	emF.activeForm({
-		success: function(response) {
+    const emF = $('form[id="events-manage"]');
+    emF.activeForm({
+		success: function() {
 			$.jGrowl('Event updated.');
 		}
 	});
@@ -43,15 +47,17 @@ $(document).ready(function(){
 	emF.find('input[id="search-user"]').typeahead({ 
 		source: [<?php echo $users_search?>],
 		updater: function(item){
-			if ($('ul[id="managers-list"]').find('li[id=' + item.id + ']').length) {
+            const mList = $('ul[id="managers-list"]');
+
+			if (mList.find('li[id=' + item.id + ']').length) {
 				return '';
 			}
-			
-			var tpl = $('[id="managers-record-template"]').html();
-			tpl = tpl.replace(/%ID%/g, item.id);
-			tpl = tpl.replace('%NAME%', item.name); 
 
-			$('ul[id="managers-list"]').append(tpl);
+            let tpl = $('[id="managers-record-template"]').html();
+            tpl = tpl.replace(/%ID%/g, item.id);
+			tpl = tpl.replace('%NAME%', item.name);
+
+            mList.append(tpl);
 			
 			return '';
 		} 
@@ -93,7 +99,8 @@ $(document).ready(function(){
 	</div>
 		
 	<hr />
-	<?php echo active_field(array('name' => 'alias', 'value' => $Module->record['alias'], 'attributes'=>$Module->attributes['alias'], 'labelCols' => '2', 'inputCols' => '8'))?>	
+	<?php echo active_field(array('name' => 'alias', 'value' => $Module->record['alias'], 'attributes'=>$Module->attributes['alias'], 'labelCols' => '2', 'inputCols' => '8'))?>
+    <?php echo active_field(array('name' => 'alias_group', 'value' => $Module->record['alias_group'], 'attributes'=>$Module->attributes['alias_group'], 'labelCols' => '2', 'inputCols' => '8'))?>
 	<?php echo active_field(array('name' => 'is_hidden', 'value' => $Module->record['is_hidden'], 'attributes'=>$Module->attributes['is_hidden'], 'labelCols' => '2', 'inputCols' => '8'))?>
 	
 	<div class="form-group">
