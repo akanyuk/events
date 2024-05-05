@@ -33,7 +33,7 @@ class events extends active_record {
 	protected array $service_attributes = array(
 		'is_hidden' => array('desc'=>'Event disabled', 'type'=>'bool'),
 		'alias' => array('desc'=>'Event alias', 'type'=>'str', 'required'=>true, 'minlength'=>2, 'maxlength'=>32),
-        'alias_group' => array('desc'=>'Event alias group', 'type'=>'str', 'required'=>true, 'minlength'=>2, 'maxlength'=>32),
+        'alias_group' => array('desc'=>'Event alias group', 'type'=>'str', 'minlength'=>2, 'maxlength'=>32),
 	);
 	
 	var array $options_attributes = array(
