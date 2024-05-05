@@ -33,6 +33,7 @@ class events extends active_record {
 	protected array $service_attributes = array(
 		'is_hidden' => array('desc'=>'Event disabled', 'type'=>'bool'),
 		'alias' => array('desc'=>'Event alias', 'type'=>'str', 'required'=>true, 'minlength'=>2, 'maxlength'=>32),
+        'alias_group' => array('desc'=>'Event alias group', 'type'=>'str', 'required'=>true, 'minlength'=>2, 'maxlength'=>32),
 	);
 	
 	var array $options_attributes = array(
@@ -86,7 +87,7 @@ class events extends active_record {
 		$lang_main = NFW::i()->getLang('main');
 
 		$record['dates_desc'] = date('d.m.Y', $record['date_from']) ==  date('d.m.Y', $record['date_to']) ? date('d.m.Y', $record['date_from']) : date('d.m.Y', $record['date_from']).' - '.date('d.m.Y', $record['date_to']);
-		
+
 		$days_left = ceil(($record['date_from'] - NFW::i()->actual_date) / 86400);
 		if ($days_left >= 1) {
 			$record['status_label'] = '<span class="label label-info">+'.$days_left.' '.word_suffix($days_left, $lang_main['days suffix']).'</span>';
@@ -190,7 +191,7 @@ class events extends active_record {
 
 	function getRecords($options = array()) {
 		$where = array();
-		$filter = isset($options['filter']) ? $options['filter'] : array();
+		$filter = $options['filter'] ?? array();
 		
 		if (isset($filter['managed_events']) && $filter['managed_events']) {
 			$managed_events = events::get_managed();
@@ -202,21 +203,25 @@ class events extends active_record {
 			$where[] = 'e.is_hidden=0';
 		}
 
-		if (isset($filter['ids']) && !empty($filter['ids'])) {
+		if (!empty($filter['ids'])) {
 			$where[] = 'e.id IN ('.implode(', ', $filter['ids']).')';
 		}
 
 		if (isset($filter['upcoming-current']) && $filter['upcoming-current']) {
 			$where[] = 'e.date_to > '.time();
 		}
-		
+
+        if (isset($filter['alias_group']) && $filter['alias_group']) {
+            $where[] = 'e.alias_group = "'.NFW::i()->db->escape($filter['alias_group']).'"';
+        }
+
 		$query = array(
 			'SELECT'	=> 'e.id, e.is_hidden, e.title, e.alias, e.announcement, e.date_from, e.date_to, e.posted',
 			'FROM'		=> $this->db_table.' AS e',
 			'WHERE'		=> empty($where) ? null : implode(' AND ', $where),
 			'LIMIT' 	=> isset($options['limit']) && $options['limit'] ? intval($options['limit']) : null,
 			'OFFSET' 	=> isset($options['offset']) && $options['offset'] ? intval($options['offset']) : null,
-			'ORDER BY'	=> isset($options['order']) ? $options['order'] : 'date_from DESC'
+			'ORDER BY'	=> $options['order'] ?? 'date_from DESC'
 		);
 		
 		if (!$result = NFW::i()->db->query_build($query)) {
@@ -254,8 +259,8 @@ class events extends active_record {
 	    }
 	    
 	    foreach ($records as $key=>$record) {
-	    	$record['preview'] = isset($previews[$record['id']]) ? $previews[$record['id']] : false;
-	    	$record['preview_large'] = isset($preview_larges[$record['id']]) ? $preview_larges[$record['id']] : false;
+	    	$record['preview'] = $previews[$record['id']] ?? false;
+	    	$record['preview_large'] = $preview_larges[$record['id']] ?? false;
 	    	$records[$key] = $this->formatRecord($record);
 	    }
 

@@ -1,0 +1,1 @@
+ALTER TABLE `events` ADD `alias_group` varchar(32) NULL AFTER `alias`;
