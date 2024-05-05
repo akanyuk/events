@@ -128,7 +128,7 @@ if (stristr($content, '%COMPETITIONS-LIST-SHORT%')) {
     $content = str_replace('%COMPETITIONS-LIST-SHORT%', $competitionsListShort, $content);
 }
 
-if (sizeof($eventsGroup) > 0): ?>
+if (sizeof($eventsGroup) > 1): ?>
     <nav aria-label="...">
         <ul class="pagination pagination-sm">
         <?php foreach ($eventsGroup as $g): ?>
