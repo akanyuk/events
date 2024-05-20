@@ -256,7 +256,7 @@ $(function () {
                         return
                     }
 
-                    $.jGrowl(response, {theme: 'error'});
+                    $.jGrowl(response['responseJSON']['errors']['general'], {theme: 'error'});
                 },
                 success: function (response) {
                     zxScrDialog.modal("hide");

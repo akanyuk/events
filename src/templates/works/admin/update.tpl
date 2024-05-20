@@ -413,11 +413,27 @@ NFW::i()->breadcrumb_status = ob_get_clean();
         });
 
         $('[data-role="works-delete"]').click(function () {
-            if (!confirm("Remove work?\nCAN NOT BE UNDONE!")) return false;
+            if (!confirm("Remove work?\nCAN NOT BE UNDONE!")) {
+                return false;
+            }
 
-            $.post('<?php echo $Module->formatURL('delete') . '&record_id=' . $Module->record['id']?>', function (response) {
-                response === 'success' ? window.location.href = '<?php echo $Module->formatURL() . '?event_id=' . $Module->record['event_id']?>' : alert(response);
-            });
+            $.ajax('<?php echo $Module->formatURL('delete') . '&record_id=' . $Module->record['id']?>',
+                {
+                    method: "POST",
+                    dataType: "json",
+                    error: function (response) {
+                        if (response['responseJSON']['errors']['general'] === undefined) {
+                            return
+                        }
+
+                        $.jGrowl(response['responseJSON']['errors']['general'], {theme: 'error'});
+                    },
+                    success: function () {
+                        window.location.href = '<?php echo $Module->formatURL() . '?event_id=' . $Module->record['event_id']?>'
+                    }
+                },
+            );
+
             return false;
         });
     });
