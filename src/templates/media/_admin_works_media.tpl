@@ -15,6 +15,7 @@
 const TITLE_SCREENSHOT = "Screenshot in work profile and social sharing";
 const TITLE_IMAGE = "Image on work page (can be multiple)";
 const TITLE_AUDIO = "Files for audio playing (mp3 or ogg)";
+const TITLE_SLIDE = "Slide Show Image";
 const TITLE_VOTING = "Download link during voting";
 const TITLE_RELEASE = "Download link after voting (include this file in release)";
 
@@ -148,6 +149,8 @@ echo '<style>' . $css . '</style>';
                 <div class="btn-group" role="group">
                     <button role="<?php echo $session_id ?>-prop" id="screenshot" type="button" class="btn btn-default"
                             title="<?php echo TITLE_SCREENSHOT ?>"><span class="fa fa-camera"></span></button>
+                    <button role="<?php echo $session_id ?>-prop" id="slide" type="button" class="btn btn-default"
+                            title="<?php echo TITLE_SLIDE ?>"><span class="fa fa-film"></span></button>
                     <button role="<?php echo $session_id ?>-prop" id="image" type="button" class="btn btn-default"
                             title="<?php echo TITLE_IMAGE ?>"><span class="fa fa-image"></span></button>
                     <button role="<?php echo $session_id ?>-prop" id="audio" type="button" class="btn btn-default"
@@ -228,6 +231,10 @@ echo '<style>' . $css . '</style>';
                                     <button role="<?php echo $session_id ?>-prop" id="screenshot" type="button"
                                             class="btn btn-default<?php echo $record['is_screenshot'] ? ' btn-info active' : '' ?>"
                                             title="<?php echo TITLE_SCREENSHOT ?>"><span class="fa fa-camera"></span>
+                                    </button>
+                                    <button role="<?php echo $session_id ?>-prop" id="slide" type="button"
+                                            class="btn btn-default<?php echo $record['is_slide'] ? ' btn-info active' : '' ?>"
+                                            title="<?php echo TITLE_SLIDE ?>"><span class="fa fa-film"></span>
                                     </button>
                                     <button role="<?php echo $session_id ?>-prop" id="image" type="button"
                                             class="btn btn-default<?php echo $record['is_image'] ? ' btn-info active' : '' ?>"
