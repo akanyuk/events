@@ -488,16 +488,25 @@ class works extends active_record {
     }
 
     function actionCabinetView() {
-        $this->error_report_type = empty($_POST) ? 'error-page' : 'active_form';
+        if (!$this->load($_GET['record_id'])) {
+            return false;
+        }
 
-        if (!$this->load($_GET['record_id'])) return false;
         if ($this->record['posted_by'] != NFW::i()->user['id']) {
             $this->error(NFW::i()->lang['Errors']['Bad_request'], __FILE__, __LINE__);
             return false;
         }
 
-        if (empty($_POST)) {
-            return $this->renderAction();
+        return $this->renderAction();
+    }
+
+    function actionCabinetAddMedia() {
+        if (!$this->load($_GET['record_id'])) {
+            NFWX::i()->jsonError(400, $this->last_msg);
+        }
+
+        if ($this->record['posted_by'] != NFW::i()->user['id']) {
+            NFWX::i()->jsonError(400, NFW::i()->lang['Errors']['Bad_request']);
         }
 
         // Add files to work
@@ -505,17 +514,17 @@ class works extends active_record {
         $files_added = $CMedia->getSessionFiles(get_class($this));
         if (empty($files_added)) {
             $this->error('System error: no files. Please try again.', __FILE__, __LINE__);
-            return false;
+            NFWX::i()->jsonError(400, $this->last_msg);
         }
         $CMedia->closeSession(get_class($this), $this->record['id']);
 
         // Reset `checked` status for all managers
         NFW::i()->db->query_build(array('UPDATE' => 'works_managers_notes', 'SET' => 'is_checked=0', 'WHERE' => 'work_id=' . $this->record['id']));
 
-        NFWX::i()->sendNotify('works_add_files', $this->record['event_id'], array('work' => $this->record, 'media_added' => count($files_added), 'comment' => $_POST['comment']), $files_added);
+        NFWX::i()->sendNotify('works_add_files', $this->record['event_id'], array('work' => $this->record, 'media_added' => count($files_added)), $files_added);
 
         $lang_main = NFW::i()->getLang('main');
-        NFW::i()->renderJSON(array('result' => 'success', 'message' => $lang_main['works added files success message']));
+        NFWX::i()->jsonSuccess(array('result' => 'success', 'message' => $lang_main['works added files success message']));
     }
 
     function actionCabinetAdd() {

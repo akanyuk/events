@@ -55,6 +55,13 @@ $successDialog->render();
             });
 
             $('form[id="works-add-files"]').activeForm({
+                action: "<?php echo NFW::i()->base_path . 'cabinet/works?action=add_media&record_id=' . $Module->record['id']?>",
+                error: function(response) {
+                    if (response['responseJSON']['errors']['general'] !== undefined) {
+                        alert(response['responseJSON']['errors']['general']);
+                    }
+                    return false;
+                },
                 success: function (response) {
                     $('div[id="on-complete-removable-aria"]').remove();
 
@@ -200,9 +207,8 @@ $successDialog->render();
             'template' => '_cabinet_add_work_media',
         ));
         ?>
-        <form id="works-add-files" role="submit-available" class="active-form">
-            <?php echo active_field(array('name' => 'comment', 'type' => 'textarea', 'desc' => $lang_main['works add file comment'], 'vertical' => true)) ?>
-
+        <form id="works-add-files" class="active-form">
+            <input type="hidden" name="formSent" value="1" />
             <div class="form-group">
                 <button id="add-work-files"
                         class="btn btn-primary"><?php echo $lang_main['works add files submit'] ?></button>
