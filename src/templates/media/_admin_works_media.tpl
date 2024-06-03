@@ -12,12 +12,12 @@
  * @var integer $image_max_y
  */
 
-const TITLE_SCREENSHOT = "Screenshot in work profile and social sharing";
+const TITLE_SCREENSHOT = "Screenshot for social media links";
 const TITLE_IMAGE = "Image on work page (can be multiple)";
 const TITLE_AUDIO = "Files for audio playing (mp3 or ogg)";
 const TITLE_SLIDE = "Slide Show Image";
 const TITLE_VOTING = "Download link during voting";
-const TITLE_RELEASE = "Download link after voting (include this file in release)";
+const TITLE_RELEASE = "Download link after voting";
 
 NFW::i()->registerResource('jquery.file-upload');
 $lang_media = NFW::i()->getLang('media');

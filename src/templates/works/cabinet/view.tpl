@@ -13,7 +13,6 @@ NFW::i()->registerResource('jquery.activeForm');
 $CCompetitions = new competitions($Module->record['competition_id']);
 
 NFW::i()->assign('page_title', $Module->record['title'] . ' / ' . $lang_main['cabinet prods']);
-NFW::i()->registerResource('colorbox');
 
 $placeTitle = array();
 if ($Module->record['average_vote']) {
@@ -45,15 +44,6 @@ $successDialog->render();
 ?>
     <script type="text/javascript">
         $(document).ready(function () {
-            // Colorbox
-            $('a[type="image"]').colorbox({
-                maxWidth: '96%',
-                maxHeight: '96%',
-                current: '',
-                transition: 'none',
-                fadeOut: 0
-            });
-
             $('form[id="works-add-files"]').activeForm({
                 action: "<?php echo NFW::i()->base_path . 'cabinet/works?action=add_media&record_id=' . $Module->record['id']?>",
                 error: function(response) {
@@ -78,10 +68,12 @@ $successDialog->render();
             vertical-align: middle;
         }
 
-        TABLE.work-files-list TD.filestatus .glyphicon {
-            cursor: default;
+        TABLE.work-files-list TD.filestatus .fa {
             font-size: 200%;
-            width: 40px;
+        }
+
+        .file-status-xs .fa {
+            font-size: 120%;
         }
 
         TABLE.work-files-list .smalldesc {
@@ -169,28 +161,49 @@ $successDialog->render();
                 $a['image_size'] = false;
                 $a['icon'] = $a['icons']['64x64'];
             }
-
-            ob_start();
-            echo '<span class="glyphicon glyphicon-list-alt ' . ($a['is_voting'] ? 'text-success' : 'text-muted') . '" title="' . $lang_main['filestatus voting'] . '"></span>';
-            echo '<span class="glyphicon glyphicon-picture ' . ($a['is_image'] ? 'text-success' : 'text-muted') . '" title="' . $lang_main['filestatus image'] . '"></span>';
-            echo '<span class="glyphicon glyphicon-music ' . ($a['is_audio'] ? 'text-success' : 'text-muted') . '" title="' . $lang_main['filestatus audio'] . '"></span>';
-            echo '<span class="glyphicon glyphicon-download-alt ' . ($a['is_release'] ? 'text-success' : 'text-muted') . '" title="' . $lang_main['filestatus release'] . '"></span>';
-            $filestatus = ob_get_clean();
             ?>
             <tr>
-                <td><a type="<?php echo $a['type'] ?>" href="<?php echo $a['url'] ?>"><img
-                                src="<?php echo $a['icon'] ?>" alt=""/></a></td>
+                <td><a href="<?php echo $a['url'] ?>"><img src="<?php echo $a['icon'] ?>" alt=""/></a></td>
                 <td class="full">
-                    <strong><a type="<?php echo $a['type'] ?>"
-                               href="<?php echo $a['url'] ?>"><?php echo htmlspecialchars($a['basename']) ?></a></strong>
+                    <div style="white-space: nowrap;">
+                        <strong><a href="<?php echo $a['url'] ?>"><?php echo htmlspecialchars($a['basename']) ?></a></strong>
+                        <span class="file-status-xs hidden-sm hidden-md hidden-lg">
+                            <?php if ($a['is_screenshot']): ?>
+                                <span class="fa fa-camera text-success" title="<?php echo $lang_main['filestatus screenshot']?>"></span>
+                            <?php endif;?>
+                            <?php if ($a['is_slide']): ?>
+                                <span class="fa fa-film text-success" title="<?php echo $lang_main['filestatus slide']?>"></span>
+                            <?php endif;?>
+                            <?php if ($a['is_image']): ?>
+                                <span class="fa fa-image text-success" title="<?php echo $lang_main['filestatus image']?>"></span>
+                            <?php endif;?>
+                            <?php if ($a['is_audio']): ?>
+                                <span class="fa fa-headphones text-success" title="<?php echo $lang_main['filestatus audio']?>"></span>
+                            <?php endif;?>
+                            <?php if ($a['is_voting']): ?>
+                                <span class="fa fa-poll text-success" title="<?php echo $lang_main['filestatus voting']?>"></span>
+                            <?php endif;?>
+                            <?php if ($a['is_release']): ?>
+                                <span class="fa fa-file-archive text-success" title="<?php echo $lang_main['filestatus release']?>"></span>
+                            <?php endif;?>
+                        </span>
+                    </div>
+
                     <p class="text-muted smalldesc">
-                        <?php echo $lang_main['works uploaded'] . ': ' . date('d.m.Y H:i:s', $a['posted']) . ' by ' . $a['posted_username'] ?>
+                        <?php echo $lang_main['works uploaded'] . ': ' . date('d.m.Y H:i', $a['posted']) . ' by ' . $a['posted_username'] ?>
                         <br/>
                         <?php echo $lang_main['works filesize'] . ': ' . $a['filesize_str'] . ' ' . $a['image_size'] ?>
                     </p>
                 </td>
                 <td class="nowrap filestatus">
-                    <div class="hidden-xs"><?php echo $filestatus ?></div>
+                    <div class="hidden-xs">
+                        <span class="fa fa-camera <?php echo $a['is_screenshot'] ? 'text-success' : 'text-muted'?>" title="<?php echo $lang_main['filestatus screenshot']?>"></span>
+                        <span class="fa fa-film <?php echo $a['is_slide'] ? 'text-success' : 'text-muted'?>" title="<?php echo $lang_main['filestatus slide']?>"></span>
+                        <span class="fa fa-image <?php echo $a['is_image'] ? 'text-success' : 'text-muted'?>" title="<?php echo $lang_main['filestatus image']?>"></span>
+                        <span class="fa fa-headphones <?php echo $a['is_audio'] ? 'text-success' : 'text-muted'?>" title="<?php echo $lang_main['filestatus audio']?>"></span>
+                        <span class="fa fa-poll <?php echo $a['is_voting'] ? 'text-success' : 'text-muted'?>" title="<?php echo $lang_main['filestatus voting']?>"></span>
+                        <span class="fa fa-file-archive <?php echo $a['is_release'] ? 'text-success' : 'text-muted'?>" title="<?php echo $lang_main['filestatus release']?>"></span>
+                    </div>
                 </td>
                 <td></td>
             </tr>
