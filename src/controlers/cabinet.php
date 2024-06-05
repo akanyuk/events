@@ -24,7 +24,6 @@ if ($wrong) {
 }
 
 if (!$module) {
-	$page['content'] = $page['content'];
 	NFW::i()->assign('page', $page);
 	NFW::i()->display('main.tpl');
 }
@@ -36,7 +35,7 @@ if (!class_exists($classname)) {
 }
 
 $CModule = new $classname();
-$CModule->action =  isset($_GET['action']) ?  $_GET['action'] : 'main';
+$CModule->action = $_GET['action'] ?? 'main';
 
 $action_func = 'actionCabinet'.str_replace(' ', '', ucwords(str_replace('_', ' ', $CModule->action)));
 if (!method_exists($CModule, $action_func)) {

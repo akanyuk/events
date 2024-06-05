@@ -1,5 +1,10 @@
 <?php
-$CEvents = new events(isset($_GET['event_id']) ? $_GET['event_id'] : false);
+const COMPO_MODE_EXTERNAL_VIEW = 1;
+const COMPO_MODE_IMAGES = 2;    // internal show images (jpg, png)
+//const COMPO_MODE_AUDIO = 3;     // internal show audio (mp3/ogg)
+const COMPO_MODE_VIDEO = 4;     // internal show video (mp4)
+
+$CEvents = new events($_GET['event_id'] ?? false);
 if (!$CEvents->record['id']) {
     NFW::i()->stop(404);
 }
@@ -29,20 +34,20 @@ foreach ($CCompetitions->getRecords(array('filter' => array('event_id' => $CEven
     switch ($c['works_type']) {
         case 'demo':
             $compos[$cur_index]['compoShowAuthor'] = 1;
-            $compos[$cur_index]['compoMode'] = 1;
+            $compos[$cur_index]['compoMode'] = COMPO_MODE_EXTERNAL_VIEW;
             break;
         case 'music':
         case 'picture':
             $compos[$cur_index]['compoShowAuthor'] = 0;
-            $compos[$cur_index]['compoMode'] = 2;
+            $compos[$cur_index]['compoMode'] = COMPO_MODE_IMAGES;
             break;
         case 'other':
             $compos[$cur_index]['compoShowAuthor'] = 1;
-            $compos[$cur_index]['compoMode'] = 4;
+            $compos[$cur_index]['compoMode'] = COMPO_MODE_VIDEO;
             break;
         default:
             $compos[$cur_index]['compoShowAuthor'] = 0;
-            $compos[$cur_index]['compoMode'] = 1;
+            $compos[$cur_index]['compoMode'] = COMPO_MODE_EXTERNAL_VIEW;
             break;
     }
 
@@ -84,6 +89,11 @@ foreach ($compos as $compo_index => $c) {
                 'filesize' => $w['screenshot']['filesize'],
                 'mime_type' => $w['screenshot']['mime_type']
             );
+            $slide = array(
+                'url' => $w['slide']['url'],
+                'filesize' => $w['slide']['filesize'],
+                'mime_type' => $w['slide']['mime_type']
+            );
 
             $images = array();
             foreach ($w['image_files'] as $f)
@@ -120,11 +130,12 @@ foreach ($compos as $compo_index => $c) {
                 'Audio' => $audio,
                 'VotingFiles' => $voting_files,
                 'Screenshot' => $screenshot,
-                'NumVotes' => isset($votes[$w['id']]['num_votes']) ? $votes[$w['id']]['num_votes'] : null,
-                'TotalScores' => isset($votes[$w['id']]['total_scores']) ? $votes[$w['id']]['total_scores'] : null,
-                'AverageVote' => isset($votes[$w['id']]['average_vote']) ? $votes[$w['id']]['average_vote'] : null,
-                'IQMVote' => isset($votes[$w['id']]['iqm_vote']) ? $votes[$w['id']]['iqm_vote'] : null,
-                'Place' => isset($votes[$w['id']]['place']) ? $votes[$w['id']]['place'] : null,
+                'Slide' => $slide,
+                'NumVotes' => $votes[$w['id']]['num_votes'] ?? null,
+                'TotalScores' => $votes[$w['id']]['total_scores'] ?? null,
+                'AverageVote' => $votes[$w['id']]['average_vote'] ?? null,
+                'IQMVote' => $votes[$w['id']]['iqm_vote'] ?? null,
+                'Place' => $votes[$w['id']]['place'] ?? null,
             );
         }
     }
@@ -154,11 +165,3 @@ if (isset($_GET['ResponseType']) && $_GET['ResponseType'] == 'json') {
 
 header('Content-type: text/plain');
 NFW::i()->stop(ob_get_clean());
-
-/*
-compoMode:
-1 - external view
-2 - internal show images (jpg, png)
-3 - internal show audio (mp3/ogg)
-4 - internal show video (mp4)
-*/

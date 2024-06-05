@@ -81,7 +81,7 @@ if ($is_latest_comments) {
 
     <?php
     foreach (NFWX::i()->main_og as $type => $value) {
-        echo '<meta property="og:' . $type . '" content="' . $value . '">' . "\n";
+        echo '<meta property="og:' . $type . '" content="' . htmlspecialchars($value) . '">' . "\n";
     }
     ?>
 
