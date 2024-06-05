@@ -25,7 +25,7 @@ class works_media extends media {
             'url' => $this->record['url'],
             'basename' => $this->record['basename'],
             'extension' => $this->record['extension'],
-            'tmb_prefix' => isset($this->record['tmb_prefix']) ? $this->record['tmb_prefix'] : null,
+            'tmb_prefix' => $this->record['tmb_prefix'] ?? null,
             'icons' => $this->record['icons']
         ];
     }
@@ -118,12 +118,11 @@ class works_media extends media {
         }
 
         $ZXGFX = new ZXGFX();
-        $ZXGFX->setOutputScale(1);
         $ZXGFX->setPalette(NFW::i()->cfg['zxgfx']['palette']);
         $ZXGFX->setOutputType('gif');
         $ZXGFX->setBorder('none');
         $ZXGFX->setOption('showHiddenPixels', true);
-        $ZXGFX->setOption('isTransparent', false);
+        $ZXGFX->setOption('isTransparent');
         if (!$ZXGFX->loadData($this->record['data'])) {
             $this->error('Unable to load selected file for conversion.', __FILE__, __LINE__);
             NFWX::i()->jsonError(400, $this->last_msg);
@@ -172,12 +171,12 @@ class works_media extends media {
 		$CWorks = new works($_GET['record_id']);
 		if (!$CWorks->record['id']) {
 			$this->error($CWorks->last_msg, __FILE__, __LINE__);
-			return false;
+            NFWX::i()->jsonError(400, $this->last_msg);
 		}
 				
 		$this->insertFromString($this->generateDescription($CWorks->record), array('owner_class' => 'works', 'owner_id' => $CWorks->record['id'], 'secure_storage' => true, 'basename' => 'file_id.diz'));
-		
-		NFW::i()->renderJSON(array(
+
+        NFWX::i()->jsonSuccess(array(
 			'result' => 'success',
 			'id' => $this->record['id'],
 			'type' => $this->record['type'],
@@ -206,7 +205,7 @@ class works_media extends media {
 		}
 
         if (!file_exists(PUBLIC_HTML.'/files/'.$CWorks->record['event_alias'])) {
-            if (!mkdir(PUBLIC_HTML.'/files/'.$CWorks->record['event_alias'], 0777)) {
+            if (!mkdir(PUBLIC_HTML.'/files/'.$CWorks->record['event_alias'])) {
                 $this->error('Unable to make event directory', __FILE__, __LINE__);
                 NFWX::i()->jsonError(400, $this->last_msg);
             }
@@ -262,7 +261,6 @@ class works_media extends media {
 				while ($zip_entry = zip_read($eZip)) {
 					if (zip_entry_open($eZip, $zip_entry, "r")) {
 						$already_added[] = strtolower(zip_entry_name($zip_entry));
-						//$zip->addFromString(iconv("UTF-8", 'cp866', zip_entry_name($zip_entry)), zip_entry_read($zip_entry, zip_entry_filesize($zip_entry)));
 						$zip->addFromString(zip_entry_name($zip_entry), zip_entry_read($zip_entry, zip_entry_filesize($zip_entry)));
 						zip_entry_close($zip_entry);
 					}
@@ -292,7 +290,7 @@ class works_media extends media {
 
         NFWX::i()->jsonSuccess(['result' => 'success', 'url' => rawurlencode($release_link)]);
 	}
-	
+
 	function actionAdminRemoveRelease() {
 		$this->error_report_type = 'plain';
 

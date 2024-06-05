@@ -37,10 +37,7 @@ dd { font-weight: bold; margin-left: 0; }
 	<dt>Competition:</dt><dd><?php echo htmlspecialchars($data['work']['competition_title'])?></dd>
 	<dt>Title:</dt><dd><?php echo htmlspecialchars($data['work']['title'])?></dd>
 	<dt>Author:</dt><dd><?php echo htmlspecialchars($data['work']['author'])?></dd>
-</dl>
-<dl>
 	<dt>Files added:</dt><dd><?php echo $data['media_added']?></dd>
-	<dt>Author comment:</dt><dd><?php echo $data['comment'] ? nl2br(htmlspecialchars($data['comment'])) : '-' ?></dd>
 </dl>
 <br />
 <p><?php echo '<a href="'.NFW::i()->absolute_path.'/admin/works?action=update&record_id='.$data['work']['id'].'">'.NFW::i()->absolute_path.'/admin/works?action=update&record_id='.$data['work']['id'].'</a>'?></p>

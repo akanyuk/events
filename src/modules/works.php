@@ -95,21 +95,25 @@ class works extends active_record {
     }
 
     private function formatRecord($record) {
-        $record['display_title'] = $record['voting_to'] <= NFW::i()->actual_date ? $record['title'] . ' by ' . $record['author'] : $record['title'];
+        $record['display_title'] = $record['voting_to'] <= NFWX::i()->actual_date ? $record['title'] . ' by ' . $record['author'] : $record['title'];
         $record['status_info'] = $this->attributes['status']['options'][$record['status']];
 
         // Convert `media_info`
-        $record['screenshot'] = false;
-        $record['voting_files'] = $record['release_files'] = $record['audio_files'] = $record['image_files'] = array();
+        $record['screenshot'] = $record['slide'] = false;
+        $record['voting_files'] = $record['release_files'] = $record['audio_files'] = $record['image_files'] = [];
 
         $media_info = NFW::i()->unserializeArray($record['media_info']);
         $record['media_info'] = array();
         foreach ($record['attachments'] as $a) {
-            $a['is_screenshot'] = $a['is_voting'] = $a['is_image'] = $a['is_audio'] = $a['is_release'] = false;
+            $a['is_screenshot'] = $a['is_slide'] = $a['is_voting'] = $a['is_image'] = $a['is_audio'] = $a['is_release'] = false;
 
             if (isset($media_info[$a['id']]['screenshot']) && $media_info[$a['id']]['screenshot']) {
                 $record['screenshot'] = $a;
                 $a['is_screenshot'] = true;
+            }
+            if (isset($media_info[$a['id']]['slide']) && $media_info[$a['id']]['slide']) {
+                $record['slide'] = $a;
+                $a['is_slide'] = true;
             }
             if (isset($media_info[$a['id']]['voting']) && $media_info[$a['id']]['voting']) {
                 $record['voting_files'][] = $a;
@@ -484,16 +488,25 @@ class works extends active_record {
     }
 
     function actionCabinetView() {
-        $this->error_report_type = empty($_POST) ? 'error-page' : 'active_form';
+        if (!$this->load($_GET['record_id'])) {
+            return false;
+        }
 
-        if (!$this->load($_GET['record_id'])) return false;
         if ($this->record['posted_by'] != NFW::i()->user['id']) {
             $this->error(NFW::i()->lang['Errors']['Bad_request'], __FILE__, __LINE__);
             return false;
         }
 
-        if (empty($_POST)) {
-            return $this->renderAction();
+        return $this->renderAction();
+    }
+
+    function actionCabinetAddMedia() {
+        if (!$this->load($_GET['record_id'])) {
+            NFWX::i()->jsonError(400, $this->last_msg);
+        }
+
+        if ($this->record['posted_by'] != NFW::i()->user['id']) {
+            NFWX::i()->jsonError(400, NFW::i()->lang['Errors']['Bad_request']);
         }
 
         // Add files to work
@@ -501,17 +514,17 @@ class works extends active_record {
         $files_added = $CMedia->getSessionFiles(get_class($this));
         if (empty($files_added)) {
             $this->error('System error: no files. Please try again.', __FILE__, __LINE__);
-            return false;
+            NFWX::i()->jsonError(400, $this->last_msg);
         }
         $CMedia->closeSession(get_class($this), $this->record['id']);
 
         // Reset `checked` status for all managers
         NFW::i()->db->query_build(array('UPDATE' => 'works_managers_notes', 'SET' => 'is_checked=0', 'WHERE' => 'work_id=' . $this->record['id']));
 
-        NFWX::i()->sendNotify('works_add_files', $this->record['event_id'], array('work' => $this->record, 'media_added' => count($files_added), 'comment' => $_POST['comment']), $files_added);
+        NFWX::i()->sendNotify('works_add_files', $this->record['event_id'], array('work' => $this->record, 'media_added' => count($files_added)), $files_added);
 
         $lang_main = NFW::i()->getLang('main');
-        NFW::i()->renderJSON(array('result' => 'success', 'message' => $lang_main['works added files success message']));
+        NFWX::i()->jsonSuccess(array('result' => 'success', 'message' => $lang_main['works added files success message']));
     }
 
     function actionCabinetAdd() {

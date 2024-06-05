@@ -73,10 +73,12 @@ $lang_main = array(
     'works add file comment' => 'Comment',
     'works filesize' => 'Filesize',
     'works uploaded' => 'Uploaded',
+    'filestatus screenshot' => 'Screenshot for social media links',
+    'filestatus slide' => 'A file for showing the work on the screen during the party',
     'filestatus voting' => 'File can be downloaded at online voting',
     'filestatus image' => 'File used as image at online voting and in public prod profile',
     'filestatus audio' => 'File used in audio-player at online voting and in public prod profile',
-    'filestatus release' => 'File will be added in prods pack and can be downloaded from public prod profile',
+    'filestatus release' => 'File can be downloaded from public prod profile',
 
     'works upload no file error' => 'No files for uploading!.',
 
