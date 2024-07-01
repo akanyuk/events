@@ -127,6 +127,10 @@ class NFWX extends NFW {
             return in_array($additional, $managed_events);
         }
 
+        if ($module == 'competitions_groups' && ($action == 'admin' || $action == 'update')) {
+            return isset($_GET['event_id']) && in_array($_GET['event_id'], $managed_events);
+        }
+
         if ($module == 'competitions' && ($action == 'admin' || $action == 'insert')) {
             return isset($_GET['event_id']) && in_array($_GET['event_id'], $managed_events);
         }
