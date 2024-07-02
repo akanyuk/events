@@ -70,7 +70,13 @@ NFW::i()->breadcrumb_status = ob_get_clean();
                 <?php echo active_field(array('name' => 'alias', 'value' => $Module->record['alias'], 'attributes' => $Module->attributes['alias'], 'labelCols' => '2', 'inputCols' => '5')) ?>
                 <?php echo active_field(array('name' => 'works_type', 'value' => $Module->record['works_type'], 'attributes' => $Module->attributes['works_type'], 'labelCols' => '2', 'inputCols' => '5')) ?>
                 <?php echo active_field(array('name' => 'announcement', 'value' => $Module->record['announcement'], 'attributes' => $Module->attributes['announcement'], 'height' => "100px;", 'labelCols' => '2', 'inputCols' => '10')) ?>
-                <?php echo active_field(array('name' => 'competitions_groups_id', 'value' => $Module->record['competitions_groups_id'], 'attributes' => $competitionsGroupsAttributes, 'labelCols' => '2', 'inputCols' => '5')) ?>
+
+
+                <?php
+                if (count($competitionsGroupsAttributes['options']) > 1) {
+                    echo active_field(array('name' => 'competitions_groups_id', 'value' => $Module->record['competitions_groups_id'], 'attributes' => $competitionsGroupsAttributes, 'labelCols' => '2', 'inputCols' => '5'));
+                }
+                ?>
 
                 <?php echo active_field(array('name' => 'reception_from', 'value' => $Module->record['reception_from'], 'attributes' => $Module->attributes['reception_from'], 'labelCols' => '2')) ?>
                 <?php echo active_field(array('name' => 'reception_to', 'value' => $Module->record['reception_to'], 'attributes' => $Module->attributes['reception_to'], 'labelCols' => '2')) ?>

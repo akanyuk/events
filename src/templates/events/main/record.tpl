@@ -181,7 +181,7 @@ function competitionsListCompo($compo) {
         <?php endif; ?>
     </h3>
 
-    <p><?php echo nl2br($compo['announcement']) ?></p>
+    <p><?php echo $compo['announcement'] ?></p>
 
     <div class="panel panel-default">
         <div class="panel-body">
