@@ -21,7 +21,7 @@ class competitions extends active_record {
 		'title' => array('desc'=>'Title', 'type'=>'str', 'required'=>true, 'minlength'=>4, 'maxlength'=>255),
 		'alias' => array('desc'=>'alias', 'type'=>'str', 'required'=>true, 'minlength'=>2, 'maxlength'=>32),
 		'works_type' => array('desc'=>'Works type', 'type'=>'select', 'options' => array()),
-		'announcement' => array('desc'=>'Announce', 'type'=>'textarea', 'maxlength'=>4096),
+		'announcement' => array('desc'=>'Announce (multilanguage HTML)', 'type'=>'textarea', 'maxlength'=>4096),
 		'reception_from' => array('desc'=>'Works accepting start', 'type'=>'date', 'withTime' => true, 'startDate' => 1, 'endDate' => -365),
 		'reception_to' => array('desc'=>'Works accepting end', 'type'=>'date', 'withTime' => true, 'startDate' => 1, 'endDate' => -365),
 		'voting_from' => array('desc'=>'Voting start', 'type'=>'date', 'withTime' => true, 'startDate' => 1, 'endDate' => -365),
