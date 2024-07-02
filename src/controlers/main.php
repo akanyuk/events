@@ -102,6 +102,9 @@ if (!$competitionAlias || ($CEvents->record['one_compo_event'] && !$workID)) {
 
     $competitions = $CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id'])));
 
+    $CCompetitionsGroups = new competitions_groups();
+    $competitionsGroups = $CCompetitionsGroups->getRecords($CEvents->record['id']);
+
     // Special render - event with only one compo
     if ($CEvents->record['one_compo_event'] && !empty($competitions)) {
         $c = reset($competitions);
@@ -119,6 +122,7 @@ if (!$competitionAlias || ($CEvents->record['one_compo_event'] && !$workID)) {
     $page['content'] = $CEvents->renderAction(array(
         'event' => $CEvents->record,
         'competitions' => $competitions,
+        'competitionsGroups' => $competitionsGroups,
         'content' => $content,
     ), 'record');
 
