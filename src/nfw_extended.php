@@ -321,10 +321,12 @@ class NFWX extends NFW {
         }
 
         http_response_code($errorCode);
+        header('Content-Type: application/json');
         NFW::i()->stop(json_encode($response));
     }
 
     function jsonSuccess($message = array()) {
+        header('Content-Type: application/json');
         NFW::i()->stop(json_encode($message));
     }
 

@@ -3,8 +3,7 @@
  * @desc Managing groups of competitions
  */
 
-class competitions_groups extends active_record
-{
+class competitions_groups extends active_record {
     static $action_aliases = array(
         'admin' => array(
             array('module' => 'competitions', 'action' => 'update'),

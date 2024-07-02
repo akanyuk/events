@@ -1,8 +1,8 @@
 <?php
-
 /**
  * @desc Votekeys, votes, voting results.
  */
+
 class vote extends active_record {
     const votekeyLength = 8;
 

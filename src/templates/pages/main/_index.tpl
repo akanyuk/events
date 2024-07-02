@@ -24,18 +24,10 @@ foreach ($lastEvents as $record) {
 }
 ?>
     <style>
-        .index-current-event .competition {
-            padding-top: 10px;
-        }
-
-        .index-current-event .competition .title {
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .index-current-event .competition .info {
-            font-size: 13px;
-            color: #888;
+        .voting-open .item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.2em;
         }
     </style>
 <?php
@@ -132,7 +124,7 @@ function displayIndexEvent($record, $layout = 'small'): void {
             <?php
             break;
         case 'full':
-            $lang_main = NFW::i()->getLang('main');
+            $langMain = NFW::i()->getLang('main');
 
             $competitions = array();
             $CCompetitions = new competitions();
@@ -154,51 +146,60 @@ function displayIndexEvent($record, $layout = 'small'): void {
                             <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><?php echo htmlspecialchars($record['title']) ?></a>
                         </h2>
                         <div style="font-weight: bold;"><?php echo $record['dates_desc'] ?></div>
-                        <div style="font-size: 200%"><?php echo $record['status_label'] ?></div>
                         <?php if ($record['announcement']): ?>
-                            <div style="padding-top: 20px;"><?php echo nl2br($record['announcement']) ?></div>
+                            <div style="padding: 20px 0;"><?php echo nl2br($record['announcement']) ?></div>
                         <?php endif; ?>
                     </div>
                 </div>
 
                 <?php if (!empty($competitions)): ?>
-                    <div class="hidden-sm hidden-md hidden-lg">
-                        <?php foreach ($competitions as $c) { ?>
-                            <div class="competition">
-                                <div class="title"><a
-                                            href="<?php echo NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
+                    <div id="voting-open-panel" class="panel panel-default" style="display: none;">
+                        <div class="panel-heading"><?php echo $langMain['Voting is open'] ?></div>
+                        <div id="voting-open-body" class="panel-body voting-open">
+                            <?php foreach ($competitions as $c): ?>
+                                <div class="item">
+                                    <a href="<?php echo NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
+                                    <div class="text-danger"><?php echo $c['voting_status']['desc'] ?></div>
                                 </div>
-                                <div class="info">
-                                    <div>
-                                        <?php echo $lang_main['competitions voting'] ?>:
-                                        <span class="<?php echo $c['voting_status']['text-class'] ?>"><strong><?php echo $c['voting_status']['desc'] ?></strong></span>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php } ?>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
+                    <script>
+                        const votingOpenPanel = document.getElementById("voting-open-panel");
+                        const votingOpenBody = document.getElementById("voting-open-body");
 
-                    <table class="table table-condensed hidden-xs">
-                        <thead>
-                        <tr>
-                            <th><?php echo $lang_main['competition'] ?></th>
-                            <th><?php echo $lang_main['competitions type'] ?></th>
-                            <th class="r"><?php echo $lang_main['competitions voting'] ?></th>
-                            <th class="r"><?php echo $lang_main['competitions approved works-short'] ?></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <?php foreach ($competitions as $c) { ?>
-                            <tr>
-                                <td class="nw"><a
-                                            href="<?php echo NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
-                                </td>
-                                <td class="nw"><em><?php echo $c['works_type'] ?></em></td>
-                                <td class="nw r <?php echo $c['voting_status']['text-class'] ?>"><?php echo $c['voting_status']['desc'] ?></td>
-                                <td class="nw r"><?php echo $c['count_label'] ?></td>
-                            </tr>
-                        <?php } ?>
-                    </table>
+                        setInterval(updateVotingOpen, 5000);
+                        updateVotingOpen();
+
+                        function updateVotingOpen() {
+                            fetch('/internal?action=votingStatus&event_id=<?php echo $record['id']?>').then(response => response.json()).then(response => {
+                                if (response['votingOpen'].length === 0) {
+                                    votingOpenPanel.style.display = "none";
+                                    return
+                                }
+
+                                votingOpenBody.innerHTML = "";
+                                response['votingOpen'].forEach((compo) => {
+                                    const title = document.createElement('a');
+                                    title.innerText = compo['title']
+                                    title.href = compo['url']
+
+                                    const status = document.createElement('div');
+                                    status.innerText = compo['statusText']
+                                    status.className = "text-danger"
+
+                                    const item = document.createElement('div');
+                                    item.className = "item"
+                                    item.appendChild(title);
+                                    item.appendChild(status);
+
+                                    votingOpenBody.appendChild(item);
+                                })
+
+                                votingOpenPanel.style.display = "block";
+                            });
+                        }
+                    </script>
                 <?php endif; ?>
             </div>
             <?php

@@ -133,11 +133,12 @@ $lang_main = array(
     ),
     'voting name' => 'Ваше имя или ник',
     'voting vote' => 'Ваша оценка',
-    'voting note' => '<strong>Внимание!</strong> Ваши оценки и ник могут быть опубликованы организаторами демопати.',
+    'voting note' => '<strong>Внимание!</strong> Ваши оценки и ник могут быть опубликованы организаторами пати.',
     'voting send' => 'Проголосовать!',
     'voting error wrong username' => 'Пожалуйста укажите имя.',
     'voting error wrong votekey' => 'Ключ голосования не найден.',
     'voting success note' => 'Ваш голос принят.',
+    'Voting is open' => 'Голосование открыто',
 
     'votekey-request note' => 'Ключ для голосования будет выслан на указанный e-mail адрес. <br />Адрес опубликован не будет.',
     'votekey-request email label' => 'E-mail адрес',
