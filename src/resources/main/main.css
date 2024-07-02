@@ -390,3 +390,41 @@ audio {
 .mobile-login-form A:hover {
     color: #FFFBD7;
 }
+
+/* List of competitions on event page */
+
+.event-competitions .panel-primary {
+    border-color: #ccc;
+}
+
+.event-competitions .panel {
+    background-color: #f5f5f5;
+}
+
+.event-competitions .panel-body {
+    padding: 10px 15px;
+}
+
+.competitions-list-short .item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.2em;
+}
+
+.competitions-list-short .item-subgroup .header {
+    padding-left: 20px;
+}
+
+.competitions-list-short .group-title {
+    font-weight: bold;
+}
+
+.hidden-xs .competitions-list-short .group-title,
+.hidden-xs .competitions-list-short .header,
+.hidden-xs .competitions-list-short .counter {
+    font-size: 120%;
+}
+
+.hidden-xs .competitions-list-short .header {
+    padding-right: 20px;
+}
