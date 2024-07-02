@@ -67,7 +67,7 @@ NFW::i()->breadcrumb = array(
     </div>
 
     <div style="padding-top: 20px;">
-        <button id="add-group" class="btn btn-default">Add value</button>
+        <button id="add-group" class="btn btn-default">Add group</button>
         <button type="submit" name="form-send" class="btn btn-primary"><span
                     class="fa fa-save"></span> <?php echo NFW::i()->lang['Save changes'] ?></button>
     </div>
