@@ -9,10 +9,6 @@ $(document).ready(function(){
 	$('#sidebar-menu').metisMenu();
 });
 </script>
-<style>
-	LI.nw { white-space: nowrap; }
-	LI.hidden-event { display: none !important; }
-</style>
 <nav class="sidebar-nav">
 	<ul class="metismenu" id="sidebar-menu">
 <?php
@@ -35,15 +31,16 @@ foreach (adminSidebarEvents() as $event) {
 					</a>
 					<ul>
 						<?php foreach ($competition['works'] as $work) { ?>
-						<li class="nw"><strong><a href="<?php echo NFW::i()->base_path.'admin/works?action=update&record_id='.$work['id']?>" title="<?php echo htmlspecialchars($work['title'].' by '.$work['author'])?>"><?php echo htmlspecialchars($work['position'].'. '.$work['title'])?></a></strong></li>
+						<li style="white-space: nowrap;"><strong><a href="<?php echo NFW::i()->base_path.'admin/works?action=update&record_id='.$work['id']?>" title="<?php echo htmlspecialchars($work['title'].' by '.$work['author'])?>"><?php echo htmlspecialchars($work['position'].'. '.$work['title'])?></a></strong></li>
 						<?php } ?>
 					</ul>
 				</li>
 				<?php } ?>
 				<li><a href="<?php echo NFW::i()->base_path.'admin/events?action=update&record_id='.$event['id']?>"><span class="sidebar-nav-item-icon fa fa-wine-glass-alt"></span> Manage event</a></li>
-				<li><a href="<?php echo NFW::i()->base_path.'admin/competitions?event_id='.$event['id']?>"><span class="sidebar-nav-item-icon fa fa-truck-monster"></span> Competitions</a></li>
-				<li><a href="<?php echo NFW::i()->base_path.'admin/works?event_id='.$event['id']?>"><span class="sidebar-nav-item-icon fas fa-bug"></span> Works</a></li>
-				<li><a href="<?php echo NFW::i()->base_path.'admin/vote?event_id='.$event['id']?>"><span class="sidebar-nav-item-icon fa fa-poll"></span> Voting</a></li>
+				<li><a href="<?php echo NFW::i()->base_path.'admin/competitions?event_id='.$event['id']?>"><span class="sidebar-nav-item-icon fa fa-truck-monster"></span> Manage competitions</a></li>
+				<li><a href="<?php echo NFW::i()->base_path.'admin/works?event_id='.$event['id']?>"><span class="sidebar-nav-item-icon fas fa-bug"></span> Manage works</a></li>
+				<li><a href="<?php echo NFW::i()->base_path.'admin/vote?event_id='.$event['id']?>"><span class="sidebar-nav-item-icon fa fa-poll"></span> Manage voting</a></li>
+                <li><a href="<?php echo NFW::i()->base_path.'admin/live_voting?event_id='.$event['id']?>"><span class="sidebar-nav-item-icon fa fa-thumbs-up"></span> Live voting</a></li>
 			</ul>
 		</li>
 <?php
@@ -68,14 +65,13 @@ function adminSidebarEvents() {
 		'ORDER BY'	=> 'e.date_from DESC, c.position, w.position'
 	);
 	if (!$result = NFW::i()->db->query_build($query)) {
-		$this->error('Unable to fetch records', __FILE__, __LINE__, NFW::i()->db->error());
 		return false;
 	}
 	if (!NFW::i()->db->num_rows($result)) {
 		return array();
 	}
 
-	$events = $competitions = array();
+	$events = array();
 	while($r = NFW::i()->db->fetch_assoc($result)) {
 		$event_key = false;
 		foreach ($events as $eKey=>$e) {

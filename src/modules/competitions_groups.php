@@ -4,15 +4,6 @@
  */
 
 class competitions_groups extends active_record {
-    static $action_aliases = array(
-        'admin' => array(
-            array('module' => 'competitions', 'action' => 'update'),
-        ),
-        'update' => array(
-            array('module' => 'competitions', 'action' => 'update'),
-        ),
-    );
-
     var $attributes = array(
         'event_id' => array('desc' => 'Event', 'type' => 'int', 'required' => true),
         'position' => array('desc' => 'Position', 'type' => 'int', 'required' => true),
@@ -52,15 +43,9 @@ class competitions_groups extends active_record {
             return false;
         }
 
-        $records = $this->getRecords($CEvents->record['id']);
-        if ($records === false) {
-            $this->error('Unable to get groups of competitions', __FILE__, __LINE__);
-            return false;
-        }
-
         return $this->renderAction([
             'event' => $CEvents->record,
-            'records' => $records,
+            'records' => $this->getRecords($CEvents->record['id']),
         ]);
     }
 
@@ -117,7 +102,7 @@ class competitions_groups extends active_record {
                     'WHERE' => 'id=' . $this->record['id'],
                 ])) {
                     $this->error('Unable to restore previous ID', __FILE__, __LINE__, NFW::i()->db->error());
-                    return false;
+                    NFWX::i()->jsonError(400, $this->last_msg);
                 }
             }
 

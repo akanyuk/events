@@ -12,6 +12,9 @@ class vote extends active_record {
             array('module' => 'vote', 'action' => 'votes'),
             array('module' => 'vote', 'action' => 'add_vote'),
             array('module' => 'vote', 'action' => 'results'),
+            array('module' => 'live_voting', 'action' => 'admin'),
+            array('module' => 'live_voting', 'action' => 'read_state'),
+            array('module' => 'live_voting', 'action' => 'update_state'),
         ),
     );
 

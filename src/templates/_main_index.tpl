@@ -125,15 +125,6 @@ function displayIndexEvent($record, $layout = 'small'): void {
             break;
         case 'full':
             $langMain = NFW::i()->getLang('main');
-
-            $competitions = array();
-            $CCompetitions = new competitions();
-            foreach ($CCompetitions->getRecords(array('filter' => array('event_id' => $record['id']))) as $c) {
-                if ($c['voting_status']['available'] && $c['voting_works']) {
-                    $c['count_label'] = $c['voting_works'] < 3 ? '<span class="label label-warning">' . $c['voting_works'] . '</span>' : '<span class="label label-success">' . $c['voting_works'] . '</span>';
-                    $competitions[] = $c;
-                }
-            }
             ?>
             <div class="index-current-event" style="padding-bottom: 20px;">
                 <div class="row">
@@ -146,25 +137,22 @@ function displayIndexEvent($record, $layout = 'small'): void {
                             <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><?php echo htmlspecialchars($record['title']) ?></a>
                         </h2>
                         <div style="font-weight: bold;"><?php echo $record['dates_desc'] ?></div>
+
                         <?php if ($record['announcement']): ?>
                             <div style="padding: 20px 0;"><?php echo nl2br($record['announcement']) ?></div>
+                        <?php endif; ?>
+
+                        <?php if (!NFW::i()->user['is_guest']): ?>
+                        <div id="voting-open-panel" class="panel panel-default" style="display: none;">
+                            <div class="panel-heading"><?php echo $langMain['Voting is open'] ?></div>
+                            <div id="voting-open-body" class="panel-body voting-open"></div>
+                        </div>
                         <?php endif; ?>
                     </div>
                 </div>
 
-                <?php if (!empty($competitions)): ?>
-                    <div id="voting-open-panel" class="panel panel-default" style="display: none;">
-                        <div class="panel-heading"><?php echo $langMain['Voting is open'] ?></div>
-                        <div id="voting-open-body" class="panel-body voting-open">
-                            <?php foreach ($competitions as $c): ?>
-                                <div class="item">
-                                    <a href="<?php echo NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
-                                    <div class="text-danger"><?php echo $c['voting_status']['desc'] ?></div>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                    <script>
+                <?php if (!NFW::i()->user['is_guest']): ?>
+                      <script>
                         const votingOpenPanel = document.getElementById("voting-open-panel");
                         const votingOpenBody = document.getElementById("voting-open-body");
 
@@ -172,7 +160,7 @@ function displayIndexEvent($record, $layout = 'small'): void {
                         updateVotingOpen();
 
                         function updateVotingOpen() {
-                            fetch('/internal?action=votingStatus&event_id=<?php echo $record['id']?>').then(response => response.json()).then(response => {
+                            fetch('/internal_api?action=votingStatus&event_id=<?php echo $record['id']?>').then(response => response.json()).then(response => {
                                 if (response['votingOpen'].length === 0) {
                                     votingOpenPanel.style.display = "none";
                                     return

@@ -20,3 +20,6 @@ RUN docker-php-ext-install curl
 
 # MySQL
 RUN docker-php-ext-install mysqli pdo_mysql
+
+# apcu
+RUN pecl install apcu && docker-php-ext-enable apcu
