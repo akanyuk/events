@@ -269,7 +269,7 @@ function displayIndexEvent($record, $layout = 'small'): void {
                     }
                     lastLiveVotingWorkID = state["id"];
 
-                    let liveVotingInTimeout = 1500;
+                    let liveVotingInTimeout = 1200;
                     if (!isLiveVotingGoing) {
                         noLiveVotingContainer.style.display = "none";
                         liveVotingInTimeout = 1;
@@ -300,9 +300,18 @@ function displayIndexEvent($record, $layout = 'small'): void {
                                 for (const b of voting.children) {
                                     b.setAttribute("class", "btn btn-default");
                                 }
-
                                 btn.setAttribute("class", "btn btn-primary active");
-                                console.log(i, state['id']);
+
+                                fetch("/internal_api?action=indexLiveVote", {
+                                    method: "POST",
+                                    body: JSON.stringify({
+                                        workID: state["id"],
+                                        vote: i
+                                    }),
+                                    headers: {
+                                        "Content-type": "application/json; charset=UTF-8"
+                                    }
+                                });
                             };
                         });
 

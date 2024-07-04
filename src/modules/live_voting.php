@@ -4,6 +4,21 @@ const storageKeyPrefix = "live-voting-storage-key";
 const memoryStorageTtlSec = 3600;
 
 class live_voting extends active_record {
+    public static function IsAllowed($eventID, $workID): bool {
+        $state = apcu_fetch(storageKeyPrefix . $eventID);
+        if ($state === false) {
+            return false;
+        }
+
+        foreach ($state['all'] as $item) {
+            if ($item['id'] === $workID) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public static function GetState($eventID): array {
         $result = apcu_fetch(storageKeyPrefix . $eventID);
         if ($result === false) {

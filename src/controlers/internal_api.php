@@ -9,6 +9,33 @@ switch ($_GET['action']) {
             'liveVoting' => indexVotingState(live_voting::GetState($_GET['event_id'])),
         ]);
         break;
+    case 'indexLiveVote':
+        $req = json_decode(file_get_contents('php://input'));
+        $CWorks = new works($req->workID);
+        if (!$CWorks->record['id']) {
+            NFWX::i()->jsonError("400", $CWorks->last_msg);
+        }
+
+        if (!live_voting::IsAllowed($CWorks->record['event_id'], $CWorks->record['id'])) {
+            NFWX::i()->jsonError("400", "Live voting not allowed");
+        }
+
+        $CVote = new vote();
+        $result = $CVote->getVotekey($CWorks->record['event_id'], NFW::i()->user['email']);
+        if (!$result) {
+            NFWX::i()->jsonError("400", "Votekey create failed");
+        }
+
+        $votekey = $result;
+        NFW::i()->setCookie('votekey', $votekey);
+
+        ChromePhp::log([
+            'vote' => $req->vote,
+            'votekey' => $votekey,
+        ]);
+
+        NFWX::i()->jsonSuccess();
+        break;
     default:
         NFWX::i()->jsonError("400", "Unknown action");
 }
