@@ -24,10 +24,54 @@ foreach ($lastEvents as $record) {
 }
 ?>
     <style>
-        .voting-open .item {
+        .vote-now-body DIV {
             display: flex;
             justify-content: space-between;
             margin-bottom: 0.2em;
+        }
+
+        .live-voting {
+            transition: opacity 1s;
+            background-color: #000;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .live-voting > .top-container {
+            padding: 2px;
+            display: flex;
+        }
+
+        .live-voting > .top-container DIV {
+            padding: 10px 20px;
+        }
+
+        .live-voting IMG {
+            max-width: 256px;
+        }
+
+        .btn-group-live-voting .btn-default {
+            color: #fff;
+            background-color: #1f2a20;
+            border-color: #63745b;
+        }
+
+        .btn-group-live-voting .btn-primary.active {
+            color: #000;
+            background-color: #beeab8;
+            border-color: #63745b;
+        }
+
+        @media (max-width: 768px) {
+            .live-voting IMG {
+                max-width: 128px;
+            }
+
+            .btn-group-live-voting A {
+                padding: 3px 5px;
+                font-size: 12px;
+                line-height: 1.5;
+            }
         }
     </style>
 <?php
@@ -124,73 +168,179 @@ function displayIndexEvent($record, $layout = 'small'): void {
             <?php
             break;
         case 'full':
-            $langMain = NFW::i()->getLang('main');
+            $langMain = NFW::i()->getLang("main");
             ?>
-            <div class="index-current-event" style="padding-bottom: 20px;">
+            <div class="index-current-event">
                 <div class="row">
                     <div class="col-sm-12 col-md-5">
-                        <img src="<?php echo $record['preview_img_large'] ?: NFW::i()->assets('main/current-event-large.png') ?>"
-                             style="width: 100%; margin-top: 20px;" alt=""/>
+                        <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>">
+                            <img src="<?php echo $record['preview_img_large'] ?: NFW::i()->assets('main/current-event-large.png') ?>"
+                                 style="width: 100%; margin-top: 20px;" alt=""/>
+                        </a>
                     </div>
                     <div class="col-sm-12 col-md-7">
-                        <h2>
-                            <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><?php echo htmlspecialchars($record['title']) ?></a>
-                        </h2>
-                        <div style="font-weight: bold;"><?php echo $record['dates_desc'] ?></div>
+                        <div class="hidden-xs">
+                            <h2>
+                                <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><?php echo htmlspecialchars($record['title']) ?></a>
+                            </h2>
 
-                        <?php if ($record['announcement']): ?>
-                            <div style="padding: 20px 0;"><?php echo nl2br($record['announcement']) ?></div>
-                        <?php endif; ?>
+                            <div style="font-weight: bold;"><?php echo $record['dates_desc'] ?></div>
 
-                        <?php if (!NFW::i()->user['is_guest']): ?>
-                        <div id="voting-open-panel" class="panel panel-default" style="display: none;">
-                            <div class="panel-heading"><?php echo $langMain['Voting is open'] ?></div>
-                            <div id="voting-open-body" class="panel-body voting-open"></div>
+                            <?php if ($record['announcement']): ?>
+                                <div style="padding: 10px 0;"><?php echo nl2br($record['announcement']) ?></div>
+                            <?php endif; ?>
                         </div>
-                        <?php endif; ?>
+                        <div class="hidden-lg hidden-md hidden-sm" id="no-live-voting-<?php echo $record['id'] ?>">
+                            <h2>
+                                <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><?php echo htmlspecialchars($record['title']) ?></a>
+                            </h2>
+
+                            <div style="font-weight: bold;"><?php echo $record['dates_desc'] ?></div>
+
+                            <?php if ($record['announcement']): ?>
+                                <div style="padding: 10px 0;"><?php echo nl2br($record['announcement']) ?></div>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
 
                 <?php if (!NFW::i()->user['is_guest']): ?>
-                      <script>
-                        const votingOpenPanel = document.getElementById("voting-open-panel");
-                        const votingOpenBody = document.getElementById("voting-open-body");
+                    <div id="live-voting-container-<?php echo $record['id'] ?>" style="display: none;">
+                        <h3>Live Voting</h3>
+                        <div id="body" class="live-voting">
+                            <div class="top-container">
+                                <img id="screenshot" src="<?php echo NFW::i()->assets('main/news-no-image.png') ?>"
+                                     alt="/"/>
+                                <div>
+                                    <h4 id="title"></h4>
+                                    <p id="compo"></p>
+                                </div>
+                            </div>
+                            <div id="voting" class="btn-group btn-group-live-voting btn-group-justified"
+                                 role="group"></div>
+                        </div>
+                    </div>
+                <?php endif; ?>
 
-                        setInterval(updateVotingOpen, 5000);
-                        updateVotingOpen();
+                <?php if (!NFW::i()->user['is_guest']): ?>
+                    <div id="vote-now-container-<?php echo $record['id'] ?>" style="display: none;">
+                        <h3><?php echo $langMain['Voting is open'] ?>:</h3>
+                        <div id="vote-now-body-<?php echo $record['id'] ?>" class="vote-now-body"></div>
+                    </div>
+                <?php endif; ?>
 
-                        function updateVotingOpen() {
-                            fetch('/internal_api?action=votingStatus&event_id=<?php echo $record['id']?>').then(response => response.json()).then(response => {
-                                if (response['votingOpen'].length === 0) {
-                                    votingOpenPanel.style.display = "none";
-                                    return
+                <hr/>
+            </div>
+
+            <?php if (!NFW::i()->user['is_guest']): ?>
+            <script>
+                setInterval(updateVotingState, 5000);
+                updateVotingState();
+
+                function updateVotingState() {
+                    fetch('/internal_api?action=indexVotingStatus&event_id=<?php echo $record['id']?>').then(response => response.json()).then(response => {
+                        updateLiveVoting(response['liveVoting']);
+                        updateVoteNow(response['votingOpen']);
+                    });
+                }
+
+                let lastLiveVotingWorkID = 0;
+                let isLiveVotingGoing = false;
+
+                function updateLiveVoting(state) {
+                    const noLiveVotingContainer = document.getElementById("no-live-voting-<?php echo $record['id'] ?>");
+                    const liveVotingContainer = document.getElementById("live-voting-container-<?php echo $record['id']?>");
+                    const liveVoting = liveVotingContainer.querySelector("#body");
+                    const screenshot = liveVoting.querySelector("#screenshot");
+                    const title = liveVoting.querySelector("#title");
+                    const compo = liveVoting.querySelector("#compo");
+                    const voting = liveVoting.querySelector("#voting");
+
+                    if (state === null) {
+                        liveVotingContainer.style.display = "none";
+                        noLiveVotingContainer.style.display = "block";
+                        isLiveVotingGoing = false;
+                        lastLiveVotingWorkID = 0;
+                        return;
+                    }
+
+                    if (state["id"] === lastLiveVotingWorkID) {
+                        return;
+                    }
+                    lastLiveVotingWorkID = state["id"];
+
+                    let liveVotingInTimeout = 1500;
+                    if (!isLiveVotingGoing) {
+                        noLiveVotingContainer.style.display = "none";
+                        liveVotingInTimeout = 1;
+                        isLiveVotingGoing = true;
+                    }
+
+                    liveVoting.style.opacity = "0";
+                    setTimeout(function () {
+                        if (state['screenshot']) {
+                            screenshot.setAttribute('src', state['screenshot']);
+                            screenshot.style.display = 'block';
+                        } else {
+                            screenshot.style.display = 'none';
+                        }
+
+                        title.innerText = state['position'] + ". " + state['title'];
+                        compo.innerText = state['competition_title'];
+
+                        voting.innerHTML = '';
+                        state['voting_options'].forEach((i) => {
+                            let btn = document.createElement('a');
+                            btn.setAttribute("type", "button");
+                            btn.setAttribute("class", "btn btn-default");
+                            btn.innerHTML = i.toString();
+                            voting.appendChild(btn);
+
+                            btn.onclick = function(){
+                                for (const b of voting.children) {
+                                    b.setAttribute("class", "btn btn-default");
                                 }
 
-                                votingOpenBody.innerHTML = "";
-                                response['votingOpen'].forEach((compo) => {
-                                    const title = document.createElement('a');
-                                    title.innerText = compo['title']
-                                    title.href = compo['url']
+                                btn.setAttribute("class", "btn btn-primary active");
+                                console.log(i, state['id']);
+                            };
+                        });
 
-                                    const status = document.createElement('div');
-                                    status.innerText = compo['statusText']
-                                    status.className = "text-danger"
+                        liveVotingContainer.style.display = "block";
+                        liveVoting.style.opacity = "1";
+                    }, liveVotingInTimeout)
+                }
 
-                                    const item = document.createElement('div');
-                                    item.className = "item"
-                                    item.appendChild(title);
-                                    item.appendChild(status);
+                function updateVoteNow(values) {
+                    const voteNowContainer = document.getElementById("vote-now-container-<?php echo $record['id']?>");
+                    const voteNowBody = document.getElementById("vote-now-body-<?php echo $record['id']?>");
 
-                                    votingOpenBody.appendChild(item);
-                                })
+                    if (values.length === 0) {
+                        voteNowContainer.style.display = "none";
+                        return
+                    }
 
-                                votingOpenPanel.style.display = "block";
-                            });
-                        }
-                    </script>
-                <?php endif; ?>
-            </div>
-            <?php
+                    voteNowBody.innerHTML = "";
+                    values.forEach((compo) => {
+                        const title = document.createElement('a');
+                        title.innerText = compo['title']
+                        title.href = compo['url']
+
+                        const status = document.createElement('div');
+                        status.innerText = compo['statusText']
+                        status.className = "text-danger"
+
+                        const item = document.createElement('div');
+                        item.appendChild(title);
+                        item.appendChild(status);
+
+                        voteNowBody.appendChild(item);
+                    })
+
+                    voteNowContainer.style.display = "block";
+                }
+            </script>
+        <?php endif;
             break;
     }
 }

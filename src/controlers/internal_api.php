@@ -3,17 +3,25 @@
 // Various internal requests
 
 switch ($_GET['action']) {
-    case 'votingStatus':
+    case 'indexVotingStatus':
         NFWX::i()->jsonSuccess([
-            'votingOpen' => votingOpen($_GET['event_id']),
-            'liveVoting' => live_voting::GetWorks($_GET['event_id']),
+            'votingOpen' => indexVotingOpen($_GET['event_id']),
+            'liveVoting' => indexVotingState(live_voting::GetState($_GET['event_id'])),
         ]);
         break;
     default:
         NFWX::i()->jsonError("400", "Unknown action");
 }
 
-function votingOpen($eventID): array {
+function indexVotingState($state) {
+    if (empty($state['current'])) {
+        return null;
+    }
+
+    return $state['current'];
+}
+
+function indexVotingOpen($eventID): array {
     $CCompetitions = new competitions();
     $result = [];
     foreach ($CCompetitions->getRecords(array('filter' => array('event_id' => $eventID))) as $c) {

@@ -1,29 +1,16 @@
 <?php
 
-const memoryStorageKey = "live-voting-storage-key";
+const storageKeyPrefix = "live-voting-storage-key";
 const memoryStorageTtlSec = 3600;
 
 class live_voting extends active_record {
-    static $action_aliases = array(
-        'admin' => array(
-            array('module' => 'competitions', 'action' => 'update'),
-        ),
-    );
-
-    public static function GetWorks($eventID): array {
-        $result = apcu_fetch(memoryStorageKey);
+    public static function GetState($eventID): array {
+        $result = apcu_fetch(storageKeyPrefix . $eventID);
         if ($result === false) {
             return [];
         }
 
-        $works = [];
-        foreach ($result as $work) {
-            if ($work["event_id"] == $eventID) {
-                $works[] = $work;
-            }
-        }
-
-        return $works;
+        return $result;
     }
 
     function actionAdminAdmin() {
@@ -78,24 +65,8 @@ class live_voting extends active_record {
         ]);
     }
 
-    function actionAdminOpenVoting() {
-        $CCompetition = new competitions($_POST['competition_id']);
-        if (!$CCompetition->record['id']) {
-            $this->error($CCompetition->last_msg, __FILE__, __LINE__);
-            NFWX::i()->jsonError(400, $this->last_msg);
-        }
-
-        $CCompetition->record['voting_from'] = time();
-        $CCompetition->save();
-        if ($CCompetition->error) {
-            NFW::i()->renderJSON(array('result' => 'error', 'errors' => array('general' => $CCompetition->last_msg)));
-        }
-
-        NFWX::i()->jsonSuccess(['message' => "Voting opened from now"]);
-    }
-
     function actionAdminReadState() {
-        NFWX::i()->jsonSuccess(apcu_fetch(memoryStorageKey));
+        NFWX::i()->jsonSuccess(apcu_fetch(storageKeyPrefix . $_GET['event_id']));
     }
 
     function actionAdminUpdateState() {
@@ -111,13 +82,13 @@ class live_voting extends active_record {
         }
 
         if (isset($_POST['stopAllLiveVoting']) && $_POST['stopAllLiveVoting']) {
-            apcu_delete(memoryStorageKey);
+            apcu_delete(storageKeyPrefix . $_GET['event_id']);
             NFWX::i()->jsonSuccess();
         }
 
         $stopLiveVotingID = isset($_POST['stopLiveVoting']) ? intval($_POST['stopLiveVoting']) : 0;
 
-        $state = apcu_fetch(memoryStorageKey);
+        $state = apcu_fetch(storageKeyPrefix . $_GET['event_id']);
         $current = isset($state['current']['id']) && $state['current']['id'] != $stopLiveVotingID ? $state['current'] : [];
         $all = $state['all'] ?? [];
 
@@ -125,8 +96,13 @@ class live_voting extends active_record {
             $CWorks = new works($_POST['startLiveVoting']);
             if ($CWorks->record['id'] && $CWorks->record['id'] != $stopLiveVotingID) {
                 $current = [
-                    'id' => $CWorks->record['id'],
                     'competition_id' => $CWorks->record['competition_id'],
+                    'id' => $CWorks->record['id'],
+                    'position' => $CWorks->record['position'],
+                    'title' => $CWorks->record['title'],
+                    'competition_title' => $CWorks->record['competition_title'],
+                    'screenshot' => $CWorks->record['screenshot']['url'] ?? '',
+                    'voting_options' => extractVotingVariants($CEvents->record['options']),
                 ];
                 $all[] = $current;
             }
@@ -153,7 +129,45 @@ class live_voting extends active_record {
             'all' => $newAll,
         ];
 
-        apcu_store(memoryStorageKey, $newState, memoryStorageTtlSec);
+        apcu_store(storageKeyPrefix . $_GET['event_id'], $newState, memoryStorageTtlSec);
         NFWX::i()->jsonSuccess($newState);
     }
+
+
+    function actionAdminOpenVoting() {
+        $CCompetition = new competitions($_POST['competition_id']);
+        if (!$CCompetition->record['id']) {
+            $this->error($CCompetition->last_msg, __FILE__, __LINE__);
+            NFWX::i()->jsonError(400, $this->last_msg);
+        }
+
+        $CCompetition->record['voting_from'] = time();
+        $CCompetition->save();
+        if ($CCompetition->error) {
+            NFW::i()->renderJSON(array('result' => 'error', 'errors' => array('general' => $CCompetition->last_msg)));
+        }
+
+        NFWX::i()->jsonSuccess(['message' => "Voting opened from now"]);
+    }
+}
+
+function extractVotingVariants($come): array {
+    $result = [];
+
+    if (empty($come)) {
+        $langMain = NFW::i()->getLang('main');
+        foreach ($langMain['voting votes'] as $k => $v) {
+            if ($k) {
+                $result[] = $k;
+            }
+        }
+    }
+
+    foreach ($come as $v) {
+        if ($v['value']) {
+            $result[] = $v['value'];
+        }
+    }
+
+    return $result;
 }

@@ -39,6 +39,7 @@ NFW::i()->breadcrumb = array(
         }
 
         .live-voting-thumbnail:focus {
+            color: #888;
             text-decoration: none;
         }
 
@@ -86,8 +87,8 @@ NFW::i()->breadcrumb = array(
         <div class="well">
             <p><span class="live-voting-current">&nbsp;&nbsp;&nbsp;&nbsp;</span> - Live voting work on index page. Only
                 one allowed.</p>
-            <p><span class="live-voting-all">&nbsp;&nbsp;&nbsp;&nbsp;</span> - Work on <a href="/live_voting">live
-                    voting page</a>. Multiply allowed.</p>
+            <p><span class="live-voting-all">&nbsp;&nbsp;&nbsp;&nbsp;</span> - Works that participated in the live voting
+                session for the current competition. Multiply allowed.</p>
             <p>If you change the competition and start live voting, then all previously started voting in the previous
                 competition stops.</p>
             <p>The "Stop live voting" button stops all running live voting.</p>
