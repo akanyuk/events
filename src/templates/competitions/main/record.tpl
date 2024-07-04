@@ -5,8 +5,6 @@
  * @var array $competitions
  * @var string $content
  */
-NFW::i()->hook("competitions_record", $event['alias'], array('event' => $event));
-
 echo $content;
 
 if (empty($competitions)) {

@@ -6,11 +6,6 @@
  * @var array $votekey Preloaded from request or user profile votekey
  */
 
-$result = NFWX::i()->hook("competitions_voting", $event['alias'], array('event' => $event, 'competition' => $competition, 'voting_works' => $works));
-if ($result === "stop_execution") {
-    return;
-}
-
 NFW::i()->registerResource('jquery.activeForm', false, true);
 NFW::i()->registerResource('jquery.blockUI');
 NFW::i()->registerResource('base');
@@ -21,11 +16,7 @@ NFW::i()->registerFunction('active_field');
 $lang_main = NFW::i()->getLang('main');
 
 $votingOptions = array();
-if (!empty($hook_additional['event']['options'])) {
-    foreach ($hook_additional['event']['options'] as $v) {
-        $votingOptions[$v['value']] = $v['label_' . NFW::i()->user['language']] ? $v['label_' . NFW::i()->user['language']] : $v['value'];
-    }
-} else if (!empty($event['options'])) {
+if (!empty($event['options'])) {
     foreach ($event['options'] as $v) {
         $votingOptions[$v['value']] = $v['label_' . NFW::i()->user['language']] ? $v['label_' . NFW::i()->user['language']] : $v['value'];
     }

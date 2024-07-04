@@ -435,13 +435,7 @@ class vote extends active_record {
             }
 
             $vote = intval($vote);
-            $accepted = NFWX::i()->hook(
-                "vote_accept_vote",
-                $CCompetitions->record['event_alias'],
-                array('vote' => $vote)
-            );
-
-            if ($accepted !== "accepted" && $vote == 0) {
+            if ($vote == 0) {
                 continue;
             }
 
