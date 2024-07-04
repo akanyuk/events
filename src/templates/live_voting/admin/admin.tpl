@@ -2,32 +2,12 @@
 /**
  * @var live_voting $Module
  * @var array $event
- * @var array $works
+ * @var array $records
+ * @var int $firstCompo
  */
 
-// Create tree of works, filters selector, counters badge
-$recordsTree = [];
-$_curCompo = 0;
-$firstCompo = 0;
-foreach ($works as $work) {
-    if ($firstCompo == 0) {
-        $firstCompo = $work['competition_id'];
-    }
-
-    if ($_curCompo != $work['competition_id']) {
-        $_curCompo = $work['competition_id'];
-
-        $recordsTree[$_curCompo] = array(
-            'title' => $work['competition_title'],
-            'works_type' => $work['works_type'],
-            'works' => array(),
-        );
-    }
-
-    $recordsTree[$_curCompo]['works'][] = $work;
-}
-
 NFW::i()->registerFunction('cache_media');
+NFW::i()->registerResource('jquery.jgrowl');
 NFW::i()->assign('page_title', $event['title'] . ' / Live voting');
 
 NFW::i()->breadcrumb = array(
@@ -92,7 +72,7 @@ NFW::i()->breadcrumb = array(
     <div class="live-voting-menu">
         <label for="filter-compo"></label>
         <select id="filter-compo" class="form-control">
-            <?php foreach ($recordsTree as $id => $compo) {
+            <?php foreach ($records as $id => $compo) {
                 echo '<option value="' . $id . '">' . $compo['title'] . '</option>';
             } ?>
         </select>
@@ -117,7 +97,7 @@ NFW::i()->breadcrumb = array(
     </div>
 
     <div id="live-voting">
-        <?php foreach ($recordsTree as $compoID => $c): ?>
+        <?php foreach ($records as $compoID => $c): ?>
             <div class="row" data-role="competition-container" id="<?php echo $compoID ?>"
                  style="display: <?php echo $compoID == $firstCompo ? 'block' : 'none' ?>;">
                 <?php foreach ($c['works'] as $r): ?>
@@ -197,6 +177,28 @@ NFW::i()->breadcrumb = array(
                         success: function (response) {
                             updateByState(response);
                         },
+                    },
+                );
+
+                return false;
+            });
+
+            $('[id="open-normal-voting"]').click(function () {
+                $.ajax('<?php echo $Module->formatURL('open_voting')?>',
+                    {
+                        method: "POST",
+                        dataType: "json",
+                        data: {
+                            'competition_id': $('select[id="filter-compo"]').val(),
+                        },
+                        error: function (response) {
+                            if (response['responseJSON']['errors']['general'] !== undefined) {
+                                alert(response['responseJSON']['errors']['general']);
+                            }
+                        },
+                        success: function (response) {
+                            $.jGrowl(response['message']);
+                        }
                     },
                 );
 

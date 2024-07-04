@@ -49,10 +49,49 @@ class live_voting extends active_record {
             'skip_pagination' => true,
         ));
 
+        // Create tree of works by competition
+        $records = [];
+        $_curCompo = 0;
+        $firstCompo = 0;
+        foreach ($works as $work) {
+            if ($firstCompo == 0) {
+                $firstCompo = $work['competition_id'];
+            }
+
+            if ($_curCompo != $work['competition_id']) {
+                $_curCompo = $work['competition_id'];
+
+                $records[$_curCompo] = array(
+                    'title' => $work['competition_title'],
+                    'works_type' => $work['works_type'],
+                    'works' => array(),
+                );
+            }
+
+            $records[$_curCompo]['works'][] = $work;
+        }
+
         return $this->renderAction([
             'event' => $CEvents->record,
-            'works' => $works,
+            'records' => $records,
+            'firstCompo' => $firstCompo,
         ]);
+    }
+
+    function actionAdminOpenVoting() {
+        $CCompetition = new competitions($_POST['competition_id']);
+        if (!$CCompetition->record['id']) {
+            $this->error($CCompetition->last_msg, __FILE__, __LINE__);
+            NFWX::i()->jsonError(400, $this->last_msg);
+        }
+
+        $CCompetition->record['voting_from'] = time();
+        $CCompetition->save();
+        if ($CCompetition->error) {
+            NFW::i()->renderJSON(array('result' => 'error', 'errors' => array('general' => $CCompetition->last_msg)));
+        }
+
+        NFWX::i()->jsonSuccess(['message' => "Voting opened from now"]);
     }
 
     function actionAdminReadState() {
