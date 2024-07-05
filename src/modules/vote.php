@@ -1,11 +1,9 @@
 <?php
 /**
- * @desc Votekeys, votes, voting results.
+ * @desc Votes, voting results.
  */
 
 class vote extends active_record {
-    const votekeyLength = 8;
-
     static $action_aliases = array(
         'admin' => array(
             array('module' => 'vote', 'action' => 'votekeys'),
@@ -17,111 +15,6 @@ class vote extends active_record {
             array('module' => 'live_voting', 'action' => 'update_state'),
         ),
     );
-
-    private function generateVotekey($event_id, $email = '') {
-        while (true) {
-            $votekey = '';
-            for ($i = 0; $i < self::votekeyLength; ++$i) {
-                $votekey .= chr(mt_rand(48, 57));
-            }
-
-            $result = NFW::i()->db->query_build(array('SELECT' => 'votekey', 'FROM' => 'votekeys', 'WHERE' => '`votekey`=\'' . $votekey . '\' AND `event_id`=' . $event_id));
-            if (!NFW::i()->db->num_rows($result)) break;
-        }
-
-        $query = array(
-            'INSERT' => '`event_id`, `votekey`, `email`, `useragent`, `poster_ip`, `posted`',
-            'INTO' => 'votekeys',
-            'VALUES' => $event_id . ', \'' . $votekey . '\', \'' . NFW::i()->db->escape($email) . '\', \'' . NFW::i()->db->escape(isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '') . '\', \'' . logs::get_remote_address() . '\', ' . time()
-        );
-        if (!NFW::i()->db->query_build($query)) {
-            $this->error('Unable to insert new votekey', __FILE__, __LINE__, NFW::i()->db->error());
-            return false;
-        }
-
-        return $votekey;
-    }
-
-    private function getVotekeys($eventID, $options = array()) {
-        // Generate 'WHERE' string
-        $where = array(
-            'event_id = ' . intval($eventID)
-        );
-
-        // Search string
-        $filter = $where;
-        if (isset($options['search'])) {
-            $filter[] = '(votekey LIKE \'%' . NFW::i()->db->escape($options['search']) . '%\' OR email LIKE \'%' . NFW::i()->db->escape($options['search']) . '%\' OR poster_ip LIKE \'%' . NFW::i()->db->escape($options['search']) . '%\')';
-        }
-
-        // Count total records
-        if (!$result = NFW::i()->db->query_build(array(
-            'SELECT' => 'COUNT(*)',
-            'FROM' => 'votekeys',
-            'WHERE' => join(' AND ', $where),
-        ))) {
-            $this->error('Unable to count records', __FILE__, __LINE__, NFW::i()->db->error());
-            return false;
-        }
-        list($total_records) = NFW::i()->db->fetch_row($result);
-
-        // Count filtered values
-        if (!$result = NFW::i()->db->query_build(array(
-            'SELECT' => 'COUNT(*)',
-            'FROM' => 'votekeys',
-            'WHERE' => join(' AND ', $filter),
-        ))) {
-            $this->error('Unable to count filtered records', __FILE__, __LINE__, NFW::i()->db->error());
-            return false;
-        }
-        list($num_filtered) = NFW::i()->db->fetch_row($result);
-        if (!$num_filtered) {
-            return array(array(), $total_records, 0);
-        }
-
-        if (!$result = NFW::i()->db->query_build(array(
-            'SELECT' => '*',
-            'FROM' => 'votekeys',
-            'WHERE' => join(' AND ', $filter),
-            'ORDER BY' => 'posted DESC',
-            'LIMIT' => (isset($options['offset']) ? intval($options['offset']) : null) . (isset($options['limit']) ? ',' . intval($options['limit']) : null),
-        ))) {
-            $this->error('Unable to fetch records', __FILE__, __LINE__, NFW::i()->db->error());
-            return false;
-        }
-        if (!NFW::i()->db->num_rows($result)) {
-            return array();
-        }
-        $records = array();
-        while ($cur_record = NFW::i()->db->fetch_assoc($result)) {
-            $records[] = $cur_record;
-        }
-
-        return array($records, $total_records, $num_filtered);
-    }
-
-    private function calculateIQM($votes = array()) {
-        $numVotes = count($votes);
-        $start = ceil($numVotes / 4);
-        $len = floor($numVotes / 2);
-        $end = $numVotes - $start - $len;
-
-        // Делаем обрезание справа и слева симметричным
-        if ($end > $start) {
-            $len++;
-        } else if ($end < $start) {
-            $start--;
-            $len++;
-        }
-
-        sort($votes);
-        $slicedVotes = array_slice($votes, $start, $len);
-        if (count($slicedVotes) == 0) {
-            return 0;
-        }
-
-        return round(array_sum($slicedVotes) / count($slicedVotes), 2);
-    }
 
     // Load results for given works array
     public function getResults($event_id, $options = array()) {
@@ -187,15 +80,15 @@ class vote extends active_record {
             $works[$r['competition_id']]['works'][$r['work_id']]['num_votes']++;
         }
 
-        $prev_numvotes = 0;
+        $prevNumVotes = 0;
         $prev_total = 0;
         $prev_average = 0;
         $prev_iqm = 0;
         foreach ($works as $cid => $competition) {
             // Calculate average and iqm
-            foreach ($works[$cid]['works'] as $key => $work) {
+            foreach ($competition['works'] as $key => $work) {
                 $works[$cid]['works'][$key]['average_vote'] = round($works[$cid]['works'][$key]['total_scores'] / $works[$cid]['works'][$key]['num_votes'], 2);
-                $works[$cid]['works'][$key]['iqm_vote'] = $this->calculateIQM($allVotes[$work['id']]);
+                $works[$cid]['works'][$key]['iqm_vote'] = calculateIQM($allVotes[$work['id']]);
             }
 
             if ($place_order == 'avg') {
@@ -213,11 +106,11 @@ class vote extends active_record {
                 } else if ($place_order == 'iqm') {
                     if ($work['iqm_vote'] == $prev_iqm && $work['total_scores'] == $prev_total) $place--;
                 } else {
-                    if ($work['total_scores'] == $prev_total && $work['num_votes'] == $prev_numvotes) $place--;
+                    if ($work['total_scores'] == $prev_total && $work['num_votes'] == $prevNumVotes) $place--;
                 }
 
                 $prev_total = $work['total_scores'];
-                $prev_numvotes = $work['num_votes'];
+                $prevNumVotes = $work['num_votes'];
                 $prev_average = $work['average_vote'];
                 $prev_iqm = $work['iqm_vote'];
                 $works[$cid]['works'][$key]['place'] = $place++;
@@ -231,13 +124,18 @@ class vote extends active_record {
     }
 
     public function getVotes($options = array()) {
-        $filter = isset($options['filter']) ? $options['filter'] : array();
+        $filter = $options['filter'] ?? array();
 
         // Generate 'WHERE' string
         $where = array();
 
-        if (isset($filter['event_id']) && $filter['event_id'] != '-1') $where[] = 'v.event_id = ' . intval($filter['event_id']);
-        if (isset($filter['competition_id']) && $filter['competition_id'] != '-1') $where[] = 'w.competition_id = ' . intval($filter['competition_id']);
+        if (isset($filter['event_id']) && $filter['event_id'] != '-1') {
+            $where[] = 'v.event_id = ' . intval($filter['event_id']);
+        }
+
+        if (isset($filter['competition_id']) && $filter['competition_id'] != '-1') {
+            $where[] = 'w.competition_id = ' . intval($filter['competition_id']);
+        }
 
         // Search
         $search = $where;
@@ -307,48 +205,7 @@ class vote extends active_record {
         return array($records, $total_records, $num_filtered);
     }
 
-    public function getVotekey(int $eventID, string $email): string {
-        $query = array(
-            'SELECT' => 'votekey',
-            'FROM' => 'votekeys',
-            'WHERE' => 'email=\'' . NFW::i()->db->escape($email) . '\' AND event_id=' . $eventID,
-        );
-        if (!$result = NFW::i()->db->query_build($query)) {
-            $this->error('Unable to search votekey', __FILE__, __LINE__, NFW::i()->db->error());
-            return false;
-        }
-
-        if (NFW::i()->db->num_rows($result)) {
-            list($votekey) = NFW::i()->db->fetch_row($result);
-            return $votekey;
-        }
-
-        if (!$votekey = $this->generateVotekey($eventID, $email)) {
-            return false;
-        }
-
-        return $votekey;
-    }
-
-    public function getVotekeyID($votekey, $eventID) {
-        if (!$votekey) {
-            return false;
-        }
-
-        $result = NFW::i()->db->query_build(array(
-            'SELECT' => 'id',
-            'FROM' => 'votekeys',
-            'WHERE' => '`votekey`=\'' . NFW::i()->db->escape($votekey) . '\' AND `event_id`=' . $eventID));
-        if (!NFW::i()->db->num_rows($result)) {
-            return false;
-        }
-
-        list($votekey_id) = NFW::i()->db->fetch_row($result);
-        return $votekey_id;
-    }
-
-
-    function addLiveVoteByRegisteredUser(int $workID, $vote): bool {
+    public function addLiveVoteByRegisteredUser(int $workID, $vote): bool {
         if (NFW::i()->user['is_guest']) {
             $this->error('Authorization required', __FILE__, __LINE__);
             return false;
@@ -381,21 +238,14 @@ class vote extends active_record {
             return false;
         }
 
-        $result = $this->getVotekey($CEvents->record['id'], NFW::i()->user['email']);
-        if (!$result) {
-            $this->error('Vote create failed', __FILE__, __LINE__);
-            return false;
-        }
-        $votekey = $result;
-
-        // Check votekey
-        if (!$votekeyID = $this->getVotekeyID($votekey, $CEvents->record['id'])) {
-            $this->error('Incorrect votekey', __FILE__, __LINE__);
+        $votekey = votekey::findOrCreateVotekey($CEvents->record['id'], NFW::i()->user['email']);
+        if ($votekey->error) {
+            $this->error('Find or create votekey failed: ' . $votekey->last_msg, __FILE__, __LINE__);
             return false;
         }
 
         // Prune old vote with same votekey
-        if (!NFW::i()->db->query_build(array('DELETE' => 'votes', 'WHERE' => 'votekey_id=' . $votekeyID . ' AND work_id=' . $CWorks->record['id']))) {
+        if (!NFW::i()->db->query_build(array('DELETE' => 'votes', 'WHERE' => 'votekey_id=' . $votekey->id . ' AND work_id=' . $CWorks->record['id']))) {
             $this->error('Unable to delete old votes', __FILE__, __LINE__, NFW::i()->db->error());
             return false;
         }
@@ -404,20 +254,16 @@ class vote extends active_record {
         if (!NFW::i()->db->query_build(array(
             'INSERT' => '`event_id`, `work_id`, `votekey_id`, `vote`, `username`, `useragent`, `poster_ip`, `posted`',
             'INTO' => 'votes',
-            'VALUES' => $CEvents->record['id'] . ', ' . $CWorks->record['id'] . ', ' . $votekeyID . ', ' . $vote . ', \'' . NFW::i()->user['realname'] . '\', \'' . NFW::i()->db->escape($_SERVER['HTTP_USER_AGENT'] ?? '') . '\', \'' . logs::get_remote_address() . '\', ' . time()
+            'VALUES' => $CEvents->record['id'] . ', ' . $CWorks->record['id'] . ', ' . $votekey->id . ', ' . $vote . ', \'' . NFW::i()->user['realname'] . '\', \'' . NFW::i()->db->escape($_SERVER['HTTP_USER_AGENT'] ?? '') . '\', \'' . logs::get_remote_address() . '\', ' . time()
         ))) {
             $this->error('Unable to insert new vote', __FILE__, __LINE__, NFW::i()->db->error());
             return false;
         }
 
-        // Update votekey
-        if (!NFW::i()->db->query_build(array('UPDATE' => 'votekeys', 'SET' => 'is_used=1', 'WHERE' => 'id=' . $votekeyID))) {
-            $this->error('Unable to update votekey state', __FILE__, __LINE__, NFW::i()->db->error());
+        if (!$votekey->used()) {
+            $this->error('Unable to update votekey state', __FILE__, __LINE__, $votekey->last_msg);
             return false;
         }
-
-        // Save votekey and for future use
-        NFW::i()->setCookie('votekey', $votekey, time() + 60 * 60 * 24 * 7);
 
         return true;
     }
@@ -444,8 +290,8 @@ class vote extends active_record {
             NFW::i()->renderJSON(array('result' => 'error', 'errors' => array('email' => $this->last_msg)));
         }
 
-        $votekey = $this->getVotekey($CEvents->record['id'], $email);
-        if ($this->error) {
+        $votekey = votekey::findOrCreateVotekey($CEvents->record['id'], $email);
+        if ($votekey->error) {
             NFW::i()->renderJSON(array('result' => 'error', 'errors' => array('email' => $this->last_msg)));
         }
 
@@ -458,7 +304,7 @@ class vote extends active_record {
         NFW::i()->renderJSON(array('result' => 'success', 'message' => $lang_main['votekey-request success note']));
     }
 
-    function actionMainAddVote() {
+    function actionMainAddVote(): bool {
         $this->error_report_type = 'active_form';
 
         // Check for system errors
@@ -477,8 +323,8 @@ class vote extends active_record {
         $lang_main = NFW::i()->getLang('main');
 
         // Check votekey
-        $votekey = isset($_POST['votekey']) ? trim($_POST['votekey']) : false;
-        if (!$votekey_id = $this->getVotekeyID($votekey, $event_id)) {
+        $votekey = votekey::getVotekey(isset($_POST['votekey']) ? trim($_POST['votekey']) : false, $event_id);
+        if ($votekey->error) {
             $this->errors['votekey'] = $this->errors['general-message'] = $lang_main['voting error wrong votekey'];
         }
 
@@ -491,7 +337,6 @@ class vote extends active_record {
             NFW::i()->renderJSON(array('result' => 'error', 'errors' => $this->errors));
             return false;
         }
-        $this->errors = array();
 
         $CWorks = new works();
         $single_work_id = isset($_POST['work_id']) && $_POST['work_id'] ? intval($_POST['work_id']) : false;
@@ -522,11 +367,11 @@ class vote extends active_record {
         }
 
         foreach ($commentsDuringVoting as $workID => $comment) {
-            works_comments::upsertCommentByVotekey($votekey_id, $workID, $comment, $username);
+            works_comments::upsertCommentByVotekey($votekey->id, $workID, $comment, $username);
         }
 
         // Prune old votes with same votekey
-        if (!NFW::i()->db->query_build(array('DELETE' => 'votes', 'WHERE' => 'votekey_id=' . $votekey_id . ' AND work_id IN (' . implode(',', $available_works) . ')'))) {
+        if (!NFW::i()->db->query_build(array('DELETE' => 'votes', 'WHERE' => 'votekey_id=' . $votekey->id . ' AND work_id IN (' . implode(',', $available_works) . ')'))) {
             $this->error('Unable to delete old votes', __FILE__, __LINE__, NFW::i()->db->error());
             return false;
         }
@@ -539,24 +384,21 @@ class vote extends active_record {
             if (!NFW::i()->db->query_build(array(
                 'INSERT' => '`event_id`, `work_id`, `votekey_id`, `vote`, `username`, `useragent`, `poster_ip`, `posted`',
                 'INTO' => 'votes',
-                'VALUES' => $event_id . ', ' . $v['work_id'] . ', ' . $votekey_id . ', ' . $v['vote'] . ', \'' . $username . '\', \'' . $useragent . '\', \'' . $poster_ip . '\', ' . $now
+                'VALUES' => $event_id . ', ' . $v['work_id'] . ', ' . $votekey->id . ', ' . $v['vote'] . ', \'' . $username . '\', \'' . $useragent . '\', \'' . $poster_ip . '\', ' . $now
             ))) {
                 $this->error('Unable to insert new vote', __FILE__, __LINE__, NFW::i()->db->error());
                 return false;
             }
         }
 
-        // Update votekey
-        if (!NFW::i()->db->query_build(array('UPDATE' => 'votekeys', 'SET' => 'is_used=1', 'WHERE' => 'id=' . $votekey_id))) {
-            $this->error('Unable to update votekey state', __FILE__, __LINE__, NFW::i()->db->error());
+        if (!$votekey->used()) {
+            $this->error('Unable to update votekey state', __FILE__, __LINE__, $votekey->last_msg);
             return false;
         }
 
-        // Save votekey and for future use
-        NFW::i()->setCookie('votekey', $votekey, time() + 60 * 60 * 24 * 7);
-
         // Done
         NFW::i()->renderJSON(array('result' => 'success', 'message' => $lang_main['voting success note']));
+        return true; // Linter
     }
 
     function actionAdminAdmin() {
@@ -569,7 +411,7 @@ class vote extends active_record {
         return $this->renderAction(array('event' => $CEvents->record));
     }
 
-    function actionAdminVotekeys() {
+    function actionAdminVotekeys(): bool {
         $CEvents = new events($_GET['event_id'] ?? false);
         if (!$CEvents->record['id']) {
             $this->error($CEvents->last_msg, __FILE__, __LINE__);
@@ -579,14 +421,17 @@ class vote extends active_record {
         if (isset($_GET['part']) && $_GET['part'] == 'add-votekeys') {
             $count = intval($_POST['count']);
             while ($count--) {
-                $this->generateVotekey($CEvents->record['id'], $_POST['email']);
+                $votekey = votekey::generateVotekey($CEvents->record['id'], $_POST['email']);
+                if ($votekey->error) {
+                    $this->error($votekey->last_msg, __FILE__, __LINE__);
+                    return false;
+                }
             }
-
             NFW::i()->renderJSON(array('result' => 'success'));
         } elseif (isset($_GET['part']) && $_GET['part'] == 'list.js') {
             $this->error_report_type = 'plain';
-
-            list($records, $iTotalRecords, $iTotalDisplayRecords) = $this->getVotekeys(
+            $CVotekey = new votekey();
+            list($records, $iTotalRecords, $iTotalDisplayRecords) = $CVotekey->getVotekeys(
                 $CEvents->record['id'],
                 array(
                     'limit' => $_POST['iDisplayLength'],
@@ -602,9 +447,10 @@ class vote extends active_record {
         }
 
         NFW::i()->stop($this->renderAction(array('event' => $CEvents->record)));
+        return true; // Linter
     }
 
-    function actionAdminVotes() {
+    function actionAdminVotes(): bool {
         $CEvents = new events($_GET['event_id'] ?? false);
         if (!$CEvents->record['id']) {
             $this->error($CEvents->last_msg, __FILE__, __LINE__);
@@ -629,9 +475,10 @@ class vote extends active_record {
         }
 
         NFW::i()->stop($this->renderAction(array('event' => $CEvents->record)));
+        return true; // Linter
     }
 
-    function actionAdminAddVote() {
+    function actionAdminAddVote(): bool {
         $this->error_report_type = 'active_form';
 
         $CEvents = new events($_GET['event_id'] ?? false);
@@ -640,20 +487,13 @@ class vote extends active_record {
             return false;
         }
 
-        // Check votekey
-        $votekey_id = 0;
-        $votekey = isset($_POST['votekey']) ? trim($_POST['votekey']) : false;
-        if ($votekey && !$votekey_id = $this->getVotekeyID($votekey, $CEvents->record['id'])) {
-            $this->error('Votekey not found');
-            return false;
-        }
-
-        $useragent = NFW::i()->db->escape(isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '');
+        $votekey = votekey::getVotekey(isset($_POST['votekey']) ? trim($_POST['votekey']) : false, $CEvents->record['id']);
+        $useragent = NFW::i()->db->escape($_SERVER['HTTP_USER_AGENT'] ?? '');
         $poster_ip = logs::get_remote_address();
         $now = time();
         $username = NFW::i()->db->escape($_POST['username']);
 
-        foreach ($_POST['votes'] as $work_id => $vote) {
+        foreach ($_POST['votes'] as $workID => $vote) {
             $vote = intval($vote);
 
             $accepted = NFWX::i()->hook(
@@ -666,9 +506,9 @@ class vote extends active_record {
                 continue;
             }
 
-            if ($votekey_id > 0) {
+            if ($votekey->id > 0) {
                 // Prune old vote with same votekey
-                if (!$result = NFW::i()->db->query_build(array('DELETE' => 'votes', 'WHERE' => 'votekey_id=' . $votekey_id . ' AND work_id =' . $work_id))) {
+                if (!NFW::i()->db->query_build(array('DELETE' => 'votes', 'WHERE' => 'votekey_id=' . $votekey->id . ' AND work_id =' . $workID))) {
                     $this->error('Unable to delete old vote', __FILE__, __LINE__, NFW::i()->db->error());
                     return false;
                 }
@@ -677,7 +517,7 @@ class vote extends active_record {
             if (!NFW::i()->db->query_build(array(
                 'INSERT' => '`event_id`, `work_id`, `vote`, `votekey_id`, `username`, `useragent`, `poster_ip`, `posted`',
                 'INTO' => 'votes',
-                'VALUES' => $CEvents->record['id'] . ', ' . $work_id . ', ' . $vote . ',' . $votekey_id . ', \'' . $username . '\', \'' . $useragent . '\', \'' . $poster_ip . '\', ' . $now
+                'VALUES' => $CEvents->record['id'] . ', ' . $workID . ', ' . $vote . ',' . $votekey->id . ', \'' . $username . '\', \'' . $useragent . '\', \'' . $poster_ip . '\', ' . $now
             ))) {
                 $this->error('Unable to insert new vote', __FILE__, __LINE__, NFW::i()->db->error());
                 return false;
@@ -685,9 +525,10 @@ class vote extends active_record {
         }
 
         NFW::i()->renderJSON(array('result' => 'success'));
+        return true; // Linter
     }
 
-    function actionAdminResults() {
+    function actionAdminResults(): bool {
         $CEvents = new events($_GET['event_id'] ?? false);
         if (!$CEvents->record['id']) {
             $this->error($CEvents->last_msg, __FILE__, __LINE__);
@@ -708,7 +549,7 @@ class vote extends active_record {
                     'SET' => '`total_scores`=' . $w['total_scores'] . ', `num_votes`=' . $w['num_votes'] . ', `average_vote`=' . $w['average_vote'] . ', `iqm_vote`=' . $w['iqm_vote'] . ', `place`=' . $w['place'],
                     'WHERE' => '`id`=' . $w['id']
                 );
-                if (!$result = NFW::i()->db->query_build($query)) {
+                if (!NFW::i()->db->query_build($query)) {
                     $this->error('Unable to update work votes', __FILE__, __LINE__, NFW::i()->db->error());
                     return false;
                 }
@@ -724,6 +565,7 @@ class vote extends active_record {
         }
 
         NFW::i()->stop($this->renderAction(array('event' => $CEvents->record)));
+        return true; // Linter
     }
 }
 
@@ -753,4 +595,27 @@ function sortByIQM($a, $b): int {
     }
 
     return $a['iqm_vote'] < $b['iqm_vote'] ? 1 : -1;
+}
+
+function calculateIQM($votes = array()) {
+    $numVotes = count($votes);
+    $start = ceil($numVotes / 4);
+    $len = floor($numVotes / 2);
+    $end = $numVotes - $start - $len;
+
+    // Делаем обрезание справа и слева симметричным
+    if ($end > $start) {
+        $len++;
+    } else if ($end < $start) {
+        $start--;
+        $len++;
+    }
+
+    sort($votes);
+    $slicedVotes = array_slice($votes, $start, $len);
+    if (count($slicedVotes) == 0) {
+        return 0;
+    }
+
+    return round(array_sum($slicedVotes) / count($slicedVotes), 2);
 }
