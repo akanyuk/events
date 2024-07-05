@@ -179,10 +179,6 @@ class NFWX extends NFW {
             return in_array($CWorks->record['event_id'], $managed_events);
         }
 
-        if ($module == 'vote' && in_array($action, array('admin', 'votekeys', 'votes', 'results'))) {
-            return isset($_GET['event_id']) && in_array($_GET['event_id'], $managed_events);
-        }
-
         if ($module == 'works_comments' && $action == 'delete') {
             if (is_array($additional) && isset($additional['work_id'])) {
                 $CWorks = new works($additional['work_id']);
@@ -193,6 +189,23 @@ class NFWX extends NFW {
             } else {
                 return false;
             }
+        }
+
+        if ($module == 'vote' && in_array($action, array('admin', 'votekeys', 'votes', 'results'))) {
+            return isset($_GET['event_id']) && in_array($_GET['event_id'], $managed_events);
+        }
+
+        if ($module == 'live_voting' && in_array($action, array('admin', 'read_state', 'update_state'))) {
+            return isset($_GET['event_id']) && in_array($_GET['event_id'], $managed_events);
+        }
+
+        if ($module == 'live_voting' && $action == 'open_voting') {
+            if (!isset($_POST['competition_id'])) {
+                return false;
+            }
+
+            $Competition = new competitions($_POST['competition_id']);
+            return in_array($Competition->record['event_id'], $managed_events);
         }
 
         return false;

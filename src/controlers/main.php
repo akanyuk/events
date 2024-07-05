@@ -68,11 +68,11 @@ if (!$page = $CPages->loadPage('events')) {
 // Loading votekey from request, cookie or registered user data
 $votekey = "";
 $CVote = new vote();
-if (isset($_GET['key']) && $CVote->checkVotekey($_GET['key'], $CEvents->record['id'])) {
+if (isset($_GET['key']) && $CVote->getVotekeyID($_GET['key'], $CEvents->record['id'])) {
     $votekey = $_GET['key'];
     NFW::i()->setCookie('votekey', $_GET['key']);
 } else if (isset($_COOKIE['votekey'])) {
-    if ($CVote->checkVotekey($_COOKIE['votekey'], $CEvents->record["id"])) {
+    if ($CVote->getVotekeyID($_COOKIE['votekey'], $CEvents->record["id"])) {
         $votekey = $_COOKIE['votekey'];
     } else {
         NFW::i()->setCookie('votekey', null);

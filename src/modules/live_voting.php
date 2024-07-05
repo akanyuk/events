@@ -117,7 +117,7 @@ class live_voting extends active_record {
                     'title' => $CWorks->record['title'],
                     'competition_title' => $CWorks->record['competition_title'],
                     'screenshot' => $CWorks->record['screenshot']['url'] ?? '',
-                    'voting_options' => extractVotingVariants($CEvents->record['options']),
+                    'voting_options' => $CEvents->votingOptions(),
                 ];
                 $all[] = $current;
             }
@@ -166,23 +166,3 @@ class live_voting extends active_record {
     }
 }
 
-function extractVotingVariants($come): array {
-    $result = [];
-
-    if (empty($come)) {
-        $langMain = NFW::i()->getLang('main');
-        foreach ($langMain['voting votes'] as $k => $v) {
-            if ($k) {
-                $result[] = $k;
-            }
-        }
-    }
-
-    foreach ($come as $v) {
-        if ($v['value']) {
-            $result[] = $v['value'];
-        }
-    }
-
-    return $result;
-}
