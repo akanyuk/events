@@ -146,7 +146,7 @@ class competitions extends active_record {
                 ),
             ),
             'WHERE' => $where,
-            'ORDER BY' => 'e.date_from, c.position'
+            'ORDER BY' => $options['ORDER BY'] ?? 'e.date_from, c.position',
         );
         if (!$result = NFW::i()->db->query_build($query)) {
             $this->error('Unable to fetch records', __FILE__, __LINE__, NFW::i()->db->error());

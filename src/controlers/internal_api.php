@@ -4,9 +4,10 @@
 
 switch ($_GET['action']) {
     case 'indexVotingStatus':
+        $eventID = intval($_GET['event_id']);
         NFWX::i()->jsonSuccess([
-            'votingOpen' => indexVotingOpen($_GET['event_id']),
-            'liveVoting' => indexVotingState(live_voting::GetState($_GET['event_id'])),
+            'votingOpen' => indexVotingOpen($eventID),
+            'liveVoting' => indexVotingState($eventID, live_voting::GetState($eventID)),
         ]);
         break;
     case 'indexLiveVote':
@@ -21,18 +22,31 @@ switch ($_GET['action']) {
         NFWX::i()->jsonError("400", "Unknown action");
 }
 
-function indexVotingState($state) {
+function indexVotingState(int $eventID, $state) {
     if (empty($state['current'])) {
         return null;
     }
 
-    return $state['current'];
+    $current = $state['current'];
+
+    if (!NFW::i()->user['is_guest']) {
+        $votekey = votekey::findOrCreateVotekey($eventID, NFW::i()->user['email']);
+        if (!$votekey->error) {
+            $CVote = new vote();
+            $current['voted'] = $CVote->getWorkVote($current['id'], $votekey);
+        }
+    }
+
+    return $current;
 }
 
 function indexVotingOpen($eventID): array {
     $CCompetitions = new competitions();
     $result = [];
-    foreach ($CCompetitions->getRecords(['filter' => ['event_id' => $eventID, 'open_voting' => true]]) as $c) {
+    foreach ($CCompetitions->getRecords([
+        'filter' => ['event_id' => $eventID, 'open_voting' => true],
+        'ORDER BY' => 'c.voting_from DESC',
+    ]) as $c) {
         if ($c['voting_works']) {
             $result[] = [
                 'title' => $c['title'],

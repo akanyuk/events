@@ -240,7 +240,7 @@ function displayIndexEvent($record, $layout = 'small'): void {
                 function updateVotingState() {
                     fetch('/internal_api?action=indexVotingStatus&event_id=<?php echo $record['id']?>').then(response => response.json()).then(response => {
                         updateLiveVoting(response['liveVoting']);
-                        updateVoteNow(response['votingOpen']);
+                        updateVotingOpen(response['votingOpen']);
                     });
                 }
 
@@ -292,27 +292,35 @@ function displayIndexEvent($record, $layout = 'small'): void {
                         state['voting_options'].forEach((i) => {
                             let btn = document.createElement('a');
                             btn.setAttribute("type", "button");
-                            btn.setAttribute("class", "btn btn-default");
+                            btn.className = state['voted'] === i ? "btn btn-primary active": "btn btn-default";
                             btn.innerHTML = i.toString();
-                            voting.appendChild(btn);
-
                             btn.onclick = function(){
+                                const isActive = btn.className === "btn btn-primary active";
+
                                 for (const b of voting.children) {
-                                    b.setAttribute("class", "btn btn-default");
+                                    b.className = "btn btn-default";
                                 }
-                                btn.setAttribute("class", "btn btn-primary active");
+
+                                let voteValue = i;
+                                if (isActive) {
+                                    btn.className = "btn btn-default";
+                                    voteValue = 0;
+                                } else {
+                                    btn.className = "btn btn-primary active";
+                                }
 
                                 fetch("/internal_api?action=indexLiveVote", {
                                     method: "POST",
                                     body: JSON.stringify({
                                         workID: state["id"],
-                                        vote: i
+                                        vote: voteValue,
                                     }),
                                     headers: {
                                         "Content-type": "application/json; charset=UTF-8"
                                     }
                                 });
                             };
+                            voting.appendChild(btn);
                         });
 
                         liveVotingContainer.style.display = "block";
@@ -320,7 +328,7 @@ function displayIndexEvent($record, $layout = 'small'): void {
                     }, liveVotingInTimeout)
                 }
 
-                function updateVoteNow(values) {
+                function updateVotingOpen(values) {
                     const voteNowContainer = document.getElementById("vote-now-container-<?php echo $record['id']?>");
                     const voteNowBody = document.getElementById("vote-now-body-<?php echo $record['id']?>");
 

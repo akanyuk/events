@@ -6,7 +6,6 @@
  */
 
 $votekey = new votekey();
-$CVote = new vote();
 if (isset($_GET['key'])) {
     $votekey = votekey::getVotekey($_GET['key'], $event['id']);
     if (!$votekey->error) {
@@ -23,6 +22,17 @@ if (isset($_GET['key'])) {
         $votekey = $result;
         NFW::i()->setCookie('votekey', $votekey);
     }
+}
+
+$storedVotes = [];
+if ($votekey->id) {
+    $req = [];
+    foreach ($works as $work) {
+        $req[] = $work['id'];
+    }
+
+    $CVote = new vote();
+    $storedVotes = $CVote->getWorksVotes($req, $votekey);
 }
 
 $langMain = NFW::i()->getLang('main');
@@ -57,7 +67,7 @@ NFW::i()->registerFunction('active_field');
 
         let votingForm = $('form[id="voting"]');
 
-        // Apply saved values, remove expired
+        // Applying storage state, removing expired
         const expire = new Date().getTime() - 60 * 60 * 24 * 14 * 1000;
         votingCache.forEach(function (record, key) {
             if (record.timestamp < expire) {
@@ -68,6 +78,12 @@ NFW::i()->registerFunction('active_field');
             }
         });
         localStorage.setItem('votingCache', JSON.stringify(votingCache));
+
+        // Applying DB state
+        <?php foreach ($storedVotes as $workID=>$vote): ?>
+        votingForm.find('select[id="<?php echo $workID?>"] option').removeAttr('selected');
+        votingForm.find('select[id="<?php echo $workID?>"] option[value="<?php echo $vote?>"]').attr('selected', 'selected');
+        <?php endforeach; ?>
 
         // Save state
         votingForm.find('select').change(function () {

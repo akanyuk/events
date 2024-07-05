@@ -103,7 +103,7 @@ class votekey extends base_module {
             $this->error('Unable to count records', __FILE__, __LINE__, NFW::i()->db->error());
             return false;
         }
-        list($total_records) = NFW::i()->db->fetch_row($result);
+        list($totalRecords) = NFW::i()->db->fetch_row($result);
 
         // Count filtered values
         if (!$result = NFW::i()->db->query_build(array(
@@ -114,9 +114,9 @@ class votekey extends base_module {
             $this->error('Unable to count filtered records', __FILE__, __LINE__, NFW::i()->db->error());
             return false;
         }
-        list($num_filtered) = NFW::i()->db->fetch_row($result);
-        if (!$num_filtered) {
-            return array(array(), $total_records, 0);
+        list($numFiltered) = NFW::i()->db->fetch_row($result);
+        if (!$numFiltered) {
+            return array(array(), $totalRecords, 0);
         }
 
         if (!$result = NFW::i()->db->query_build(array(
@@ -137,7 +137,7 @@ class votekey extends base_module {
             $records[] = $cur_record;
         }
 
-        return array($records, $total_records, $num_filtered);
+        return array($records, $totalRecords, $numFiltered);
     }
 
     // Set `is_used` state and store votekey in COOKIE for future use
