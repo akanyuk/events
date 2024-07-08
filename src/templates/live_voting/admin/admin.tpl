@@ -85,9 +85,10 @@ NFW::i()->breadcrumb = array(
 
     <div class="collapse" id="collapseHelp">
         <div class="well">
-            <p><span class="live-voting-current">&nbsp;&nbsp;&nbsp;&nbsp;</span> - Live voting work on index page. Only
+            <p><span class="live-voting-current">&nbsp;&nbsp;&nbsp;&nbsp;</span> Live voting work on index page. Only
                 one allowed.</p>
-            <p><span class="live-voting-all">&nbsp;&nbsp;&nbsp;&nbsp;</span> - Works that participated in the live voting
+            <p><span class="live-voting-all">&nbsp;&nbsp;&nbsp;&nbsp;</span> Works that participated in the live
+                voting
                 session for the current competition. Multiply allowed.</p>
             <p>If you change the competition and start live voting, then all previously started voting in the previous
                 competition stops.</p>
@@ -98,16 +99,34 @@ NFW::i()->breadcrumb = array(
     </div>
 
     <div id="live-voting">
-        <?php foreach ($records as $compoID => $c): ?>
+        <?php foreach ($records as $compoID => $compo): ?>
             <div class="row" data-role="competition-container" id="<?php echo $compoID ?>"
                  style="display: <?php echo $compoID == $firstCompo ? 'block' : 'none' ?>;">
-                <?php foreach ($c['works'] as $r): ?>
+
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-6">
+                    <a href="#" title="Announce 'COMING UP' message" class="thumbnail live-voting-thumbnail"
+                       data-role="start-live-voting"
+                       data-action="announce"
+                       data-code="coming-up-<?php echo $compoID?>"
+                       data-title="Coming Up"
+                       data-description="<?php echo htmlspecialchars($compo['title']) ?>">
+                        <div class="img-container">
+                            <div class="fa fa-live-voting fa-paper-plane"></div>
+                        </div>
+                        <div class="caption">
+                            <p style="font-weight: bold;"><?php echo htmlspecialchars($compo['title']) ?></p>
+                            <p>COMING UP</p>
+                        </div>
+                    </a>
+                </div>
+
+                <?php foreach ($compo['works'] as $r): ?>
                     <div class="col-lg-2 col-md-3 col-sm-4 col-xs-6">
                         <a href="#" title="Start live voting for this work"
                            data-role="start-live-voting" data-work-id="<?php echo $r['id'] ?>"
                            class="thumbnail live-voting-thumbnail">
                             <div class="img-container">
-                                <?php echo $r['screenshot'] ? '<img class="media-object" alt="" src="' . cache_media($r['screenshot'], 0, 128) . '" />' : previewHTML($c['works_type']) ?>
+                                <?php echo $r['screenshot'] ? '<img class="media-object" alt="" src="' . cache_media($r['screenshot'], 0, 128) . '" />' : previewHTML($compo['works_type']) ?>
                             </div>
                             <div class="caption">
                                 <p style="font-weight: bold;"><?php echo $r['position'] . '. ' . htmlspecialchars($r['title']) ?></p>
@@ -132,56 +151,35 @@ NFW::i()->breadcrumb = array(
                 liveVotingContainer.find('div[data-role="competition-container"][id="' + id + '"]').show();
             }).trigger('change');
 
-            $('a[data-role="start-live-voting"]').click(function () {
-                let data = {
-                    'startLiveVoting': $(this).data("work-id"),
+            $('[data-role="start-live-voting"]').click(function (e) {
+                e.preventDefault();
+
+                if ($(this).data('action') === 'announce') {
+                    if ($(this).hasClass("live-voting-current")) {
+                        sendState({'liveVotingAnnounceStop': true});
+                    } else {
+                        sendState({
+                            'liveVotingAnnounce': {
+                                'code': $(this).data('code'),
+                                'title': $(this).data('title'),
+                                'description': $(this).data('description'),
+                            }
+                        });
+                    }
+                    return;
                 }
 
                 if ($(this).hasClass("live-voting-current") || $(this).hasClass("live-voting-all")) {
-                    data = {
-                        'stopLiveVoting': $(this).data("work-id"),
-                    }
+                    sendState({'stopLiveVoting': $(this).data("work-id")});
+                } else {
+                    sendState({'startLiveVoting': $(this).data("work-id")});
                 }
-
-                $.ajax('<?php echo $Module->formatURL('update_state', 'event_id=' . $event['id'])?>',
-                    {
-                        method: "POST",
-                        dataType: "json",
-                        data: data,
-                        error: function (response) {
-                            if (response['responseJSON']['errors']['general'] !== undefined) {
-                                alert(response['responseJSON']['errors']['general']);
-                            }
-                        },
-                        success: function (response) {
-                            updateByState(response);
-                        },
-                    },
-                );
-
-                return false;
             });
 
-            $('[id="live-voting-stop"]').click(function () {
-                $.ajax('<?php echo $Module->formatURL('update_state', 'event_id=' . $event['id'])?>',
-                    {
-                        method: "POST",
-                        dataType: "json",
-                        data: {
-                            'stopAllLiveVoting': true,
-                        },
-                        error: function (response) {
-                            if (response['responseJSON']['errors']['general'] !== undefined) {
-                                alert(response['responseJSON']['errors']['general']);
-                            }
-                        },
-                        success: function (response) {
-                            updateByState(response);
-                        },
-                    },
-                );
+            $('[id="live-voting-stop"]').click(function (e) {
+                e.preventDefault();
 
-                return false;
+                sendState({'stopAllLiveVoting': true});
             });
 
             $('[id="open-normal-voting"]').click(function () {
@@ -207,10 +205,6 @@ NFW::i()->breadcrumb = array(
             });
 
             // Reading initial state
-            readState();
-        });
-
-        function readState() {
             $.ajax('<?php echo $Module->formatURL('read_state', 'event_id=' . $event['id'])?>',
                 {
                     method: "GET",
@@ -225,19 +219,41 @@ NFW::i()->breadcrumb = array(
                     },
                 },
             );
+        });
+
+        function sendState(data) {
+            $.ajax('<?php echo $Module->formatURL('update_state', 'event_id=' . $event['id'])?>',
+                {
+                    method: "POST",
+                    dataType: "json",
+                    data: data,
+                    error: function (response) {
+                        if (response['responseJSON']['errors']['general'] !== undefined) {
+                            alert(response['responseJSON']['errors']['general']);
+                        }
+                    },
+                    success: function (response) {
+                        updateByState(response);
+                    },
+                },
+            );
         }
 
         function updateByState(state) {
-            $('a[data-role="start-live-voting"]').removeClass('live-voting-current').removeClass('live-voting-all');
+            $('[data-role="start-live-voting"]').removeClass('live-voting-current').removeClass('live-voting-all');
 
             if (state['all'] !== undefined) {
                 state['all'].forEach((w) => {
-                    $('a[data-role="start-live-voting"][data-work-id="' + w['id'] + '"]').addClass('live-voting-all');
+                    $('[data-role="start-live-voting"][data-work-id="' + w['id'] + '"]').addClass('live-voting-all');
                 });
             }
 
             if (state['current'] !== undefined) {
-                $('a[data-role="start-live-voting"][data-work-id="' + state['current']['id'] + '"]').removeClass('live-voting-all').addClass('live-voting-current');
+                $('[data-role="start-live-voting"][data-work-id="' + state['current']['id'] + '"]').removeClass('live-voting-all').addClass('live-voting-current');
+            }
+
+            if (state['announce'] !== undefined) {
+                $('[data-role="start-live-voting"][data-code="' + state['announce']['code'] + '"]').addClass('live-voting-current');
             }
         }
     </script>

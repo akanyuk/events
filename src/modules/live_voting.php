@@ -101,9 +101,27 @@ class live_voting extends active_record {
             NFWX::i()->jsonSuccess();
         }
 
+        $state = apcu_fetch(storageKeyPrefix . $_GET['event_id']);
+
+        if (isset($_POST['liveVotingAnnounce']) && $_POST['liveVotingAnnounce']) {
+            $state['current'] = [];
+            $state['announce'] = [
+                'code' => $_POST['liveVotingAnnounce']['code'],
+                'title' => $_POST['liveVotingAnnounce']['title'],
+                'description' => $_POST['liveVotingAnnounce']['description'],
+            ];
+            apcu_store(storageKeyPrefix . $_GET['event_id'], $state, memoryStorageTtlSec);
+            NFWX::i()->jsonSuccess($state);
+        }
+
+        if (isset($_POST['liveVotingAnnounceStop']) && $_POST['liveVotingAnnounceStop']) {
+            $state['announce'] = [];
+            apcu_store(storageKeyPrefix . $_GET['event_id'], $state, memoryStorageTtlSec);
+            NFWX::i()->jsonSuccess($state);
+        }
+
         $stopLiveVotingID = isset($_POST['stopLiveVoting']) ? intval($_POST['stopLiveVoting']) : 0;
 
-        $state = apcu_fetch(storageKeyPrefix . $_GET['event_id']);
         $current = isset($state['current']['id']) && $state['current']['id'] != $stopLiveVotingID ? $state['current'] : [];
         $all = $state['all'] ?? [];
 
@@ -140,6 +158,7 @@ class live_voting extends active_record {
         }
 
         $newState = [
+            'announce' => [],
             'current' => $current,
             'all' => $newAll,
         ];

@@ -23,11 +23,21 @@ switch ($_GET['action']) {
 }
 
 function indexVotingState(int $eventID, $state) {
+    if (!empty($state['announce'])) {
+        return [
+            'title' => $state['announce']['title'],
+            'description' => $state['announce']['description'],
+        ];
+    }
+
     if (empty($state['current'])) {
         return null;
     }
 
     $current = $state['current'];
+
+    $current['title'] = $current['position'].'. '.$current['title'];
+    $current['description'] = $current['competition_title'];
 
     if (!NFW::i()->user['is_guest']) {
         $votekey = votekey::findOrCreateVotekey($eventID, NFW::i()->user['email']);

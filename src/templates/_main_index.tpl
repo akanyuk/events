@@ -135,7 +135,7 @@ function displayIndexEvent($record, $layout = 'small'): void {
                         </a>
                     </div>
                     <div class="col-sm-12 col-md-7">
-                        <div class="hidden-xs">
+                        <div class="hidden-sm hidden-xs">
                             <h2>
                                 <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><?php echo htmlspecialchars($record['title']) ?></a>
                             </h2>
@@ -146,7 +146,7 @@ function displayIndexEvent($record, $layout = 'small'): void {
                                 <div style="padding: 10px 0;"><?php echo nl2br($record['announcement']) ?></div>
                             <?php endif; ?>
                         </div>
-                        <div class="hidden-lg hidden-md hidden-sm" id="no-live-voting-<?php echo $record['id'] ?>">
+                        <div class="hidden-lg hidden-md" id="no-live-voting-<?php echo $record['id'] ?>">
                             <h2>
                                 <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><?php echo htmlspecialchars($record['title']) ?></a>
                             </h2>
@@ -162,14 +162,14 @@ function displayIndexEvent($record, $layout = 'small'): void {
 
                 <?php if (!NFW::i()->user['is_guest']): ?>
                     <div id="live-voting-container-<?php echo $record['id'] ?>" style="display: none;">
-                        <h3>Live Voting</h3>
+                        <h3>Live Voting:</h3>
                         <div id="body" class="live-voting">
                             <div class="top-container">
                                 <img id="screenshot" src="<?php echo NFW::i()->assets('main/news-no-image.png') ?>"
                                      alt="/"/>
                                 <div>
                                     <h4 id="title"></h4>
-                                    <p id="compo"></p>
+                                    <p id="description"></p>
                                 </div>
                             </div>
                             <div id="voting" class="btn-group btn-group-live-voting btn-group-justified"
@@ -209,7 +209,7 @@ function displayIndexEvent($record, $layout = 'small'): void {
                     const liveVoting = liveVotingContainer.querySelector("#body");
                     const screenshot = liveVoting.querySelector("#screenshot");
                     const title = liveVoting.querySelector("#title");
-                    const compo = liveVoting.querySelector("#compo");
+                    const description = liveVoting.querySelector("#description");
                     const voting = liveVoting.querySelector("#voting");
 
                     if (state === null) {
@@ -241,43 +241,45 @@ function displayIndexEvent($record, $layout = 'small'): void {
                             screenshot.style.display = 'none';
                         }
 
-                        title.innerText = state['position'] + ". " + state['title'];
-                        compo.innerText = state['competition_title'];
+                        title.innerText = state['title'];
+                        description.innerText = state['description'];
 
                         voting.innerHTML = '';
-                        state['voting_options'].forEach((i) => {
-                            let btn = document.createElement('a');
-                            btn.setAttribute("type", "button");
-                            btn.className = state['voted'] === i ? "btn btn-primary active": "btn btn-default";
-                            btn.innerHTML = i.toString();
-                            btn.onclick = function(){
-                                const isActive = btn.className === "btn btn-primary active";
+                        if (state['voting_options']) {
+                            state['voting_options'].forEach((i) => {
+                                let btn = document.createElement('a');
+                                btn.setAttribute("type", "button");
+                                btn.className = state['voted'] === i ? "btn btn-primary active" : "btn btn-default";
+                                btn.innerHTML = i.toString();
+                                btn.onclick = function () {
+                                    const isActive = btn.className === "btn btn-primary active";
 
-                                for (const b of voting.children) {
-                                    b.className = "btn btn-default";
-                                }
-
-                                let voteValue = i;
-                                if (isActive) {
-                                    btn.className = "btn btn-default";
-                                    voteValue = 0;
-                                } else {
-                                    btn.className = "btn btn-primary active";
-                                }
-
-                                fetch("/internal_api?action=indexLiveVote", {
-                                    method: "POST",
-                                    body: JSON.stringify({
-                                        workID: state["id"],
-                                        vote: voteValue,
-                                    }),
-                                    headers: {
-                                        "Content-type": "application/json; charset=UTF-8"
+                                    for (const b of voting.children) {
+                                        b.className = "btn btn-default";
                                     }
-                                });
-                            };
-                            voting.appendChild(btn);
-                        });
+
+                                    let voteValue = i;
+                                    if (isActive) {
+                                        btn.className = "btn btn-default";
+                                        voteValue = 0;
+                                    } else {
+                                        btn.className = "btn btn-primary active";
+                                    }
+
+                                    fetch("/internal_api?action=indexLiveVote", {
+                                        method: "POST",
+                                        body: JSON.stringify({
+                                            workID: state["id"],
+                                            vote: voteValue,
+                                        }),
+                                        headers: {
+                                            "Content-type": "application/json; charset=UTF-8"
+                                        }
+                                    });
+                                };
+                                voting.appendChild(btn);
+                            });
+                        }
 
                         liveVotingContainer.style.display = "block";
                         liveVoting.style.opacity = "1";
