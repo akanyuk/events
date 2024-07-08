@@ -218,4 +218,3 @@ function writeResponse(DomDocument $dom, DOMElement $document) {
         NFW::i()->stop($r);
     }
 }
-

@@ -2,19 +2,19 @@
 const NFW_CLASSNAME = 'NFWX';
 
 class NFWX extends NFW {
-    private static $_ext_instance;
+    private static NFWX $_ext_instance;
 
     // Come from `settings` DB table
     var $project_settings = array();
-    var $notify_emails = array();
-    var $main_menu = array();
+    var array $notify_emails = array();
+    var array $main_menu = array();
 
     var $actual_date = false;
 
-    var $main_og = array();             # мета теги для Open Graph
-    var $main_login_form = true;        # форма авторизации, по умолчанию включена
-    var $main_search_box = true;        # строка поиска, по умолчанию включена
-    var $main_right_pane = true;        # правая панель, по умолчанию включена
+    var array $main_og = array();             # мета теги для Open Graph
+    var bool $main_login_form = true;        # форма авторизации, по умолчанию включена
+    var bool $main_search_box = true;        # строка поиска, по умолчанию включена
+    var bool $main_right_pane = true;        # правая панель, по умолчанию включена
 
     function __construct($init_cfg = null) {
         // Глобально кодировка для mb-операций
@@ -50,11 +50,11 @@ class NFWX extends NFW {
     /**
      * @return self instance
      */
-    public static function i() {
+    public static function i(): NFWX {
         return self::$_ext_instance;
     }
 
-    function checkPermissions($module = 1, $action = '', $additional = false) {
+    function checkPermissions($module = 1, $action = '', $additional = false): bool {
         if (parent::checkPermissions($module, $action, $additional)) return true;
 
         // Search
@@ -82,7 +82,7 @@ class NFWX extends NFW {
             return $CCompetitions->record['voting_status']['available'] || $CCompetitions->record['release_status']['available'];
         }
 
-        // --- special permissions for works authors ОБЯЗАТЕЛЬНО ДО event's managers! ---
+        // --- special permissions for works authors REQUIRED BEFORE event's managers! ---
 
         // Any operations with `works` session files for authors
         if ($module == 'works' && in_array($action, array('media_get', 'media_upload', 'media_modify')) && $additional == 0) return true;
@@ -98,7 +98,7 @@ class NFWX extends NFW {
 
         // --- special permissions for event's managers ---
 
-        // Права проверяются позже, средствами модуля
+        // The rights are checked later by means of the module
         $bypass_module = array(
             'competitions' => array('set_pos', 'set_dates'),
             'works' => array('get_pos', 'set_pos'),
@@ -107,7 +107,7 @@ class NFWX extends NFW {
 
         $managed_events = events::get_managed();
 
-        // Права на доступ к панели управления для всех менеджеров
+        // Access rights to the control panel for all managers
         $allow_cp = array(
             'admin' => array(''),
             'profile' => array('admin'),
@@ -179,10 +179,6 @@ class NFWX extends NFW {
             return in_array($CWorks->record['event_id'], $managed_events);
         }
 
-        if ($module == 'vote' && in_array($action, array('admin', 'votekeys', 'votes', 'results'))) {
-            return isset($_GET['event_id']) && in_array($_GET['event_id'], $managed_events);
-        }
-
         if ($module == 'works_comments' && $action == 'delete') {
             if (is_array($additional) && isset($additional['work_id'])) {
                 $CWorks = new works($additional['work_id']);
@@ -195,6 +191,23 @@ class NFWX extends NFW {
             }
         }
 
+        if ($module == 'vote' && in_array($action, array('admin', 'votekeys', 'votes', 'results'))) {
+            return isset($_GET['event_id']) && in_array($_GET['event_id'], $managed_events);
+        }
+
+        if ($module == 'live_voting' && in_array($action, array('admin', 'read_state', 'update_state'))) {
+            return isset($_GET['event_id']) && in_array($_GET['event_id'], $managed_events);
+        }
+
+        if ($module == 'live_voting' && $action == 'open_voting') {
+            if (!isset($_POST['competition_id'])) {
+                return false;
+            }
+
+            $Competition = new competitions($_POST['competition_id']);
+            return in_array($Competition->record['event_id'], $managed_events);
+        }
+
         return false;
     }
 
@@ -205,18 +218,18 @@ class NFWX extends NFW {
         }
 
         // Generate paging links
-        $baseURL = isset($options['pagination_baseurl']) ? $options['pagination_baseurl'] : NFW::i()->absolute_path . '/news.html';
+        $baseURL = $options['pagination_baseurl'] ?? NFW::i()->absolute_path . '/news.html';
         $paging_links = $CNews->num_pages > 1 ? $this->paginate($CNews->num_pages, $CNews->cur_page, $baseURL, ' ') : '';
 
         // Render page content
         return $CNews->renderAction(array(
-            'category' => isset($options['category']) ? $options['category'] : null,
+            'category' => $options['category'] ?? null,
             'records' => $records,
             'paging_links' => $paging_links,
         ), $options['template']);
     }
 
-    function paginate($num_pages, $cur_page, $link_to, $separator = ", ") {
+    function paginate($num_pages, $cur_page, $link_to, $separator = ", "): string {
         $pages = array();
         $link_to_all = false;
 
@@ -264,12 +277,10 @@ class NFWX extends NFW {
             array('_', 'a', 'b', 'v', 'g', 'd', 'e', 'e', 'zh', 'z', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's', 't', 'u', 'f', 'h', 'c', 'ch', 'sh', 'sch', '', 'y', '', 'e', 'yu', 'ya'),
             mb_convert_case($filename, MB_CASE_LOWER, 'UTF-8'));
 
-        $filename = preg_replace('/[^a-zA-Z0-9.]/', '_', $filename);
-
-        return $filename;
+        return preg_replace('/[^a-zA-Z0-9.]/', '_', $filename);
     }
 
-    function formatTimeDelta($time) {
+    function formatTimeDelta($time): string {
         NFW::i()->registerFunction('word_suffix');
         $lang_main = NFW::i()->getLang('main');
 
@@ -283,7 +294,7 @@ class NFWX extends NFW {
         }
     }
 
-    function sendNotify($tp, $event_id, $data = array(), $attachments = array()) {
+    function sendNotify($tp, $event_id, $data = array(), $attachments = array()): bool {
         foreach ($this->notify_emails as $email) {
             email::sendFromTemplate($email, $tp, array('data' => $data));
         }
@@ -321,10 +332,12 @@ class NFWX extends NFW {
         }
 
         http_response_code($errorCode);
+        header('Content-Type: application/json');
         NFW::i()->stop(json_encode($response));
     }
 
     function jsonSuccess($message = array()) {
+        header('Content-Type: application/json');
         NFW::i()->stop(json_encode($message));
     }
 
