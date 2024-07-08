@@ -261,7 +261,7 @@ if (!NFWX::i()->main_right_pane) {
             <?php
             if ($page['path'] == '') {
                 echo NFW::i()->fetch(
-                    NFW::i()->findTemplatePath('pages/main/_index.tpl'),
+                    NFW::i()->findTemplatePath('_main_index.tpl'),
                     array(
                         'worksComments' => $works_comments,
                     )

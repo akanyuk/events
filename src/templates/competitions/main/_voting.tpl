@@ -3,12 +3,46 @@
  * @var array $event
  * @var array $competition
  * @var array $works
- * @var array $votekey Preloaded from request or user profile votekey
  */
 
-$result = NFWX::i()->hook("competitions_voting", $event['alias'], array('event' => $event, 'competition' => $competition, 'voting_works' => $works));
-if ($result === "stop_execution") {
-    return;
+$votekey = new votekey();
+if (isset($_GET['key'])) {
+    $votekey = votekey::getVotekey($_GET['key'], $event['id']);
+    if (!$votekey->error) {
+        NFW::i()->setCookie('votekey', $_GET['key']);
+    }
+} else if (isset($_COOKIE['votekey'])) {
+    $votekey = votekey::getVotekey($_COOKIE['votekey'], $event['id']);
+    if ($votekey->error) {
+        NFW::i()->setCookie('votekey', null);
+    }
+} else if (!NFW::i()->user['is_guest']) {
+    $result = votekey::findOrCreateVotekey($event["id"], NFW::i()->user['email']);
+    if (!$result->error) {
+        $votekey = $result;
+        NFW::i()->setCookie('votekey', $votekey);
+    }
+}
+
+$storedVotes = [];
+if ($votekey->id) {
+    $req = [];
+    foreach ($works as $work) {
+        $req[] = $work['id'];
+    }
+
+    $CVote = new vote();
+    $storedVotes = $CVote->getWorksVotes($req, $votekey);
+}
+
+$langMain = NFW::i()->getLang('main');
+
+$votingOptions = $langMain['voting votes'];
+if (!empty($event['options'])) {
+    $votingOptions = [];
+    foreach ($event['options'] as $v) {
+        $votingOptions[$v['value']] = $v['label_' . NFW::i()->user['language']] ? $v['label_' . NFW::i()->user['language']] : $v['value'];
+    }
 }
 
 NFW::i()->registerResource('jquery.activeForm', false, true);
@@ -17,21 +51,6 @@ NFW::i()->registerResource('base');
 
 NFW::i()->registerFunction('display_work_media');
 NFW::i()->registerFunction('active_field');
-
-$lang_main = NFW::i()->getLang('main');
-
-$votingOptions = array();
-if (!empty($hook_additional['event']['options'])) {
-    foreach ($hook_additional['event']['options'] as $v) {
-        $votingOptions[$v['value']] = $v['label_' . NFW::i()->user['language']] ? $v['label_' . NFW::i()->user['language']] : $v['value'];
-    }
-} else if (!empty($event['options'])) {
-    foreach ($event['options'] as $v) {
-        $votingOptions[$v['value']] = $v['label_' . NFW::i()->user['language']] ? $v['label_' . NFW::i()->user['language']] : $v['value'];
-    }
-} else {
-    $votingOptions = $lang_main['voting votes'];
-}
 ?>
 <script type="text/javascript">
     $(document).ready(function () {
@@ -48,7 +67,7 @@ if (!empty($hook_additional['event']['options'])) {
 
         let votingForm = $('form[id="voting"]');
 
-        // Apply saved values, remove expired
+        // Applying storage state, removing expired
         const expire = new Date().getTime() - 60 * 60 * 24 * 14 * 1000;
         votingCache.forEach(function (record, key) {
             if (record.timestamp < expire) {
@@ -59,6 +78,12 @@ if (!empty($hook_additional['event']['options'])) {
             }
         });
         localStorage.setItem('votingCache', JSON.stringify(votingCache));
+
+        // Applying DB state
+        <?php foreach ($storedVotes as $workID=>$vote): ?>
+        votingForm.find('select[id="<?php echo $workID?>"] option').removeAttr('selected');
+        votingForm.find('select[id="<?php echo $workID?>"] option[value="<?php echo $vote?>"]').attr('selected', 'selected');
+        <?php endforeach; ?>
 
         // Save state
         votingForm.find('select').change(function () {
@@ -106,8 +131,6 @@ if (!empty($hook_additional['event']['options'])) {
         votingForm.activeForm({
             'success': function (response) {
                 alert(response.message);
-                //vf.resetForm();
-
                 // Save username for future use
                 localStorage.setItem('votingUsername', votingForm.find('input[name="username"]').val());
             }
@@ -126,14 +149,14 @@ if (!empty($hook_additional['event']['options'])) {
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title"><?php echo $lang_main['votekey-request long'] ?></h4>
+                <h4 class="modal-title"><?php echo $langMain['votekey-request long'] ?></h4>
             </div>
             <div class="modal-body">
                 <form id="request-votekey" action="/vote?action=request_votekey" class="form-horizontal">
                     <input type="hidden" name="event_id" value="<?php echo $competition['event_id'] ?>"/>
                     <input type="hidden" name="action" value="request_votekey"/>
-                    <div class="alert alert-warning"><?php echo $lang_main['votekey-request note'] ?></div>
-                    <?php echo active_field(array('name' => 'email', 'type' => 'email', 'desc' => $lang_main['votekey-request email label'], 'inputCols' => '8')) ?>
+                    <div class="alert alert-warning"><?php echo $langMain['votekey-request note'] ?></div>
+                    <?php echo active_field(array('name' => 'email', 'type' => 'email', 'desc' => $langMain['votekey-request email label'], 'inputCols' => '8')) ?>
                 </form>
                 <div id="response-message" class="alert alert-success" style="display: none;"></div>
             </div>
@@ -141,7 +164,7 @@ if (!empty($hook_additional['event']['options'])) {
                 <button type="button" class="btn btn-default"
                         data-dismiss="modal"><?php echo NFW::i()->lang['Close'] ?></button>
                 <button id="request-votekey-submit" type="button"
-                        class="btn btn-primary"><?php echo $lang_main['votekey-request send'] ?></button>
+                        class="btn btn-primary"><?php echo $langMain['votekey-request send'] ?></button>
             </div>
         </div>
     </div>
@@ -164,7 +187,7 @@ if (!empty($hook_additional['event']['options'])) {
         'name' => 'username',
         'value' => isset(NFW::i()->user['realname']) && NFW::i()->user['realname'] ? htmlspecialchars(NFW::i()->user['realname']) : "",
         'type' => 'str',
-        'desc' => $lang_main['voting name'],
+        'desc' => $langMain['voting name'],
         'required' => true,
         'maxlength' => 64,
         'vertical' => true,
@@ -176,24 +199,24 @@ if (!empty($hook_additional['event']['options'])) {
         <?php if ($votekey): ?>
             <div id="saved-votekey">
                 <span class="text-muted"
-                      style="display: inline-block; position: relative; top: 4px; font-size: 160%; font-family: monospace; font-weight: bold; width: 120px;"><?php echo $votekey ?></span>
+                      style="display: inline-block; position: relative; top: 4px; font-size: 160%; font-family: monospace; font-weight: bold; width: 120px;"><?php echo $votekey->votekey ?></span>
                 <button id="another-votekey"
-                        class="btn btn-default"><?php echo $lang_main['votekey-another'] ?></button>
+                        class="btn btn-default"><?php echo $langMain['votekey-another'] ?></button>
             </div>
 
             <div id="new-votekey" style="display: none;">
                 <input name="votekey" type="text" maxlength="8" class="form-control"
                        style="display: inline-block; width: 120px; vertical-align: middle;"
-                       value="<?php echo $votekey ?>"/>
+                       value="<?php echo $votekey->votekey ?>"/>
                 <button id="request-votekey"
-                        class="btn btn-default"><?php echo $lang_main['votekey-request'] ?></button>
+                        class="btn btn-default"><?php echo $langMain['votekey-request'] ?></button>
             </div>
         <?php else: ?>
             <div>
                 <input name="votekey" type="text" maxlength="8" class="form-control"
                        style="display: inline-block; width: 120px; vertical-align: middle;"/>
                 <button id="request-votekey"
-                        class="btn btn-default"><?php echo $lang_main['votekey-request'] ?></button>
+                        class="btn btn-default"><?php echo $langMain['votekey-request'] ?></button>
             </div>
         <?php endif; ?>
     </div>
@@ -203,7 +226,7 @@ if (!empty($hook_additional['event']['options'])) {
     </div>
 
     <div class="form-group">
-        <button type="submit" class="btn btn-lg btn-primary"><?php echo $lang_main['voting send'] ?></button>
+        <button type="submit" class="btn btn-lg btn-primary"><?php echo $langMain['voting send'] ?></button>
     </div>
 </form>
 <hr/>

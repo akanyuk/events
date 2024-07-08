@@ -137,8 +137,9 @@ $lang_main = array(
     'voting error wrong username' => 'Please fill your name.',
     'voting error wrong votekey' => 'Wrong votekey.',
     'voting success note' => 'Your vote accepted.',
+    'Voting is open' => 'Voting is open',
 
-    'votekey-request note' => 'Votekey will be send to given e-mail address. <br />E-mail address never be published by demoparty organizers.',
+    'votekey-request note' => 'Votekey will be sent to given e-mail address. <br />E-mail address never be published by demoparty organizers.',
     'votekey-request email label' => 'E-mail address',
     'votekey-request' => 'Request votekey',
     'votekey-another' => 'Another votekey',
