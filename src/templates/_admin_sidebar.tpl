@@ -12,7 +12,7 @@ $(document).ready(function(){
 <nav class="sidebar-nav">
 	<ul class="metismenu" id="sidebar-menu">
 <?php
-echo '<li class="active hidden-sm hidden-md hidden-lg"><a href="#"><span class="sidebar-nav-item">Main menu</span><span class="fa arrow"></span></a><ul>';
+echo '<li class="active hidden-md hidden-lg"><a href="#"><span class="sidebar-nav-item">Main menu</span><span class="fa arrow"></span></a><ul>';
 foreach ($top_menu as $m) {
 	echo '<li><a href="'.NFW::i()->absolute_path.'/admin/'.$m['url'].'">'.$m['name'].'</a></li>';
 }
