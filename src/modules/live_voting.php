@@ -3,6 +3,8 @@
 const storageKeyPrefix = "live-voting-storage-key";
 const memoryStorageTtlSec = 3600;
 
+NFW::i()->registerFunction('cache_media');
+
 class live_voting extends active_record {
     public static function IsAllowed($eventID, $workID): bool {
         $state = apcu_fetch(storageKeyPrefix . $eventID);
@@ -134,7 +136,7 @@ class live_voting extends active_record {
                     'position' => $CWorks->record['position'],
                     'title' => $CWorks->record['title'],
                     'competition_title' => $CWorks->record['competition_title'],
-                    'screenshot' => $CWorks->record['screenshot']['url'] ?? '',
+                    'screenshot' => $CWorks->record['screenshot'] ? cache_media($CWorks->record['screenshot'], 256, 0) : '',
                     'voting_options' => $CEvents->votingOptions(),
                 ];
                 $all[] = $current;
