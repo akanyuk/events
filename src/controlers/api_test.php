@@ -36,7 +36,6 @@ $(document).ready(function(){
 	}).trigger('change');
 });
 </script>
-</head><body>
 
 <div id="form-append" style="display: none;">
 	<?php echo active_field(array('name' => 'ResponseType', 'desc' => 'ResponseType', 'type' => 'select', 'options' => array('xml', 'json')))?>
@@ -51,11 +50,13 @@ $(document).ready(function(){
 <h1>Events API tests</h1>
 <br />
 <div class="row">
-	<label class="col-md-2 control-label" style="text-align: right; padding-top: 3px;">Choose action</label>
+	<label for="actionSelect" class="col-md-2 control-label" style="text-align: right; padding-top: 3px;">Choose action</label>
 	<div class="col-md-10">
-		<select id="actionSelect" class="form-control"></select>
+        <select id="actionSelect" class="form-control"></select>
 	</div>
 </div>
+
+<form data-rel="api-test" action="/api/events/upcoming-current"><fieldset></fieldset></form>
 
 <form data-rel="api-test" action="/api/events/read">
     <fieldset>
@@ -89,8 +90,7 @@ $(document).ready(function(){
 
 <div id="response"></div>
 
-</body></html>
-<?php 
+<?php
 	NFW::i()->breadcrumb = array(array('desc' => 'Events API tests'));
 	
 	NFW::i()->assign('page', array(
