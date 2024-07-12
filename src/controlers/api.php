@@ -10,17 +10,17 @@ switch (parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)) {
         $CEvents = new events();
 
         $dom = newDomDocument();
-        $Events = createElement($dom,'Events');
+        $Events = createElement($dom, 'Events');
         foreach ($CEvents->getRecords(array('filter' => array('upcoming-current' => true), 'order' => 'date_from', 'load_media' => true)) as $record) {
-            $Event = createElement($dom,'Event');
+            $Event = createElement($dom, 'Event');
             $Event->setAttribute('ID', $record['id']);
-            $Event->appendChild(createElement($dom,'Title', $record['title']));
-            $Event->appendChild(createElement($dom,'URL', NFW::i()->absolute_path . '/' . $record['alias']));
-            $Event->appendChild(createElement($dom,'Announcement'))->appendChild($dom->createTextNode($record['announcement']));
-            $Event->appendChild(createElement($dom,'DateFrom', $record['date_from']));
-            $Event->appendChild(createElement($dom,'DateTo', $record['date_to']));
-            $Event->appendChild(createElement($dom,'IsLogo', $record['is_preview_img']));
-            $Event->appendChild(createElement($dom,'Logo', $record['preview_img']));
+            $Event->appendChild(createElement($dom, 'Title', $record['title']));
+            $Event->appendChild(createElement($dom, 'URL', NFW::i()->absolute_path . '/' . $record['alias']));
+            $Event->appendChild(createElement($dom, 'Announcement'))->appendChild($dom->createTextNode($record['announcement']));
+            $Event->appendChild(createElement($dom, 'DateFrom', $record['date_from']));
+            $Event->appendChild(createElement($dom, 'DateTo', $record['date_to']));
+            $Event->appendChild(createElement($dom, 'IsLogo', $record['is_preview_img']));
+            $Event->appendChild(createElement($dom, 'Logo', $record['preview_img']));
             $Events->appendChild($Event);
         }
 
@@ -28,12 +28,12 @@ switch (parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)) {
         break;
     case '/api/events/read':
         if (!isset($_REQUEST['Alias'])) {
-            apiError('wrong request');
+            apiError(400, NFW::i()->lang['Errors']['Bad_request']);
         }
 
         $CEvents = new events();
         if (!$CEvents->loadByAlias($_REQUEST['Alias'])) {
-            apiError('event not found');
+            apiError(400, 'event not found');
         }
 
         $approved_works = 0;
@@ -57,54 +57,86 @@ switch (parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)) {
 
         $dom = newDomDocument();
 
-        $Event = createElement($dom,'Event');
+        $Event = createElement($dom, 'Event');
         $Event->setAttribute('ID', $CEvents->record['id']);
-        $Event->appendChild(createElement($dom,'Title', $CEvents->record['title']));
-        $Event->appendChild(createElement($dom,'URL', NFW::i()->absolute_path . '/' . ($CEvents->record['alias'])));
-        $Event->appendChild(createElement($dom,'Announcement'))->appendChild($dom->createTextNode(($CEvents->record['announcement'])));
-        $Event->appendChild(createElement($dom,'DateFrom', $CEvents->record['date_from']));
-        $Event->appendChild(createElement($dom,'DateTo', $CEvents->record['date_to']));
-        $Event->appendChild(createElement($dom,'IsLogo', $CEvents->record['is_preview_img']));
-        $Event->appendChild(createElement($dom,'Logo', $CEvents->record['preview_img']));
-        $Event->appendChild(createElement($dom,'TotalWorks', $total_works));
-        $Event->appendChild(createElement($dom,'ApprovedWorks', $approved_works));
+        $Event->appendChild(createElement($dom, 'Title', $CEvents->record['title']));
+        $Event->appendChild(createElement($dom, 'URL', NFW::i()->absolute_path . '/' . ($CEvents->record['alias'])));
+        $Event->appendChild(createElement($dom, 'Announcement'))->appendChild($dom->createTextNode(($CEvents->record['announcement'])));
+        $Event->appendChild(createElement($dom, 'DateFrom', $CEvents->record['date_from']));
+        $Event->appendChild(createElement($dom, 'DateTo', $CEvents->record['date_to']));
+        $Event->appendChild(createElement($dom, 'IsLogo', $CEvents->record['is_preview_img']));
+        $Event->appendChild(createElement($dom, 'Logo', $CEvents->record['preview_img']));
+        $Event->appendChild(createElement($dom, 'TotalWorks', $total_works));
+        $Event->appendChild(createElement($dom, 'ApprovedWorks', $approved_works));
         $dom->appendChild($Event);
 
         apiSuccess($dom, [$Event]);
         break;
+    case '/api/competitions/list':
+        if (!isset($_REQUEST['EventAlias'])) {
+            apiError(400, NFW::i()->lang['Errors']['Bad_request']);
+        }
+
+        $CEvents = new events();
+        if (!$CEvents->loadByAlias($_REQUEST['EventAlias'])) {
+            apiError(400, 'event not found');
+        }
+
+        $CCompetitions = new competitions();
+        $records = $CCompetitions->getRecords(['filter' => ['event_id' => $CEvents->record['id']]]);
+
+        $dom = newDomDocument();
+        $Competitions = createElement($dom, 'Competitions');
+
+        foreach ($records as $record) {
+            $Competition = createElement($dom, 'Competition');
+            $Competition->appendChild(createElement($dom, 'Title', $record['title']));
+            $Competition->appendChild(createElement($dom, 'ReceptionFrom', $record['reception_from']));
+            $Competition->appendChild(createElement($dom, 'ReceptionTo', $record['reception_to']));
+            $Competition->appendChild(createElement($dom, 'VotingFrom', $record['voting_from']));
+            $Competition->appendChild(createElement($dom, 'VotingTo', $record['voting_to']));
+            $Competitions->appendChild($Competition);
+
+        }
+
+        $dom->appendChild($Competitions);
+
+        apiSuccess($dom, [$Competitions]);
+
+        break;
     case '/api/competitions/get53c':
         $CCompetitions = new competitions(NFWX::i()->project_settings['53c_competition_id']);
         if (!$CCompetitions->record['id']) {
-            apiError('53c competition not found');
+            apiError(400, '53c competition not found');
         }
 
         $CEvents = new events($CCompetitions->record['event_id']);
         if (!$CCompetitions->record['id']) {
-            apiError('Event for 53c competition not found');
+            apiError(400, 'Event for 53c competition not found');
         }
 
         $reception_available = $CCompetitions->record['reception_from'] < NFWX::i()->actual_date && $CCompetitions->record['reception_to'] > NFWX::i()->actual_date ? 1 : 0;
 
         $dom = newDomDocument();
-        $competition = createElement($dom,'Competition');
-        $competition->appendChild(createElement($dom,'Title', $CCompetitions->record['title']));
-        $competition->appendChild(createElement($dom,'EventTitle', $CEvents->record['title']));
-        $competition->appendChild(createElement($dom,'ReceptionAvailable', $reception_available));
-        $competition->appendChild(createElement($dom,'ReceptionFrom', $CCompetitions->record['reception_from']));
-        $competition->appendChild(createElement($dom,'ReceptionTo', $CCompetitions->record['reception_to']));
-        $competition->appendChild(createElement($dom,'VotingFrom', $CCompetitions->record['voting_from']));
-        $competition->appendChild(createElement($dom,'VotingTo', $CCompetitions->record['voting_to']));
+        $competition = createElement($dom, 'Competition');
+        $competition->appendChild(createElement($dom, 'Title', $CCompetitions->record['title']));
+        $competition->appendChild(createElement($dom, 'EventTitle', $CEvents->record['title']));
+        $competition->appendChild(createElement($dom, 'ReceptionAvailable', $reception_available));
+        $competition->appendChild(createElement($dom, 'ReceptionFrom', $CCompetitions->record['reception_from']));
+        $competition->appendChild(createElement($dom, 'ReceptionTo', $CCompetitions->record['reception_to']));
+        $competition->appendChild(createElement($dom, 'VotingFrom', $CCompetitions->record['voting_from']));
+        $competition->appendChild(createElement($dom, 'VotingTo', $CCompetitions->record['voting_to']));
 
         apiSuccess($dom, [$competition]);
         break;
     case '/api/competitions/upload53c':
         $CWorks = new works53c();
         if (!$CWorks->loadFromUploadedFile('file53c')) {
-            apiError($CWorks->last_msg);
+            apiError(400, $CWorks->last_msg);
         }
 
         if (!$CWorks->add53c($_POST)) {
-            apiError($CWorks->last_msg);
+            apiError(400, $CWorks->last_msg);
         }
 
         $dom = newDomDocument();
@@ -131,22 +163,22 @@ switch (parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)) {
 
         $dom = newDomDocument();
 
-        $Filtered = createElement($dom,'Filtered', $num_filtered);
-        $Fetched = createElement($dom,'Fetched', count($records));
+        $Filtered = createElement($dom, 'Filtered', $num_filtered);
+        $Fetched = createElement($dom, 'Fetched', count($records));
 
-        $Works = createElement($dom,'Works');
+        $Works = createElement($dom, 'Works');
         foreach ($records as $record) {
-            $Work = createElement($dom,'Work');
+            $Work = createElement($dom, 'Work');
             $Work->setAttribute('ID', $record['id']);
-            $Work->appendChild(createElement($dom,'Title'))->appendChild($dom->createTextNode($record['title']));
-            $Work->appendChild(createElement($dom,'Author'))->appendChild($dom->createTextNode($record['author']));
-            $Work->appendChild(createElement($dom,'URL', $record['main_link']));
-            $Work->appendChild(createElement($dom,'ReleaseURL', $record['release_link'] ? $record['release_link']['url'] : null));
+            $Work->appendChild(createElement($dom, 'Title'))->appendChild($dom->createTextNode($record['title']));
+            $Work->appendChild(createElement($dom, 'Author'))->appendChild($dom->createTextNode($record['author']));
+            $Work->appendChild(createElement($dom, 'URL', $record['main_link']));
+            $Work->appendChild(createElement($dom, 'ReleaseURL', $record['release_link'] ? $record['release_link']['url'] : null));
 
-            $Competition = createElement($dom,'Competition');
+            $Competition = createElement($dom, 'Competition');
             $Competition->setAttribute('ID', $record['competition_id']);
-            $Competition->appendChild(createElement($dom,'Title'))->appendChild($dom->createTextNode($record['competition_title']));
-            $Competition->appendChild(createElement($dom,'WorksType', $record['works_type']));
+            $Competition->appendChild(createElement($dom, 'Title'))->appendChild($dom->createTextNode($record['competition_title']));
+            $Competition->appendChild(createElement($dom, 'WorksType', $record['works_type']));
             $Work->appendChild($Competition);
 
             $Event = createElement($dom, 'Event');
@@ -162,7 +194,7 @@ switch (parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)) {
         apiSuccess($dom, array($Filtered, $Fetched, $Works));
         break;
     default:
-        apiError(NFW::i()->lang['Errors']['Bad_request']);
+        apiError(400, NFW::i()->lang['Errors']['Bad_request']);
 }
 
 function newDomDocument(): DomDocument {
@@ -183,12 +215,13 @@ function createElement(DomDocument $dom, $localName, $value = ""): DOMElement {
     return $element;
 }
 
-function apiError($message) {
+function apiError(int $errorCode, $message) {
     $dom = newDomDocument();
-    $document = createElement($dom,'Document');
+    $document = createElement($dom, 'Document');
     $document->appendChild(createElement($dom, 'Status', 'error'));
     $document->appendChild(createElement($dom, 'Message', $message));
 
+    http_response_code($errorCode);
     writeResponse($dom, $document);
 }
 

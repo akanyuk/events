@@ -21,10 +21,15 @@ $(document).ready(function(){
 
 		actionSelectOptions = actionSelectOptions + '<option id="' + f.attr('action') + '">' + f.attr('action') + '</option>';
 		f.activeForm({
-			'dataType': 'text',
-			'success': function(response){
+			dataType: 'text',
+			success: function(response){
 				$('div[id="response"]').text(response);
-			}
+			},
+            error: function (response) {
+                console.log(response);
+                $('div[id="response"]').text(response['responseText']);
+                return false;
+            }
 		});
 
 		f.append($('div[id="form-append"]').html());
@@ -61,6 +66,12 @@ $(document).ready(function(){
 <form data-rel="api-test" action="/api/events/read">
     <fieldset>
         <?php echo active_field(array('name' => 'Alias', 'desc' => 'Alias'))?>
+    </fieldset>
+</form>
+
+<form data-rel="api-test" action="/api/competitions/list">
+    <fieldset>
+        <?php echo active_field(array('name' => 'EventAlias', 'desc' => 'EventAlias'))?>
     </fieldset>
 </form>
 
