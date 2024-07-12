@@ -24,7 +24,7 @@ switch (parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)) {
             $Events->appendChild($Event);
         }
 
-        apiSuccess($dom, [$Events]);
+        apiSuccessLegacy($dom, [$Events]);
         break;
     case '/api/events/read':
         if (!isset($_REQUEST['Alias'])) {
@@ -70,7 +70,7 @@ switch (parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)) {
         $Event->appendChild(createElement($dom, 'ApprovedWorks', $approved_works));
         $dom->appendChild($Event);
 
-        apiSuccess($dom, [$Event]);
+        apiSuccessLegacy($dom, [$Event]);
         break;
     case '/api/competitions/list':
         if (!isset($_REQUEST['EventAlias'])) {
@@ -85,23 +85,19 @@ switch (parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)) {
         $CCompetitions = new competitions();
         $records = $CCompetitions->getRecords(['filter' => ['event_id' => $CEvents->record['id']]]);
 
-        $dom = newDomDocument();
-        $Competitions = createElement($dom, 'Competitions');
-
+        $result = [];
         foreach ($records as $record) {
-            $Competition = createElement($dom, 'Competition');
-            $Competition->appendChild(createElement($dom, 'Title', $record['title']));
-            $Competition->appendChild(createElement($dom, 'ReceptionFrom', $record['reception_from']));
-            $Competition->appendChild(createElement($dom, 'ReceptionTo', $record['reception_to']));
-            $Competition->appendChild(createElement($dom, 'VotingFrom', $record['voting_from']));
-            $Competition->appendChild(createElement($dom, 'VotingTo', $record['voting_to']));
-            $Competitions->appendChild($Competition);
-
+            $result[] = [
+                'Title' => $record['title'],
+                'WorksType' => $record['works_type'],
+                'ReceptionFrom' => intval($record['reception_from']),
+                'ReceptionTo' => intval($record['reception_to']),
+                'VotingFrom' => intval($record['voting_from']),
+                'VotingTo' => intval($record['voting_to']),
+            ];
         }
 
-        $dom->appendChild($Competitions);
-
-        apiSuccess($dom, [$Competitions]);
+        apiSuccess(['Competitions' => $result]);
 
         break;
     case '/api/competitions/get53c':
@@ -127,7 +123,7 @@ switch (parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)) {
         $competition->appendChild(createElement($dom, 'VotingFrom', $CCompetitions->record['voting_from']));
         $competition->appendChild(createElement($dom, 'VotingTo', $CCompetitions->record['voting_to']));
 
-        apiSuccess($dom, [$competition]);
+        apiSuccessLegacy($dom, [$competition]);
         break;
     case '/api/competitions/upload53c':
         $CWorks = new works53c();
@@ -140,7 +136,7 @@ switch (parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)) {
         }
 
         $dom = newDomDocument();
-        apiSuccess($dom);
+        apiSuccessLegacy($dom);
         break;
     case '/api/works/get':
         $CWorks = new works();
@@ -191,7 +187,7 @@ switch (parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)) {
             $Works->appendChild($Work);
         }
 
-        apiSuccess($dom, array($Filtered, $Fetched, $Works));
+        apiSuccessLegacy($dom, array($Filtered, $Fetched, $Works));
         break;
     default:
         apiError(400, NFW::i()->lang['Errors']['Bad_request']);
@@ -216,20 +212,62 @@ function createElement(DomDocument $dom, $localName, $value = ""): DOMElement {
 }
 
 function apiError(int $errorCode, $message) {
-    $dom = newDomDocument();
-    $document = createElement($dom, 'Document');
-    $document->appendChild(createElement($dom, 'Status', 'error'));
-    $document->appendChild(createElement($dom, 'Message', $message));
-
     http_response_code($errorCode);
-    writeResponse($dom, $document);
+
+    if (isset($_REQUEST['ResponseType']) && $_REQUEST['ResponseType'] == 'json') {
+        header('Content-Type: application/json');
+        NFW::i()->stop(json_encode(['message' => $message], JSON_PRETTY_PRINT));
+    } else {
+        header("Content-Type: text/xml");
+        NFW::i()->stop('<?xml version="1.0"?>
+<Document>
+    <Message>'.$message.'</Message>
+</Document>');
+    }
+}
+
+/**
+ * @param array $data
+ */
+function apiSuccess(array $data = array()) {
+    if (isset($_REQUEST['ResponseType']) && $_REQUEST['ResponseType'] == 'json') {
+        header('Content-Type: application/json');
+        NFW::i()->stop(json_encode($data, JSON_PRETTY_PRINT));
+    } else {
+        $xmlData = new SimpleXMLElement('<?xml version="1.0"?><Document></Document>');
+        arrayToXML($data, $xmlData);
+
+        $dom = newDomDocument();
+        $dom->loadXML($xmlData->asXML());
+
+        header("Content-Type: text/xml");
+        NFW::i()->stop($dom->saveXML());
+    }
+}
+
+function arrayToXML($data, $xml_data, $upperKey = "") {
+    foreach ($data as $key => $value) {
+        if (is_array($value)) {
+            if (is_numeric($key)) {
+                if ($upperKey != "") {
+                    $key = substr($upperKey, 0, -1); // Competitions -> Competition
+                } else {
+                    $key = 'Item';
+                }
+            }
+            $subNode = $xml_data->addChild($key);
+            arrayToXML($value, $subNode, $key);
+        } else {
+            $xml_data->addChild($key, $value);
+        }
+    }
 }
 
 /**
  * @param $dom DomDocument
  * @param $children array
  */
-function apiSuccess(DomDocument $dom, array $children = array()) {
+function apiSuccessLegacy(DomDocument $dom, array $children = array()) {
     $document = createElement($dom, 'Document');
     $document->appendChild(createElement($dom, 'Status', 'success'));
 
@@ -237,14 +275,6 @@ function apiSuccess(DomDocument $dom, array $children = array()) {
         $document->appendChild($child);
     }
 
-    writeResponse($dom, $document);
-}
-
-/**
- * @param $dom DomDocument
- * @param $document DOMElement
- */
-function writeResponse(DomDocument $dom, DOMElement $document) {
     $document->appendChild(createElement($dom, 'Username', NFW::i()->user['username']));
     $document->appendChild(createElement($dom, 'IsGuest', NFW::i()->user['is_guest'] ? '1' : '0'));
 
