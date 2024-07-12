@@ -5,7 +5,14 @@ if (isset($_SERVER['HTTP_ORIGIN'])) {
     header('Access-Control-Allow-Credentials: true');
 }
 
-switch (parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)) {
+$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+if (strpos($path, 'api/v2') !== false) {
+    require(SRC_ROOT . "/helpers/api_v2.inc.php");
+    new apiV2($path);
+}
+
+switch ($path) {
     case '/api/events/upcoming-current':
         $CEvents = new events();
 
@@ -24,7 +31,7 @@ switch (parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)) {
             $Events->appendChild($Event);
         }
 
-        apiSuccessLegacy($dom, [$Events]);
+        apiSuccess($dom, [$Events]);
         break;
     case '/api/events/read':
         if (!isset($_REQUEST['Alias'])) {
@@ -70,35 +77,7 @@ switch (parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)) {
         $Event->appendChild(createElement($dom, 'ApprovedWorks', $approved_works));
         $dom->appendChild($Event);
 
-        apiSuccessLegacy($dom, [$Event]);
-        break;
-    case '/api/competitions/list':
-        if (!isset($_REQUEST['EventAlias'])) {
-            apiError(400, NFW::i()->lang['Errors']['Bad_request']);
-        }
-
-        $CEvents = new events();
-        if (!$CEvents->loadByAlias($_REQUEST['EventAlias'])) {
-            apiError(400, 'event not found');
-        }
-
-        $CCompetitions = new competitions();
-        $records = $CCompetitions->getRecords(['filter' => ['event_id' => $CEvents->record['id']]]);
-
-        $result = [];
-        foreach ($records as $record) {
-            $result[] = [
-                'Title' => $record['title'],
-                'WorksType' => $record['works_type'],
-                'ReceptionFrom' => intval($record['reception_from']),
-                'ReceptionTo' => intval($record['reception_to']),
-                'VotingFrom' => intval($record['voting_from']),
-                'VotingTo' => intval($record['voting_to']),
-            ];
-        }
-
-        apiSuccess(['Competitions' => $result]);
-
+        apiSuccess($dom, [$Event]);
         break;
     case '/api/competitions/get53c':
         $CCompetitions = new competitions(NFWX::i()->project_settings['53c_competition_id']);
@@ -123,7 +102,7 @@ switch (parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)) {
         $competition->appendChild(createElement($dom, 'VotingFrom', $CCompetitions->record['voting_from']));
         $competition->appendChild(createElement($dom, 'VotingTo', $CCompetitions->record['voting_to']));
 
-        apiSuccessLegacy($dom, [$competition]);
+        apiSuccess($dom, [$competition]);
         break;
     case '/api/competitions/upload53c':
         $CWorks = new works53c();
@@ -136,7 +115,7 @@ switch (parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)) {
         }
 
         $dom = newDomDocument();
-        apiSuccessLegacy($dom);
+        apiSuccess($dom);
         break;
     case '/api/works/get':
         $CWorks = new works();
@@ -187,7 +166,7 @@ switch (parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)) {
             $Works->appendChild($Work);
         }
 
-        apiSuccessLegacy($dom, array($Filtered, $Fetched, $Works));
+        apiSuccess($dom, array($Filtered, $Fetched, $Works));
         break;
     default:
         apiError(400, NFW::i()->lang['Errors']['Bad_request']);
@@ -221,45 +200,8 @@ function apiError(int $errorCode, $message) {
         header("Content-Type: text/xml");
         NFW::i()->stop('<?xml version="1.0"?>
 <Document>
-    <Message>'.$message.'</Message>
+    <Message>' . $message . '</Message>
 </Document>');
-    }
-}
-
-/**
- * @param array $data
- */
-function apiSuccess(array $data = array()) {
-    if (isset($_REQUEST['ResponseType']) && $_REQUEST['ResponseType'] == 'json') {
-        header('Content-Type: application/json');
-        NFW::i()->stop(json_encode($data, JSON_PRETTY_PRINT));
-    } else {
-        $xmlData = new SimpleXMLElement('<?xml version="1.0"?><Document></Document>');
-        arrayToXML($data, $xmlData);
-
-        $dom = newDomDocument();
-        $dom->loadXML($xmlData->asXML());
-
-        header("Content-Type: text/xml");
-        NFW::i()->stop($dom->saveXML());
-    }
-}
-
-function arrayToXML($data, $xml_data, $upperKey = "") {
-    foreach ($data as $key => $value) {
-        if (is_array($value)) {
-            if (is_numeric($key)) {
-                if ($upperKey != "") {
-                    $key = substr($upperKey, 0, -1); // Competitions -> Competition
-                } else {
-                    $key = 'Item';
-                }
-            }
-            $subNode = $xml_data->addChild($key);
-            arrayToXML($value, $subNode, $key);
-        } else {
-            $xml_data->addChild($key, $value);
-        }
     }
 }
 
@@ -267,7 +209,7 @@ function arrayToXML($data, $xml_data, $upperKey = "") {
  * @param $dom DomDocument
  * @param $children array
  */
-function apiSuccessLegacy(DomDocument $dom, array $children = array()) {
+function apiSuccess(DomDocument $dom, array $children = array()) {
     $document = createElement($dom, 'Document');
     $document->appendChild(createElement($dom, 'Status', 'success'));
 

@@ -38,6 +38,12 @@ $(document).ready(function(){
 	$('select[id="actionSelect"]').append(actionSelectOptions).change(function(){
 		$('form[data-rel="api-test"]').hide();
 		$('form[data-rel="api-test"][action="' + $(this).val() + '"').show();
+
+        if ($(this).val().includes("api/v2/")) {
+            $('div[data-active-container="ResponseType"]').hide();
+        } else {
+            $('div[data-active-container="ResponseType"]').show();
+        }
 	}).trigger('change');
 });
 </script>
@@ -61,17 +67,17 @@ $(document).ready(function(){
 	</div>
 </div>
 
+<form data-rel="api-test" action="/api/v2/competitions/list">
+    <fieldset>
+        <?php echo active_field(array('name' => 'event', 'desc' => 'event'))?>
+    </fieldset>
+</form>
+
 <form data-rel="api-test" action="/api/events/upcoming-current"><fieldset></fieldset></form>
 
 <form data-rel="api-test" action="/api/events/read">
     <fieldset>
         <?php echo active_field(array('name' => 'Alias', 'desc' => 'Alias'))?>
-    </fieldset>
-</form>
-
-<form data-rel="api-test" action="/api/competitions/list">
-    <fieldset>
-        <?php echo active_field(array('name' => 'EventAlias', 'desc' => 'EventAlias'))?>
     </fieldset>
 </form>
 
