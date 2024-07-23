@@ -77,30 +77,13 @@ if (!empty($managed_events)) {
 		return false;
 	}
 	while($r = NFW::i()->db->fetch_assoc($result)) {
+        $r['status_info'] = $CWorks->attributes['status']['options'][$r['status']];
 		$marked_prods[] = $r;
 	}
 }
 ?>
 <script type="text/javascript">
 $(document).ready(function(){
-	<?php /*
-	$('[role="works-set-checked"]').click(function(){
-		var oRow = $(this).closest('tr');
-		var oTbody = oRow.closest('tbody');
-		$.post('?action=works_set_checked', { record_id: $(this).data('record-id') }, function(response){
-			if (response != 'success') {
-				alert(response);
-			}
-			else if (oTbody.find('tr').length == 1) {
-				window.location.reload();
-			}
-			else {
-				oRow.remove();
-			}
-		});
-	});
-	*/?>
-	
 	$('[role="works-set-checked-all"]').click(function(){
 		$.post('?action=works_set_checked_all', function(response){
 			response === 'success' ? window.location.reload() : alert(response);
@@ -115,6 +98,8 @@ $(document).ready(function(){
 		.marked-prods H2 { margin-top: 0; }
 		.marked-prods .alert { margin-top: 40px; }
 	}
+
+    .marked-prods .alert-note { margin-top: 3px; padding: 3px 10px; }
 </style>
 <div class="row marked-prods">
 	<div class="col-md-6">
@@ -164,9 +149,6 @@ $(document).ready(function(){
 		</div>
 		
 		<div class="hidden-sm hidden-md hidden-lg">
-			<div style="text-align: center">
-				<button role="works-set-checked-all" class="btn btn-lg btn-success"><span class="fa fa-check"></span> Set all prods checked <span class="badge"><?php echo $unchecked_prods_count?></span></button>
-			</div>
 			<h2>Unchecked prods</h2>
 			<table class="table table-condensed table-striped">
 				<tbody>
@@ -195,7 +177,11 @@ $(document).ready(function(){
 				</tfoot>
 				<?php endif; ?>
 			</table>
-		</div>				
+
+            <div style="text-align: center">
+                <button role="works-set-checked-all" class="btn btn-lg btn-success"><span class="fa fa-check"></span> Set all prods checked <span class="badge"><?php echo $unchecked_prods_count?></span></button>
+            </div>
+		</div>
 		<?php endif;?>
 	</div>
 	
@@ -218,9 +204,7 @@ $(document).ready(function(){
 <?php foreach ($marked_prods as $record) { ?>
 <tr>
 	<td>
-		<?php if ($record['managers_notes_comment']): ?>
-			<div data-toggle="tooltip" data-html="true" title="<?php echo htmlspecialchars(nl2br($record['managers_notes_comment']))?>" class="text-warning"><span class="fa fa-question"></span></div>			
-		<?php endif; ?>
+        <div data-toggle="tooltip" data-html="true" title="<?php echo '<strong>'.$record['status_info']['desc'].'</strong><br />Voting: '.($record['status_info']['voting'] ? 'On' : 'Off').'<br />Release: '.($record['status_info']['release'] ? 'On' : 'Off')?>" class="text text-<?php echo $record['status_info']['css-class']?>"><span class="<?php echo $record['status_info']['icon']?>"></span></div>
 	</td>
 	<td>
 		<strong>
@@ -228,7 +212,10 @@ $(document).ready(function(){
 		</strong>
 		<div class="text-muted">
 			<small><?php echo htmlspecialchars($record['event_title'].' / '.$record['competition_title'])?></small>
-		</div>		
+		</div>
+        <?php if ($record['managers_notes_comment']): ?>
+            <div class="alert alert-warning alert-note"><?php echo htmlspecialchars(nl2br($record['managers_notes_comment']))?></div>
+        <?php endif; ?>
 	</td>
 	<td class="nowrap"><?php echo date('d.m.Y H:i', $record['posted']).' by '.htmlspecialchars($record['posted_username'])?></td>
 </tr>
@@ -243,11 +230,9 @@ $(document).ready(function(){
 <?php foreach ($marked_prods as $record) { ?>
 <tr>
 	<td>
-		<?php if ($record['managers_notes_comment']): ?>
 		<div class="pull-right" style="margin-left: 10px;">
-			<div data-toggle="tooltip" data-html="true" title="<?php echo htmlspecialchars(nl2br($record['managers_notes_comment']))?>" class="text-warning"><span class="fa fa-question"></span></div>
+            <div data-toggle="tooltip" data-html="true" title="<?php echo '<strong>'.$record['status_info']['desc'].'</strong><br />Voting: '.($record['status_info']['voting'] ? 'On' : 'Off').'<br />Release: '.($record['status_info']['release'] ? 'On' : 'Off')?>" class="text text-<?php echo $record['status_info']['css-class']?>"><span class="<?php echo $record['status_info']['icon']?>"></span></div>
 		</div>			
-		<?php endif; ?>
 		<strong>
 			<a href="<?php echo NFW::i()->absolute_path.'/admin/works?action=update&record_id='.$record['id']?>"><?php echo htmlspecialchars($record['title'].' by '.$record['author'])?></a>
 		</strong>
@@ -255,6 +240,9 @@ $(document).ready(function(){
 			<small><?php echo htmlspecialchars($record['event_title'].' / '.$record['competition_title'])?></small>
 		</div>		
 		<div>Posted: <?php echo date('d.m.Y H:i', $record['posted']).' by '.htmlspecialchars($record['posted_username'])?></div>
+        <?php if ($record['managers_notes_comment']): ?>
+            <div class="alert alert-warning alert-note"><?php echo htmlspecialchars(nl2br($record['managers_notes_comment']))?></div>
+        <?php endif; ?>
 	</td>
 </tr>
 <?php } ?>
