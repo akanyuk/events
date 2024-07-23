@@ -208,6 +208,10 @@ class NFWX extends NFW {
             return in_array($Competition->record['event_id'], $managed_events);
         }
 
+        if ($module == 'timeline' && in_array($action, array('admin', 'update'))) {
+            return isset($_GET['event_id']) && in_array($_GET['event_id'], $managed_events);
+        }
+
         return false;
     }
 

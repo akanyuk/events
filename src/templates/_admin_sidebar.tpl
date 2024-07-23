@@ -12,7 +12,7 @@ $(document).ready(function(){
 <nav class="sidebar-nav">
 	<ul class="metismenu" id="sidebar-menu">
 <?php
-echo '<li class="active hidden-md hidden-lg"><a href="#"><span class="sidebar-nav-item">Main menu</span><span class="fa arrow"></span></a><ul>';
+echo '<li class="hidden-md hidden-lg"><a href="#"><span class="sidebar-nav-item">Main menu</span><span class="fa arrow"></span></a><ul>';
 foreach ($top_menu as $m) {
 	echo '<li><a href="'.NFW::i()->absolute_path.'/admin/'.$m['url'].'">'.$m['name'].'</a></li>';
 }
@@ -37,10 +37,11 @@ foreach (adminSidebarEvents() as $event) {
 				</li>
 				<?php } ?>
 				<li><a href="<?php echo NFW::i()->base_path.'admin/events?action=update&record_id='.$event['id']?>"><span class="sidebar-nav-item-icon fa fa-wine-glass-alt"></span> Manage event</a></li>
-				<li><a href="<?php echo NFW::i()->base_path.'admin/competitions?event_id='.$event['id']?>"><span class="sidebar-nav-item-icon fa fa-truck-monster"></span> Manage competitions</a></li>
-				<li><a href="<?php echo NFW::i()->base_path.'admin/works?event_id='.$event['id']?>"><span class="sidebar-nav-item-icon fas fa-bug"></span> Manage works</a></li>
-				<li><a href="<?php echo NFW::i()->base_path.'admin/vote?event_id='.$event['id']?>"><span class="sidebar-nav-item-icon fa fa-poll"></span> Manage voting</a></li>
+				<li><a href="<?php echo NFW::i()->base_path.'admin/competitions?event_id='.$event['id']?>"><span class="sidebar-nav-item-icon fa fa-truck-monster"></span> Competitions</a></li>
+				<li><a href="<?php echo NFW::i()->base_path.'admin/works?event_id='.$event['id']?>"><span class="sidebar-nav-item-icon fas fa-bug"></span> Works</a></li>
+				<li><a href="<?php echo NFW::i()->base_path.'admin/vote?event_id='.$event['id']?>"><span class="sidebar-nav-item-icon fa fa-poll"></span> Voting</a></li>
                 <li><a href="<?php echo NFW::i()->base_path.'admin/live_voting?event_id='.$event['id']?>"><span class="sidebar-nav-item-icon fa fa-thumbs-up"></span> Live voting</a></li>
+                <li><a href="<?php echo NFW::i()->base_path.'admin/timeline?event_id='.$event['id']?>"><span class="sidebar-nav-item-icon fa fa-calendar-alt"></span> Timeline</a></li>
 			</ul>
 		</li>
 <?php
