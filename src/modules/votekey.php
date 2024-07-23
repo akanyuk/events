@@ -90,7 +90,7 @@ class votekey extends base_module {
 
         // Search string
         $filter = $where;
-        if (isset($options['search'])) {
+        if (isset($options['search']) && $options['search']) {
             $filter[] = '(votekey LIKE \'%' . NFW::i()->db->escape($options['search']) . '%\' OR email LIKE \'%' . NFW::i()->db->escape($options['search']) . '%\' OR poster_ip LIKE \'%' . NFW::i()->db->escape($options['search']) . '%\')';
         }
 

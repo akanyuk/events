@@ -31,3 +31,8 @@ VALUES ('dm-000.base', 'admin', '', 'Entering in control panel'),
        ('dm-100.admin', 'users', 'update', 'Users: edit'),
        ('dm-100.admin', 'view_logs', 'admin', 'View logs'),
        ('dm-100.admin', 'timeline', 'admin', 'Manage timeline');
+
+ALTER TABLE `votekeys` ADD INDEX `event_id` (`event_id`);
+ALTER TABLE `votekeys` ADD INDEX `posted` (`posted`);
+ALTER TABLE `votes` ADD INDEX `event_id` (`event_id`);
+ALTER TABLE `votes` ADD INDEX `posted` (`posted`);
