@@ -10,25 +10,39 @@ class timeline extends active_record {
     var $attributes = array(
         'event_id' => array('desc' => 'Event', 'type' => 'select', 'options' => array()),
         'competition_id' => array('desc' => 'Competition', 'type' => 'select', 'options' => array()),
-        'ts' => array('desc' => 'Date/time', 'type' => 'date', 'withTime' => true, 'startDate' => 1, 'endDate' => -365),
-        'title' => array('desc' => 'Title', 'type' => 'str', 'required' => true, 'minlength' => 4, 'maxlength' => 255),
-        'type' => array('desc' => 'Type', 'type' => 'string', 'maxlength' => 32),
-        'ts_source' => array('desc' => 'Competition', 'type' => 'select', 'options' => [
+        'begin' => array('desc' => 'begin', 'type' => 'date', 'withTime' => true, 'startDate' => 1, 'endDate' => -365),
+        'begin_source' => array('desc' => 'Begin source', 'type' => 'select', 'options' => [
             ['val' => '', 'text' => 'Manual input'],
             ['val' => 'reception_from', 'text' => 'Reception from'],
             ['val' => 'reception_to', 'text' => 'Reception to'],
             ['val' => 'voting_from', 'text' => 'Voting from'],
             ['val' => 'voting_to', 'text' => 'Voting to'],
         ]),
+        'end' => array('desc' => 'begin', 'type' => 'date', 'withTime' => true, 'startDate' => 1, 'endDate' => -365),
+        'end_source' => array('desc' => 'End source', 'type' => 'select', 'options' => [
+            ['val' => '', 'text' => 'Manual input'],
+            ['val' => 'reception_from', 'text' => 'Reception from'],
+            ['val' => 'reception_to', 'text' => 'Reception to'],
+            ['val' => 'voting_from', 'text' => 'Voting from'],
+            ['val' => 'voting_to', 'text' => 'Voting to'],
+        ]),
+        'title' => array('desc' => 'Title', 'type' => 'str', 'required' => true, 'minlength' => 4, 'maxlength' => 255),
+        'description' => array('desc' => 'Description (multilanguage HTML)', 'type' => 'textarea', 'minlength' => 4, 'maxlength' => 2048),
+        'type' => array('desc' => 'Type', 'type' => 'string', 'maxlength' => 32),
+        'is_public' => array('desc' => 'Public', 'type' => 'bool'),
     );
 
-    function tsSources() {
-        return $this->attributes['ts_source']['options'];
+    function beginSources() {
+        return $this->attributes['begin_source']['options'];
+    }
+
+    function endSources() {
+        return $this->attributes['end_source']['options'];
     }
 
     function getRecords(int $eventID) {
         if (!$result = NFW::i()->db->query_build([
-            'SELECT' => 't.*, c.reception_from, c.reception_to, c.voting_from, c.voting_to',
+            'SELECT' => 't.*, c.title AS competition_title, c.reception_from, c.reception_to, c.voting_from, c.voting_to',
             'FROM' => $this->db_table . ' AS t',
             'JOINS' => array(
                 array(
@@ -93,18 +107,22 @@ class timeline extends active_record {
             $values = [
                 $CEvents->record['id'],
                 intval($_POST['competition_id'][$key]),
-                intval($_POST['ts'][$key]),
+                intval($_POST['begin'][$key]),
+                intval($_POST['end'][$key]),
+                isset($_POST['is_public'][$key]) && $_POST['is_public'][$key] == "on" ? 1 : 0,
                 '\'' . NFW::i()->db->escape($title) . '\'',
+                '\'' . NFW::i()->db->escape($_POST['description'][$key]) . '\'',
                 '\'' . NFW::i()->db->escape($_POST['type'][$key]) . '\'',
-                '\'' . NFW::i()->db->escape($_POST['ts_source'][$key]) . '\'',
+                '\'' . NFW::i()->db->escape($_POST['begin_source'][$key]) . '\'',
+                '\'' . NFW::i()->db->escape($_POST['end_source'][$key]) . '\'',
             ];
             $query = array(
-                'INSERT' => '`event_id`, `competition_id`, `ts`, `title`, `type`, `ts_source`',
+                'INSERT' => '`event_id`, `competition_id`, `begin`, `end`, `is_public`, `title`, `description`, `type`, `begin_source`, `end_source`',
                 'INTO' => $this->db_table,
                 'VALUES' => implode(', ', $values),
             );
             if (!NFW::i()->db->query_build($query)) {
-                $this->error('Unable to insert new timeline', __FILE__, __LINE__, NFW::i()->db->error());
+                $this->error('Unable to insert new timeline record', __FILE__, __LINE__, NFW::i()->db->error());
                 NFWX::i()->jsonError(400, $this->last_msg);
             }
         }
@@ -114,23 +132,38 @@ class timeline extends active_record {
 }
 
 function formatTimelineRecord($item): array {
-    if ($item['competition_id']) {
-        switch ($item['ts_source']) {
-            case 'reception_from':
-                $item['ts'] = intval($item['reception_from']);
-                break;
-            case 'reception_to':
-                $item['ts'] = intval($item['reception_to']);
-                break;
-            case 'voting_from':
-                $item['ts'] = intval($item['voting_from']);
-                break;
-            case 'voting_to':
-                $item['ts'] = intval($item['voting_to']);
-                break;
-        }
-    } else {
-        $item['ts'] = intval($item['ts']);
+    switch ($item['begin_source']) {
+        case 'reception_from':
+            $item['begin'] = intval($item['reception_from']);
+            break;
+        case 'reception_to':
+            $item['begin'] = intval($item['reception_to']);
+            break;
+        case 'voting_from':
+            $item['begin'] = intval($item['voting_from']);
+            break;
+        case 'voting_to':
+            $item['begin'] = intval($item['voting_to']);
+            break;
+        default:
+            $item['begin'] = intval($item['begin']);
+    }
+
+    switch ($item['end_source']) {
+        case 'reception_from':
+            $item['end'] = intval($item['reception_from']);
+            break;
+        case 'reception_to':
+            $item['end'] = intval($item['reception_to']);
+            break;
+        case 'voting_from':
+            $item['end'] = intval($item['voting_from']);
+            break;
+        case 'voting_to':
+            $item['end'] = intval($item['voting_to']);
+            break;
+        default:
+            $item['end'] = intval($item['end']);
     }
 
     unset($item['reception_from'], $item['reception_to'], $item['voting_from'], $item['voting_to']);
@@ -139,5 +172,5 @@ function formatTimelineRecord($item): array {
 }
 
 function sortTimeline($a, $b): int {
-    return $a['ts'] > $b['ts'] ? 1 : -1;
+    return $a['begin'] > $b['begin'] ? 1 : -1;
 }

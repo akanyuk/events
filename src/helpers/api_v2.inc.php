@@ -3,7 +3,7 @@
 class apiV2 {
     function __construct(string $path) {
         switch ($path) {
-            case '/api/v2/competitions/list':
+            case '/api/v2/timeline':
                 if (!isset($_REQUEST['event'])) {
                     $this->error(400, NFW::i()->lang['Errors']['Bad_request']);
                 }
@@ -13,22 +13,22 @@ class apiV2 {
                     $this->error(400, 'event not found');
                 }
 
-                $CCompetitions = new competitions();
-                $records = $CCompetitions->getRecords(['filter' => ['event_id' => $CEvents->record['id']]]);
+                $CTimeline = new timeline();
+                $records = $CTimeline->getRecords($CEvents->record['id']);
 
                 $result = [];
                 foreach ($records as $record) {
                     $result[] = [
-                        'title' => $record['title'],
-                        'worksType' => $record['works_type'],
-                        'receptionFrom' => intval($record['reception_from']),
-                        'receptionTo' => intval($record['reception_to']),
-                        'votingFrom' => intval($record['voting_from']),
-                        'votingTo' => intval($record['voting_to']),
+                        'begin' => $record['begin'],
+                        'end' => $record['end'],
+                        'title' => $record['title'] ?: $record['competition_title'],
+                        'description' => $record['description'],
+                        'isPublic' => (bool)$record['is_public'],
+                        'type' => $record['type'],
                     ];
                 }
 
-                $this->success(['competitions' => $result]);
+                $this->success(['timeline' => $result]);
                 break;
             default:
                 $this->error(400, NFW::i()->lang['Errors']['Bad_request']);

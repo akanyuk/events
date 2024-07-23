@@ -3,10 +3,14 @@ CREATE TABLE `timeline`
 (
     `event_id`       int unsigned NOT NULL,
     `competition_id` int unsigned DEFAULT NULL,
-    `ts`             int unsigned NOT NULL DEFAULT '0',
+    `begin`          int unsigned NOT NULL DEFAULT '0',
+    `begin_source`   varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+    `end`            int unsigned NOT NULL DEFAULT '0',
+    `end_source`     varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
     `title`          text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
+    `description`    text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
     `type`           varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-    `ts_source`      varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL
+    `is_public`      tinyint unsigned NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
 
 DROP TABLE IF EXISTS `permissions`;
@@ -32,7 +36,11 @@ VALUES ('dm-000.base', 'admin', '', 'Entering in control panel'),
        ('dm-100.admin', 'view_logs', 'admin', 'View logs'),
        ('dm-100.admin', 'timeline', 'admin', 'Manage timeline');
 
-ALTER TABLE `votekeys` ADD INDEX `event_id` (`event_id`);
-ALTER TABLE `votekeys` ADD INDEX `posted` (`posted`);
-ALTER TABLE `votes` ADD INDEX `event_id` (`event_id`);
-ALTER TABLE `votes` ADD INDEX `posted` (`posted`);
+ALTER TABLE `votekeys`
+    ADD INDEX `event_id` (`event_id`);
+ALTER TABLE `votekeys`
+    ADD INDEX `posted` (`posted`);
+ALTER TABLE `votes`
+    ADD INDEX `event_id` (`event_id`);
+ALTER TABLE `votes`
+    ADD INDEX `posted` (`posted`);

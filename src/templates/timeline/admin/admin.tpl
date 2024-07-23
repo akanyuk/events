@@ -13,6 +13,7 @@ NFW::i()->registerResource('jquery.activeForm/bootstrap-datetimepicker.ru.js');
 NFW::i()->registerResource('jquery.jgrowl');
 
 NFW::i()->assign('page_title', $event['title'] . ' / timeline');
+NFW::i()->assign('no_admin_sidebar', true);
 
 NFW::i()->breadcrumb = array(
     array('url' => 'admin/events?action=update&record_id=' . $event['id'], 'desc' => $event['title']),
@@ -59,97 +60,146 @@ ob_start(); ?>
         });
 
         f.find('button[id="add-values-record"]').click(function () {
-            f.addValue(<?php echo $now?>, 0, '', '', '');
+            f.addValue(<?php echo $now?>, <?php echo $now?>, 0, 0, '', '', '', '', '');
             return false;
         });
 
-        f.addValue = function (timestamp, competitionID, title, type, tsSource) {
+        f.addValue = function (begin, end, competitionID, isPublic, title, description, type, beginSource, endSource) {
             const record = $('<div id="record" class="record">');
+            record.append($('div[id="timeline-record-template"]').html()
+                .replace(/%title%/g, title)
+                .replace(/%description%/g, description)
+                .replace(/%type%/g, type))
+            if (isPublic) {
+                record.find('input[name="is_public[]"]').attr('checked', 'checked');
+            }
 
-            record.append(
-                $('div[id="timeline-record-template"]').html()
-                    .replace(/%title%/g, title)
-                    .replace(/%type%/g, type)
-            )
             $(this).find('div[id="values-area"]').append(record);
 
+            const beginSrcObj = record.find('select[name="begin_source[]"]')
+            const endSrcObj = record.find('select[name="end_source[]"]')
+
             // date/time source selector
-            record.find('select[name="ts_source[]"]').val(tsSource);
-            record.find('select[name="ts_source[]"]').change(function () {
+            beginSrcObj.val(beginSource);
+            beginSrcObj.change(function () {
                 const compoObj = record.find('select[name="competition_id[]"] option:selected');
-                const srcObj = record.find('select[name="ts_source[]"] option:selected');
-                updateDatepicker(dp, initialTs, compoObj, srcObj);
+                updateDatepicker(beginDp, compoObj, beginSrcObj.val(), beginInput, initialTs);
             });
+
+            endSrcObj.val(endSource);
+            endSrcObj.change(function () {
+                const compoObj = record.find('select[name="competition_id[]"] option:selected');
+                updateDatepicker(endDp, compoObj, endSrcObj.val(), endInput, initialTs);
+            });
+
 
             // competition
             record.find('select[name="competition_id[]"]').val(competitionID);
             record.find('select[name="competition_id[]"]').change(function () {
-                const compoObj = record.find('select[name="competition_id[]"] option:selected');
-                const srcObj = record.find('select[name="ts_source[]"] option:selected');
+                const compoObj = record.find('select[name="competition_id[]"]');
 
-                let placeholder = "";
-                if (record.find('select[name="competition_id[]"]').val() !== "0") {
-                    placeholder = compoObj.text();
+                let placeholder = record.find('select[name="competition_id[]"] option:selected').text();
+                if (compoObj.val() === "0") {
+                    placeholder = "";
                 }
                 record.find('input[name="title[]"]').attr("placeholder", placeholder);
 
-                updateDatepicker(dp, initialTs, compoObj, srcObj);
+                if (compoObj.val() === "0") {
+                    // Reset to "Manual input"
+                    beginSrcObj.val("");
+                    endSrcObj.val("");
+                }
+
+                updateDatepicker(beginDp, compoObj, beginSrcObj.val(), beginInput, initialTs);
+                updateDatepicker(endDp, compoObj, endSrcObj.val(), endInput, initialTs);
             });
 
             // Datepicker
-            const initialTs = timestamp;
-            const dp = record.find('input[id="datepicker"]');
+            const initialTs = begin;
+            const beginDp = record.find('input[name="begin[]"]');
+            const beginInput = createDatepicker(record, beginDp, beginSrcObj);
+            const endDp = record.find('input[name="end[]"]')
+            const endInput = createDatepicker(record, endDp, endSrcObj);
 
-            record.append('<input name="' + dp.attr('name') + '" type="hidden" />');
-            const dpInputObj = record.find('input[name="' + dp.attr('name') + '"]')
-
-            dp.attr({'readonly': '1'}).removeAttr('name');
-
-            dp.datetimepicker({
-                'autoclose': true,
-                'todayBtn': true,
-                'todayHighlight': true,
-                'format': 'dd.mm.yyyy hh:ii',
-                'minView': 0,
-                'weekStart': <?php echo NFW::i()->user['language'] == 'English' ? '0' : '1'?>,
-                'language': '<?php echo NFW::i()->user['language'] == 'English' ? 'en' : 'ru'?>',
-                'startDate': '<?php echo date('d.m.Y H:i', time() - 86400 * 365)?>',
-                'endDate': '<?php echo date('d.m.Y H:i', time() + 86400 * 365)?>'
-            }).on('changeDate', function (e) {
-                const TimeZoned = new Date(e['date'].setTime(e['date'].getTime() + (e['date'].getTimezoneOffset() * 60000)));
-                dp.datetimepicker('setDate', TimeZoned);
-                dpInputObj.val(TimeZoned.valueOf() / 1000);
-            });
-
-            // Set initial datepicker value
+            // Set initial datepicker values
             record.find('select[name="competition_id[]"]').trigger("change");
         }
 
         <?php foreach ($records as $r) echo "\t\t" . 'f.addValue(
-        ' . $r['ts'] . ', 
+        ' . $r['begin'] . ', 
+        ' . $r['end'] . ', 
         ' . $r['competition_id'] . ', 
+        ' . $r['is_public'] . ',
         ' . json_encode($r['title']) . ', 
+        ' . json_encode($r['description']) . ',
         ' . json_encode($r['type']) . ', 
-        ' . json_encode($r['ts_source']) . ' 
+        ' . json_encode($r['begin_source']) . ', 
+        ' . json_encode($r['end_source']) . '
         );' . "\n"; ?>
     });
 
-    function updateDatepicker(dp, initialTs, compoObj, srcObj) {
-        if (compoObj.val() === "0" || typeof (compoObj.data(srcObj.val())) !== "number") {
+    function createDatepicker(record, dp, srcObj) {
+        const name = dp.attr('name');
+        record.append('<input name="' + name + '" type="hidden" />');
+        dp.attr({'readonly': '1'}).removeAttr('name');
+
+        const input = record.find('input[name="' + name + '"]');
+
+        dp.datetimepicker({
+            'autoclose': true,
+            'todayBtn': true,
+            'todayHighlight': true,
+            'format': 'dd.mm.yyyy hh:ii',
+            'minView': 0,
+            'weekStart': <?php echo NFW::i()->user['language'] == 'English' ? '0' : '1'?>,
+            'language': '<?php echo NFW::i()->user['language'] == 'English' ? 'en' : 'ru'?>',
+            'startDate': '<?php echo date('d.m.Y H:i', time() - 86400 * 365)?>',
+            'endDate': '<?php echo date('d.m.Y H:i', time() + 86400 * 365)?>'
+        }).on('changeDate', function (e) {
+            const TimeZoned = new Date(e['date'].setTime(e['date'].getTime() + (e['date'].getTimezoneOffset() * 60000)));
+            dp.datetimepicker('setDate', TimeZoned);
+            input.val(TimeZoned.valueOf() / 1000);
+
+            // Reset to "Manual input"
+            srcObj.val("");
+        });
+
+        return input;
+    }
+
+    function updateDatepicker(dp, compoObj, src, input, initialTs) {
+        if (compoObj.val() === "0" || typeof (compoObj.data(src)) !== "number") {
             dp.datetimepicker('setDate', new Date(initialTs * 1000));
+            input.val(initialTs);
             return;
         }
 
-        dp.datetimepicker('setDate', new Date(compoObj.data(srcObj.val()) * 1000));
+        dp.datetimepicker('setDate', new Date(compoObj.data(src) * 1000));
+        input.val(0);
     }
 </script>
-
+<style>
+    .settings {
+        width: 100%;
+    }
+    .dp {
+        display: inline;
+        /*width: 138px;*/
+    }
+</style>
 <div id="timeline-record-template" style="display: none;">
-    <div class="cell"><input name="ts[]" id="datepicker" type="text" class="form-control"
-                             style="display: inline; width: 150px;"/></div>
+    <div class="cell"><input name="begin[]" type="text" class="form-control dp"/></div>
     <div class="cell">
-        <select name="ts_source[]" class="form-control">
-            <?php foreach ($Module->tsSources() as $src) { ?>
+        <select name="begin_source[]" class="form-control">
+            <?php foreach ($Module->beginSources() as $src) { ?>
+                <option value="<?php echo $src['val'] ?>"><?php echo $src['text'] ?></option>
+            <?php } ?>
+        </select>
+    </div>
+    <div class="cell"><input name="end[]" type="text" class="form-control dp"/></div>
+    <div class="cell">
+        <select name="end_source[]" class="form-control">
+            <?php foreach ($Module->endSources() as $src) { ?>
                 <option value="<?php echo $src['val'] ?>"><?php echo $src['text'] ?></option>
             <?php } ?>
         </select>
@@ -167,8 +217,14 @@ ob_start(); ?>
             <?php } ?>
         </select>
     </div>
-    <div class="cell"><input name="title[]" value="%title%" class="form-control" style="width: 300px;"/></div>
-    <div class="cell"><input name="type[]" value="%type%" class="form-control" style="width: 150px;"/></div>
+    <div class="cell"><input name="title[]" value="%title%" class="form-control"/></div>
+    <div class="cell"><textarea name="description[]" class="form-control">%description%</textarea></div>
+    <div class="cell"><input name="type[]" value="%type%" class="form-control"/></div>
+    <div class="cell">
+        <label>
+            <input name="is_public[]" type="checkbox" />
+        </label>
+    </div>
     <div class="cell">
         <button data-action="remove-values-record" class="btn btn-danger btn-xs"
                 title="<?php echo NFW::i()->lang['Remove'] ?>"><span class="fa fa-times"></span></button>
@@ -190,11 +246,15 @@ ob_start(); ?>
 <form id="timeline">
     <div id="values-area" class="settings">
         <div class="header">
-            <div class="cell">Date/time</div>
-            <div class="cell">Date/time source</div>
+            <div class="cell">Begin</div>
+            <div class="cell">Begin source</div>
+            <div class="cell">End</div>
+            <div class="cell">End source</div>
             <div class="cell">Competition</div>
-            <div class="cell">Custom title</div>
+            <div class="cell">Title</div>
+            <div class="cell">Description</div>
             <div class="cell">Type</div>
+            <div class="cell">Public</div>
         </div>
     </div>
     <div style="padding-top: 20px;">

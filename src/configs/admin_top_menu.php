@@ -10,11 +10,6 @@ return array(
         'perm' => 'events,admin',
     ),
     array(
-        'name' => 'Timeline',
-        'url' => 'timeline',
-        'perm' => 'timeline,admin',
-    ),
-    array(
         'name' => 'News',
         'url' => 'news',
         'perm' => 'news,admin',
