@@ -1,2 +1,2 @@
 #! /bin/sh
-docker-compose exec -T mysql mysql -uroot -proot events < "$@"
+docker compose exec -T mysql mysql -uroot -proot events < "$@"

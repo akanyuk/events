@@ -37,6 +37,7 @@ if (isset($_GET['action']) && $_GET['action'] =='works_set_checked_all') {
 $CWorks = new works();
 
 $unchecked_prods = $marked_prods = array();
+$unchecked_prods_count = 0;
 if (!empty($managed_events)) {
 	$query = array(
 		'SELECT'	=> 'COUNT(*)',
@@ -84,7 +85,7 @@ if (!empty($managed_events)) {
 ?>
 <script type="text/javascript">
 $(document).ready(function(){
-	$('[role="works-set-checked-all"]').click(function(){
+	$('[id="works-set-checked-all"]').click(function(){
 		$.post('?action=works_set_checked_all', function(response){
 			response === 'success' ? window.location.reload() : alert(response);
 		});
@@ -99,7 +100,7 @@ $(document).ready(function(){
 		.marked-prods .alert { margin-top: 40px; }
 	}
 
-    .marked-prods .alert-note { margin-top: 3px; padding: 3px 10px; }
+    .marked-prods .alert-note { margin-top: 3px; margin-bottom: 3px; padding: 3px 10px; }
 </style>
 <div class="row marked-prods">
 	<div class="col-md-6">
@@ -109,7 +110,7 @@ $(document).ready(function(){
 		<?php else: ?>
 		<div class="hidden-xs">
 			<div class="pull-right">
-				<button role="works-set-checked-all" class="btn btn-success"><span class="fa fa-check"></span> Set all prods checked <span class="badge"><?php echo $unchecked_prods_count?></span></button>
+				<button id="works-set-checked-all" class="btn btn-success"><span class="fa fa-check"></span> Set all prods checked <span class="badge"><?php echo $unchecked_prods_count?></span></button>
 			</div>
 			<h2>Unchecked prods</h2>
 			<table class="table table-condensed table-striped">
@@ -179,7 +180,7 @@ $(document).ready(function(){
 			</table>
 
             <div style="text-align: center">
-                <button role="works-set-checked-all" class="btn btn-lg btn-success"><span class="fa fa-check"></span> Set all prods checked <span class="badge"><?php echo $unchecked_prods_count?></span></button>
+                <button id="works-set-checked-all" class="btn btn-lg btn-success"><span class="fa fa-check"></span> Set all prods checked <span class="badge"><?php echo $unchecked_prods_count?></span></button>
             </div>
 		</div>
 		<?php endif;?>
@@ -254,7 +255,7 @@ $(document).ready(function(){
 </div>
 
 <?php 
-function markWorkChecked($work_id) {
+function markWorkChecked($work_id): array {
 	if (!$result = NFW::i()->db->query_build(array('SELECT' => 'comment, is_marked, 1 AS is_checked', 'FROM' => 'works_managers_notes', 'WHERE' => 'work_id='.$work_id.' AND user_id='.NFW::i()->user['id']))) {
 		return array(false, 'Unable to fetch personal info');
 	}
