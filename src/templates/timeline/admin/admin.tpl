@@ -7,9 +7,7 @@
  */
 
 NFW::i()->registerResource('jquery.activeForm');
-NFW::i()->registerResource('jquery.activeForm/bootstrap-datetimepicker.min.js');
-NFW::i()->registerResource('jquery.activeForm/bootstrap-datetimepicker.min.css');
-NFW::i()->registerResource('jquery.activeForm/bootstrap-datetimepicker.ru.js');
+NFW::i()->registerResource('jquery.maskedinput');
 NFW::i()->registerResource('jquery.jgrowl');
 
 NFW::i()->assign('page_title', $event['title'] . ' / timeline');
@@ -28,15 +26,12 @@ ob_start();
 <?php
 NFW::i()->breadcrumb_status = ob_get_clean();
 
-$now = time() - time() % 3600 + 3600;
+$now = date("Y-m-d 00:00");
 
 // linter related
 ob_start(); ?>
 <script type="text/javascript">
     $.jGrowl = function (timelineSaved) {
-    };
-    const dp = {};
-    dp.datetimepicker = function (param) {
     };
 </script><?php ob_end_clean();
 ?>
@@ -49,85 +44,109 @@ ob_start(); ?>
                 if (response['responseJSON']['errors']['general'] !== undefined) {
                     alert(response['responseJSON']['errors']['general']);
                 }
+                return false;
             },
             'success': function () {
                 $.jGrowl('Timeline saved');
             }
         });
 
-        $(document).on('click', '*[data-action="remove-values-record"]', function () {
+        $(document).on('click', '[data-action="remove-values-record"]', function () {
             $(this).closest('div[id="record"]').remove();
         });
 
-        f.find('button[id="add-values-record"]').click(function () {
-            f.addValue(<?php echo $now?>, <?php echo $now?>, 0, 0, '', '', '', '', '');
+        f.find('[id="add-values-record"]').click(function () {
+            f.addValue('<?php echo $now?>', '<?php echo $now?>', 0, 0, '', '', '', '', '');
             return false;
         });
 
         f.addValue = function (begin, end, competitionID, isPublic, title, description, type, beginSource, endSource) {
             const record = $('<div id="record" class="record">');
             record.append($('div[id="timeline-record-template"]').html()
+                .replace(/%begin%/g, begin)
+                .replace(/%end%/g, end)
                 .replace(/%title%/g, title)
                 .replace(/%description%/g, description)
                 .replace(/%type%/g, type))
             if (isPublic) {
-                record.find('input[name="is_public[]"]').attr('checked', 'checked');
+                record.find('input[data-role="is_public"]').attr('checked', 'checked');
+                record.find('input[name="is_public[]"]').val(1);
             }
 
             $(this).find('div[id="values-area"]').append(record);
 
-            const beginSrcObj = record.find('select[name="begin_source[]"]')
-            const endSrcObj = record.find('select[name="end_source[]"]')
+            record.find('input[data-role="is_public"]').click(function () {
+                if (this.checked) {
+                    record.find('input[name="is_public[]"]').val(1);
+                } else {
+                    record.find('input[name="is_public[]"]').val("");
+                }
+            });
+
+            record.find('input[data-role="date"]').mask("9999-99-99 99:99", {placeholder: "_"});
+
+            const beginSrcObj = record.find('select[name="begin_source[]"]');
+            const endSrcObj = record.find('select[name="end_source[]"]');
+            const compoObj = record.find('select[name="competition_id[]"]');
 
             // date/time source selector
-            beginSrcObj.val(beginSource);
-            beginSrcObj.change(function () {
+            beginSrcObj.val(beginSource).change(function () {
                 const compoObj = record.find('select[name="competition_id[]"] option:selected');
-                updateDatepicker(beginDp, compoObj, beginSrcObj.val(), beginInput, initialTs);
+                if (compoObj.val() === "0" || $(this).val() === "") {
+                    record.find('input[name="begin[]"]').val(begin).removeAttr("readonly");
+                } else {
+                    record.find('input[name="begin[]"]').val(compoObj.data($(this).val())).attr("readonly", "readonly");
+                }
             });
 
-            endSrcObj.val(endSource);
-            endSrcObj.change(function () {
+            endSrcObj.val(endSource).change(function () {
                 const compoObj = record.find('select[name="competition_id[]"] option:selected');
-                updateDatepicker(endDp, compoObj, endSrcObj.val(), endInput, initialTs);
+                if (compoObj.val() === "0" || $(this).val() === "") {
+                    record.find('input[name="end[]"]').val(end).removeAttr("readonly");
+                } else {
+                    record.find('input[name="end[]"]').val(compoObj.data($(this).val())).attr("readonly", "readonly");
+                }
             });
-
 
             // competition
-            record.find('select[name="competition_id[]"]').val(competitionID);
-            record.find('select[name="competition_id[]"]').change(function () {
-                const compoObj = record.find('select[name="competition_id[]"]');
-
-                let placeholder = record.find('select[name="competition_id[]"] option:selected').text();
+            compoObj.val(competitionID).change(function () {
+                // Reset to "Manual input"
                 if (compoObj.val() === "0") {
-                    placeholder = "";
-                }
-                record.find('input[name="title[]"]').attr("placeholder", placeholder);
-
-                if (compoObj.val() === "0") {
-                    // Reset to "Manual input"
                     beginSrcObj.val("");
                     endSrcObj.val("");
+
+                    beginSrcObj.children().each(function () {
+                        if ($(this).val() !== "") {
+                            $(this).attr("disabled", "disabled");
+                        }
+                    });
+
+                    endSrcObj.children().each(function () {
+                        if ($(this).val() !== "") {
+                            $(this).attr("disabled", "disabled");
+                        }
+                    });
+                } else {
+                    beginSrcObj.children().each(function () {
+                        $(this).removeAttr("disabled");
+                    });
+
+                    endSrcObj.children().each(function () {
+                        $(this).removeAttr("disabled");
+                    });
                 }
 
-                updateDatepicker(beginDp, compoObj, beginSrcObj.val(), beginInput, initialTs);
-                updateDatepicker(endDp, compoObj, endSrcObj.val(), endInput, initialTs);
+                beginSrcObj.trigger("change");
+                endSrcObj.trigger("change");
             });
 
-            // Datepicker
-            const initialTs = begin;
-            const beginDp = record.find('input[name="begin[]"]');
-            const beginInput = createDatepicker(record, beginDp, beginSrcObj);
-            const endDp = record.find('input[name="end[]"]')
-            const endInput = createDatepicker(record, endDp, endSrcObj);
-
-            // Set initial datepicker values
-            record.find('select[name="competition_id[]"]').trigger("change");
+            // Set initial state
+            compoObj.trigger("change");
         }
 
         <?php foreach ($records as $r) echo "\t\t" . 'f.addValue(
-        ' . $r['begin'] . ', 
-        ' . $r['end'] . ', 
+        ' . json_encode(date("Y-m-d H:i", $r['begin'])) . ', 
+        ' . json_encode(date("Y-m-d H:i", $r['end'])) . ', 
         ' . $r['competition_id'] . ', 
         ' . $r['is_public'] . ',
         ' . json_encode($r['title']) . ', 
@@ -137,58 +156,14 @@ ob_start(); ?>
         ' . json_encode($r['end_source']) . '
         );' . "\n"; ?>
     });
-
-    function createDatepicker(record, dp, srcObj) {
-        const name = dp.attr('name');
-        record.append('<input name="' + name + '" type="hidden" />');
-        dp.attr({'readonly': '1'}).removeAttr('name');
-
-        const input = record.find('input[name="' + name + '"]');
-
-        dp.datetimepicker({
-            'autoclose': true,
-            'todayBtn': true,
-            'todayHighlight': true,
-            'format': 'dd.mm.yyyy hh:ii',
-            'minView': 0,
-            'weekStart': <?php echo NFW::i()->user['language'] == 'English' ? '0' : '1'?>,
-            'language': '<?php echo NFW::i()->user['language'] == 'English' ? 'en' : 'ru'?>',
-            'startDate': '<?php echo date('d.m.Y H:i', time() - 86400 * 365)?>',
-            'endDate': '<?php echo date('d.m.Y H:i', time() + 86400 * 365)?>'
-        }).on('changeDate', function (e) {
-            const TimeZoned = new Date(e['date'].setTime(e['date'].getTime() + (e['date'].getTimezoneOffset() * 60000)));
-            dp.datetimepicker('setDate', TimeZoned);
-            input.val(TimeZoned.valueOf() / 1000);
-
-            // Reset to "Manual input"
-            srcObj.val("");
-        });
-
-        return input;
-    }
-
-    function updateDatepicker(dp, compoObj, src, input, initialTs) {
-        if (compoObj.val() === "0" || typeof (compoObj.data(src)) !== "number") {
-            dp.datetimepicker('setDate', new Date(initialTs * 1000));
-            input.val(initialTs);
-            return;
-        }
-
-        dp.datetimepicker('setDate', new Date(compoObj.data(src) * 1000));
-        input.val(0);
-    }
 </script>
 <style>
     .settings {
         width: 100%;
     }
-    .dp {
-        display: inline;
-        /*width: 138px;*/
-    }
 </style>
 <div id="timeline-record-template" style="display: none;">
-    <div class="cell"><input name="begin[]" type="text" class="form-control dp"/></div>
+    <div class="cell"><input name="begin[]" value="%begin%" type="text" data-role="date" class="form-control"/></div>
     <div class="cell">
         <select name="begin_source[]" class="form-control">
             <?php foreach ($Module->beginSources() as $src) { ?>
@@ -196,7 +171,7 @@ ob_start(); ?>
             <?php } ?>
         </select>
     </div>
-    <div class="cell"><input name="end[]" type="text" class="form-control dp"/></div>
+    <div class="cell"><input name="end[]" value="%end%" type="text" data-role="date" class="form-control"/></div>
     <div class="cell">
         <select name="end_source[]" class="form-control">
             <?php foreach ($Module->endSources() as $src) { ?>
@@ -209,25 +184,27 @@ ob_start(); ?>
             <option value="0">--- no bindings ---</option>
             <?php foreach ($competitions as $competition) { ?>
                 <option value="<?php echo $competition['id'] ?>"
-                        data-reception_from="<?php echo $competition['reception_from'] ?>"
-                        data-reception_to="<?php echo $competition['reception_to'] ?>"
-                        data-voting_from="<?php echo $competition['voting_from'] ?>"
-                        data-voting_to="<?php echo $competition['voting_to'] ?>"
+                        data-reception_from="<?php echo date("Y-m-d H:i", $competition['reception_from']) ?>"
+                        data-reception_to="<?php echo date("Y-m-d H:i", $competition['reception_to']) ?>"
+                        data-voting_from="<?php echo date("Y-m-d H:i", $competition['voting_from']) ?>"
+                        data-voting_to="<?php echo date("Y-m-d H:i", $competition['voting_to']) ?>"
                 ><?php echo htmlspecialchars($competition['title']) ?></option>
             <?php } ?>
         </select>
     </div>
-    <div class="cell"><input name="title[]" value="%title%" class="form-control"/></div>
+    <div class="cell"><input name="title[]" value="%title%" placeholder="Using competition title if blank"
+                             title="Using competition title if blank" class="form-control"/></div>
     <div class="cell"><textarea name="description[]" class="form-control">%description%</textarea></div>
     <div class="cell"><input name="type[]" value="%type%" class="form-control"/></div>
     <div class="cell">
         <label>
-            <input name="is_public[]" type="checkbox" />
+            <input name="is_public[]" type="hidden"/>
+            <input data-role="is_public" type="checkbox"/>
         </label>
     </div>
     <div class="cell">
-        <button data-action="remove-values-record" class="btn btn-danger btn-xs"
-                title="<?php echo NFW::i()->lang['Remove'] ?>"><span class="fa fa-times"></span></button>
+        <a data-action="remove-values-record" class="btn btn-danger btn-xs"
+           title="<?php echo NFW::i()->lang['Remove'] ?>"><span class="fa fa-times"></span></a>
     </div>
 </div>
 
@@ -238,7 +215,7 @@ ob_start(); ?>
         <p>For all "Date/time source" options except "Manual input", the time will be replaced by the corresponding
             field of the competition.</p>
 
-        <p>If there is a link to the competition and the "Custom title" field is not filled in, then the name of the
+        <p>If there is a link to the competition and the "Title" field is not filled in, then the name of the
             competition will be used as the title.</p>
     </div>
 </div>
@@ -258,7 +235,7 @@ ob_start(); ?>
         </div>
     </div>
     <div style="padding-top: 20px;">
-        <button id="add-values-record" class="btn btn-default">Add value</button>
+        <a id="add-values-record" class="btn btn-default">Add value</a>
         <button type="submit" name="form-send" class="btn btn-primary"><span
                     class="fa fa-save"></span> <?php echo NFW::i()->lang['Save changes'] ?></button>
     </div>

@@ -107,9 +107,9 @@ class timeline extends active_record {
             $values = [
                 $CEvents->record['id'],
                 intval($_POST['competition_id'][$key]),
-                intval($_POST['begin'][$key]),
-                intval($_POST['end'][$key]),
-                isset($_POST['is_public'][$key]) && $_POST['is_public'][$key] == "on" ? 1 : 0,
+                strtotime($_POST['begin'][$key]),
+                strtotime($_POST['end'][$key]),
+                intval($_POST['is_public'][$key]),
                 '\'' . NFW::i()->db->escape($title) . '\'',
                 '\'' . NFW::i()->db->escape($_POST['description'][$key]) . '\'',
                 '\'' . NFW::i()->db->escape($_POST['type'][$key]) . '\'',
