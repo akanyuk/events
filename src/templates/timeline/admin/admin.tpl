@@ -26,7 +26,7 @@ ob_start();
 <?php
 NFW::i()->breadcrumb_status = ob_get_clean();
 
-$now = date("Y-m-d 00:00");
+$now = date("Y-m-d 00:00", $event['date_from']);
 
 // linter related
 ob_start(); ?>
