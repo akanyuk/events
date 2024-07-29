@@ -65,7 +65,7 @@ ob_start(); ?>
             record.append($('div[id="timeline-record-template"]').html()
                 .replace(/%begin%/g, begin)
                 .replace(/%end%/g, end)
-                .replace(/%title%/g, title)
+                .replace(/%title%/g, title.replace(/"/g, '&quot;'))
                 .replace(/%description%/g, description)
                 .replace(/%type%/g, type))
             if (isPublic) {
@@ -217,6 +217,8 @@ ob_start(); ?>
 
         <p>If there is a link to the competition and the "Title" field is not filled in, then the name of the
             competition will be used as the title.</p>
+
+        <p>You can preview JSON response <a href="/api/v2/timeline?event=<?php echo $event['alias']?>">here</a>.</p>
     </div>
 </div>
 
