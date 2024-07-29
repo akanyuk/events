@@ -34,7 +34,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'works_set_checked_all') {
 
 // Unchecked and marked prods
 
-const MAX_UNCHECKED_PRODS = 2;
+const MAX_UNCHECKED_PRODS = 20;
 
 $CWorks = new works();
 
