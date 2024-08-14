@@ -1,14 +1,16 @@
 <?php
 /**
- * @var $top_menu array
+ * @var array $top_menu
  * @var bool $no_admin_sidebar
  */
 
-if ($no_admin_sidebar) {
+if (isset($no_admin_sidebar) && $no_admin_sidebar) {
     return;
 }
 
 NFW::i()->registerFunction('limit_text');
+
+$events = adminSidebarEvents();
 ?>
     <script type="text/javascript">
         $(document).ready(function () {
@@ -24,14 +26,24 @@ NFW::i()->registerFunction('limit_text');
             }
             echo '</ul></li>';
 
-            foreach (adminSidebarEvents() as $event) {
+            foreach ($events as $event) {
                 ?>
                 <li>
                     <a href="#" title="<?php echo htmlspecialchars($event['title']) ?>"><span
                                 class="sidebar-nav-item"><?php echo htmlspecialchars(limit_text($event['title'], 24)) ?></span><span
                                 class="fa arrow"></span></a>
                     <ul>
-                        <?php foreach ($event['competitions'] as $competition) { ?>
+                        <?php
+                        foreach ($event['competitions'] as $competition) {
+                            usort($competition['works'], function ($a, $b): int {
+                                if ($a['status'] == $b['status']) {
+                                    return $a['position'] < $b['position'] ? -1 : 1;
+                                }
+
+                                return $a['voting'] ? -1 : 1;
+                            });
+
+                            ?>
                             <li>
                                 <a href="#" title="<?php echo htmlspecialchars($competition['title']) ?>">
                                     <span class="fa arrow"></span>
@@ -41,7 +53,7 @@ NFW::i()->registerFunction('limit_text');
                                     <?php foreach ($competition['works'] as $work) { ?>
                                         <li style="white-space: nowrap;"><strong><a
                                                         href="<?php echo NFW::i()->base_path . 'admin/works?action=update&record_id=' . $work['id'] ?>"
-                                                        title="<?php echo htmlspecialchars($work['title'] . ' by ' . $work['author']) ?>"><?php echo htmlspecialchars($work['position'] . '. ' . $work['title']) ?></a></strong>
+                                                        title="<?php echo htmlspecialchars($work['title'] . ' by ' . $work['author']) ?>"><?php echo htmlspecialchars($work['title']) ?></a></strong>
                                         </li>
                                     <?php } ?>
                                 </ul>
@@ -76,14 +88,14 @@ function adminSidebarEvents() {
     if (empty($managed_events)) return array();
 
     $query = array(
-        'SELECT' => 'e.id AS event_id, e.title AS event_title, c.id AS competition_id, c.title AS competition_title, w.id AS work_id, w.title AS work_title, w.position AS work_pos, w.author',
+        'SELECT' => 'e.id AS event_id, e.title AS event_title, c.id AS competition_id, c.title AS competition_title, w.id AS work_id, w.title AS work_title, w.author, w.status, w.position',
         'FROM' => 'works AS w',
         'JOINS' => array(
             array('INNER JOIN' => 'competitions AS c', 'ON' => 'c.id=w.competition_id'),
             array('INNER JOIN' => 'events AS e', 'ON' => 'e.id=c.event_id'),
         ),
         'WHERE' => 'e.id IN(' . implode(',', array_splice($managed_events, 0, 5)) . ')',
-        'ORDER BY' => 'e.date_from DESC, c.position, w.position'
+        'ORDER BY' => 'e.date_from DESC, c.position'
     );
     if (!$result = NFW::i()->db->query_build($query)) {
         return false;
@@ -92,6 +104,7 @@ function adminSidebarEvents() {
         return array();
     }
 
+    $CWorks = new works();
     $events = array();
     while ($r = NFW::i()->db->fetch_assoc($result)) {
         $event_key = false;
@@ -106,7 +119,14 @@ function adminSidebarEvents() {
             $competition_found = false;
             foreach ($events[$event_key]['competitions'] as $cKey => $c) {
                 if ($c['id'] == $r['competition_id']) {
-                    $events[$event_key]['competitions'][$cKey]['works'][] = array('id' => $r['work_id'], 'title' => $r['work_title'], 'position' => $r['work_pos'], 'author' => $r['author']);
+                    $events[$event_key]['competitions'][$cKey]['works'][] = array(
+                        'id' => $r['work_id'],
+                        'title' => $r['work_title'],
+                        'position' => $r['position'],
+                        'author' => $r['author'],
+                        'status' => $r['status'],
+                        'voting' => $CWorks->attributes['status']['options'][$r['status']]['voting'],
+                    );
                     $competition_found = true;
                     break;
                 }
@@ -114,14 +134,28 @@ function adminSidebarEvents() {
 
             if (!$competition_found) {
                 $events[$event_key]['competitions'][] = array('id' => $r['competition_id'], 'title' => $r['competition_title'], 'works' => array(
-                    array('id' => $r['work_id'], 'title' => $r['work_title'], 'position' => $r['work_pos'], 'author' => $r['author'])
+                    array(
+                        'id' => $r['work_id'],
+                        'title' => $r['work_title'],
+                        'position' => $r['position'],
+                        'author' => $r['author'],
+                        'status' => $r['status'],
+                        'voting' => $CWorks->attributes['status']['options'][$r['status']]['voting'],
+                    )
                 ));
             }
         } else {
             // New record
             $events[] = array('id' => $r['event_id'], 'title' => $r['event_title'], 'competitions' => array(
                 array('id' => $r['competition_id'], 'title' => $r['competition_title'], 'works' => array(
-                    array('id' => $r['work_id'], 'title' => $r['work_title'], 'position' => $r['work_pos'], 'author' => $r['author'])
+                    array(
+                        'id' => $r['work_id'],
+                        'title' => $r['work_title'],
+                        'position' => $r['position'],
+                        'author' => $r['author'],
+                        'status' => $r['status'],
+                        'voting' => $CWorks->attributes['status']['options'][$r['status']]['voting'],
+                    )
                 ))
             ));
         }
