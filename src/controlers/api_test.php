@@ -67,7 +67,7 @@ $(document).ready(function(){
 	</div>
 </div>
 
-<form data-rel="api-test" action="/api/v2/competitions/list">
+<form data-rel="api-test" action="/api/v2/timeline">
     <fieldset>
         <?php echo active_field(array('name' => 'event', 'desc' => 'event'))?>
     </fieldset>
