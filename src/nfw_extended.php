@@ -21,7 +21,7 @@ class NFWX extends NFW {
         mb_internal_encoding('UTF-8');
 
         // Define kinds for use in logs::write
-        require_once (SRC_ROOT.'/configs/logs_kinds_defines.php');
+        require_once(SRC_ROOT . '/configs/logs_kinds_defines.php');
 
         parent::__construct($init_cfg);
         self::$_ext_instance = $this;
@@ -206,6 +206,10 @@ class NFWX extends NFW {
 
             $Competition = new competitions($_POST['competition_id']);
             return in_array($Competition->record['event_id'], $managed_events);
+        }
+
+        if ($module == 'timeline' && in_array($action, array('admin', 'update'))) {
+            return isset($_GET['event_id']) && in_array($_GET['event_id'], $managed_events);
         }
 
         return false;

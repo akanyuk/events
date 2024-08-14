@@ -14,19 +14,15 @@ NFW::i()->breadcrumb = array(
     array('url' => 'admin/events?action=update&record_id=' . $event['id'], 'desc' => $event['title']),
     array('desc' => 'Live voting'),
 );
-
+ob_start();
+?>
+    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseHelp"
+            aria-expanded="false" aria-controls="collapseExample"><span class="fa fa-question-circle"></span>
+    </button>
+<?php
+NFW::i()->breadcrumb_status = ob_get_clean();
 ?>
     <style>
-        .live-voting-menu {
-            display: flex;
-            justify-content: space-between;
-            padding-bottom: 1em;
-        }
-
-        .live-voting-menu LABEL {
-            display: none;
-        }
-
         .live-voting-thumbnail {
             padding-top: 20px;
             color: #555;
@@ -70,18 +66,6 @@ NFW::i()->breadcrumb = array(
             background-color: #FFC881FF;
         }
     </style>
-    <div class="live-voting-menu">
-        <label for="filter-compo"></label>
-        <select id="filter-compo" class="form-control">
-            <?php foreach ($records as $id => $compo) {
-                echo '<option value="' . $id . '">' . $compo['title'] . '</option>';
-            } ?>
-        </select>
-
-        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseHelp"
-                aria-expanded="false" aria-controls="collapseExample"><span class="fa fa-question-circle"></span>
-        </button>
-    </div>
 
     <div class="collapse" id="collapseHelp">
         <div class="well">
@@ -96,6 +80,14 @@ NFW::i()->breadcrumb = array(
             <p>The "Open normal voting" button opens the "normal" voting for the currently open category from the
                 current time.</p>
         </div>
+    </div>
+
+    <div class="live-voting-menu">
+        <select id="filter-compo" class="form-control">
+            <?php foreach ($records as $id => $compo) {
+                echo '<option value="' . $id . '">' . $compo['title'] . '</option>';
+            } ?>
+        </select>
     </div>
 
     <div id="live-voting">
