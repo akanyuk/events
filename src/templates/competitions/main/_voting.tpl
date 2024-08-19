@@ -170,7 +170,7 @@ NFW::i()->registerFunction('active_field');
     </div>
 </div>
 
-<?php echo count($works) == 1 ? '' : nl2br($competition['announcement']) ?>
+<?php echo count($works) == 1 ? '' : $competition['announcement'] ?>
 
 <form id="voting" class="active-form" action="/vote?action=add_vote">
     <input type="hidden" name="competition_id" value="<?php echo $competition['id'] ?>"/>
