@@ -13,7 +13,7 @@ function display_work_media($work = array(), $options = array()) {
 	$links_icons = array(
 		'download' => array('bg_pos' => '-16px 0px'),
 		'default' => array('bg_pos' => '-32px 0px'),
-			
+
 		'youtube.com' 			=> array('title' => 'YouTube', 		'bg_pos' => '-48px 0px'),
 		'youtu.be' 				=> array('title' => 'YouTube', 		'bg_pos' => '-48px 0px'),
 		'csdb.dk' 				=> array('title' => 'CSDb', 		'bg_pos' => '-64px 0px'),
@@ -31,8 +31,9 @@ function display_work_media($work = array(), $options = array()) {
 		'scenemusic.net' 		=> array('title' => 'Nectarine',	'bg_pos' => '-224px 0px'),
 		'scenestream.net' 		=> array('title' => 'Nectarine',	'bg_pos' => '-224px 0px'),
 		'bandcamp.com' 			=> array('title' => 'Bandcamp',		'bg_pos' => '-240px 0px'),
+        'vk.com' 			    => array('title' => 'Bandcamp',		'bg_pos' => '-256px 0px'),
 	);
-	
+
 	// Resize images to
 	$IMAGE_WIDTH = 640;
 
@@ -44,9 +45,9 @@ function display_work_media($work = array(), $options = array()) {
 		echo '<div class="label label-format" title="'.$lang_main['works format'].'">'.htmlspecialchars($work['format']).'</div>';
 	}
 	$platform_format = ob_get_clean();
-	
+
 	ob_start();
-	
+
 	echo '<div class="works-media-container" id="work-'.$work['id'].'">';	# special for external custom styling
 
 	// Display header
@@ -64,7 +65,7 @@ function display_work_media($work = array(), $options = array()) {
 	} else {
         $header_title = "";
     }
-	
+
 	if ($options['rel'] == 'voting' && !$options['single']) {
 		$header_number = '<h3>'.$work['position'].'.</h3>';
 	} elseif($options['rel'] == 'release' && $work['place']) {
@@ -72,13 +73,13 @@ function display_work_media($work = array(), $options = array()) {
 	} else {
 		$header_number = false;
 	}
-	
+
 	echo '<div class="header">';
 	echo '<div class="row">';
 	echo $header_number ? '<div class="cell cell-number">'.$header_number.'</div>' : '';
 	echo '<div class="cell">'.$header_title.'</div>';
 	echo '</div>';
-		
+
 	echo '<div class="row">';
 	echo $header_number ? '<div class="cell"></div>' : '';
 	echo '<div class="cell cell-platform">'.$platform_format.'</div>';
@@ -100,9 +101,9 @@ function display_work_media($work = array(), $options = array()) {
     }
 
 	echo empty($pd) ? '' : '<ul class="platform-description"><li>'.implode('</li><li>', $pd).'</li></ul>';
-	
+
 	echo $work['author_note'] ? '<div class="author-note"><strong>'.$lang_main['works author note'].':</strong><br />'.nl2br($work['author_note']).'</div>' : '';
-	
+
 	echo $work['external_html'] ? '<div id="external-html">'.$work['external_html'].'</div>' : '';
 
 	// Display content (image, audio, video)
@@ -114,23 +115,23 @@ function display_work_media($work = array(), $options = array()) {
 			echo '<div class="item img-container"><img src="'.cache_media($f, $IMAGE_WIDTH).'" alt="" /></div>';
 		}
 		echo '</div>';
-		
+
 	} else {
 		foreach ($work['image_files'] as $f) {
 		    echo '<div class="img-container"><img src="'.cache_media($f, $IMAGE_WIDTH).'" alt="" /></div>';
         }
 	}
-	
+
 	if (!empty($work['audio_files'])) {
 		echo '<div style="padding: 5px 0;"><audio controls="controls" preload="">';
 		foreach ($work['audio_files'] as $f) echo '<source src="'.cache_media($f).'" type="'.$f['mime_type'].'" />';
 		echo $lang_main['voting audio not support'].'</audio></div>';
 	}
-	
+
 	// Generate links row
-	
+
 	$links = array();
-	
+
 	if ($work['release_link']) {
 		$links[] = array('is_dl' => true, 'url' => $work['release_link']['url'], 'title' => $lang_main['download'].' '.strtoupper(pathinfo($work['release_link']['url'], PATHINFO_EXTENSION)).' ('.$work['release_link']['filesize_str'].')');
 	} else if (($options['rel'] == 'voting' || $options['rel'] == 'preview')  && !empty($work['voting_files'])) {
@@ -142,12 +143,12 @@ function display_work_media($work = array(), $options = array()) {
 			$links[] = array('is_dl' => true, 'url' => cache_media($f), 'title' => $lang_main['download'].' '.strtoupper($f['extension']).' ('.$f['filesize_str'].')');
 		}
 	}
-	
+
 	$links = array_merge($links, $work['links']);
-	
+
 	if (!empty($links)) {
 		echo '<div class="links">';
-		
+
 		foreach ($links as $l) {
 			if (isset($l['is_dl']) &&  $l['is_dl']) {
 				$title = $l['title'];
@@ -162,10 +163,10 @@ function display_work_media($work = array(), $options = array()) {
 					$bg_pos = $links_icons['default']['bg_pos'];
 				}
 			}
-			
+
 			echo '<div class="item"><a href="'.$l['url'].'"><span class="icon" style="background-position: '.$bg_pos.';"></span>'.$title.'</a></div>';
 		}
-		
+
 		echo '</div>';
 	}
 

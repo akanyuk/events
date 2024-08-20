@@ -173,30 +173,6 @@ h2.index-head {
     background-color: #212e72;
 }
 
-/* comments icons */
-
-.icon-32x32 {
-    width: 32px;
-    height: 32px;
-    background: url("icons-32x32.png?201709143");
-}
-
-.icon-32x32-picture {
-    background-position: 0 0;
-}
-
-.icon-32x32-music {
-    background-position: -32px 0;
-}
-
-.icon-32x32-demo {
-    background-position: -64px 0;
-}
-
-.icon-32x32-other {
-    background-position: -96px 0;
-}
-
 /* display works */
 .works-media-container .header .row {
     display: table-row;
