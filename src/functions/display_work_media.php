@@ -31,7 +31,7 @@ function display_work_media($work = array(), $options = array()) {
 		'scenemusic.net' 		=> array('title' => 'Nectarine',	'bg_pos' => '-224px 0px'),
 		'scenestream.net' 		=> array('title' => 'Nectarine',	'bg_pos' => '-224px 0px'),
 		'bandcamp.com' 			=> array('title' => 'Bandcamp',		'bg_pos' => '-240px 0px'),
-        'vk.com' 			    => array('title' => 'Bandcamp',		'bg_pos' => '-256px 0px'),
+        'vk.com' 			    => array('title' => 'VK',		    'bg_pos' => '-256px 0px'),
 	);
 
 	// Resize images to
