@@ -47,6 +47,7 @@ class vote extends active_record {
             $this->error('Unable to fetch votes', __FILE__, __LINE__, NFW::i()->db->error());
             return false;
         }
+
         $works = array();
         $allVotes = array();
         while ($r = NFW::i()->db->fetch_assoc($result)) {
@@ -101,12 +102,21 @@ class vote extends active_record {
 
             $place = 1;
             foreach ($works[$cid]['works'] as $key => $work) {
-                if ($place_order == 'avg') {
-                    if ($work['average_vote'] == $prev_average && $work['total_scores'] == $prev_total) $place--;
-                } else if ($place_order == 'iqm') {
-                    if ($work['iqm_vote'] == $prev_iqm && $work['total_scores'] == $prev_total) $place--;
-                } else {
-                    if ($work['total_scores'] == $prev_total && $work['num_votes'] == $prevNumVotes) $place--;
+                switch ($place_order) {
+                    case 'avg':
+                        if ($work['average_vote'] == $prev_average && $work['total_scores'] == $prev_total && $place > 1) {
+                            $place--;
+                        }
+                        break;
+                    case 'iqm':
+                        if ($work['iqm_vote'] == $prev_iqm && $work['total_scores'] == $prev_total && $place > 1) {
+                            $place--;
+                        }
+                        break;
+                    default:
+                        if ($work['total_scores'] == $prev_total && $work['num_votes'] == $prevNumVotes && $place > 1) {
+                            $place--;
+                        }
                 }
 
                 $prev_total = $work['total_scores'];
@@ -149,6 +159,7 @@ class vote extends active_record {
             $this->error('Unable to fetch records', __FILE__, __LINE__, NFW::i()->db->error());
             return [];
         }
+
         if (!NFW::i()->db->num_rows($result)) {
             return [];
         }
@@ -479,8 +490,8 @@ class vote extends active_record {
             list($records, $iTotalRecords, $iTotalDisplayRecords) = $this->getVotes(
                 $CEvents->record['id'],
                 trim($_POST['sSearch']),
-                $_POST['iDisplayLength'],
-                $_POST['iDisplayStart'],
+                intval($_POST['iDisplayLength']),
+                intval($_POST['iDisplayStart']),
             );
 
             NFW::i()->stop($this->renderAction(array(
