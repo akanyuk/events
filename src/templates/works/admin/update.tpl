@@ -92,6 +92,23 @@ NFW::i()->breadcrumb_status = ob_get_clean();
               action="<?php echo $Module->formatURL('update_links') . '&record_id=' . $Module->record['id'] ?>">
             <fieldset>
                 <legend>Links</legend>
+                <div style="float: right; text-align: right; position: relative; top: -50px;">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseLinksHelp"
+                            aria-expanded="false" aria-controls="collapseExample"><span
+                                class="fa fa-question-circle"></span>
+                    </button>
+                </div>
+
+                <div class="collapse" id="collapseLinksHelp">
+                    <div class="well">
+                        <p>YouTube links will be automatically converted to an iframe</p>
+
+                        <p>VK Video links will be automatically converted to an iframe only with manually hash added.
+                            Example: <code>&hash=5df22c4cff63dc92</code></p>
+
+                        <p>You can also use embedded VK Video instead of a direct link to the video</p>
+                    </div>
+                </div>
 
                 <div id="work-links" class="settings" style="padding-bottom: 10px;">
                     <?php foreach ($Module->record['links'] as $v) { ?>
@@ -101,15 +118,12 @@ NFW::i()->breadcrumb_status = ob_get_clean();
                                 <div class="input-group" style="margin-bottom: 3px;">
                                     <input type="text" class="form-control" data-type="links-url"
                                            autocomplete="off"
-                                           name="links[url][]" value="<?php echo $v['url'] ?>"
+                                           name="links[url][]" value="<?php echo htmlspecialchars($v['url']) ?>"
                                            placeholder="Url"/>
                                     <span class="input-group-btn">
 										<button data-action="toggle-title" class="btn btn-default" tabindex="-1"
                                                 title="Show custom tittle"><span
                                                     class="glyphicon glyphicon-chevron-down"></span></button>
-										<button data-action="auto-youtube" class="btn btn-default" tabindex="-1"
-                                                title="Create YouTube HTML"><span
-                                                    class="fab fa-youtube"></span></button>
 										<button data-action="remove-link" class="btn btn-default" tabindex="-1"
                                                 title="Remove link"><span
                                                     class="glyphicon glyphicon-remove"></span></button>
@@ -305,7 +319,7 @@ NFW::i()->breadcrumb_status = ob_get_clean();
         previewModal.modal({'show': false});
 
         previewModal.on('shown.bs.modal', function () {
-            previewModal.find('iframe').css("height", previewModal.height()-40);
+            previewModal.find('iframe').css("height", previewModal.height() - 40);
         });
 
         $(document).on('click', 'button[id="works-preview"]', function (e) {
@@ -388,24 +402,6 @@ NFW::i()->breadcrumb_status = ob_get_clean();
             showHintOnFocus: true
         });
 
-        // Generate YouTube embed html
-        $(document).on('click', '[data-action="auto-youtube"]', function () {
-            const url = $(this).closest('#record').find('input[data-type="links-url"]').val();
-            const videoID = url.match(/(?:https?:\/{2})?(?:w{3}\.)?youtu(?:be)?\.(?:com|be)(?:\/watch\?v=|\/)([^\s&]+)/);
-
-            if (videoID != null) {
-                let tpl = '<?php echo NFWX::i()->project_settings['works_youtube_tpl']?>';
-                tpl = tpl.replace('%id%', videoID[1]);
-
-                const existVal = wuF.find('[name="external_html"]').val();
-                wuF.find('[name="external_html"]').val(existVal ? existVal + "\n\n" + tpl : tpl);
-            } else {
-                $.jGrowl('The youtube url is not valid', {theme: 'error'});
-            }
-
-            return false;
-        });
-
         $('form[id="works-update-links"]').activeForm({
             success: function () {
                 $.jGrowl('Work links updated');
@@ -460,8 +456,6 @@ NFW::i()->breadcrumb_status = ob_get_clean();
                 <span class="input-group-btn">
 					<button data-action="toggle-title" class="btn btn-default" tabindex="-1" title="Show custom tittle"><span
                                 class="fa fa-chevron-down"></span></button>
-					<button data-action="auto-youtube" class="btn btn-default" tabindex="-1"
-                            title="Create YouTube HTML"><span class="fab fa-youtube"></span></button>
 					<button data-action="remove-link" class="btn btn-default" tabindex="-1" title="Remove link"><span
                                 class="fa fa-times"></span></button>
 				</span>

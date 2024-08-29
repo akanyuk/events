@@ -34,7 +34,7 @@ class works extends active_record {
         'description' => array('type' => 'textarea', 'desc' => 'Description', 'maxlength' => 2048),
         'platform' => array('type' => 'str', 'desc' => 'Platform', 'required' => true, 'options' => array()),
         'format' => array('type' => 'str', 'desc' => 'Format', 'maxlength' => 128),
-        'external_html' => array('type' => 'textarea', 'desc' => 'External HTML (i.e. Youtube)', 'maxlength' => 2048),
+        'external_html' => array('type' => 'textarea', 'desc' => 'Additional text (HTML)', 'maxlength' => 2048),
 
         'status' => array('type' => 'select', 'desc' => 'Status', 'options' => array(
             ['id' => 0, 'voting' => false, 'release' => false, 'css-class' => 'warning', 'icon' => 'fa fa-question'],         // Unchecked
