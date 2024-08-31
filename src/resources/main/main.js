@@ -1,11 +1,19 @@
 $(document).ready(function(){
-	// Multiple images in one prod
-	$('.owl-carousel').each(function(){
-		$(this).owlCarousel({ 
-			items: 1, 
-			center: true,
-			loop: true
-		});
+	$('#work-frames-nav a').click(function (e) {
+		e.preventDefault();
+
+		const container = $(this).closest('.works-media-container');
+		const iframeContainer = container.find('#work-iframe');
+		const nav = container.find('#work-frames-nav');
+		const iframeHTML = $(this).data('iframe');
+
+		nav.find('li').removeClass('active');
+		$(this).closest('li').addClass('active');
+
+		iframeContainer.empty().html(iframeHTML);
+	})
+	$('[id="work-frames-nav"]').each(function(i, obj){
+		$(obj).find('a:first').trigger('click');
 	});
 
 	if ($.blockUI) {
