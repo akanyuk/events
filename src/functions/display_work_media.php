@@ -217,7 +217,6 @@ function vkVideoIframeCreator($url): array {
 
     $hashStr = '';
     $query = parse_url($url, PHP_URL_QUERY);
-    ChromePhp::log($url, $query);
     if ($query) {
         parse_str($query, $params);
         $hashStr = isset($params['hash']) ? '&hash=' . $params['hash'] : '';
