@@ -200,25 +200,30 @@ function vkVideoIframeParse($iframe): string {
     }
 
     parse_str($query, $params);
-    if (!isset($params['oid']) || !isset($params['id']) || !isset($params['hash'])) {
+    if (!isset($params['oid']) || !isset($params['id'])) {
         return "";
     }
 
-    return 'https://vk.com/video-' . str_replace('-', '', $params['oid']) . '_' . $params['id'] . '&hash=' . $params['hash'];
+    return 'https://vk.com/video-' . str_replace('-', '', $params['oid']) . '_' . $params['id'] . (isset($params['hash']) ? '&hash=' . $params['hash'] : '');
 }
 
 function vkVideoIframeCreator($url): array {
-    preg_match('%video-(\d*)_(\d*).*&hash=(.*)&?#?%i', $url, $match);
-    if (count($match) < 4) {
+    preg_match('%video-(\d*)_(\d*)%i', $url, $match);
+    if (count($match) < 3) {
         return ["", $url];
     }
-
     $oid = $match[1];
     $id = $match[2];
-    $hash = $match[3];
+
+    $hashStr = '';
+    $query = parse_url($url, PHP_URL_QUERY);
+    if ($query) {
+        parse_str($query, $params);
+        $hashStr = isset($params['hash']) ? '&hash=' . $params['hash'] : '';
+    }
 
     return [
-        '<iframe src="https://vk.com/video_ext.php?oid=-' . $oid . '&id=' . $id . '&hash=' . $hash . '&hd=1" width="640" height="360" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" allowfullscreen style="border: none;"></iframe>',
+        '<iframe src="https://vk.com/video_ext.php?oid=-' . $oid . '&id=' . $id . $hashStr . '&hd=1" width="640" height="360" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" allowfullscreen style="border: none;"></iframe>',
         preg_replace('%(&hash=.*)&?#?%i', '', $url),
     ];
 }
