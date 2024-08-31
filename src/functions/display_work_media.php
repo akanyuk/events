@@ -204,7 +204,7 @@ function vkVideoIframeParse($iframe): string {
         return "";
     }
 
-    return 'https://vk.com/video-' . str_replace('-', '', $params['oid']) . '_' . $params['id'] . (isset($params['hash']) ? '&hash=' . $params['hash'] : '');
+    return 'https://vk.com/video-' . str_replace('-', '', $params['oid']) . '_' . $params['id'] . (isset($params['hash']) ? '?hash=' . $params['hash'] : '');
 }
 
 function vkVideoIframeCreator($url): array {
@@ -217,6 +217,7 @@ function vkVideoIframeCreator($url): array {
 
     $hashStr = '';
     $query = parse_url($url, PHP_URL_QUERY);
+    ChromePhp::log($url, $query);
     if ($query) {
         parse_str($query, $params);
         $hashStr = isset($params['hash']) ? '&hash=' . $params['hash'] : '';
