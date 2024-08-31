@@ -188,25 +188,23 @@ function prepareWorkLinks($langMain, $work, $linksProps, $rel): array {
 }
 
 function vkVideoIframeParse($iframe): string {
-    preg_match('%oid=-(\d*)%', $iframe, $match);
+    preg_match('/src=\"(.*)\".*/isU', $iframe, $match);
     if (count($match) < 2) {
         return "";
     }
-    $oid = $match[1];
+    $src = $match[1];
 
-    preg_match('%&id=(\d*)%', $iframe, $match);
-    if (count($match) < 2) {
+    $query = parse_url($src, PHP_URL_QUERY);
+    if (!$query) {
         return "";
     }
-    $id = $match[1];
 
-    preg_match('%hash=(\d\w*)%i', $iframe, $match);
-    if (count($match) < 2) {
+    parse_str($query, $params);
+    if (!isset($params['oid']) || !isset($params['id']) || !isset($params['hash'])) {
         return "";
     }
-    $hash = $match[1];
 
-    return 'https://vk.com/video-' . $oid . '_' . $id . '&hash=' . $hash;
+    return 'https://vk.com/video-' . str_replace('-', '', $params['oid']) . '_' . $params['id'] . '&hash=' . $params['hash'];
 }
 
 function vkVideoIframeCreator($url): array {
