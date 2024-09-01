@@ -46,37 +46,34 @@
         };
 
         config.aoColumns = [
-            {'sortable': false, 'className': 'nowrap-column'}, 	// position
+            {'sortable': false, 'className': 'nowrap-column'}, 	// score (vts)
+            {'sortable': false, 'className': 'nowrap-column'}, 	// place
             {'sortable': false, 'width': '100%'},				// work
-            {'sortable': false, 'className': 'center'},			// votes
-            {'sortable': false, 'className': 'center'},			// sum
-            {'sortable': false, 'className': 'center'},			// avg
-            {'sortable': false, 'className': 'center'}			// iqm
         ];
 
         config.fnRowCallback = function (nRow, aData, iDisplayIndex) {
             if (aData[0] === '') {
                 // Competition header
-                $('td:eq(1)', nRow).html('<h4>' + aData[1] + '</h4>');
+                $('td:eq(1)', nRow).html('');
+                $('td:eq(2)', nRow).html('<h4>' + aData[1] + '</h4>');
                 return;
             }
 
-            if ($('select[id="results-filter-order"]').val() === 'avg') {
-                $('td:eq(3)', nRow).removeClass('strong');
-                $('td:eq(4)', nRow).addClass('strong');
-                $('td:eq(5)', nRow).removeClass('strong');
-            } else if ($('select[id="results-filter-order"]').val() === 'iqm') {
-                $('td:eq(3)', nRow).removeClass('strong');
-                $('td:eq(4)', nRow).removeClass('strong');
-                $('td:eq(5)', nRow).addClass('strong');
-            } else {
-                $('td:eq(3)', nRow).addClass('strong');
-                $('td:eq(4)', nRow).removeClass('strong');
-                $('td:eq(5)', nRow).removeClass('strong');
-            }
+            $('td:eq(1)', nRow).html('<span class="label label-default">' + aData[0] + '</span>');
+            $('td:eq(2)', nRow).html(aData[1]);
 
-            $('td:eq(4)', nRow).html(number_format(aData[4], 2, '.', ''));
-            $('td:eq(5)', nRow).html(number_format(aData[5], 2, '.', ''));
+            const vts = aData[2];
+            let sum = aData[3];
+            let avg = number_format(aData[4], 2, '.', '');
+            let iqm = number_format(aData[5], 2, '.', '');
+
+            if ($('select[id="results-filter-order"]').val() === 'avg') {
+                $('td:eq(0)', nRow).html('<code>' + avg + '</code> (' + vts + ')');
+            } else if ($('select[id="results-filter-order"]').val() === 'iqm') {
+                $('td:eq(0)', nRow).html('<code>' + iqm + '</code> (' + vts + ')');
+            } else {
+                $('td:eq(0)', nRow).html('<code>' + sum + '</code> (' + vts + ')');
+            }
         };
 
         const resultsTable = $('table[id="results"]').dataTable(config);
@@ -90,19 +87,11 @@
         });
     });
 </script>
-<style>
-    @media (max-width: 768px) {
-        #save-results {
-            top: -3px;
-            position: relative;
-        }
-    }
-</style>
 <div id="results-custom-filters" style="display: none;">
     <select id="results-filter-order" class="form-control" style="width: inherit;">
-        <option value="avg">Order by Avg</option>
-        <option value="iqm">Order by IQM</option>
-        <option value="pts">Order by Sum</option>
+        <option value="avg">Calc by Avg</option>
+        <option value="iqm">Calc by IQM</option>
+        <option value="pts">Calc by Sum</option>
     </select>
 
     <button id="save-results" class="btn btn-warning" title="Publish results permanently">Save results</button>
@@ -111,12 +100,9 @@
 <table id="results" class="table table-striped">
     <thead>
     <tr>
+        <th>score</th>
         <th></th>
         <th>Work</th>
-        <th>Votes</th>
-        <th>Sum</th>
-        <th>Avg</th>
-        <th>IQM</th>
     </tr>
     </thead>
 </table>

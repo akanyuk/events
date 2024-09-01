@@ -68,9 +68,9 @@ $(document).ready(function(){
 	config.aoColumns = [
 		{ 'sortable': false, 'className': 'nowrap-column' },							// votekey
 		{ 'sortable': false, 'width': '100%' },											// email
-		{ 'searchable': false, 'sortable': false, 'className': 'nowrap-column' },		// posted
-		{ 'searchable': false, 'sortable': false, 'className': 'nowrap-column' },		// browser
-		{ 'searchable': false, 'sortable': false, 'className': 'nowrap-column' }		// IP
+		{ 'sortable': false, 'searchable': false, 'className': 'nowrap-column' },		// posted
+		{ 'sortable': false, 'searchable': false, 'className': 'nowrap-column' },		// browser
+		{ 'sortable': false, 'searchable': false, 'className': 'nowrap-column' }		// IP
 	];
 		
 	config.fnRowCallback = function(nRow, aData, iDisplayIndex) {

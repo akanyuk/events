@@ -35,6 +35,10 @@ NFW::i()->breadcrumb = array(
     });
 </script>
 <style>
+    .tab-pane {
+        padding-top: 20px;
+    }
+
     table.dataTable thead .sorting_asc::after {
         content: "";
     }
@@ -44,6 +48,10 @@ NFW::i()->breadcrumb = array(
     }
 
     @media screen and (max-width: 767px) {
+        .tab-pane {
+            padding-top: 8px;
+        }
+
         div.dataTables_wrapper div.dataTables_length,
         div.dataTables_wrapper div.dataTables_filter,
         div.dataTables_wrapper div.dataTables_info,
@@ -73,8 +81,8 @@ NFW::i()->breadcrumb = array(
                                aria-controls="results" role="tab" data-toggle="tab">Results</a></li>
 </ul>
 <div class="tab-content">
-    <div role="tabpanel" class="tab-pane in active" style="padding-top: 20px;" id="votekeys"></div>
-    <div role="tabpanel" class="tab-pane" style="padding-top: 20px;" id="votes"></div>
-    <div role="tabpanel" class="tab-pane" style="padding-top: 20px;" id="results"></div>
+    <div role="tabpanel" class="tab-pane in active" id="votekeys"></div>
+    <div role="tabpanel" class="tab-pane" id="votes"></div>
+    <div role="tabpanel" class="tab-pane" id="results"></div>
 </div>
 
