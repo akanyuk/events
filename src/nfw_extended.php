@@ -27,7 +27,6 @@ class NFWX extends NFW {
         self::$_ext_instance = $this;
 
         $this->resources_depends['main'] = array('resources' => array('jquery', 'bootstrap3.typeahead', 'font-awesome'));
-        $this->resources_depends['owl-carousel'] = array('resources' => array('jquery'));
 
         // Preload all available settings
         $CSettings = new settings();

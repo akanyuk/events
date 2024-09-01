@@ -14,7 +14,6 @@ NFW::i()->assign('page_title', $Module->record['title'] . ' / edit');
 NFW::i()->registerResource('jquery.activeForm');
 NFW::i()->registerResource('jquery.jgrowl');
 NFW::i()->registerResource('ckeditor');
-NFW::i()->registerResource('colorbox');
 NFW::i()->registerResource('jquery.ui.interactions');
 
 active_field('set_defaults', array('labelCols' => '2', 'inputCols' => '10'));

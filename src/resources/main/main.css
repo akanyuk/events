@@ -331,11 +331,6 @@ audio {
         display: none;
     }
 
-    .owl-carousel .owl-item img {
-        width: inherit !important;
-        display: inline !important;
-    }
-
     .works-media-container TEXTAREA.work-comment {
         width: 640px;
         height: 100px;
