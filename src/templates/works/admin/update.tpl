@@ -359,7 +359,7 @@ NFW::i()->breadcrumb_status = ob_get_clean();
 
         // Links
 
-        $('#work-links').sortable({items: '#record', axis: 'y', handle: '.icon'});
+        $('#work-links').sortable({items: 'div[id="record"]', axis: 'y', handle: '.icon'});
 
         $(document).on('click', '[data-action="toggle-title"]', function () {
             $(this).closest('div[id="record"]').find('input[data-type="links-title"]').closest('div').toggle();
