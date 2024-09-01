@@ -84,16 +84,11 @@ foreach ($compos as $compo_index => $c) {
     $cur_index = 1;
     foreach ($works_plain as $w) {
         if ($c2i[$w['competition_id']] == $compo_index) {
-            $screenshot = array(
+            $screenshot = $w['screenshot'] ? array(
                 'url' => $w['screenshot']['url'],
                 'filesize' => $w['screenshot']['filesize'],
                 'mime_type' => $w['screenshot']['mime_type']
-            );
-            $slide = array(
-                'url' => $w['slide']['url'],
-                'filesize' => $w['slide']['filesize'],
-                'mime_type' => $w['slide']['mime_type']
-            );
+            ) : null;
 
             $images = array();
             foreach ($w['image_files'] as $f)
@@ -130,7 +125,6 @@ foreach ($compos as $compo_index => $c) {
                 'Audio' => $audio,
                 'VotingFiles' => $voting_files,
                 'Screenshot' => $screenshot,
-                'Slide' => $slide,
                 'NumVotes' => $votes[$w['id']]['num_votes'] ?? null,
                 'TotalScores' => $votes[$w['id']]['total_scores'] ?? null,
                 'AverageVote' => $votes[$w['id']]['average_vote'] ?? null,
