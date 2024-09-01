@@ -81,6 +81,8 @@ $(document).ready(function(){
 
 	// Custom filtering function
     const f = $('div[id="votes-custom-filters"]');
+    $('div[id="votes_length"]').closest('div[class="col-sm-6"]').removeClass('col-sm-6').addClass('col-xs-4');
+    $('div[id="votes_filter"]').closest('div[class="col-sm-6"]').removeClass('col-sm-6').addClass('col-xs-8');
 	$('div[id="votes_length"]').empty().html(f.html());
 	f.remove();
 });
@@ -138,7 +140,7 @@ $(document).ready(function(){
 </div>
 
 <div id="votes-custom-filters" style="display: none;">
-	<button id="vote-add" class="btn btn-default" title="Add vote"><span class="fa fa-plus"></span> Add vote</button>
+	<button id="vote-add" class="btn btn-default" title="Add vote"><span class="fa fa-plus"></span></button>
 </div>
 <table id="votes" class="table table-striped">
 	<thead>

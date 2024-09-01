@@ -14,10 +14,10 @@ NFW::i()->registerFunction('active_field');
 $(document).ready(function(){
 	
 	// Add votekeys
-	
-	var vaDialog = $('div[id="votekeys-add-dialog"]');
-	var vaForm = vaDialog.find('form');
-	vaDialog.modal({ 'show': false });
+
+    const vaDialog = $('div[id="votekeys-add-dialog"]');
+    const vaForm = vaDialog.find('form');
+    vaDialog.modal({ 'show': false });
 
 	
 	$(document).off('click', 'button[id="votekeys-add"]').on('click', 'button[id="votekeys-add"]', function(e, message){
@@ -39,9 +39,11 @@ $(document).ready(function(){
 
 	
 	// Votekeys list
-	
-	var config =  dataTablesDefaultConfig;
-	
+
+    const config = dataTablesDefaultConfig;
+
+    config.oLanguage.sSearch = "";
+
 	// Infinity scrolling
 	config.scrollY = $(window).height() - $('table[id="votekeys"]').offset().top - 130;
 	// Fix horizontal scroll
@@ -82,10 +84,12 @@ $(document).ready(function(){
 		
 		return nRow;
 	};
-		
+
 	var oTable = $('table[id="votekeys"]').dataTable(config);
 
 	// Custom filtering function
+    $('div[id="votekeys_length"]').closest('div[class="col-sm-6"]').removeClass('col-sm-6').addClass('col-xs-4');
+    $('div[id="votekeys_filter"]').closest('div[class="col-sm-6"]').removeClass('col-sm-6').addClass('col-xs-8');
 	$('div[id="votekeys_length"]').empty().html($('div[id="votekeys-custom-filters"]').html());
 	$('div[id="votekeys-custom-filters"]').remove();
 });
@@ -113,7 +117,7 @@ $(document).ready(function(){
 </div>
 
 <div id="votekeys-custom-filters" style="display: none;">
-	<button id="votekeys-add" class="btn btn-default" title="Add votekeys"><span class="fa fa-plus"></span> Add votekeys</button>
+	<button id="votekeys-add" class="btn btn-default" title="Add votekeys"><span class="fa fa-plus"></span></button>
 </div>
 
 <table id="votekeys" class="table table-striped">

@@ -18,7 +18,6 @@ class vote extends active_record {
 
     // Load results for given works array
     public function getResults($event_id, $options = array()) {
-        $votekey_status = $options['votekey_status'] ?? -1;
         $place_order = $options['place_order'] ?? 'avg';
 
         $query = array(
@@ -37,11 +36,6 @@ class vote extends active_record {
             'WHERE' => 'v.event_id=' . $event_id,
             'ORDER BY' => 'v.work_id'
         );
-        if ($votekey_status == 0) {
-            $query['WHERE'] .= ' AND v.votekey_id=0';
-        } elseif ($votekey_status == 1) {
-            $query['WHERE'] .= ' AND v.votekey_id<>0';
-        }
 
         if (!$result = NFW::i()->db->query_build($query)) {
             $this->error('Unable to fetch votes', __FILE__, __LINE__, NFW::i()->db->error());
@@ -563,7 +557,6 @@ class vote extends active_record {
         }
 
         $results_options = array(
-            'votekey_status' => $_POST['votekey'] ?? false,
             'place_order' => $_POST['order'] ?? false
         );
 
@@ -597,7 +590,7 @@ class vote extends active_record {
 }
 
 function sortByPos($a, $b): int {
-    return $a['position'] < $b['position'] ? 1 : -1;
+    return $a['position'] > $b['position'] ? 1 : -1;
 }
 
 function sortByAverageTotal($a, $b): int {
