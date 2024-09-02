@@ -6,7 +6,7 @@ return array(
     ),
     array(
         'name' => 'Events',
-        'url' => 'events',
+        'url' => 'events?action=admin',
         'perm' => 'events,admin',
     ),
     array(

@@ -294,7 +294,7 @@ echo '<style>' . $css . '</style>';
 </form>
 
 <form id="make-release" class="form-inline" style="padding-top: 20px;">
-    <fieldset>
+    <fieldset style="overflow: hidden">
         <legend>Permanent link:</legend>
         <span id="permanent-link"><?php echo $owner['release_link'] ? '<a href="' . $owner['release_link']['url'] . '">' . $owner['release_link']['url'] . '</a>' : '<em>none</em>' ?></span>
 

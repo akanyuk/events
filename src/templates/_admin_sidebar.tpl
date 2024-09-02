@@ -65,9 +65,9 @@ $events = adminSidebarEvents();
             }
             echo '</ul></li>';
 
-            foreach ($events as $event) {
+            foreach ($events as $k=>$event) {
                 ?>
-                <li>
+                <li <?php echo $k == 0 ? 'class="active"' : ''?>>
                     <a href="#" title="<?php echo htmlspecialchars($event['title']) ?>"><span
                                 class="sidebar-nav-item"><?php echo htmlspecialchars(limit_text($event['title'], 24)) ?></span><span
                                 class="fa arrow"></span></a>

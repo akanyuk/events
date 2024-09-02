@@ -30,12 +30,10 @@ NFW::i()->breadcrumb = array(
     array('desc' => $Module->record['title'])
 );
 
-$hint = 'Posted: ' . date('d.m.Y H:i', $Module->record['posted']) . ' (' . $Module->record['posted_username'] . ')';
+NFW::i()->breadcrumb_status = '<div>Posted: ' . date('d.m.Y H:i', $Module->record['posted']) . ' (' . $Module->record['posted_username'] . ')</div>';
 if ($Module->record['edited']) {
-    $hint .= "<br />" . 'Updated: ' . date('d.m.Y H:i', $Module->record['edited']) . ' (' . $Module->record['edited_username'] . ')';
+    NFW::i()->breadcrumb_status .= '<div>Updated: ' . date('d.m.Y H:i', $Module->record['edited']) . ' (' . $Module->record['edited_username'] . ')</div>';
 }
-NFW::i()->breadcrumb_status = '<div class="text-muted" style="font-size: 80%;">' . $hint . '</div>';
-
 
 // Logotype form
 

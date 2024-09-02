@@ -19,13 +19,10 @@ NFW::i()->breadcrumb = array(
 );
 
 ob_start();
-?>
-<div class="text-muted" style="display: inline-block; font-size: 11px; line-height: 12px;">
-    Posted: <?php echo date('d.m.Y H:i', $Module->record['posted']) . ' (' . $Module->record['posted_username'] . ')' ?>
-    <?php echo $Module->record['edited'] ? '<br />Updated: ' . date('d.m.Y H:i', $Module->record['edited']) . ' (' . $Module->record['edited_username'] . ')' : '' ?>
-</div>
-<?php
-NFW::i()->breadcrumb_status = ob_get_clean();
+NFW::i()->breadcrumb_status = '<div>Posted: ' . date('d.m.Y H:i', $Module->record['posted']) . ' (' . $Module->record['posted_username'] . ')</div>';
+if ($Module->record['edited']) {
+    NFW::i()->breadcrumb_status .= '<div>Updated: ' . date('d.m.Y H:i', $Module->record['edited']) . ' (' . $Module->record['edited_username'] . ')</div>';
+}
 ?>
 <style>
     .author-note {

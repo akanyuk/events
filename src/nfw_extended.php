@@ -111,7 +111,8 @@ class NFWX extends NFW {
             'admin' => array(''),
             'profile' => array('admin'),
             'events' => array('admin'),
-            'users' => array('admin'),
+            'users' => array('admin', 'ip2geo'),
+            'view_logs' => array('admin', 'export'),
         );
         if (!empty($managed_events) && isset($allow_cp[$module]) && in_array($action, $allow_cp[$module])) return true;
 
