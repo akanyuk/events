@@ -39,29 +39,9 @@ NFW::i()->breadcrumb = array(
         padding-top: 20px;
     }
 
-    table.dataTable thead .sorting_asc::after {
-        content: "";
-    }
-
-    table.dataTable thead .sorting_desc::after {
-        content: "";
-    }
-
     @media screen and (max-width: 767px) {
         .tab-pane {
             padding-top: 8px;
-        }
-
-        div.dataTables_wrapper div.dataTables_length,
-        div.dataTables_wrapper div.dataTables_filter,
-        div.dataTables_wrapper div.dataTables_info,
-        div.dataTables_wrapper div.dataTables_paginate {
-            text-align: left;
-        }
-
-        div.dataTables_filter LABEL {
-            position: relative;
-            top: -6px;
         }
 
         #results .dataTables_filter {

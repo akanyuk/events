@@ -457,3 +457,26 @@ audio {
         line-height: 1.5;
     }
 }
+
+/* dataTables fixtures */
+table.dataTable thead .sorting_asc::after {
+    content: "";
+}
+
+table.dataTable thead .sorting_desc::after {
+    content: "";
+}
+
+@media screen and (max-width: 767px) {
+    div.dataTables_wrapper div.dataTables_length,
+    div.dataTables_wrapper div.dataTables_filter,
+    div.dataTables_wrapper div.dataTables_info,
+    div.dataTables_wrapper div.dataTables_paginate {
+        text-align: left;
+    }
+
+    div.dataTables_filter LABEL {
+        position: relative;
+        top: -6px;
+    }
+}
