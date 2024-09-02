@@ -17,9 +17,7 @@ class vote extends active_record {
     );
 
     // Load results for given works array
-    public function getResults($event_id, $options = array()) {
-        $place_order = $options['place_order'] ?? 'avg';
-
+    public function getResults($event_id, $calcBy) {
         $query = array(
             'SELECT' => 'v.work_id, v.vote, w.competition_id, w.title, w.author, c.position AS competition_pos, c.title AS competition_title',
             'FROM' => 'votes AS v',
@@ -86,17 +84,22 @@ class vote extends active_record {
                 $works[$cid]['works'][$key]['iqm_vote'] = calculateIQM($allVotes[$work['id']]);
             }
 
-            if ($place_order == 'avg') {
-                usort($works[$cid]['works'], 'sortByAverageTotal');
-            } else if ($place_order == 'iqm') {
-                usort($works[$cid]['works'], 'sortByIQM');
-            } else {
-                usort($works[$cid]['works'], 'sortByScoresTotal');
+            ChromePhp::log($calcBy);
+
+            switch ($calcBy) {
+                case "iqm":
+                    usort($works[$cid]['works'], 'calcByIQM');
+                    break;
+                case "sum":
+                    usort($works[$cid]['works'], 'calcBySum');
+                    break;
+                default:
+                    usort($works[$cid]['works'], 'calcByAvg');
             }
 
             $place = 1;
             foreach ($works[$cid]['works'] as $key => $work) {
-                switch ($place_order) {
+                switch ($calcBy) {
                     case 'avg':
                         if ($work['average_vote'] == $prev_average && $work['total_scores'] == $prev_total && $place > 1) {
                             $place--;
@@ -556,14 +559,12 @@ class vote extends active_record {
             return false;
         }
 
-        $results_options = array(
-            'place_order' => $_POST['order'] ?? false
-        );
+        $calcBy = $_GET['calc_by'] ?? false;
 
         if (isset($_GET['part']) && $_GET['part'] == 'save-results') {
             $this->error_report_type = 'plain';
 
-            foreach ($this->getResults($CEvents->record['id'], $results_options) as $r) foreach ($r['works'] as $w) {
+            foreach ($this->getResults($CEvents->record['id'], $calcBy) as $r) foreach ($r['works'] as $w) {
                 $query = array(
                     'UPDATE' => 'works',
                     'SET' => '`total_scores`=' . $w['total_scores'] . ', `num_votes`=' . $w['num_votes'] . ', `average_vote`=' . $w['average_vote'] . ', `iqm_vote`=' . $w['iqm_vote'] . ', `place`=' . $w['place'],
@@ -576,12 +577,13 @@ class vote extends active_record {
             }
 
             NFW::i()->stop('Success');
-        } elseif (isset($_GET['part']) && $_GET['part'] == 'list.js') {
+        } elseif (isset($_GET['part']) && $_GET['part'] == 'list') {
             $this->error_report_type = 'plain';
 
             NFW::i()->stop($this->renderAction(array(
-                'records' => $this->getResults($CEvents->record['id'], $results_options),
-            ), '_results_list.js'));
+                'records' => $this->getResults($CEvents->record['id'], $calcBy),
+                'calcBy' => $this->getResults($CEvents->record['id'], $calcBy),
+            ), '_results_list'));
         }
 
         NFW::i()->stop($this->renderAction(array('event' => $CEvents->record)));
@@ -593,7 +595,7 @@ function sortByPos($a, $b): int {
     return $a['position'] > $b['position'] ? 1 : -1;
 }
 
-function sortByAverageTotal($a, $b): int {
+function calcByAvg($a, $b): int {
     if ($a['average_vote'] == $b['average_vote']) {
         return $a['total_scores'] < $b['total_scores'] ? 1 : -1;
     }
@@ -601,7 +603,7 @@ function sortByAverageTotal($a, $b): int {
     return $a['average_vote'] < $b['average_vote'] ? 1 : -1;
 }
 
-function sortByScoresTotal($a, $b): int {
+function calcBySum($a, $b): int {
     if ($a['total_scores'] == $b['total_scores']) {
         return $a['num_votes'] < $b['num_votes'] ? 1 : -1;
     }
@@ -609,7 +611,7 @@ function sortByScoresTotal($a, $b): int {
     return $a['total_scores'] < $b['total_scores'] ? 1 : -1;
 }
 
-function sortByIQM($a, $b): int {
+function calcByIQM($a, $b): int {
     if ($a['iqm_vote'] == $b['iqm_vote']) {
         return $a['total_scores'] < $b['total_scores'] ? 1 : -1;
     }

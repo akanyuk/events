@@ -38,16 +38,6 @@ NFW::i()->breadcrumb = array(
     .tab-pane {
         padding-top: 20px;
     }
-
-    @media screen and (max-width: 767px) {
-        .tab-pane {
-            padding-top: 8px;
-        }
-
-        #results .dataTables_filter {
-            display: none;
-        }
-    }
 </style>
 <ul id="vote-tabs" class="nav nav-tabs" role="tablist">
     <li role="presentation" class="active"><a href="#votekeys"
