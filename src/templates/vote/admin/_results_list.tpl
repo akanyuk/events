@@ -19,7 +19,7 @@ foreach ($records as $competition) {
         }
         ?>
         <tr>
-            <td class="nowrap"><code><?php echo $score ?></code> (<?php echo $record['num_votes'] ?>)</td>
+            <td class="nowrap"><code><b><?php echo $score ?></b></code> <small class="text-muted" title="Total votes"><?php echo $record['num_votes'] ?></small></td>
             <td><div class="label label-default"><?php echo $record['place'] ?></div></td>
             <td><?php echo htmlspecialchars($record['title'] . ' by ' . $record['author']) ?></td>
         </tr>

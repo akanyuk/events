@@ -38,6 +38,36 @@ NFW::i()->breadcrumb = array(
     .tab-pane {
         padding-top: 20px;
     }
+
+    table.dataTable thead .sorting_asc::after {
+        content: "";
+    }
+
+    table.dataTable thead .sorting_desc::after {
+        content: "";
+    }
+
+    div.dataTables_filter LABEL {
+        margin: 0 !important;
+        position: relative !important;
+        top: -6px !important;
+    }
+
+    @media screen and (max-width: 992px) {
+        div.dataTables_wrapper div.dataTables_length,
+        div.dataTables_wrapper div.dataTables_info,
+        div.dataTables_wrapper div.dataTables_paginate {
+            text-align: left !important;
+        }
+
+        div.dataTables_wrapper div.dataTables_filter {
+            text-align: right !important;
+        }
+
+        div.dataTables_filter LABEL INPUT {
+            max-width: 192px !important;
+        }
+    }
 </style>
 <ul id="vote-tabs" class="nav nav-tabs" role="tablist">
     <li role="presentation" class="active"><a href="#votekeys"

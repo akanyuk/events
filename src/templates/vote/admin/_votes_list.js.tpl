@@ -1,4 +1,12 @@
-<?php ob_start(); ?>
+<?php
+/**
+ * @var array $records
+ * @var int $iTotalRecords
+ * @var int $iTotalDisplayRecords
+ */
+
+NFW::i()->registerFunction("limit_text");
+ob_start(); ?>
 { 
 	"sEcho":<?php echo $_POST['sEcho']?>, 
 	"iTotalRecords":<?php echo $iTotalRecords?>, 
@@ -8,7 +16,7 @@
 	$records_counter = 0; 
 	foreach ($records as $record) { ?>
 	[
-	    <?php echo json_encode($record['work_title'])?>,
+	    [<?php echo json_encode(limit_text($record['work_title']))?>, <?php echo json_encode($record['work_title'])?>],
 	    <?php echo $record['vote']?>,
 	    <?php echo json_encode($record['username'])?>,
 	    "<?php echo $record['votekey']?>",
