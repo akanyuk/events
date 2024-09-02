@@ -9,20 +9,59 @@ if (isset($no_admin_sidebar) && $no_admin_sidebar) {
 }
 
 NFW::i()->registerFunction('limit_text');
+NFW::i()->registerFunction('page_is');
 
 $events = adminSidebarEvents();
 ?>
     <script type="text/javascript">
         $(document).ready(function () {
-            $('#sidebar-menu').metisMenu();
+            const menu = $('#sidebar-menu');
+
+            if (menu.find('li#selected-work').length) {
+                menu.find('li#selected-work').parent().parent().addClass('active');
+                menu.find('li#selected-work').parent().parent().parent().parent().addClass('active');
+            } else if (menu.find('li#selected-event-item').length) {
+                menu.find('li#selected-event-item').parent().parent().addClass('active');
+            }
+
+            menu.metisMenu();
+
+            const selectedEventItem = document.getElementById("selected-event-item");
+            if (selectedEventItem !== null) {
+                selectedEventItem.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                    inline: "center"
+                });
+            }
+
+            const selectedWork = document.getElementById("selected-work");
+            if (selectedWork !== null) {
+                selectedWork.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                    inline: "center"
+                });
+            }
         });
     </script>
+    <style>
+        .metismenu li#selected-menu > a, .metismenu li#selected-event-item > a, .metismenu li#selected-work > a {
+            background-color: rgba(59, 150, 204, 0.4);
+            color: #fff;
+        }
+
+        .metismenu li.work {
+            white-space: nowrap;
+            font-weight: bold;
+        }
+    </style>
     <nav class="sidebar-nav">
         <ul class="metismenu" id="sidebar-menu">
             <?php
-            echo '<li class="hidden-md hidden-lg"><a href="#"><span class="sidebar-nav-item">Main menu</span><span class="fa arrow"></span></a><ul>';
+            echo '<li class="active hidden-md hidden-lg"><a href="#"><span class="sidebar-nav-item">Main menu</span><span class="fa arrow"></span></a><ul>';
             foreach ($top_menu as $m) {
-                echo '<li><a href="' . NFW::i()->absolute_path . '/admin/' . $m['url'] . '">' . $m['name'] . '</a></li>';
+                echo menuLink(NFW::i()->absolute_path . '/admin/' . $m['url'], $m['name']);
             }
             echo '</ul></li>';
 
@@ -33,6 +72,13 @@ $events = adminSidebarEvents();
                                 class="sidebar-nav-item"><?php echo htmlspecialchars(limit_text($event['title'], 24)) ?></span><span
                                 class="fa arrow"></span></a>
                     <ul>
+                        <?php echo eventItemLink(NFW::i()->absolute_path . '/admin/events?action=update&record_id=' . $event['id'], 'Manage event') ?>
+                        <?php echo eventItemLink(NFW::i()->absolute_path . '/admin/competitions?event_id=' . $event['id'], 'Competitions') ?>
+                        <?php echo eventItemLink(NFW::i()->absolute_path . '/admin/works?event_id=' . $event['id'], 'Works') ?>
+                        <?php echo eventItemLink(NFW::i()->absolute_path . '/admin/vote?event_id=' . $event['id'], 'Voting') ?>
+                        <?php echo eventItemLink(NFW::i()->absolute_path . '/admin/live_voting?event_id=' . $event['id'], 'Live voting') ?>
+                        <?php echo eventItemLink(NFW::i()->absolute_path . '/admin/timeline?event_id=' . $event['id'], 'Timeline') ?>
+                        <li style="height: 1px;"></li>
                         <?php
                         foreach ($event['competitions'] as $competition) {
                             usort($competition['works'], function ($a, $b): int {
@@ -50,30 +96,10 @@ $events = adminSidebarEvents();
                                     <span class="sidebar-nav-item"><?php echo htmlspecialchars(limit_text($competition['title'], 32)) ?></span>
                                 </a>
                                 <ul>
-                                    <?php foreach ($competition['works'] as $work) { ?>
-                                        <li style="white-space: nowrap;"><strong><a
-                                                        href="<?php echo NFW::i()->base_path . 'admin/works?action=update&record_id=' . $work['id'] ?>"
-                                                        title="<?php echo htmlspecialchars($work['title'] . ' by ' . $work['author']) ?>"><?php echo htmlspecialchars($work['title']) ?></a></strong>
-                                        </li>
-                                    <?php } ?>
+                                    <?php foreach ($competition['works'] as $work) echo workLink($work) ?>
                                 </ul>
                             </li>
                         <?php } ?>
-                        <li>
-                            <a href="<?php echo NFW::i()->base_path . 'admin/events?action=update&record_id=' . $event['id'] ?>"><span
-                                        class="sidebar-nav-item-icon fa fa-wine-glass-alt"></span> Manage event</a></li>
-                        <li><a href="<?php echo NFW::i()->base_path . 'admin/competitions?event_id=' . $event['id'] ?>"><span
-                                        class="sidebar-nav-item-icon fa fa-truck-monster"></span> Competitions</a></li>
-                        <li><a href="<?php echo NFW::i()->base_path . 'admin/works?event_id=' . $event['id'] ?>"><span
-                                        class="sidebar-nav-item-icon fas fa-bug"></span> Works</a></li>
-                        <li><a href="<?php echo NFW::i()->base_path . 'admin/vote?event_id=' . $event['id'] ?>"><span
-                                        class="sidebar-nav-item-icon fa fa-poll"></span> Voting</a></li>
-                        <li>
-                            <a href="<?php echo NFW::i()->base_path . 'admin/live_voting?event_id=' . $event['id'] ?>"><span
-                                        class="sidebar-nav-item-icon fa fa-thumbs-up"></span> Live voting</a></li>
-                        <li>
-                            <a href="<?php echo NFW::i()->base_path . 'admin/timeline?event_id=' . $event['id'] ?>"><span
-                                        class="sidebar-nav-item-icon fa fa-calendar-alt"></span> Timeline</a></li>
                     </ul>
                 </li>
                 <?php
@@ -83,6 +109,31 @@ $events = adminSidebarEvents();
     </nav>
 
 <?php
+
+function menuLink($url, $text): string {
+    $p = parse_url($url);
+    if ($p['path'] == '/admin/') {
+        $class = "";
+    } else {
+        $check = $p['path'] . (isset($p['query']) ? '?' . $p['query'] : '');
+        $class = page_is($check) ? ' id="selected-menu"' : '';
+    }
+    return '<li' . $class . '><a href="' . $url . '">' . $text . '</a></li>';
+}
+
+function eventItemLink($url, $text): string {
+    $p = parse_url($url);
+    $check = $p['path'] . (isset($p['query']) ? '?' . $p['query'] : '');
+    $class = page_is($check) ? ' id="selected-event-item"' : '';
+    return '<li' . $class . '><a href="' . $url . '">' . $text . '</a></li>';
+}
+
+function workLink($work): string {
+    $i = page_is('admin/works?action=update&record_id=' . $work['id']) ? 'id="selected-work"' : '';
+    $title = htmlspecialchars($work['title'] . ' by ' . $work['author']);
+    return '<li ' . $i . ' class="work"><a title="' . $title . '" href="' . NFW::i()->absolute_path . '/admin/works?action=update&record_id=' . $work['id'] . '">' . htmlspecialchars($work['title']) . '</a></li>';
+}
+
 function adminSidebarEvents() {
     $managed_events = events::get_managed();
     if (empty($managed_events)) return array();
