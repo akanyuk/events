@@ -7,12 +7,72 @@
 if (isset($no_admin_sidebar) && $no_admin_sidebar) {
     return;
 }
-
-NFW::i()->registerFunction('limit_text');
 NFW::i()->registerFunction('page_is');
-
-$events = adminSidebarEvents();
 ?>
+    <style>
+        .metismenu li#selected-menu > a, .metismenu li#selected-event-item > a, .metismenu li#selected-work > a {
+            background-color: rgba(59, 150, 204, 0.4);
+            color: #fff;
+        }
+
+        .metismenu li {
+            white-space: nowrap;
+        }
+
+        .metismenu li.work {
+            font-weight: bold;
+        }
+    </style>
+    <nav class="sidebar-nav">
+        <ul class="metismenu" id="sidebar-menu">
+            <?php
+            foreach (adminSidebarEvents() as $k=>$event) {
+                ?>
+                <li <?php echo $k == 0 ? 'id="first-event"' : ''?>>
+                    <a href="#" title="<?php echo htmlspecialchars($event['title']) ?>"><span
+                                class="sidebar-nav-item"><?php echo htmlspecialchars($event['title']) ?></span></a>
+                    <ul>
+                        <?php echo eventItemLink(NFW::i()->absolute_path . '/admin/events?action=update&record_id=' . $event['id'], 'Manage event') ?>
+                        <?php echo eventItemLink(NFW::i()->absolute_path . '/admin/competitions?event_id=' . $event['id'], 'Competitions') ?>
+                        <?php echo eventItemLink(NFW::i()->absolute_path . '/admin/works?event_id=' . $event['id'], 'Works') ?>
+                        <?php echo eventItemLink(NFW::i()->absolute_path . '/admin/vote?event_id=' . $event['id'], 'Voting') ?>
+                        <?php echo eventItemLink(NFW::i()->absolute_path . '/admin/live_voting?event_id=' . $event['id'], 'Live voting') ?>
+                        <?php echo eventItemLink(NFW::i()->absolute_path . '/admin/timeline?event_id=' . $event['id'], 'Timeline') ?>
+                        <li style="height: 1px;"></li>
+                        <?php
+                        foreach ($event['competitions'] as $competition) {
+                            usort($competition['works'], function ($a, $b): int {
+                                if ($a['status'] == $b['status']) {
+                                    return $a['position'] < $b['position'] ? -1 : 1;
+                                }
+
+                                return $a['voting'] ? -1 : 1;
+                            });
+
+                            ?>
+                            <li>
+                                <a href="#" title="<?php echo htmlspecialchars($competition['title']) ?>">
+                                    <span class="sidebar-nav-item"><?php echo htmlspecialchars($competition['title']) ?></span>
+                                </a>
+                                <ul>
+                                    <?php foreach ($competition['works'] as $work) echo workLink($work) ?>
+                                </ul>
+                            </li>
+                        <?php } ?>
+                    </ul>
+                </li>
+                <?php
+            }
+            echo '<li class="hidden-md hidden-lg"><a href="#"><span class="sidebar-nav-item">Main menu</span></a><ul>';
+            foreach ($top_menu as $m) {
+                if ($m['url'] != "") {
+                    echo menuLink(NFW::i()->absolute_path . '/admin/' . $m['url'], $m['name']);
+                }
+            }
+            echo '</ul></li>';
+            ?>
+        </ul>
+    </nav>
     <script type="text/javascript">
         $(document).ready(function () {
             const menu = $('#sidebar-menu');
@@ -22,6 +82,10 @@ $events = adminSidebarEvents();
                 menu.find('li#selected-work').parent().parent().parent().parent().addClass('active');
             } else if (menu.find('li#selected-event-item').length) {
                 menu.find('li#selected-event-item').parent().parent().addClass('active');
+            } else if (menu.find('li#selected-menu').length) {
+                menu.find('li#selected-menu').parent().parent().addClass('active');
+            } else {
+                menu.find('li#first-event').addClass('active');
             }
 
             menu.metisMenu();
@@ -45,69 +109,6 @@ $events = adminSidebarEvents();
             }
         });
     </script>
-    <style>
-        .metismenu li#selected-menu > a, .metismenu li#selected-event-item > a, .metismenu li#selected-work > a {
-            background-color: rgba(59, 150, 204, 0.4);
-            color: #fff;
-        }
-
-        .metismenu li.work {
-            white-space: nowrap;
-            font-weight: bold;
-        }
-    </style>
-    <nav class="sidebar-nav">
-        <ul class="metismenu" id="sidebar-menu">
-            <?php
-            echo '<li class="active hidden-md hidden-lg"><a href="#"><span class="sidebar-nav-item">Main menu</span><span class="fa arrow"></span></a><ul>';
-            foreach ($top_menu as $m) {
-                echo menuLink(NFW::i()->absolute_path . '/admin/' . $m['url'], $m['name']);
-            }
-            echo '</ul></li>';
-
-            foreach ($events as $k=>$event) {
-                ?>
-                <li <?php echo $k == 0 ? 'class="active"' : ''?>>
-                    <a href="#" title="<?php echo htmlspecialchars($event['title']) ?>"><span
-                                class="sidebar-nav-item"><?php echo htmlspecialchars(limit_text($event['title'], 24)) ?></span><span
-                                class="fa arrow"></span></a>
-                    <ul>
-                        <?php echo eventItemLink(NFW::i()->absolute_path . '/admin/events?action=update&record_id=' . $event['id'], 'Manage event') ?>
-                        <?php echo eventItemLink(NFW::i()->absolute_path . '/admin/competitions?event_id=' . $event['id'], 'Competitions') ?>
-                        <?php echo eventItemLink(NFW::i()->absolute_path . '/admin/works?event_id=' . $event['id'], 'Works') ?>
-                        <?php echo eventItemLink(NFW::i()->absolute_path . '/admin/vote?event_id=' . $event['id'], 'Voting') ?>
-                        <?php echo eventItemLink(NFW::i()->absolute_path . '/admin/live_voting?event_id=' . $event['id'], 'Live voting') ?>
-                        <?php echo eventItemLink(NFW::i()->absolute_path . '/admin/timeline?event_id=' . $event['id'], 'Timeline') ?>
-                        <li style="height: 1px;"></li>
-                        <?php
-                        foreach ($event['competitions'] as $competition) {
-                            usort($competition['works'], function ($a, $b): int {
-                                if ($a['status'] == $b['status']) {
-                                    return $a['position'] < $b['position'] ? -1 : 1;
-                                }
-
-                                return $a['voting'] ? -1 : 1;
-                            });
-
-                            ?>
-                            <li>
-                                <a href="#" title="<?php echo htmlspecialchars($competition['title']) ?>">
-                                    <span class="fa arrow"></span>
-                                    <span class="sidebar-nav-item"><?php echo htmlspecialchars(limit_text($competition['title'], 32)) ?></span>
-                                </a>
-                                <ul>
-                                    <?php foreach ($competition['works'] as $work) echo workLink($work) ?>
-                                </ul>
-                            </li>
-                        <?php } ?>
-                    </ul>
-                </li>
-                <?php
-            }
-            ?>
-        </ul>
-    </nav>
-
 <?php
 
 function menuLink($url, $text): string {

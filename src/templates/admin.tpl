@@ -55,7 +55,7 @@ if (!empty(NFW::i()->breadcrumb)) {
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo NFW::i()->lang['lang'] ?>">
-<head><title><?php echo isset($page_title) ? $page_title : $page['title'] ?></title>
+<head><title><?php echo $page_title ?? $page['title'] ?></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -65,26 +65,15 @@ if (!empty(NFW::i()->breadcrumb)) {
             padding-top: 60px;
         }
 
-        .navbar .frontend {
-            margin-left: 10px;
-            width: 30px;
-            height: 50px;
-            max-width: 30px;
-            max-height: 50px;
-            background-color: #333;
-            border-left: 1px solid #080808;
-        }
-
-        .navbar .frontend A {
-            padding: 30px;
-        }
-
-        .navbar .frontend A:hover {
-            background-color: #444;
-            border-left: 1px solid #333;
+        .breadcrumb {
+            overflow: auto;
         }
 
         @media screen and (max-width: 992px) {
+            .sidebar {
+                width: 100%;
+            }
+
             .breadcrumb {
                 margin: 0 0 5px 0;
             }
@@ -106,13 +95,11 @@ if (!empty(NFW::i()->breadcrumb)) {
     <div class="container-fluid">
         <div class="hidden-md hidden-lg">
             <div class="pull-right">
-                <a class="navbar-brand" href="/" title="Frontend"><span class="glyphicon glyphicon-home"></span></a>
-            </div>
-            <div class="pull-right">
-                <p class="navbar-text"><small><?php echo NFW::i()->lang['LoggedAs'] ?> <a class="navbar-link"
-                                                                                          href="<?php echo NFW::i()->base_path ?>admin/profile"><strong><?php echo htmlspecialchars(NFW::i()->user['username']) ?></strong></a>.
-                        <a class="navbar-link" href="?action=logout"><?php echo NFW::i()->lang['Logout'] ?></a>.</small>
-                </p>
+                <a class="navbar-brand" href="/admin" title="Control panel"><span class="fas fa-cog"></span></a>
+                <a class="navbar-brand"
+                   title="<?php echo NFW::i()->lang['LoggedAs'] . ' ' . htmlspecialchars(NFW::i()->user['username']) ?>"
+                   href="<?php echo NFW::i()->base_path ?>admin/profile"><span class="fas fa-user"></span></a>
+                <a class="navbar-brand" href="/" title="Main page"><span class="fas fa-home"></span></a>
             </div>
         </div>
 
@@ -129,25 +116,32 @@ if (!empty(NFW::i()->breadcrumb)) {
 
         <div class="hidden-xs hidden-sm">
             <ul class="nav navbar-nav">
-                <?php $has_active = false;
+                <?php $hasActive = false;
                 foreach ($top_menu as $m) {
-                    if (!$has_active && page_is($m['url'])) {
-                        $has_active = true;
-                        $is_active = true;
-                    } else {
-                        $is_active = false;
+                    if ($m['url'] == "") {
+                        continue;
                     }
 
-                    echo '<li' . ($is_active ? ' class="active"' : '') . '><a href="' . NFW::i()->absolute_path . '/admin/' . $m['url'] . '">' . $m['name'] . '</a></li>';
+                    if (!$hasActive && page_is($m['url'])) {
+                        $hasActive = true;
+                        $isActive = true;
+                    } else {
+                        $isActive = false;
+                    }
+
+                    echo '<li' . ($isActive ? ' class="active"' : '') . '><a href="' . NFW::i()->absolute_path . '/admin/' . $m['url'] . '">' . $m['name'] . '</a></li>';
                 } ?>
             </ul>
         </div>
 
         <div class="hidden-xs hidden-sm">
-            <div class="navbar-right frontend"><a href="/" title="Frontend"></a></div>
-            <p class="navbar-text navbar-right"><?php echo NFW::i()->lang['LoggedAs'] ?> <a class="navbar-link"
-                                                                                            href="<?php echo NFW::i()->base_path ?>admin/profile"><strong><?php echo htmlspecialchars(NFW::i()->user['username']) ?></strong></a>.
-                <a class="navbar-link" href="?action=logout"><?php echo NFW::i()->lang['Logout'] ?></a>.</p>
+            <div class="navbar-right">
+                <a class="navbar-brand" href="/admin" title="Control panel"><span class="fas fa-cog"></span></a>
+                <a class="navbar-brand"
+                   title="<?php echo NFW::i()->lang['LoggedAs'] . ' ' . htmlspecialchars(NFW::i()->user['username']) ?>"
+                   href="<?php echo NFW::i()->base_path ?>admin/profile"><span class="fas fa-user"></span></a>
+                <a class="navbar-brand" href="/" title="Main page"><span class="fas fa-home"></span></a>
+            </div>
         </div>
     </div>
 </nav>
