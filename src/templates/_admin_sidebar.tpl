@@ -82,7 +82,7 @@ NFW::i()->registerFunction('page_is');
                 menu.find('li#selected-work').parent().parent().parent().parent().addClass('active');
             } else if (menu.find('li#selected-event-item').length) {
                 menu.find('li#selected-event-item').parent().parent().addClass('active');
-            } else if (menu.find('li#selected-menu').length) {
+            } else if (menu.find('li#selected-menu:visible').length) {
                 menu.find('li#selected-menu').parent().parent().addClass('active');
             } else {
                 menu.find('li#first-event').addClass('active');

@@ -69,11 +69,19 @@ if (!empty(NFW::i()->breadcrumb)) {
             overflow: auto;
         }
 
-        @media screen and (max-width: 992px) {
-            .sidebar {
-                width: 100%;
-            }
+        .breadcrumb-status {
+            overflow: auto;
+            margin-top: 0;
+            font-size: 12px;
+            color: #777;
+        }
 
+        .container-admin-main {
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+
+        @media screen and (max-width: 992px) {
             .breadcrumb {
                 margin: 0 0 5px 0;
             }
@@ -81,12 +89,15 @@ if (!empty(NFW::i()->breadcrumb)) {
             .breadcrumb-status {
                 margin: 0 0 10px 0;
             }
-        }
 
-        .breadcrumb-status {
-            margin-top: 0;
-            font-size: 12px;
-            color: #777;
+            .container-admin-main {
+                position: absolute; width: 100%;
+            }
+
+            .container-admin-main > .row {
+                position: relative;
+                overflow: auto;
+            }
         }
     </style>
 </head>
@@ -148,13 +159,15 @@ if (!empty(NFW::i()->breadcrumb)) {
 
 <div id="global-modal-container"></div>
 
-<div class="container-fluid" style="padding-top: 20px; padding-bottom: 20px;">
-    <?php if ($sidebar): ?>
-        <div class="row">
-            <div class="col xs-12 col-sm-6 col-md-3 col-lg-2 sidebar sidebar-left sidebar-animate sidebar-lg-show hidden-print"><?php echo $sidebar ?></div>
+<div class="container-fluid container-admin-main">
+    <div class="row">
+        <?php if ($sidebar): ?>
+            <div class="col-xs-12 col-sm-6 col-md-3 col-lg-2 sidebar sidebar-left sidebar-animate sidebar-lg-show hidden-print"><?php echo $sidebar ?></div>
             <div class="col-lg-10 col-lg-offset-2"><?php echo $page['content']; ?></div>
-        </div>
-    <?php else: echo $page['content']; endif; ?>
+        <?php else: ?>
+            <div class="col-md-12"><?php echo $page['content']; ?></div>
+        <?php endif; ?>
+    </div>
 </div>
 </body>
 </html>
