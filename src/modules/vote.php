@@ -130,23 +130,6 @@ class vote extends active_record {
         return $works;
     }
 
-    public function getWorkVote(int $workID, votekey $votekey): int {
-        if (!$result = NFW::i()->db->query_build(array(
-            'SELECT' => 'vote',
-            'FROM' => 'votes',
-            'WHERE' => 'work_id=' . $workID . ' AND votekey_id=' . $votekey->id,
-        ))) {
-            $this->error('Unable to fetch records', __FILE__, __LINE__, NFW::i()->db->error());
-            return 0;
-        }
-        if (!NFW::i()->db->num_rows($result)) {
-            return 0;
-        }
-
-        list($vote) = NFW::i()->db->fetch_row($result);
-        return $vote;
-    }
-
     public function getWorksVotes(array $workID, votekey $votekey): array {
         if (!$result = NFW::i()->db->query_build(array(
             'SELECT' => 'vote, work_id',

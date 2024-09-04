@@ -161,19 +161,14 @@ function displayIndexEvent($record, $layout = 'small'): void {
                 </div>
 
                 <?php if (!NFW::i()->user['is_guest']): ?>
-                    <div id="live-voting-container-<?php echo $record['id'] ?>" style="display: none;">
-                        <h3>Live Voting:</h3>
-                        <div id="body" class="live-voting">
-                            <div class="top-container">
-                                <img id="screenshot" src="<?php echo NFW::i()->assets('main/news-no-image.png') ?>"
-                                     alt="/"/>
-                                <div>
-                                    <h4 id="title"></h4>
-                                    <p id="description"></p>
-                                </div>
-                            </div>
-                            <div id="voting" class="btn-group btn-group-live-voting btn-group-justified"
-                                 role="group"></div>
+                    <div id="live-voting-container-<?php echo $record['id'] ?>" style="display: block;">
+                        <div class="hidden-xs" style="text-align: center">
+                            <a href="<?php echo NFW::i()->absolute_path . '/live_voting/' . $record['alias'] ?>"
+                               class="btn btn-success btn-lg">Live Voting</a>
+                        </div>
+                        <div class="hidden-lg hidden-md hidden-sm">
+                            <a href="<?php echo NFW::i()->absolute_path . '/live_voting/' . $record['alias'] ?>"
+                               class="btn btn-success btn-lg" style="display: flow-root;">Live Voting</a>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -190,100 +185,20 @@ function displayIndexEvent($record, $layout = 'small'): void {
 
             <?php if (!NFW::i()->user['is_guest']): ?>
             <script>
+                const liveVotingContainer = document.getElementById("live-voting-container-<?php echo $record['id']?>");
+
                 setInterval(updateVotingState, 5000);
                 updateVotingState();
 
                 function updateVotingState() {
-                    fetch('/internal_api?action=indexVotingStatus&event_id=<?php echo $record['id']?>').then(response => response.json()).then(response => {
-                        updateLiveVoting(response['liveVoting']);
+                    fetch('/internal_api?action=votingStatus&event_id=<?php echo $record['id']?>').then(response => response.json()).then(response => {
+                        updateLiveVoting(response['liveVotingOpen']);
                         updateVotingOpen(response['votingOpen']);
                     });
                 }
 
-                let lastLiveVotingWorkID = 0;
-                let isLiveVotingGoing = false;
-
                 function updateLiveVoting(state) {
-                    const noLiveVotingContainer = document.getElementById("no-live-voting-<?php echo $record['id'] ?>");
-                    const liveVotingContainer = document.getElementById("live-voting-container-<?php echo $record['id']?>");
-                    const liveVoting = liveVotingContainer.querySelector("#body");
-                    const screenshot = liveVoting.querySelector("#screenshot");
-                    const title = liveVoting.querySelector("#title");
-                    const description = liveVoting.querySelector("#description");
-                    const voting = liveVoting.querySelector("#voting");
-
-                    if (state === null) {
-                        liveVotingContainer.style.display = "none";
-                        noLiveVotingContainer.style.display = "block";
-                        isLiveVotingGoing = false;
-                        lastLiveVotingWorkID = 0;
-                        return;
-                    }
-
-                    if (state["id"] === lastLiveVotingWorkID) {
-                        return;
-                    }
-                    lastLiveVotingWorkID = state["id"];
-
-                    let liveVotingInTimeout = 1200;
-                    if (!isLiveVotingGoing) {
-                        noLiveVotingContainer.style.display = "none";
-                        liveVotingInTimeout = 1;
-                        isLiveVotingGoing = true;
-                    }
-
-                    liveVoting.style.opacity = "0";
-                    setTimeout(function () {
-                        if (state['screenshot']) {
-                            screenshot.setAttribute('src', state['screenshot']);
-                            screenshot.style.display = 'block';
-                        } else {
-                            screenshot.style.display = 'none';
-                        }
-
-                        title.innerText = state['title'];
-                        description.innerText = state['description'];
-
-                        voting.innerHTML = '';
-                        if (state['voting_options']) {
-                            state['voting_options'].forEach((i) => {
-                                let btn = document.createElement('a');
-                                btn.setAttribute("type", "button");
-                                btn.className = state['voted'] === i ? "btn btn-primary active" : "btn btn-default";
-                                btn.innerHTML = i.toString();
-                                btn.onclick = function () {
-                                    const isActive = btn.className === "btn btn-primary active";
-
-                                    for (const b of voting.children) {
-                                        b.className = "btn btn-default";
-                                    }
-
-                                    let voteValue = i;
-                                    if (isActive) {
-                                        btn.className = "btn btn-default";
-                                        voteValue = 0;
-                                    } else {
-                                        btn.className = "btn btn-primary active";
-                                    }
-
-                                    fetch("/internal_api?action=indexLiveVote", {
-                                        method: "POST",
-                                        body: JSON.stringify({
-                                            workID: state["id"],
-                                            vote: voteValue,
-                                        }),
-                                        headers: {
-                                            "Content-type": "application/json; charset=UTF-8"
-                                        }
-                                    });
-                                };
-                                voting.appendChild(btn);
-                            });
-                        }
-
-                        liveVotingContainer.style.display = "block";
-                        liveVoting.style.opacity = "1";
-                    }, liveVotingInTimeout)
+                    liveVotingContainer.style.display = state ? "block" : "none";
                 }
 
                 function updateVotingOpen(values) {

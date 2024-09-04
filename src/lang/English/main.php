@@ -154,4 +154,8 @@ $lang_main = array(
 
     // upload link
     'upload info' => 'To upload the prod, you need to log in or <a href="/users?action=register">register</a>.',
+
+    // /upload link
+    'live voting info' => 'To use live voting, you need to log in or <a href="/users?action=register">register</a>.',
+
 );

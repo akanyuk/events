@@ -12,7 +12,7 @@ class live_voting extends active_record {
             return false;
         }
 
-        foreach ($state['all'] as $item) {
+        foreach ($state['works'] as $item) {
             if ($item['id'] === $workID) {
                 return true;
             }
@@ -98,77 +98,80 @@ class live_voting extends active_record {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
-        if (isset($_POST['stopAllLiveVoting']) && $_POST['stopAllLiveVoting']) {
+        if (isset($_POST['stopAll']) && $_POST['stopAll']) {
             apcu_delete(storageKeyPrefix . $_GET['event_id']);
             NFWX::i()->jsonSuccess();
         }
 
         $state = apcu_fetch(storageKeyPrefix . $_GET['event_id']);
 
-        if (isset($_POST['liveVotingAnnounce']) && $_POST['liveVotingAnnounce']) {
-            $state['current'] = [];
-            $state['announce'] = [
-                'code' => $_POST['liveVotingAnnounce']['code'],
-                'title' => $_POST['liveVotingAnnounce']['title'],
-                'description' => $_POST['liveVotingAnnounce']['description'],
+        if (isset($_POST['comingAnnounce']) && $_POST['comingAnnounce']) {
+            $state['comingAnnounce'] = [
+                'title' => $_POST['comingAnnounce']['title'],
+                'description' => $_POST['comingAnnounce']['description'],
             ];
+            unset($state['endAnnounce']);
+            $state['works'] = [];
             apcu_store(storageKeyPrefix . $_GET['event_id'], $state, memoryStorageTtlSec);
             NFWX::i()->jsonSuccess($state);
         }
 
-        if (isset($_POST['liveVotingAnnounceStop']) && $_POST['liveVotingAnnounceStop']) {
-            $state['announce'] = [];
+        if (isset($_POST['comingAnnounceStop']) && $_POST['comingAnnounceStop']) {
+            unset($state['comingAnnounce']);
             apcu_store(storageKeyPrefix . $_GET['event_id'], $state, memoryStorageTtlSec);
             NFWX::i()->jsonSuccess($state);
         }
 
-        $stopLiveVotingID = isset($_POST['stopLiveVoting']) ? intval($_POST['stopLiveVoting']) : 0;
+        if (isset($_POST['endAnnounce']) && $_POST['endAnnounce']) {
+            $state['endAnnounce'] = [
+                'title' => $_POST['endAnnounce']['title'],
+                'description' => $_POST['endAnnounce']['description'],
+            ];
+            unset($state['comingAnnounce']);
+            apcu_store(storageKeyPrefix . $_GET['event_id'], $state, memoryStorageTtlSec);
+            NFWX::i()->jsonSuccess($state);
+        }
 
-        $current = isset($state['current']['id']) && $state['current']['id'] != $stopLiveVotingID ? $state['current'] : [];
-        $all = $state['all'] ?? [];
+        if (isset($_POST['endAnnounceStop']) && $_POST['endAnnounceStop']) {
+            unset($state['endAnnounce']);
+            apcu_store(storageKeyPrefix . $_GET['event_id'], $state, memoryStorageTtlSec);
+            NFWX::i()->jsonSuccess($state);
+        }
 
-        if (isset($_POST['startLiveVoting'])) {
-            $CWorks = new works($_POST['startLiveVoting']);
-            if ($CWorks->record['id'] && $CWorks->record['id'] != $stopLiveVotingID) {
-                $current = [
+        $state['works'] = isset($state['works']) && is_array($state['works']) ? $state['works'] : [];
+
+        if (isset($_POST['start'])) {
+            $CWorks = new works($_POST['start']);
+            if ($CWorks->record['id']) {
+                $state['works'][$CWorks->record['id']] = [
                     'competition_id' => $CWorks->record['competition_id'],
                     'id' => $CWorks->record['id'],
-                    'position' => $CWorks->record['position'],
+                    'position' => intval($_POST['position']),
                     'title' => $CWorks->record['title'],
                     'competition_title' => $CWorks->record['competition_title'],
                     'screenshot' => $CWorks->record['screenshot'] ? cache_media($CWorks->record['screenshot'], 256, 0) : '',
                     'voting_options' => $CEvents->votingOptions(),
                 ];
-                $all[] = $current;
+
+                foreach ($state['works'] as $key => $work) {
+                    if ($work['competition_id'] != $CWorks->record['competition_id']) {
+                        unset($state['works'][$key]);
+                    }
+                }
+
+                // Stopping announces on voting start
+                unset($state['comingAnnounce']);
+                unset($state['endAnnounce']);
             }
         }
 
-        $currentCompetitionID = 0;
-        if (isset($current['competition_id'])) {
-            $currentCompetitionID = $current['competition_id'];
-        } else if (count($all) > 0) {
-            $currentCompetitionID = end($all)['competition_id'];
+        if (isset($_POST['stop'])) {
+            unset($state['works'][intval($_POST['stop'])]);
         }
 
-        // Removing dupes and stopped
-        $newAll = [];
-        foreach ($all as $s) {
-            if (!isset($_processed[$s['id']]) && $s['id'] != $stopLiveVotingID && $s['competition_id'] == $currentCompetitionID) {
-                $newAll[] = $s;
-                $_processed[$s['id']] = true;
-            }
-        }
-
-        $newState = [
-            'announce' => [],
-            'current' => $current,
-            'all' => $newAll,
-        ];
-
-        apcu_store(storageKeyPrefix . $_GET['event_id'], $newState, memoryStorageTtlSec);
-        NFWX::i()->jsonSuccess($newState);
+        apcu_store(storageKeyPrefix . $_GET['event_id'], $state, memoryStorageTtlSec);
+        NFWX::i()->jsonSuccess($state);
     }
-
 
     function actionAdminOpenVoting() {
         $CCompetition = new competitions($_POST['competition_id']);
