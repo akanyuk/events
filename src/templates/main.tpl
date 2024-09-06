@@ -17,10 +17,10 @@ $lang_main = NFW::i()->getLang('main');
 $lang_users = NFW::i()->getLang('users');
 
 // Collecting `meta_keywords` from project and page setting
-$page['meta_keywords'] = isset($page['meta_keywords']) ? $page['meta_keywords'] : '';
-$page['meta_description'] = isset($page['meta_description']) ? $page['meta_description'] : '';
+$page['meta_keywords'] = $page['meta_keywords'] ?? '';
+$page['meta_description'] = $page['meta_description'] ?? '';
 $meta_keywords = array();
-foreach (explode(',', NFW::i()->project_settings['meta_keywords'] . ',' . $page['meta_keywords']) as $keyword) {
+foreach (explode(',', NFWX::i()->project_settings['meta_keywords'] . ',' . $page['meta_keywords']) as $keyword) {
     $keyword = trim($keyword);
     if (!$keyword) continue;
     $meta_keywords[] = $keyword;
@@ -99,7 +99,7 @@ if ($is_latest_comments) {
             });
             <?php endif; ?>
 
-            <?php if (NFW::i()->user['is_guest'] && NFW::i()->main_login_form): ?>
+            <?php if (NFW::i()->user['is_guest'] && NFWX::i()->main_login_form): ?>
             $('form[id="login-form"]').activeForm({
                 success: function (response) {
                     if (response.redirect) {

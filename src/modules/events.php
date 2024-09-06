@@ -26,7 +26,6 @@ class events extends active_record {
         'content' => array('desc' => 'Description', 'type' => 'str', 'maxlength' => 1048576),
         'date_from' => array('desc' => 'Date from', 'type' => 'date', 'required' => true),
         'date_to' => array('desc' => 'Date to', 'type' => 'date', 'is_end' => true, 'required' => true),
-        'one_compo_event' => array('desc' => 'Event with only one compo', 'type' => 'bool'),
         'hide_works_count' => array('desc' => 'Hide works count', 'type' => 'bool'),
     );
 

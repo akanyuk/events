@@ -66,14 +66,10 @@ if (isset($_GET['key'])) {
 }
 
 // Page with event, competition or work
+$page = $CPages->record;
+$page['path'] = "foo";  // Unnecessary. Preventing `index` page
 
-if (!$page = $CPages->loadPage('events')) {
-    NFW::i()->stop(404);
-} elseif (!$page['is_active']) {
-    NFW::i()->stop('inactive');
-}
-
-if (!$competitionAlias || ($CEvents->record['one_compo_event'] && !$workID)) {
+if (!$competitionAlias && !$workID) {
     // Event page
     $page['title'] = $CEvents->record['title'];
 
@@ -94,11 +90,11 @@ if (!$competitionAlias || ($CEvents->record['one_compo_event'] && !$workID)) {
     $competitionsGroups = $CCompetitionsGroups->getRecords($CEvents->record['id']);
 
     // Special render - event with only one compo
-    if ($CEvents->record['one_compo_event'] && !empty($competitions)) {
+    if (count($competitions) == 1) {
         $c = reset($competitions);
         $CCompetitions->reload($c['id']);
 
-        $content = $CEvents->record['content'] . renderCompetitionPage($CCompetitions, $CEvents);
+        $content = $CEvents->record['content'] . renderCompetitionPage($CCompetitions, $CEvents, true);
         setBreadcrumbDesc(null, $CCompetitions->record, 'competition');
 
         $competitions = array();    // prevent default competitions list
@@ -185,9 +181,12 @@ if ($workID) {
         NFWX::i()->main_og['image'] = tmb($CEvents->record['preview_large'], 500, 500, array('complementary' => true));
     }
 
+    $competitions = $CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id'])));
+    $oneEventCompo = count($competitions) == 1;
+
     $page['title'] = $CCompetitions->record['title'];
     $page['content'] = $CCompetitions->renderAction(array(
-        'content' => renderCompetitionPage($CCompetitions, $CEvents),
+        'content' => renderCompetitionPage($CCompetitions, $CEvents, $oneEventCompo),
         'event' => $CEvents->record,
         'competitions' => $CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id']))),
     ), 'record');
@@ -213,13 +212,14 @@ function setBreadcrumbDesc($event, $competition, $by) {
     }
 }
 
-function renderCompetitionPage($CCompetitions, $CEvents): string {
+function renderCompetitionPage($CCompetitions, $CEvents, bool $oneCompoEvent): string {
     $compo = $CCompetitions->record;
     $event = $CEvents->record;
 
     if ($compo['release_status']['available'] && $compo['release_works']) {
         return $CCompetitions->renderAction(array(
             'competition' => $compo,
+            'oneCompoEvent' => $oneCompoEvent,
             'event' => $event), '_release');
     } elseif ($compo['voting_status']['available'] && $compo['voting_works']) {
         // Get voting works
@@ -230,13 +230,12 @@ function renderCompetitionPage($CCompetitions, $CEvents): string {
             'filter' => array('voting_only' => true, 'competition_id' => $compo['id']),
             'ORDER BY' => 'w.position'
         ));
-
         return $CCompetitions->renderAction(array(
             'event' => $event,
             'competition' => $compo,
             'works' => $voting_works,
         ), '_voting');
-    } elseif ($event['one_compo_event']) {
+    } elseif ($oneCompoEvent) {
         return $CCompetitions->renderAction(array(
             'showWorksCount' => !$event['hide_works_count'],
             'competition' => $compo,

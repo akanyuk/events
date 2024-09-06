@@ -218,7 +218,6 @@ $succes_dialog->render();
                     <?php echo active_field(array('name' => 'date_to', 'value' => $Module->record['date_to'], 'attributes' => $Module->attributes['date_to'], 'endDate' => -365)) ?>
                     <?php echo active_field(array('name' => 'announcement', 'value' => $Module->record['announcement'], 'attributes' => $Module->attributes['announcement'], 'height' => '100px;')) ?>
                     <?php echo active_field(array('name' => 'announcement_og', 'value' => $Module->record['announcement_og'], 'attributes' => $Module->attributes['announcement_og'])) ?>
-                    <?php echo active_field(array('name' => 'one_compo_event', 'value' => $Module->record['one_compo_event'], 'attributes' => $Module->attributes['one_compo_event'])) ?>
                     <?php echo active_field(array('name' => 'hide_works_count', 'value' => $Module->record['hide_works_count'], 'attributes' => $Module->attributes['hide_works_count'])) ?>
 
                     <div class="form-group">
