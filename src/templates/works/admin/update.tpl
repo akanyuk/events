@@ -283,7 +283,7 @@ if ($Module->record['edited']) {
                             <button id="add-link" class="btn btn-default"><span class="fa fa-plus"></span>
                             </button>
                         </div>
-                        <button type="submit" class="btn btn-primary">Save links</button>
+                        <button id="save-links" type="submit" class="btn btn-primary">Save links</button>
                         <div class="clear-fix"></div>
                     </div>
                 </div>
@@ -393,6 +393,7 @@ if ($Module->record['edited']) {
         });
 
         // Links
+        updateSaveLinksButtonVisibility();
 
         $('#work-links').sortable({items: 'div[id="record"]', axis: 'y', handle: '.icon'});
 
@@ -410,6 +411,7 @@ if ($Module->record['edited']) {
             }
 
             $(this).closest('div[id="record"]').remove();
+            updateSaveLinksButtonVisibility();
             return false;
         });
 
@@ -424,6 +426,7 @@ if ($Module->record['edited']) {
             }).focus();
             $('input[data-type="links-url"]:last').focus();
 
+            updateSaveLinksButtonVisibility();
             return false;
         });
 
@@ -468,6 +471,14 @@ if ($Module->record['edited']) {
             return false;
         });
     });
+
+    function updateSaveLinksButtonVisibility() {
+        if ($('#work-links').find('div[id="record"]').length) {
+            $('button[id="save-links"]').show();
+        } else {
+            $('button[id="save-links"]').hide();
+        }
+    }
 </script>
 
 <div id="works-preview-dialog" class="modal fade">
