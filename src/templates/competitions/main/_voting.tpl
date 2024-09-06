@@ -6,12 +6,7 @@
  */
 
 $votekey = new votekey();
-if (isset($_GET['key'])) {
-    $votekey = votekey::getVotekey($_GET['key'], $event['id']);
-    if (!$votekey->error) {
-        NFW::i()->setCookie('votekey', $_GET['key']);
-    }
-} else if (isset($_COOKIE['votekey'])) {
+if (isset($_COOKIE['votekey'])) {
     $votekey = votekey::getVotekey($_COOKIE['votekey'], $event['id']);
     if ($votekey->error) {
         NFW::i()->setCookie('votekey', null);
@@ -121,7 +116,7 @@ NFW::i()->registerFunction('active_field');
         });
 
         // Change votekey
-        const newVotekeySelector = $('div[id="new-votekey"]');
+        const newVotekeySelector = $('div[id="input-votekey"]');
         $('button[id="another-votekey"]').click(function () {
             newVotekeySelector.find('input[name="votekey"]').val('');
             $('div[id="saved-votekey"]').remove();
@@ -196,29 +191,23 @@ NFW::i()->registerFunction('active_field');
     ?>
     <div class="form-group" data-active-container="votekey">
         <label class="control-label" for="votekey"><strong>Votekey</strong></label>
-        <?php if ($votekey): ?>
+        <?php if ($votekey->id): ?>
             <div id="saved-votekey">
                 <span class="text-muted"
                       style="display: inline-block; position: relative; top: 4px; font-size: 160%; font-family: monospace; font-weight: bold; width: 120px;"><?php echo $votekey->votekey ?></span>
                 <button id="another-votekey"
-                        class="btn btn-default"><?php echo $langMain['votekey-another'] ?></button>
-            </div>
-
-            <div id="new-votekey" style="display: none;">
-                <input name="votekey" type="text" maxlength="8" class="form-control"
-                       style="display: inline-block; width: 120px; vertical-align: middle;"
-                       value="<?php echo $votekey->votekey ?>"/>
-                <button id="request-votekey"
-                        class="btn btn-default"><?php echo $langMain['votekey-request'] ?></button>
-            </div>
-        <?php else: ?>
-            <div>
-                <input name="votekey" type="text" maxlength="8" class="form-control"
-                       style="display: inline-block; width: 120px; vertical-align: middle;"/>
-                <button id="request-votekey"
-                        class="btn btn-default"><?php echo $langMain['votekey-request'] ?></button>
+                        class="btn btn-default"><?php echo $langMain['change-votekey'] ?></button>
             </div>
         <?php endif; ?>
+
+        <div id="input-votekey" style="display: <?php echo $votekey->id ? 'none' : 'block' ?>;">
+            <input name="votekey" type="text" maxlength="8" class="form-control"
+                   style="max-width: 640px;"/>
+            <div style="padding-top: 20px;">
+                <button id="request-votekey"
+                        class="btn btn-default"><?php echo $langMain['votekey-request'] ?></button>
+            </div>
+        </div>
     </div>
 
     <div class="form-group" data-active-container="general-message">

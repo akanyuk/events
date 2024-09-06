@@ -57,6 +57,14 @@ if (!$eventAlias || !$CEvents->loadByAlias($eventAlias)) {
     NFW::i()->display('main.tpl');
 }
 
+// Any `event` page can store votekey from request
+if (isset($_GET['key'])) {
+    $votekey = votekey::getVotekey($_GET['key'], $CEvents->record['id']);
+    if (!$votekey->error) {
+        NFW::i()->setCookie('votekey', $_GET['key']);
+    }
+}
+
 // Page with event, competition or work
 
 if (!$page = $CPages->loadPage('events')) {

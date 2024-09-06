@@ -140,9 +140,9 @@ $lang_main = array(
 
     'votekey-request note' => 'Votekey will be sent to given e-mail address. <br />E-mail address never be published by demoparty organizers.',
     'votekey-request email label' => 'E-mail address',
-    'votekey-request' => 'Request votekey',
-    'votekey-another' => 'Another votekey',
-    'votekey-request long' => 'Request votekey',
+    'votekey-request' => 'Request NEW votekey',
+    'change-votekey' => 'Change votekey',
+    'votekey-request long' => 'Votekey requesting',
     'votekey-request send' => 'Send request',
     'votekey-request wrong email' => 'Incorrect e-mail address',
     'votekey-request success note' => 'Votekey successfully generated and sent to given e-mail address.',
