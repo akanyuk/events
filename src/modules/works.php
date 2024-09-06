@@ -707,6 +707,16 @@ class works extends active_record {
             return false;
         }
 
+        $CCompetitions = new competitions($this->record['competition_id']);
+        if (!$CCompetitions->record['id']) {
+            $this->error($CCompetitions->last_msg);
+            return false;
+        }
+
+        if (!$this->load($_GET['record_id']) || !$this->loadEditorOptions($this->record['event_id'])) {
+            return false;
+        }
+
         // Fetch personal info
         if (!$result = NFW::i()->db->query_build(array('SELECT' => 'is_checked, is_marked, comment', 'FROM' => 'works_managers_notes', 'WHERE' => 'work_id=' . $this->record['id'] . ' AND user_id=' . NFW::i()->user['id']))) {
             return false;
@@ -727,6 +737,7 @@ class works extends active_record {
         }
 
         return $this->renderAction([
+            "CCompetitions" => $CCompetitions,
             "personalNote" => $personalNote,
             "linkTitles" => $linkTitles,
         ]);

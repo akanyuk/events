@@ -39,12 +39,10 @@ function display_work_media(array $work = array(), array $options = array()) {
 
     $lang_main = NFW::i()->getLang('main');
 
-    ob_start();
-    echo '<div class="label label-platform" title="' . $lang_main['works platform'] . '">' . htmlspecialchars($work['platform']) . '</div>';
+    $platform_format = '<div class="label label-platform" title="' . $lang_main['works platform'] . '">' . htmlspecialchars($work['platform']) . '</div>';
     if ($work['format']) {
-        echo '<div class="label label-format" title="' . $lang_main['works format'] . '">' . htmlspecialchars($work['format']) . '</div>';
+        $platform_format .= '<div class="label label-format" title="' . $lang_main['works format'] . '">' . htmlspecialchars($work['format']) . '</div>';
     }
-    $platform_format = ob_get_clean();
 
     ob_start();
 
@@ -118,6 +116,13 @@ function display_work_media(array $work = array(), array $options = array()) {
         }
     }
     echo '</div>'; # <div style="padding-top: 10px;">
+
+
+    if (in_array($work['event_id'], events::get_managed())) {
+        echo '<div style="padding-top: 15px;">';
+        echo '<a class="btn btn-default" href="'.NFW::i()->absolute_path.'/admin/works?action=update&record_id='.$work['id'].'"><i class="fas fa-edit"></i> Edit work profile</a>';
+        echo '</div>';
+    }
 
     if ($options['rel'] == 'voting') {
         echo '
