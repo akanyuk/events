@@ -169,8 +169,12 @@ h2.index-head {
     background-color: #31606e;
 }
 
-.label-place {
+.label-place, .label-vts {
     background-color: #212e72;
+}
+
+.label-vts {
+    font-size: 100%;
 }
 
 /* display works */

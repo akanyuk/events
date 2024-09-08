@@ -150,7 +150,11 @@ if ($workID) {
 
     if ($CCompetitions->record['release_status']['available'] && $CCompetitions->record['release_works']) {
         NFW::i()->registerFunction('display_work_media');
-        $page['content'] = display_work_media($CWorks->record, array('rel' => 'release', 'single' => true));
+        $page['content'] = display_work_media($CWorks->record, [
+            'rel' => 'release',
+            'single' => true,
+            'voting_system' => $CEvents->record['voting_system'],
+        ]);
     } elseif ($CCompetitions->record['voting_status']['available'] && $CCompetitions->record['voting_works']) {
         $page['content'] = $CCompetitions->renderAction(array(
             'event' => $CEvents->record,

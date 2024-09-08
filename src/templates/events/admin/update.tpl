@@ -4,9 +4,9 @@
  */
 
 // Custom rendering: votelist, results.txt, etc...
-$custom_render = isset($_REQUEST['force-render']) ? 'update.' . $_REQUEST['force-render'] : false;
-if ($custom_render && file_exists(SRC_ROOT . '/templates/events/admin/' . $custom_render . '.tpl')) {
-    NFW::i()->stop($Module->renderAction(array('request' => $_REQUEST), $custom_render));
+$customRender = isset($_REQUEST['force-render']) ? 'update.' . $_REQUEST['force-render'] : false;
+if ($customRender && file_exists(SRC_ROOT . '/templates/events/admin/' . $customRender . '.tpl')) {
+    NFW::i()->stop($Module->renderAction(array('request' => $_REQUEST), $customRender));
 }
 
 NFW::i()->assign('page_title', $Module->record['title'] . ' / edit');
@@ -46,7 +46,7 @@ $preview_form = $CMedia->openSession(array(
     'images_only' => true,
     'template' => '_admin_events_preview_form',
     'preview_default' => NFW::i()->assets('main/news-no-image.png'),
-    'preview' => $Module->record['preview'] ? $Module->record['preview'] : array('id' => false, 'url' => false),
+    'preview' => $Module->record['preview'] ?: array('id' => false, 'url' => false),
 ));
 
 $preview_large_form = $CMedia->openSession(array(
@@ -56,18 +56,18 @@ $preview_large_form = $CMedia->openSession(array(
     'images_only' => true,
     'template' => '_admin_events_preview_form',
     'preview_default' => NFW::i()->assets('main/news-no-image.png'),
-    'preview' => $Module->record['preview_large'] ? $Module->record['preview_large'] : array('id' => false, 'url' => false),
+    'preview' => $Module->record['preview_large'] ?: array('id' => false, 'url' => false),
 ));
 
 // Success dialog
 NFW::i()->registerFunction('ui_dialog');
-$succes_dialog = new ui_dialog();
-$succes_dialog->render();
+$successDialog = new ui_dialog();
+$successDialog->render();
 ?>
 <script type="text/javascript">
     $(document).ready(function () {
         // Main action
-        $('form[role="events-update"]').each(function () {
+        $('form[data-action="events-update"]').each(function () {
             $(this).activeForm({
                 action: '<?php echo $Module->formatURL('update') . '&record_id=' . $Module->record['id']?>',
                 success: function (response) {
@@ -81,11 +81,11 @@ $succes_dialog->render();
         // Visual edit
         $('textarea[name="content"]').CKEDIT({'media': 'events', 'media_owner': '<?php echo $Module->record['id']?>'});
 
-        // Voting settings
-        var sF = $('form[id="voting-settings-update"]');
+        // Voting variants
+        const sF = $('form[id="voting-settings-update"]');
         sF.activeForm({
             success: function (response) {
-                if (response.is_updated) {
+                if (response['is_updated']) {
                     $.jGrowl('Voting settings updated.');
                 }
             }
@@ -95,7 +95,7 @@ $succes_dialog->render();
         sF.find('div[id="values-area"]').sortable({items: 'div[id="record"]', axis: 'y', handle: '.icon'});
 
         $(document).off('click', '*[data-action="remove-values-record"]').on('click', '*[data-action="remove-values-record"]', function (event) {
-            if ($(this).closest('div[id="record"]').data('role') == 'update') {
+            if ($(this).closest('div[id="record"]').data('role') === 'update') {
                 if (!confirm('Remove value')) {
                     event.preventDefault();
                     return false;
@@ -106,23 +106,21 @@ $succes_dialog->render();
         });
 
         sF.find('button[id="add-values-record"]').click(function () {
-            var tpl = $('div[id="voting-settings-record-template"]').html();
+            const tpl = $('div[id="voting-settings-record-template"]').html();
             sF.find('div[id="values-area"]').append(tpl);
             return false;
         });
 
-
         // Votelist
-        $('a[role="toogle-votelist-col"]').attr('title', 'Toggle all').click(function () {
-            var tbody = $(this).closest('table').find('tbody');
-            var index = $(this).closest('th').index();
+        $('a[data-action="toggle-votelist-col"]').attr('title', 'Toggle all').click(function () {
+            const tbody = $(this).closest('table').find('tbody');
+            const index = $(this).closest('th').index();
 
             // Determine new state
-            var newState = false;
+            let newState = false;
             tbody.find('tr').each(function () {
                 if ($(this).find('td').eq(index).find('input[type="checkbox"]:not(:checked)').length) {
                     newState = true;
-                    return;
                 }
             });
 
@@ -135,54 +133,20 @@ $succes_dialog->render();
         });
 
 
-        // Make `results.txt`, works pack
-
-        $('[role="builders-toggle-competitions"]').attr('title', 'Toggle all').click(function () {
-            var oContainer = $(this).closest('#competitions-container');
-            var newState = oContainer.find('input[type="checkbox"]:not(:checked)').length ? true : false;
-
-            oContainer.find('input[type="checkbox"]').prop('checked', newState);
-            return false;
-
-        });
-
-        // Refresh result.txt
-        $('a[role="result.txt-layout"]').click(function () {
-            $('a[role="result.txt-layout"]').removeClass('active');
-            $(this).addClass('active');
-
-            var layout = $(this).text();
-
-            var platform = [];
-            $('input[role="result.txt-platform"]:checked').each(function () {
-                platform.push($(this).val());
-            });
-
-            $.post('<?php echo $Module->formatURL('update') . '&record_id=' . $Module->record['id'] . '&force-render=results.txt'?>', {
-                'layout': layout,
-                'platform': platform
-            }, function (response) {
-                $('textarea[name="results_txt"]').val(response);
-            });
-
-            return false;
-        });
-
         $('form[id="make"]').activeForm({
             success: function (response) {
-                $(document).trigger('show-<?php echo $succes_dialog->getID()?>', ['<a href="' + response.url + '">' + response.url + '</a>']);
+                $(document).trigger('show-<?php echo $successDialog->getID()?>', ['<a href="' + response.url + '">' + response.url + '</a>']);
             }
         });
     });
-
 </script>
 
 <style>
     FORM#make TEXTAREA {
         font-family: Consolas, Lucida Console, Courier New, monospace;
-        font-size: 10.5px;
+        font-size: 13px;
         color: #444;
-        height: 500px;
+        height: 450px;
     }
 </style>
 <div class="row">
@@ -212,7 +176,7 @@ $succes_dialog->render();
             <?php endif; ?>
 
             <div role="tabpanel" class="tab-pane in active" style="padding-top: 20px;" id="settings">
-                <form role="events-update">
+                <form data-action="events-update">
                     <?php echo active_field(array('name' => 'title', 'value' => $Module->record['title'], 'attributes' => $Module->attributes['title'], 'inputCols' => '8')) ?>
                     <?php echo active_field(array('name' => 'date_from', 'value' => $Module->record['date_from'], 'attributes' => $Module->attributes['date_from'], 'endDate' => -365)) ?>
                     <?php echo active_field(array('name' => 'date_to', 'value' => $Module->record['date_to'], 'attributes' => $Module->attributes['date_to'], 'endDate' => -365)) ?>
@@ -232,7 +196,7 @@ $succes_dialog->render();
             </div>
 
             <div role="tabpanel" class="tab-pane" style="padding-top: 10px;" id="description">
-                <form role="events-update">
+                <form data-action="events-update">
                     <textarea name="content"><?php echo htmlspecialchars($Module->record['content']) ?></textarea>
                 </form>
             </div>
@@ -258,6 +222,21 @@ $succes_dialog->render();
 
                 <form id="voting-settings-update">
                     <input type="hidden" name="update_record_options" value="1"/>
+
+                    <div class="input-group" style="margin: 0 15px;">
+                        <?php echo active_field([
+                            'name' => 'voting_system',
+                            'value' => $Module->record['voting_system'],
+                            'attributes' => $Module->attributes['voting_system'],
+                            'vertical' => true,
+                        ]) ?>
+                    </div>
+
+                    <h2>Voting variants</h2>
+
+                    <div class="alert alert-info">Do not specify options if you want to keep the default values (0-10)
+                    </div>
+
                     <div id="values-area" class="settings">
                         <?php foreach ($Module->record['options'] as $v) { ?>
                             <div id="record" class="record" data-role="update">
@@ -298,8 +277,8 @@ $succes_dialog->render();
                     <table class="table table-striped table-condensed">
                         <thead>
                         <tr>
-                            <th><a role="toogle-votelist-col" href="#">Include this competition</a></th>
-                            <th><a role="toogle-votelist-col" href="#">Display works</a></th>
+                            <th><a data-action="toggle-votelist-col" href="#">Include this competition</a></th>
+                            <th><a data-action="toggle-votelist-col" href="#">Display works</a></th>
                             <th>Empty rows</th>
                         </tr>
                         </thead>
@@ -316,9 +295,9 @@ $succes_dialog->render();
                                 </td>
                                 <td><input type="checkbox" checked="CHECKED" name="display_works[]"
                                            value="<?php echo $c['id'] ?>"/></td>
-                                <td><input class="form-control" style="width: 100px;"
-                                           name="emptyrows[<?php echo $c['id'] ?>]" value="0" type="text"
-                                           style="width: 15px;" maxlength="2"/></td>
+                                <td><input type="text" class="form-control" style="width: 100px;"
+                                           name="emptyrows[<?php echo $c['id'] ?>]" value="0"
+                                           maxlength="2"/></td>
                             </tr>
                         <?php } ?></tbody>
                     </table>
@@ -333,51 +312,29 @@ $succes_dialog->render();
 
             <div role="tabpanel" class="tab-pane" style="padding-top: 20px;" id="builders">
                 <form id="make">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <textarea class="form-control"
-                                      name="results_txt"><?php echo $Module->renderAction(array('request' => $_REQUEST), 'update.results.txt') ?></textarea>
-                        </div>
-                        <div class="col-md-4">
-                            <div id="competitions-container">
-                                <h3>Creating results.txt</h3>
-                                <label><a role="builders-toggle-competitions" href="#">Compos with platform displayed:</a>
-                                </label>
-                                <?php foreach ($competitions as $c) { ?>
-                                    <div class="checkbox">
-                                        <label>
-                                            <input role="result.txt-platform" type="checkbox"
-                                                   value="<?php echo $c['id'] ?>"/>
-                                            <?php echo htmlspecialchars($c['title']) ?>
-                                        </label>
-                                    </div>
-                                <?php } ?>
-                            </div>
+                    <fieldset>
+                        <legend>Generating results.txt</legend>
 
-                            <br/>
-                            <label>Refresh with layout: </label>
-                            <a role="result.txt-layout" href="#" class="btn btn-default btn-sm active">nyuk</a>
-                            <a role="result.txt-layout" href="#" class="btn btn-default btn-sm">diver</a>
+                        <textarea class="form-control"
+                                  name="results_txt"><?php echo $Module->renderAction(array('request' => $_REQUEST), 'update.results.txt') ?></textarea>
 
-                            <hr/>
-
-                            <div data-active-container="results_filename">
-                                <div class="input-group">
+                        <br/>
+                        <div data-active-container="results_filename">
+                            <div class="input-group">
                                     <span class="input-group-addon"
                                           id="sizing-addon1">files/<?php echo $Module->record['alias'] ?>/</span>
 
-                                    <input type="text" class="form-control" name="results_filename" value="results.txt"
-                                           maxlength="64" placeholder="results.txt">
-                                    <span class="input-group-btn">
+                                <input type="text" class="form-control" name="results_filename" value="results.txt"
+                                       maxlength="64" placeholder="results.txt">
+                                <span class="input-group-btn">
 			        							<button name="save_results_txt" value="1" type="submit"
                                                         class="btn btn-primary" title="Save results file"><span
                                                             class="fa fa-save"></span></button>
 											</span>
-                                </div>
-                                <span class="help-block"></span>
                             </div>
+                            <span class="help-block"></span>
                         </div>
-                    </div>
+                    </fieldset>
                 </form>
             </div>
 

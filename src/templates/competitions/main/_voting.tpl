@@ -173,7 +173,12 @@ NFW::i()->registerFunction('active_field');
     $curPos = 1;
     foreach ($works as $work) {
         $work['position'] = $curPos++;
-        echo display_work_media($work, array('rel' => 'voting', 'single' => count($works) == 1, 'vote_options' => $votingOptions)) . '<hr />';
+        echo display_work_media($work, [
+                'rel' => 'voting',
+                'single' => count($works) == 1,
+                'vote_options' => $votingOptions,
+                'voting_system' => $event['voting_system'],
+            ]) . '<hr />';
     }
 
     echo '<br />';

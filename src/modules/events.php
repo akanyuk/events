@@ -27,6 +27,11 @@ class events extends active_record {
         'date_from' => array('desc' => 'Date from', 'type' => 'date', 'required' => true),
         'date_to' => array('desc' => 'Date to', 'type' => 'date', 'is_end' => true, 'required' => true),
         'hide_works_count' => array('desc' => 'Hide works count', 'type' => 'bool'),
+        'voting_system' => ['type' => 'select', 'desc' => 'Voting system', 'options' => [
+            ['id' => 'avg', 'desc' => 'Average'],
+            ['id' => 'iqm', 'desc' => 'IQM'],
+            ['id' => 'sum', 'desc' => 'Sum'],
+        ]],
     );
 
     protected array $service_attributes = array(
@@ -94,7 +99,7 @@ class events extends active_record {
             $record['status_label'] = '<span class="label label-danger">NOW!</span>';
             $record['status_type'] = 'current';
         } else {
-            $record['status_label'] = $record['status_type'] = '';
+            $record['status_label'] = '';
             $record['status_type'] = '';
         }
 
@@ -120,7 +125,7 @@ class events extends active_record {
     }
 
     protected function save($attributes = array()) {
-        $is_update = $this->record['id'] ? false : true;
+        $is_update = !$this->record['id'];
 
         $result = parent::save($attributes);
         if ($is_update || $result) {
@@ -372,9 +377,11 @@ class events extends active_record {
         // Format `options`
         if (isset($_POST['update_record_options']) && $_POST['update_record_options']) {
             $values = array();
-            foreach ($this->options_attributes as $varname => $a) {
-                foreach ($_POST['options'][$varname] as $index => $cur_val) {
-                    $values[$index][$varname] = $this->formatAttribute($cur_val, $a);
+            if (isset($_POST['options'])) {
+                foreach ($this->options_attributes as $varname => $a) {
+                    foreach ($_POST['options'][$varname] as $index => $cur_val) {
+                        $values[$index][$varname] = $this->formatAttribute($cur_val, $a);
+                    }
                 }
             }
             $this->record['options'] = NFW::i()->serializeArray($values);
