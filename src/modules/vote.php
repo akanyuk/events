@@ -84,8 +84,6 @@ class vote extends active_record {
                 $works[$cid]['works'][$key]['iqm_vote'] = calculateIQM($allVotes[$work['id']]);
             }
 
-            ChromePhp::log($calcBy);
-
             switch ($calcBy) {
                 case "iqm":
                     usort($works[$cid]['works'], 'calcByIQM');
@@ -542,27 +540,27 @@ class vote extends active_record {
             return false;
         }
 
-        $calcBy = $_GET['calc_by'] ?? false;
+        $this->error_report_type = 'plain';
 
         if (isset($_GET['part']) && $_GET['part'] == 'save-results') {
-            $this->error_report_type = 'plain';
-
-            foreach ($this->getResults($CEvents->record['id'], $calcBy) as $r) foreach ($r['works'] as $w) {
-                $query = array(
-                    'UPDATE' => 'works',
-                    'SET' => '`total_scores`=' . $w['total_scores'] . ', `num_votes`=' . $w['num_votes'] . ', `average_vote`=' . $w['average_vote'] . ', `iqm_vote`=' . $w['iqm_vote'] . ', `place`=' . $w['place'],
-                    'WHERE' => '`id`=' . $w['id']
-                );
-                if (!NFW::i()->db->query_build($query)) {
-                    $this->error('Unable to update work votes', __FILE__, __LINE__, NFW::i()->db->error());
-                    return false;
+            $calcBy = $CEvents->record['voting_system'];
+            foreach ($this->getResults($CEvents->record['id'], $calcBy) as $r) {
+                foreach ($r['works'] as $w) {
+                    $query = array(
+                        'UPDATE' => 'works',
+                        'SET' => '`total_scores`=' . $w['total_scores'] . ', `num_votes`=' . $w['num_votes'] . ', `average_vote`=' . $w['average_vote'] . ', `iqm_vote`=' . $w['iqm_vote'] . ', `place`=' . $w['place'],
+                        'WHERE' => '`id`=' . $w['id']
+                    );
+                    if (!NFW::i()->db->query_build($query)) {
+                        $this->error('Unable to update work votes', __FILE__, __LINE__, NFW::i()->db->error());
+                        return false;
+                    }
                 }
             }
 
-            NFW::i()->stop('Success');
+            NFW::i()->stop('Results saved with "'.$calcBy.'" calculation');
         } elseif (isset($_GET['part']) && $_GET['part'] == 'list') {
-            $this->error_report_type = 'plain';
-
+            $calcBy = $_GET['calc_by'] ?? false;
             NFW::i()->stop($this->renderAction(array(
                 'records' => $this->getResults($CEvents->record['id'], $calcBy),
                 'calcBy' => $this->getResults($CEvents->record['id'], $calcBy),

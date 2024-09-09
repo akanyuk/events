@@ -14,11 +14,11 @@
         }).trigger('change');
 
         $('button[id="save-results"]').click(function () {
-            if (!confirm('Save current results permanent to works profiles (for publishing)?')) {
+            if (!confirm('Save results with "<?php echo $event['voting_system']?>" calculation permanently to works profiles (for publishing)?')) {
                 return false;
             }
 
-            $.get('<?php echo $Module->formatURL('results') . '&event_id=' . $event['id']?>&part=save-results&calc_by=' + calcBy.val(), function (response) {
+            $.get('<?php echo $Module->formatURL('results') . '&event_id=' . $event['id']?>&part=save-results', function (response) {
                 $.jGrowl(response);
             });
         });
@@ -36,19 +36,31 @@
     }
 </style>
 <div class="row">
-    <div class="col-md-6 col-lg-4">
+    <div class="col-sm-9 col-md-8 col-lg-5">
         <div class="input-group">
             <select id="results-calc-by" class="form-control">
-                <option value="avg">Calc by Avg</option>
-                <option value="iqm">Calc by IQM</option>
-                <option value="pts">Calc by Sum</option>
+                <option <?php echo $event['voting_system'] == "avg" ? 'selected="selected"' : '' ?> value="avg">Preview
+                    with Avg
+                </option>
+                <option <?php echo $event['voting_system'] == "iqm" ? 'selected="selected"' : '' ?> value="iqm">Preview
+                    with IQM
+                </option>
+                <option <?php echo $event['voting_system'] == "pts" ? 'selected="selected"' : '' ?> value="pts">Preview
+                    with Sum
+                </option>
             </select>
 
             <div class="input-group-btn">
-                <button id="save-results" class="btn btn-warning" title="Publish results permanently">Save results
+                <button id="save-results" title="Publish results permanently"
+                        class="btn btn-warning">Save results by <strong><?php echo $event['voting_system'] ?></strong>
                 </button>
             </div>
         </div>
+    </div>
+    <div class="hidden-xs col-sm-3 col-md-4 col-lg-7">
+        <a class="btn btn-link"
+           href="<?php echo NFW::i()->absolute_path . '/admin/events?action=update&record_id=' . $event['id'] ?>">Change
+            voting system</a>
     </div>
 </div>
 
