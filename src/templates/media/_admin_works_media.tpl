@@ -256,7 +256,7 @@ echo '<style>' . $css . '</style>';
     </div>
 
     <div class="row">
-        <div class="col-md-6">
+        <div class="hidden-xs col-md-6">
             <div id="dropzone" class="well dropzone"><?php echo $lang_media['Messages']['Dropzone'] ?></div>
         </div>
         <div class="col-md-4">

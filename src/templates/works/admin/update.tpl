@@ -227,8 +227,8 @@ if ($Module->record['edited']) {
         <form id="works-update-links"
               action="<?php echo $Module->formatURL('update_links') . '&record_id=' . $Module->record['id'] ?>">
             <fieldset>
-                <legend>Links</legend>
-                <div style="float: right; text-align: right; position: relative; top: -50px;">
+                <div style="display: flex; justify-content: space-between;">
+                    <legend>Links</legend>
                     <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseLinksHelp"
                             aria-expanded="false" aria-controls="collapseExample"><span
                                 class="fa fa-question-circle"></span>
@@ -277,15 +277,11 @@ if ($Module->record['edited']) {
                     <?php } ?>
                 </div>
 
-                <div class="form-group">
-                    <div class="col-md-12">
-                        <div class="pull-right">
-                            <button id="add-link" class="btn btn-default"><span class="fa fa-plus"></span>
-                            </button>
-                        </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <div>
                         <button id="save-links" type="submit" class="btn btn-primary">Save links</button>
-                        <div class="clear-fix"></div>
                     </div>
+                    <button id="add-link" class="btn btn-default"><span class="fa fa-plus"></span></button>
                 </div>
             </fieldset>
         </form>
