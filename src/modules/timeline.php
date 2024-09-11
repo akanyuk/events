@@ -106,6 +106,7 @@ class timeline extends active_record {
 
         foreach ($_POST['title'] as $key => $title) {
             $values = [
+                $key,
                 $CEvents->record['id'],
                 intval($_POST['competition_id'][$key]),
                 strtotime($_POST['begin'][$key]),
@@ -119,7 +120,7 @@ class timeline extends active_record {
                 '\'' . NFW::i()->db->escape($_POST['end_source'][$key]) . '\'',
             ];
             $query = array(
-                'INSERT' => '`event_id`, `competition_id`, `begin`, `end`, `is_public`, `title`, `description`, `type`, `place`, `begin_source`, `end_source`',
+                'INSERT' => '`position`, `event_id`, `competition_id`, `begin`, `end`, `is_public`, `title`, `description`, `type`, `place`, `begin_source`, `end_source`',
                 'INTO' => $this->db_table,
                 'VALUES' => implode(', ', $values),
             );
@@ -174,5 +175,9 @@ function formatTimelineRecord($item): array {
 }
 
 function sortTimeline($a, $b): int {
-    return $a['begin'] > $b['begin'] ? 1 : -1;
+    if ($a['begin'] != $b['begin']) {
+        return $a['begin'] > $b['begin'] ? 1 : -1;
+    }
+
+    return $a['position'] > $b['position'] ? 1 : -1;
 }

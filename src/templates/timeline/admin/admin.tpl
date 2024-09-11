@@ -9,6 +9,7 @@
 NFW::i()->registerResource('jquery.activeForm');
 NFW::i()->registerResource('jquery.maskedinput');
 NFW::i()->registerResource('jquery.jgrowl');
+NFW::i()->registerResource('jquery.ui.interactions');
 
 NFW::i()->assign('page_title', $event['title'] . ' / timeline');
 NFW::i()->assign('no_admin_sidebar', true);
@@ -121,8 +122,12 @@ ob_start(); ?>
             $(this).closest('div[id="record"]').remove();
         });
 
+        // Data
+
+        $('div[id="values-area"]').sortable({items: 'div[id="record"]', axis: 'y'});
+
         f.find('[id="add-values-record"]').click(function () {
-            f.addValue('<?php echo $now?>', '<?php echo $now?>', 0, 0, '', '', '', '', '');
+            f.addValue('<?php echo $now?>', '<?php echo $now?>', 0, 1, '', '', '', '', '');
             return false;
         });
 
@@ -236,7 +241,7 @@ ob_start(); ?>
 
     /* Date */
     .settings .cell:nth-child(1), .settings .cell:nth-child(3) {
-        max-width: 80px;
+        max-width: 100px;
     }
 
     /* Date source */
@@ -291,8 +296,8 @@ ob_start(); ?>
     <div class="cell"><input name="place[]" value="%place%" class="form-control"/></div>
     <div class="cell">
         <label>
-            <input name="is_public[]" type="hidden" value="1"/>
-            <input data-role="is_public" checked="checked" type="checkbox"/>
+            <input name="is_public[]" type="hidden"/>
+            <input data-role="is_public" type="checkbox"/>
         </label>
     </div>
     <div class="cell">
