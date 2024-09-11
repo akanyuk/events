@@ -23,6 +23,8 @@ ob_start();
 <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseHelp"
         aria-expanded="false" aria-controls="collapseExample"><span class="fa fa-question-circle"></span>
 </button>
+<button type="button" class="btn btn-link" data-action="settings-popover"><span class="fa fa-cog"></span>
+</button>
 <?php
 NFW::i()->breadcrumb_status = ob_get_clean();
 
@@ -30,13 +32,77 @@ $now = date("Y-m-d 00:00", $event['date_from']);
 
 // linter related
 ob_start(); ?>
-<script type="text/javascript">
-    $.jGrowl = function (timelineSaved) {
-    };
-</script><?php ob_end_clean();
+<script type="text/javascript">$.jGrowl = function (timelineSaved) {
+    };</script><?php ob_end_clean();
 ?>
 <script type="text/javascript">
+    function updateColumnsVisibility(columns) {
+        $('div[id="values-area"] .header div').each(function (i, obj) {
+            const title = $(obj).text();
+            if (columns[title]) {
+                $(obj).show();
+
+                $('div[id="values-area"]').find('div[id="record"]').each(function () {
+                    $(this).find('.cell:nth-child(' + i + ')').show();
+                });
+            } else {
+                $(obj).hide();
+
+                $('div[id="values-area"]').find('div[id="record"]').each(function () {
+                    $(this).find('.cell:nth-child(' + i + ')').hide();
+                });
+            }
+        });
+    }
+
     $(document).ready(function () {
+        // Setup columns
+
+        // Load state
+        let columns = {};
+
+        // Initial values
+        $('div[id="values-area"] .header div').each(function (i, obj) {
+            const title = $(obj).text();
+            columns[title] = true;
+        })
+
+        let result;
+        try {
+            result = JSON.parse(localStorage.getItem('timelineColumns'));
+            if (result) {
+                columns = result;
+            }
+        } catch (err) {
+            console.log(err)
+        }
+
+        $('[data-action="settings-popover"]').popover({
+            'placement': 'left',
+            'html': true,
+            'title': 'Settings',
+            'content': function () {
+                let result = "";
+                $('div[id="values-area"] .header div').each(function (i, obj) {
+                    const title = $(obj).text();
+
+                    let checked = '';
+                    if (columns[title]) {
+                        checked = 'checked="checked"';
+                    }
+                    result += '<div class="checkbox"><label><input ' + checked + ' data-action="toggle-column" type="checkbox" />' + $(obj).text() + '</label></div>';
+                });
+
+                return result;
+            }
+        })
+
+        $(document).on('change', '[data-action="toggle-column"]', function () {
+            columns[$(this).parent().text()] = this.checked;
+            updateColumnsVisibility(columns);
+            localStorage.setItem('timelineColumns', JSON.stringify(columns));
+        });
+
         const f = $('form[id="timeline"]');
         f.activeForm({
             'action': '<?php echo $Module->formatURL('update') . '&event_id=' . $event['id'] ?>',
@@ -77,7 +143,7 @@ ob_start(); ?>
 
             record.find('input[data-role="is_public"]').click(function () {
                 if (this.checked) {
-                    record.find('input[name="is_public[]"]').val(1);
+                    record.find('input[name="is_public[]"]').val("1");
                 } else {
                     record.find('input[name="is_public[]"]').val("");
                 }
@@ -155,6 +221,8 @@ ob_start(); ?>
         ' . json_encode($r['begin_source']) . ', 
         ' . json_encode($r['end_source']) . '
         );' . "\n"; ?>
+
+        updateColumnsVisibility(columns);
     });
 </script>
 <style>
@@ -198,8 +266,8 @@ ob_start(); ?>
     <div class="cell"><input name="type[]" value="%type%" class="form-control"/></div>
     <div class="cell">
         <label>
-            <input name="is_public[]" type="hidden"/>
-            <input data-role="is_public" type="checkbox"/>
+            <input name="is_public[]" type="hidden" value="1"/>
+            <input data-role="is_public" checked="checked" type="checkbox"/>
         </label>
     </div>
     <div class="cell">
@@ -218,7 +286,7 @@ ob_start(); ?>
         <p>If there is a link to the competition and the "Title" field is not filled in, then the name of the
             competition will be used as the title.</p>
 
-        <p>You can preview JSON response <a href="/api/v2/timeline?event=<?php echo $event['alias']?>">here</a>.</p>
+        <p>You can preview JSON response <a href="/api/v2/timeline?event=<?php echo $event['alias'] ?>">here</a>.</p>
     </div>
 </div>
 
