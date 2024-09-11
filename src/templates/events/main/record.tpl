@@ -66,6 +66,10 @@ if (stristr($content, '%COMPETITIONS-LIST-SHORT%')) {
     $content = str_replace('%COMPETITIONS-LIST-SHORT%', competitionsListShort($competitionsGroups, $competitions), $content);
 }
 
+if (stristr($content, '%TIMETABLE%')) {
+    $content = str_replace('%TIMETABLE%', timetable($event['id']), $content);
+}
+
 if (stristr($content, '%COMPETITIONS-LIST%')) {
     $content = str_replace('%COMPETITIONS-LIST%', competitionsList($competitionsGroups, $competitions), $content);
     echo $content;
@@ -139,20 +143,21 @@ function competitionsList($competitionsGroups, $competitions): string {
     ob_start();
     if (empty($competitionsGroups)) {
         foreach ($competitions as $compo) {
-            echo competitionsListCompo($compo);
+            echo _compo($compo);
         }
         return '<div class="event-competitions">' . ob_get_clean() . '</div>';
     }
 
     foreach ($competitionsGroups as $group) {
-?>
-        <div id="<?php echo str_replace(" ", "_", htmlspecialchars($group['title'])) ?>" style="position: relative; top: -60px;"></div>
+        ?>
+        <div id="<?php echo str_replace(" ", "_", htmlspecialchars($group['title'])) ?>"
+             style="position: relative; top: -60px;"></div>
         <h2><?php echo htmlspecialchars($group['title']) ?></h2>
         <?php echo $group['announcement'] ?>
-<?php
+        <?php
         foreach ($competitions as $compo) {
             if ($compo['competitions_groups_id'] == $group['id']) {
-                echo competitionsListCompo($compo);
+                echo _compo($compo);
             }
         }
     }
@@ -160,14 +165,14 @@ function competitionsList($competitionsGroups, $competitions): string {
     // Without group
     foreach ($competitions as $compo) {
         if ($compo['competitions_groups_id'] == 0) {
-            echo competitionsListCompo($compo);
+            echo _compo($compo);
         }
     }
 
-    return '<div class="event-competitions">'.ob_get_clean().'</div>';
+    return '<div class="event-competitions">' . ob_get_clean() . '</div>';
 }
 
-function competitionsListCompo($compo) {
+function _compo($compo) {
     $langMain = NFW::i()->getLang('main');
 
     ob_start();
@@ -221,4 +226,79 @@ function competitionsListCompo($compo) {
     <div style="font-size: 200%;"><a href="#top"><span class="fa fa-caret-up"></span></a></div>
     <?php
     return ob_get_clean();
+}
+
+function timetable(int $eventID) {
+    ob_start();
+    ?>
+    <table class="table table-condensed table-timetable">
+        <tbody>
+        <?php
+        foreach (_timetableRows($eventID) as $r) {
+            if (isset($r['date'])) {
+                echo '<tr><td colspan="3"><h3>' . $r['date'] . '</h3></td></tr>';
+                continue;
+            }
+            ?>
+            <tr class="<?php echo $r['type'] ?>">
+                <?php echo $r['time'] ? '<td class="td-dt" rowspan="'.$r['rowspan'].'">' . $r['time'] . '</td>' : ''?>
+                <td class="td-place"><span
+                            class="label label-<?php echo $r['place'] ?>"><?php echo $r['place'] ?></span></td>
+                <td><?php echo $r['description'] ?></td>
+            </tr>
+            <?
+        }
+        ?>
+        </tbody>
+    </table>
+    <?php
+    return ob_get_clean();
+}
+
+function _timetableRows(int $eventID): array {
+    $CTimeline = new timeline();
+
+    $result = [];
+    $curDate = '';
+    foreach ($CTimeline->getRecords($eventID) as $record) {
+        if (!$record['is_public']) {
+            continue;
+        }
+
+        $d = date('d.m.Y', $record['begin']);
+        if ($curDate != $d) {
+            $result[] = [
+                'date' => $d,
+            ];
+            $curDate = $d;
+        }
+
+        $result[] = [
+            'time' => date('H:i', $record['begin']),
+            'type' => $record['type'],
+            'place' => $record['place'],
+            'description' => $record['description'],
+            'rowspan' => 1,
+        ];
+    }
+
+    $prevT = "-";
+    $rowspanKey = 0;
+    foreach ($result as $k => $r) {
+        if (!isset($r['time'])) {
+            continue;
+        }
+
+        $curT = $r['time'];
+        if ($r['time'] == $prevT) {
+            $result[$k]['time'] = '';
+            $result[$rowspanKey]['rowspan']++;
+        } else {
+            $rowspanKey = $k;
+        }
+
+        $prevT = $curT;
+    }
+
+    return $result;
 }

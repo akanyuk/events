@@ -206,7 +206,7 @@ function setBreadcrumbDesc($event, $competition, $by) {
 
     switch ($by) {
         case 'event':
-            NFW::i()->breadcrumb_status = $event['status_label'] . '&nbsp;&nbsp;&nbsp;<span class="text-muted">' . $event['dates_desc'] . '</span>';
+            NFW::i()->breadcrumb_status = $event['status_label'] . '<span class="text-muted">' . $event['dates_desc'] . '</span>';
             break;
         case 'competition':
             if ($competition['voting_status']['available'] && $competition['voting_works']) {

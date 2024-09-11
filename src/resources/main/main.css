@@ -46,6 +46,41 @@ html[lang="ru"] .hidden-lang-ru {
     color: #fff;
 }
 
+
+.dm-nav .lang-change {
+    color: #fff;
+    font-size: 80%;
+    font-weight: bold;
+    float: right;
+    padding-top: 12px;
+    padding-right: 20px;
+}
+
+.dm-nav .lang-change a {
+    color: #fff;
+    font-weight: normal;
+}
+
+.dm-nav .lang-change a:hover {
+    color: #FFFBD7;
+}
+
+.mobile-login-form {
+    margin-top: 10px;
+}
+
+.mobile-login-form .help-block {
+    color: #a00;
+}
+
+.mobile-login-form A {
+    color: #fff;
+}
+
+.mobile-login-form A:hover {
+    color: #FFFBD7;
+}
+
 #page-content {
     padding-top: 60px;
     padding-bottom: 1em;
@@ -345,57 +380,12 @@ audio {
     }
 }
 
-.dm-nav .lang-change {
-    color: #fff;
-    font-size: 80%;
-    font-weight: bold;
-    float: right;
-    padding-top: 12px;
-    padding-right: 20px;
-}
-
-.dm-nav .lang-change a {
-    color: #fff;
-    font-weight: normal;
-}
-
-.dm-nav .lang-change a:hover {
-    color: #FFFBD7;
-}
-
-.mobile-login-form {
-    margin-top: 10px;
-}
-
-.mobile-login-form .help-block {
-    color: #a00;
-}
-
-.mobile-login-form A {
-    color: #fff;
-}
-
-.mobile-login-form A:hover {
-    color: #FFFBD7;
-}
-
-/* List of competitions on event page */
-
-.event-competitions .panel-primary {
-    border-color: #ccc;
-}
-
-.event-competitions .panel {
-    background-color: #f5f5f5;
-}
-
-.event-competitions .panel-body {
-    padding: 10px 15px;
-}
+/* event page */
 
 .competitions-list-short .item {
     display: flex;
     justify-content: space-between;
+    padding: 0.3rem 1rem;
     margin-bottom: 0.2em;
 }
 
@@ -417,3 +407,27 @@ audio {
     padding-right: 20px;
 }
 
+.competitions-list-short .item:nth-child(odd) {
+    background-color: #f8f8f8;
+}
+
+.competitions-list-short .item:hover {
+    background-color: #eee;
+}
+
+/* Timetable */
+.table-timetable .td-dt {
+    vertical-align: middle;
+    font-weight: bold;
+    text-align: right;
+    font-size: 120%;
+}
+
+.table-timetable .td-place {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.table-timetable .td-place SPAN {
+    display: block;
+}
