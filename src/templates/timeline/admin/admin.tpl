@@ -43,13 +43,13 @@ ob_start(); ?>
                 $(obj).show();
 
                 $('div[id="values-area"]').find('div[id="record"]').each(function () {
-                    $(this).find('.cell:nth-child(' + i + ')').show();
+                    $(this).find('.cell:nth-child(' + (i + 1) + ')').show();
                 });
             } else {
                 $(obj).hide();
 
                 $('div[id="values-area"]').find('div[id="record"]').each(function () {
-                    $(this).find('.cell:nth-child(' + i + ')').hide();
+                    $(this).find('.cell:nth-child(' + (i + 1) + ')').hide();
                 });
             }
         });
@@ -126,14 +126,15 @@ ob_start(); ?>
             return false;
         });
 
-        f.addValue = function (begin, end, competitionID, isPublic, title, description, type, beginSource, endSource) {
+        f.addValue = function (begin, end, competitionID, isPublic, title, description, type, place, beginSource, endSource) {
             const record = $('<div id="record" class="record">');
             record.append($('div[id="timeline-record-template"]').html()
                 .replace(/%begin%/g, begin)
                 .replace(/%end%/g, end)
                 .replace(/%title%/g, title.replace(/"/g, '&quot;'))
                 .replace(/%description%/g, description)
-                .replace(/%type%/g, type))
+                .replace(/%type%/g, type)
+                .replace(/%place%/g, place))
             if (isPublic) {
                 record.find('input[data-role="is_public"]').attr('checked', 'checked');
                 record.find('input[name="is_public[]"]').val(1);
@@ -208,6 +209,8 @@ ob_start(); ?>
 
             // Set initial state
             compoObj.trigger("change");
+
+            updateColumnsVisibility(columns);
         }
 
         <?php foreach ($records as $r) echo "\t\t" . 'f.addValue(
@@ -218,6 +221,7 @@ ob_start(); ?>
         ' . json_encode($r['title']) . ', 
         ' . json_encode($r['description']) . ',
         ' . json_encode($r['type']) . ', 
+        ' . json_encode($r['place']) . ',
         ' . json_encode($r['begin_source']) . ', 
         ' . json_encode($r['end_source']) . '
         );' . "\n"; ?>
@@ -228,6 +232,26 @@ ob_start(); ?>
 <style>
     .settings {
         width: 100%;
+    }
+
+    /* Date */
+    .settings .cell:nth-child(1), .settings .cell:nth-child(3) {
+        max-width: 80px;
+    }
+
+    /* Date source */
+    .settings .cell:nth-child(2), .settings .cell:nth-child(4) {
+        max-width: 100px;
+    }
+
+    /* Competition */
+    .settings .cell:nth-child(5) {
+        max-width: 100px;
+    }
+
+    /* Type, place */
+    .settings .cell:nth-child(8), .settings .cell:nth-child(9) {
+        max-width: 80px;
     }
 </style>
 <div id="timeline-record-template" style="display: none;">
@@ -264,6 +288,7 @@ ob_start(); ?>
                              title="Using competition title if blank" class="form-control"/></div>
     <div class="cell"><textarea name="description[]" class="form-control">%description%</textarea></div>
     <div class="cell"><input name="type[]" value="%type%" class="form-control"/></div>
+    <div class="cell"><input name="place[]" value="%place%" class="form-control"/></div>
     <div class="cell">
         <label>
             <input name="is_public[]" type="hidden" value="1"/>
@@ -301,6 +326,7 @@ ob_start(); ?>
             <div class="cell">Title</div>
             <div class="cell">Description</div>
             <div class="cell">Type</div>
+            <div class="cell">Place</div>
             <div class="cell">Public</div>
         </div>
     </div>
