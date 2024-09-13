@@ -26,7 +26,6 @@ $lang_main = array(
     'cabinet prods' => 'My Prods',
     'cabinet profile' => 'Profile',
     'cabinet add work' => 'Upload prod',
-    'cabinet add work at' => 'Upload prod at',
     'cabinet add choose event' => 'Choose event',
     'cabinet add choose event desc' => 'Choose event for prod uploading',
 
@@ -152,10 +151,10 @@ $lang_main = array(
 
     '53c reception form' => 'Prod submission begins at',
 
-    // upload link
+    // `/upload/%alias%` link
     'upload info' => 'To upload the prod, you need to log in or <a href="/users?action=register">register</a>.',
 
-    // /upload link
+    // Live voting related
     'live voting info' => 'To use live voting, you need to log in or <a href="/users?action=register">register</a>.',
 
 );

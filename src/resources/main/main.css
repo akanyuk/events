@@ -382,6 +382,46 @@ audio {
 
 /* event page */
 
+.btn-upload, .btn-live-voting {
+    color: #fff;
+    background-color: #4a9b4a;
+    border-color: #4a9b4a;
+}
+
+.btn-upload:focus,
+.btn-live-voting:focus {
+    color: #fff !important;
+    background-color: #346f34;
+    border-color: #346f34;
+}
+
+.btn-upload:hover,
+.btn-live-voting:hover {
+    color: #fff !important;
+    background-color: #346f34;
+    border-color: #346f34;
+}
+
+.btn-upload:active,
+.btn-live-voting:active {
+    color: #fff !important;
+    background-color: #346f34;
+    border-color: #346f34;
+}
+
+@media (max-width: 768px) {
+    .btn-full-xs, .btn-upload, .btn-live-voting {
+        display: block;
+        width: 100%;
+        margin-bottom: 5px !important;
+    }
+}
+
+.competitions-list-short {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
 .competitions-list-short .item {
     display: flex;
     justify-content: space-between;
@@ -416,6 +456,15 @@ audio {
 }
 
 /* Timetable */
+
+.table-timetable > tbody > tr > td {
+    padding: 5px;
+}
+
+.table-timetable > tbody > tr:first-child > td{
+    border-top: none;
+}
+
 .table-timetable .td-dt {
     vertical-align: middle;
     font-weight: bold;

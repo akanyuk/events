@@ -8,7 +8,17 @@
 
 // Preparing competitions
 $langMain = NFW::i()->getLang('main');
+$isReceptionCan = false;
+$isVotingCan = false;
 foreach ($competitions as $key => $c) {
+    if ($c['reception_status']['future'] || $c['reception_status']['now']) {
+        $isReceptionCan = true;
+    }
+
+    if ($c['voting_status']['future'] || $c['voting_status']['now']) {
+        $isVotingCan = true;
+    }
+
     if ($c['release_status']['available'] && $c['release_works']) {
         $competitions[$key]['is_link'] = true;
         $counter = $c['release_works'];
@@ -79,21 +89,50 @@ if ($event['alias_group'] != "") {
     <hr style="margin: 10px 0;"/>
 <?php endif;
 
-if (stristr($content, '%COMPETITIONS-LIST-SHORT%')) {
-    $content = str_replace('%COMPETITIONS-LIST-SHORT%', competitionsListShort($competitionsGroups, $competitions), $content);
+$uploadButton = '';
+if ($isReceptionCan) {
+    if (stristr($content, '%UPLOAD-BUTTON%')) {
+        $content = str_replace('%UPLOAD-BUTTON%', '<a href="' . NFW::i()->absolute_path . '/upload/' . $event['alias'] . '" class="btn btn-upload">' . $langMain['cabinet add work'] . '</a>', $content);
+    } else {
+        $uploadButton = '<a href="' . NFW::i()->absolute_path . '/upload/' . $event['alias'] . '" class="btn btn-upload">' . $langMain['cabinet add work'] . '</a>';
+    }
+} else {
+    $content = str_replace('%UPLOAD-BUTTON%', '', $content);
+}
+
+$liveVotingButton = '';
+if ($isVotingCan) {
+    if (stristr($content, '%LIVE-VOTING-BUTTON%')) {
+        $content = str_replace('%LIVE-VOTING-BUTTON%', '<a href="' . NFW::i()->absolute_path . '/live_voting/' . $event['alias'] . '" class="btn btn-live-voting">Live voting</a>', $content);
+    } else {
+        $liveVotingButton = '<a href="' . NFW::i()->absolute_path . '/live_voting/' . $event['alias'] . '" class="btn btn-live-voting">Live voting</a>';
+    }
+} else {
+    $content = str_replace('%LIVE-VOTING-BUTTON%', '', $content);
 }
 
 if (stristr($content, '%TIMETABLE%')) {
     $content = str_replace('%TIMETABLE%', timetable($event['id']), $content);
+    $timetable = '';
+} else {
+    $timetable = timetable($event['id']);
+}
+
+if (stristr($content, '%COMPETITIONS-LIST-SHORT%')) {
+    $content = str_replace('%COMPETITIONS-LIST-SHORT%', competitionsListShort($competitionsGroups, $competitions), $content);
+    $competitionsListShort = '';
+} else {
+    $competitionsListShort = competitionsListShort($competitionsGroups, $competitions);
 }
 
 if (stristr($content, '%COMPETITIONS-LIST%')) {
     $content = str_replace('%COMPETITIONS-LIST%', competitionsList($competitionsGroups, $competitions), $content);
-    echo $content;
+    $competitionsList = '';
 } else {
-    echo $content . competitionsList($competitionsGroups, $competitions);
+    $competitionsList = competitionsList($competitionsGroups, $competitions);
 }
 
+echo $content . ' ' . $uploadButton . ' ' . $liveVotingButton . ' ' . $timetable . ' ' . $competitionsListShort . ' ' . $competitionsList;
 
 function competitionsListShort($competitionsGroups, $competitions): string {
     ob_start();
@@ -246,12 +285,17 @@ function _compo($compo) {
 }
 
 function timetable(int $eventID) {
+    $rows = _timetableRows($eventID);
+    if (empty($rows)) {
+        return "";
+    }
+
     ob_start();
     ?>
     <table class="table table-condensed table-timetable">
         <tbody>
         <?php
-        foreach (_timetableRows($eventID) as $r) {
+        foreach ($rows as $r) {
             if (isset($r['date'])) {
                 echo '<tr><td colspan="3"><h3>' . $r['date'] . '</h3></td></tr>';
                 continue;
@@ -259,9 +303,7 @@ function timetable(int $eventID) {
             ?>
             <tr class="<?php echo $r['type'] ?>">
                 <?php echo $r['time'] ? '<td class="td-dt" rowspan="' . $r['rowspan'] . '">' . $r['time'] . '</td>' : '' ?>
-                <td class="td-place"><span
-                            class="label label-default label-<?php echo $r['place'] ?>"><?php echo $r['place'] ?></span>
-                </td>
+                <td class="td-place"><?php echo $r['place'] ? '<span class="label label-default label-' . $r['place'] . '">' . $r['place'] . '</span>' : '' ?></td>
                 <td><?php echo $r['description'] ?></td>
             </tr>
             <?

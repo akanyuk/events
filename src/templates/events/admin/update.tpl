@@ -80,6 +80,7 @@ $successDialog->render();
 
         // Visual edit
         const switchEditor = $('a[id="switch-editor"]');
+        const saveEditorBtn = $('[id="editor-save-button"]');
         const result = JSON.parse(localStorage.getItem('eventVisualEditor'));
         const visualEditor = result != null && result;
         if (visualEditor) {
@@ -89,11 +90,13 @@ $successDialog->render();
             });
 
             switchEditor.text("Switch to source editor");
+            saveEditorBtn.hide();
         } else {
             switchEditor.text("Switch to visual editor");
+            saveEditorBtn.show();
         }
 
-        switchEditor.click(function(e) {
+        switchEditor.click(function (e) {
             e.preventDefault();
             localStorage.setItem('eventVisualEditor', JSON.stringify(!visualEditor));
             window.location.reload();
@@ -217,8 +220,25 @@ $successDialog->render();
                 <form data-action="events-update">
                     <textarea name="content" class="form-control"
                               style="height: 500px;"><?php echo htmlspecialchars($Module->record['content']) ?></textarea>
-                    <a id="switch-editor" href="#">Switch to source editor</a>
+
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                        <div id="editor-save-button" style="display: none;">
+                            <button type="submit" class="btn btn-primary"><span
+                                        class="fa fa-save"></span> <?php echo NFW::i()->lang['Save changes'] ?></button>
+                        </div>
+
+                        <a id="switch-editor" href="#">Switch to source editor</a>
+                    </div>
                 </form>
+
+                    <h3>Available meta tags:</h3>
+<pre>
+%UPLOAD-BUTTON%
+%LIVE-VOTING-BUTTON%
+%COMPETITIONS-LIST-SHORT%
+%COMPETITIONS-LIST%
+%TIMETABLE%
+</pre>
             </div>
 
             <div role="tabpanel" class="tab-pane" style="padding-top: 20px;" id="voting_settings">

@@ -27,7 +27,6 @@ $lang_main = array(
     'cabinet prods' => 'Мои работы',
     'cabinet profile' => 'Мой профиль',
     'cabinet add work' => 'Загрузить работу',
-    'cabinet add work at' => 'Загрузить работу для',
     'cabinet add choose event' => 'Выберите событие',
     'cabinet add choose event desc' => 'Выберите событие для загрузки работы',
 
@@ -151,9 +150,9 @@ $lang_main = array(
     'votelist nickname' => 'Ваше имя или ник',
     'votelist note' => '<p>В поле «Vote» напротив работы поставьте оценку от <strong>1 до 10</strong>, которой на Ваш взгляд заслуживает работа.</p><p>Если Вы затрудняетесь с оценкой работы, или просто не хотите голосовать - оставьте поле пустым.</p><p>В свободном месте после названия работы Вы можете оставить свой комментарий.</p>',
 
-    // /upload link
+    // `/upload/%alias%` link
     'upload info' => 'Для загрузки работы Вам необходимо авторизоваться или пройти <a href="/users?action=register">регистрацию</a>.',
 
-    // /upload link
+    // Live voting related
     'live voting info' => 'Для использования живого голосования Вам необходимо авторизоваться или пройти <a href="/users?action=register">регистрацию</a>.',
 );
