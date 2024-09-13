@@ -71,7 +71,7 @@ $successDialog->render();
             $(this).activeForm({
                 action: '<?php echo $Module->formatURL('update') . '&record_id=' . $Module->record['id']?>',
                 success: function (response) {
-                    if (response.is_updated) {
+                    if (response['is_updated']) {
                         $.jGrowl('Event profile updated.');
                     }
                 }
@@ -79,7 +79,25 @@ $successDialog->render();
         });
 
         // Visual edit
-        $('textarea[name="content"]').CKEDIT({'media': 'events', 'media_owner': '<?php echo $Module->record['id']?>'});
+        const switchEditor = $('a[id="switch-editor"]');
+        const result = JSON.parse(localStorage.getItem('eventVisualEditor'));
+        const visualEditor = result != null && result;
+        if (visualEditor) {
+            $('textarea[name="content"]').CKEDIT({
+                'media': 'events',
+                'media_owner': '<?php echo $Module->record['id']?>'
+            });
+
+            switchEditor.text("Switch to source editor");
+        } else {
+            switchEditor.text("Switch to visual editor");
+        }
+
+        switchEditor.click(function(e) {
+            e.preventDefault();
+            localStorage.setItem('eventVisualEditor', JSON.stringify(!visualEditor));
+            window.location.reload();
+        });
 
         // Voting variants
         const sF = $('form[id="voting-settings-update"]');
@@ -197,7 +215,9 @@ $successDialog->render();
 
             <div role="tabpanel" class="tab-pane" style="padding-top: 10px;" id="description">
                 <form data-action="events-update">
-                    <textarea name="content"><?php echo htmlspecialchars($Module->record['content']) ?></textarea>
+                    <textarea name="content" class="form-control"
+                              style="height: 500px;"><?php echo htmlspecialchars($Module->record['content']) ?></textarea>
+                    <a id="switch-editor" href="#">Switch to source editor</a>
                 </form>
             </div>
 

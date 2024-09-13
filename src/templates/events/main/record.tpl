@@ -49,8 +49,23 @@ if ($event['alias_group'] != "") {
         ];
     }
 }
+?>
+<?php if ($event['is_preview_img']): ?>
+    <div style="display: flex; justify-content: space-between;">
+        <div>
+            <h1 style="margin-top: 0; font-size: 30px;"><?php echo htmlspecialchars($event['title']) ?></h1>
+            <p class="text-muted"><?php echo $event['dates_desc'] ?></p>
+        </div>
+        <div style="margin-top: 5px; margin-left: 10px;">
+            <img src="<?php echo $event['preview_img'] ?>" alt="<?php echo htmlspecialchars($event['title']) ?>"/>
+        </div>
+    </div>
+<?php else: ?>
+    <h1 style="margin-top: 0;"><?php echo htmlspecialchars($event['title']) ?></h1>
+    <p class="text-muted"><?php echo $event['dates_desc'] ?></p>
+<?php endif; ?>
 
-if (sizeof($eventsGroup) > 1): ?>
+<?php if (sizeof($eventsGroup) > 1): ?>
     <nav aria-label="...">
         <ul class="pagination pagination-sm">
             <?php foreach ($eventsGroup as $g): ?>
@@ -60,6 +75,8 @@ if (sizeof($eventsGroup) > 1): ?>
             <?php endforeach; ?>
         </ul>
     </nav>
+<?php else: ?>
+    <hr style="margin: 10px 0;"/>
 <?php endif;
 
 if (stristr($content, '%COMPETITIONS-LIST-SHORT%')) {
@@ -78,7 +95,7 @@ if (stristr($content, '%COMPETITIONS-LIST%')) {
 }
 
 
-function competitionsListShort($competitionsGroups, $competitions) {
+function competitionsListShort($competitionsGroups, $competitions): string {
     ob_start();
 
     if (empty($competitionsGroups)) {
@@ -94,7 +111,7 @@ function competitionsListShort($competitionsGroups, $competitions) {
                 <div class="counter"><?php echo $c['count_label'] ?></div>
             </div>
         <?php endforeach;
-        return ob_get_clean();
+        return '<div class="competitions-list-short">' . ob_get_clean() . '</div>';
     }
 
     foreach ($competitionsGroups as $group): ?>
@@ -132,7 +149,7 @@ function competitionsListShort($competitionsGroups, $competitions) {
         </div>
     <?php endif; endforeach;
 
-    return ob_get_clean();
+    return '<div class="competitions-list-short">' . ob_get_clean() . '</div>';
 }
 
 function competitionsList($competitionsGroups, $competitions): string {
@@ -241,9 +258,10 @@ function timetable(int $eventID) {
             }
             ?>
             <tr class="<?php echo $r['type'] ?>">
-                <?php echo $r['time'] ? '<td class="td-dt" rowspan="'.$r['rowspan'].'">' . $r['time'] . '</td>' : ''?>
+                <?php echo $r['time'] ? '<td class="td-dt" rowspan="' . $r['rowspan'] . '">' . $r['time'] . '</td>' : '' ?>
                 <td class="td-place"><span
-                            class="label label-<?php echo $r['place'] ?>"><?php echo $r['place'] ?></span></td>
+                            class="label label-default label-<?php echo $r['place'] ?>"><?php echo $r['place'] ?></span>
+                </td>
                 <td><?php echo $r['description'] ?></td>
             </tr>
             <?

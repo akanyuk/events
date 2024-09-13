@@ -73,10 +73,7 @@ if (!$competitionAlias && !$workID) {
     // Event page
     $page['title'] = $CEvents->record['title'];
 
-    NFW::i()->breadcrumb = array(
-        array('url' => 'events', 'desc' => $lang_main['events']),
-        array('desc' => $CEvents->record['title'])
-    );
+    NFWX::i()->main_search_box = false;
 
     NFWX::i()->main_og['title'] = $CEvents->record['title'];
     NFWX::i()->main_og['description'] = $CEvents->record['announcement_og'] ?: strip_tags($CEvents->record['announcement']);
@@ -95,12 +92,9 @@ if (!$competitionAlias && !$workID) {
         $CCompetitions->reload($c['id']);
 
         $content = $CEvents->record['content'] . renderCompetitionPage($CCompetitions, $CEvents, true);
-        setBreadcrumbDesc(null, $CCompetitions->record, 'competition');
-
         $competitions = array();    // prevent default competitions list
     } else {
         $content = $CEvents->record['content'];
-        setBreadcrumbDesc($CEvents->record, null, 'event');
     }
 
     $page['content'] = $CEvents->renderAction(array(
@@ -134,10 +128,11 @@ if ($workID) {
     }
 
     NFW::i()->breadcrumb = array(
-        array('url' => 'events', 'desc' => $lang_main['events']),
         array('url' => $CEvents->record['alias'], 'desc' => $CEvents->record['title']),
         array('url' => $CEvents->record['alias'] . '/' . $CCompetitions->record['alias'], 'desc' => $CCompetitions->record['title'])
     );
+
+    NFWX::i()->main_search_box = false;
 
     NFWX::i()->main_og['title'] = $CWorks->record['display_title'];
     NFWX::i()->main_og['description'] = $CEvents->record['title'] . ' / ' . $CCompetitions->record['title'];
@@ -173,11 +168,14 @@ if ($workID) {
 } else {
     // Competition page
     NFW::i()->breadcrumb = array(
-        array('url' => 'events', 'desc' => $lang_main['events']),
         array('url' => $CEvents->record['alias'], 'desc' => $CEvents->record['title']),
         array('desc' => $CCompetitions->record['title'])
     );
-    setBreadcrumbDesc(null, $CCompetitions->record, 'competition');
+    if ($CCompetitions->record['voting_status']['available'] && $CCompetitions->record['voting_works']) {
+        NFW::i()->breadcrumb_status = '<span class="label label-danger">' . $lang_main['voting to'] . ': ' . date('d.m.Y H:i', $CCompetitions->record['voting_to']) . '</span>';
+    }
+
+    NFWX::i()->main_search_box = false;
 
     NFWX::i()->main_og['title'] = $CCompetitions->record['title'];
     NFWX::i()->main_og['description'] = $CEvents->record['title'];
