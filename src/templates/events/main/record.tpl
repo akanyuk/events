@@ -66,7 +66,7 @@ if ($event['alias_group'] != "") {
             <h1 style="margin-top: 0; font-size: 30px;"><?php echo htmlspecialchars($event['title']) ?></h1>
             <p class="text-muted"><?php echo $event['dates_desc'] ?></p>
         </div>
-        <div style="margin-top: 5px; margin-left: 10px;">
+        <div style="margin-left: 10px;">
             <img src="<?php echo $event['preview_img'] ?>" alt="<?php echo htmlspecialchars($event['title']) ?>"/>
         </div>
     </div>
