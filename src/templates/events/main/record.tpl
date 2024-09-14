@@ -244,40 +244,27 @@ function _compo($compo) {
 
     <p><?php echo $compo['announcement'] ?></p>
 
-    <div class="panel panel-default">
-        <div class="panel-body">
-            <p><?php echo $langMain['competitions reception'] ?>:
-                <?php if ($compo['reception_from']): ?>
-                    <span class="hidden-xs">
-                                <strong><?php echo date('d.m.Y H:i', $compo['reception_from']) . ' - ' . date('d.m.Y H:i', $compo['reception_to']) ?></strong>
-                            </span>
-                <?php endif; ?>
-                <span class="label <?php echo $compo['reception_status']['label-class'] ?>"><?php echo $compo['reception_status']['desc'] ?></span>
-                <?php if ($compo['reception_from']): ?>
-                    <span class="visible-xs">
-                                <small class="text-muted" style="display: block; padding-top: 5px;">
-                                    <?php echo date('d.m.Y H:i', $compo['reception_from']) . ' - ' . date('d.m.Y H:i', $compo['reception_to']) ?>
-                                </small>
-                            </span>
-                <?php endif; ?>
-            </p>
-            <p><?php echo $langMain['competitions voting'] ?>:
-                <?php if ($compo['voting_from']): ?>
-                    <span class="hidden-xs">
-                                <strong><?php echo date('d.m.Y H:i', $compo['voting_from']) . ' - ' . date('d.m.Y H:i', $compo['voting_to']) ?></strong>
-                            </span>
-                <?php endif; ?>
-                <span class="label <?php echo $compo['voting_status']['label-class'] ?>"><?php echo $compo['voting_status']['desc'] ?></span>
-                <?php if ($compo['voting_from']): ?>
-                    <span class="visible-xs">
-                            <small class="text-muted" style="display: block; padding-top: 5px;">
-                                <?php echo date('d.m.Y H:i', $compo['voting_from']) . ' - ' . date('d.m.Y H:i', $compo['voting_to']) ?>
-                            </small>
-                        </span>
-                <?php endif; ?>
-            </p>
-        </div>
-    </div>
+    <dl>
+        <dt>
+            <?php echo $langMain['competitions reception'] ?>
+            <span class="label <?php echo $compo['reception_status']['label-class'] ?>"><?php echo $compo['reception_status']['desc'] ?></span>
+        </dt>
+        <dd>
+            <?php if ($compo['reception_from']): ?>
+                <?php echo date('d.m.Y H:i', $compo['reception_from']) . ' - ' . date('d.m.Y H:i', $compo['reception_to']) ?>
+            <?php endif; ?>
+        </dd>
+
+        <dt>
+            <?php echo $langMain['competitions voting'] ?>
+            <span class="label <?php echo $compo['voting_status']['label-class'] ?>"><?php echo $compo['voting_status']['desc'] ?></span>
+        </dt>
+        <dd>
+            <?php if ($compo['voting_from']): ?>
+                <?php echo date('d.m.Y H:i', $compo['voting_from']) . ' - ' . date('d.m.Y H:i', $compo['voting_to']) ?>
+            <?php endif; ?>
+        </dd>
+    </dl>
 
     <div style="font-size: 200%;"><a href="#top"><span class="fa fa-caret-up"></span></a></div>
     <?php
