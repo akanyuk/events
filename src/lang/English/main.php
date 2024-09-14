@@ -26,7 +26,6 @@ $lang_main = array(
     'cabinet prods' => 'My Prods',
     'cabinet profile' => 'Profile',
     'cabinet add work' => 'Upload prod',
-    'cabinet add work at' => 'Upload prod at',
     'cabinet add choose event' => 'Choose event',
     'cabinet add choose event desc' => 'Choose event for prod uploading',
 
@@ -73,8 +72,7 @@ $lang_main = array(
     'works add file comment' => 'Comment',
     'works filesize' => 'Filesize',
     'works uploaded' => 'Uploaded',
-    'filestatus screenshot' => 'Screenshot for social media links',
-    'filestatus slide' => 'A file for showing the work on the screen during the party',
+    'filestatus screenshot' => 'Screenshot for social media links and slides',
     'filestatus voting' => 'File can be downloaded at online voting',
     'filestatus image' => 'File used as image at online voting and in public prod profile',
     'filestatus audio' => 'File used in audio-player at online voting and in public prod profile',
@@ -141,9 +139,9 @@ $lang_main = array(
 
     'votekey-request note' => 'Votekey will be sent to given e-mail address. <br />E-mail address never be published by demoparty organizers.',
     'votekey-request email label' => 'E-mail address',
-    'votekey-request' => 'Request votekey',
-    'votekey-another' => 'Another votekey',
-    'votekey-request long' => 'Request votekey',
+    'votekey-request' => 'Request NEW votekey',
+    'change-votekey' => 'Change votekey',
+    'votekey-request long' => 'Votekey requesting',
     'votekey-request send' => 'Send request',
     'votekey-request wrong email' => 'Incorrect e-mail address',
     'votekey-request success note' => 'Votekey successfully generated and sent to given e-mail address.',
@@ -153,6 +151,10 @@ $lang_main = array(
 
     '53c reception form' => 'Prod submission begins at',
 
-    // upload link
+    // `/upload/%alias%` link
     'upload info' => 'To upload the prod, you need to log in or <a href="/users?action=register">register</a>.',
+
+    // Live voting related
+    'live voting info' => 'To use live voting, you need to log in or <a href="/users?action=register">register</a>.',
+
 );

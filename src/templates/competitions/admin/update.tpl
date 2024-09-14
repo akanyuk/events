@@ -25,16 +25,10 @@ foreach ($CCompetitionsGroups->getRecords($Module->record['event_id']) as $group
 }
 
 // Breadcrumbs hint
-ob_start();
-?>
-<div class="text-muted" style="font-size: 80%;">
-    <div class="pull-right">
-        Posted: <?php echo date('d.m.Y H:i', $Module->record['posted']) . ' (' . $Module->record['posted_username'] . ')' ?>
-        <?php echo $Module->record['edited'] ? '<br />Updated: ' . date('d.m.Y H:i', $Module->record['edited']) . ' (' . $Module->record['edited_username'] . ')' : '' ?>
-    </div>
-</div>
-<?php
-NFW::i()->breadcrumb_status = ob_get_clean();
+NFW::i()->breadcrumb_status = '<div>Posted: ' . date('d.m.Y H:i', $Module->record['posted']) . ' (' . $Module->record['posted_username'] . ')</div>';
+if ($Module->record['edited']) {
+    NFW::i()->breadcrumb_status .= '<div>Updated: ' . date('d.m.Y H:i', $Module->record['edited']) . ' (' . $Module->record['edited_username'] . ')</div>';
+}
 ?>
 <script type="text/javascript">
     $(document).ready(function () {

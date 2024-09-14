@@ -9,6 +9,7 @@
 NFW::i()->registerResource('jquery.activeForm');
 NFW::i()->registerResource('jquery.maskedinput');
 NFW::i()->registerResource('jquery.jgrowl');
+NFW::i()->registerResource('jquery.ui.interactions');
 
 NFW::i()->assign('page_title', $event['title'] . ' / timeline');
 NFW::i()->assign('no_admin_sidebar', true);
@@ -23,6 +24,8 @@ ob_start();
 <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseHelp"
         aria-expanded="false" aria-controls="collapseExample"><span class="fa fa-question-circle"></span>
 </button>
+<button type="button" class="btn btn-link" data-action="settings-popover"><span class="fa fa-cog"></span>
+</button>
 <?php
 NFW::i()->breadcrumb_status = ob_get_clean();
 
@@ -30,13 +33,77 @@ $now = date("Y-m-d 00:00", $event['date_from']);
 
 // linter related
 ob_start(); ?>
-<script type="text/javascript">
-    $.jGrowl = function (timelineSaved) {
-    };
-</script><?php ob_end_clean();
+<script type="text/javascript">$.jGrowl = function (timelineSaved) {
+    };</script><?php ob_end_clean();
 ?>
 <script type="text/javascript">
+    function updateColumnsVisibility(columns) {
+        $('div[id="values-area"] .header div').each(function (i, obj) {
+            const title = $(obj).text();
+            if (columns[title]) {
+                $(obj).show();
+
+                $('div[id="values-area"]').find('div[id="record"]').each(function () {
+                    $(this).find('.cell:nth-child(' + (i + 1) + ')').show();
+                });
+            } else {
+                $(obj).hide();
+
+                $('div[id="values-area"]').find('div[id="record"]').each(function () {
+                    $(this).find('.cell:nth-child(' + (i + 1) + ')').hide();
+                });
+            }
+        });
+    }
+
     $(document).ready(function () {
+        // Setup columns
+
+        // Load state
+        let columns = {};
+
+        // Initial values
+        $('div[id="values-area"] .header div').each(function (i, obj) {
+            const title = $(obj).text();
+            columns[title] = true;
+        })
+
+        let result;
+        try {
+            result = JSON.parse(localStorage.getItem('timelineColumns'));
+            if (result) {
+                columns = result;
+            }
+        } catch (err) {
+            console.log(err)
+        }
+
+        $('[data-action="settings-popover"]').popover({
+            'placement': 'left',
+            'html': true,
+            'title': 'Settings',
+            'content': function () {
+                let result = "";
+                $('div[id="values-area"] .header div').each(function (i, obj) {
+                    const title = $(obj).text();
+
+                    let checked = '';
+                    if (columns[title]) {
+                        checked = 'checked="checked"';
+                    }
+                    result += '<div class="checkbox"><label><input ' + checked + ' data-action="toggle-column" type="checkbox" />' + $(obj).text() + '</label></div>';
+                });
+
+                return result;
+            }
+        })
+
+        $(document).on('change', '[data-action="toggle-column"]', function () {
+            columns[$(this).parent().text()] = this.checked;
+            updateColumnsVisibility(columns);
+            localStorage.setItem('timelineColumns', JSON.stringify(columns));
+        });
+
         const f = $('form[id="timeline"]');
         f.activeForm({
             'action': '<?php echo $Module->formatURL('update') . '&event_id=' . $event['id'] ?>',
@@ -55,19 +122,24 @@ ob_start(); ?>
             $(this).closest('div[id="record"]').remove();
         });
 
+        // Data
+
+        $('div[id="values-area"]').sortable({items: 'div[id="record"]', axis: 'y'});
+
         f.find('[id="add-values-record"]').click(function () {
-            f.addValue('<?php echo $now?>', '<?php echo $now?>', 0, 0, '', '', '', '', '');
+            f.addValue('<?php echo $now?>', '<?php echo $now?>', 0, 1, '', '', '', '', '');
             return false;
         });
 
-        f.addValue = function (begin, end, competitionID, isPublic, title, description, type, beginSource, endSource) {
+        f.addValue = function (begin, end, competitionID, isPublic, title, description, type, place, beginSource, endSource) {
             const record = $('<div id="record" class="record">');
             record.append($('div[id="timeline-record-template"]').html()
                 .replace(/%begin%/g, begin)
                 .replace(/%end%/g, end)
                 .replace(/%title%/g, title.replace(/"/g, '&quot;'))
                 .replace(/%description%/g, description)
-                .replace(/%type%/g, type))
+                .replace(/%type%/g, type)
+                .replace(/%place%/g, place))
             if (isPublic) {
                 record.find('input[data-role="is_public"]').attr('checked', 'checked');
                 record.find('input[name="is_public[]"]').val(1);
@@ -77,7 +149,7 @@ ob_start(); ?>
 
             record.find('input[data-role="is_public"]').click(function () {
                 if (this.checked) {
-                    record.find('input[name="is_public[]"]').val(1);
+                    record.find('input[name="is_public[]"]').val("1");
                 } else {
                     record.find('input[name="is_public[]"]').val("");
                 }
@@ -142,6 +214,8 @@ ob_start(); ?>
 
             // Set initial state
             compoObj.trigger("change");
+
+            updateColumnsVisibility(columns);
         }
 
         <?php foreach ($records as $r) echo "\t\t" . 'f.addValue(
@@ -152,14 +226,37 @@ ob_start(); ?>
         ' . json_encode($r['title']) . ', 
         ' . json_encode($r['description']) . ',
         ' . json_encode($r['type']) . ', 
+        ' . json_encode($r['place']) . ',
         ' . json_encode($r['begin_source']) . ', 
         ' . json_encode($r['end_source']) . '
         );' . "\n"; ?>
+
+        updateColumnsVisibility(columns);
     });
 </script>
 <style>
     .settings {
         width: 100%;
+    }
+
+    /* Date */
+    .settings .cell:nth-child(1), .settings .cell:nth-child(3) {
+        max-width: 100px;
+    }
+
+    /* Date source */
+    .settings .cell:nth-child(2), .settings .cell:nth-child(4) {
+        max-width: 100px;
+    }
+
+    /* Competition */
+    .settings .cell:nth-child(5) {
+        max-width: 100px;
+    }
+
+    /* Type, place */
+    .settings .cell:nth-child(8), .settings .cell:nth-child(9) {
+        max-width: 80px;
     }
 </style>
 <div id="timeline-record-template" style="display: none;">
@@ -196,6 +293,7 @@ ob_start(); ?>
                              title="Using competition title if blank" class="form-control"/></div>
     <div class="cell"><textarea name="description[]" class="form-control">%description%</textarea></div>
     <div class="cell"><input name="type[]" value="%type%" class="form-control"/></div>
+    <div class="cell"><input name="place[]" value="%place%" class="form-control"/></div>
     <div class="cell">
         <label>
             <input name="is_public[]" type="hidden"/>
@@ -218,7 +316,7 @@ ob_start(); ?>
         <p>If there is a link to the competition and the "Title" field is not filled in, then the name of the
             competition will be used as the title.</p>
 
-        <p>You can preview JSON response <a href="/api/v2/timeline?event=<?php echo $event['alias']?>">here</a>.</p>
+        <p>You can preview JSON response <a href="/api/v2/timeline?event=<?php echo $event['alias'] ?>">here</a>.</p>
     </div>
 </div>
 
@@ -233,6 +331,7 @@ ob_start(); ?>
             <div class="cell">Title</div>
             <div class="cell">Description</div>
             <div class="cell">Type</div>
+            <div class="cell">Place</div>
             <div class="cell">Public</div>
         </div>
     </div>

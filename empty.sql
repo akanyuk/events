@@ -1,4 +1,4 @@
--- Adminer 4.8.1 MySQL 8.4.0 dump
+-- Adminer 4.8.1 MySQL 9.0.1 dump
 
 SET NAMES utf8;
 SET time_zone = '+00:00';
@@ -31,7 +31,7 @@ CREATE TABLE `competitions` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
 
 INSERT INTO `competitions` (`id`, `event_id`, `competitions_groups_id`, `position`, `title`, `alias`, `works_type`, `announcement`, `reception_from`, `reception_to`, `voting_from`, `voting_to`, `posted`, `posted_by`, `posted_username`, `poster_ip`, `edited`, `edited_by`, `edited_username`, `edited_ip`) VALUES
-(1,	1,	0,	1,	'The competition',	'the_competition',	'demo',	'The competition announce',	1652130002,	1680296103,	0,	0,	1652170492,	5,	'admin',	'192.168.0.1',	1652170518,	5,	'admin',	'192.168.0.1');
+(1,	1,	0,	1,	'The competition',	'the_competition',	'demo',	'The competition announce',	1726261200,	1726433700,	0,	0,	1652170492,	5,	'admin',	'192.168.0.1',	1726325980,	5,	'admin',	'172.21.0.1');
 
 DROP TABLE IF EXISTS `competitions_groups`;
 CREATE TABLE `competitions_groups` (
@@ -61,7 +61,7 @@ CREATE TABLE `events` (
   `date_to` int unsigned NOT NULL DEFAULT '0',
   `content` text,
   `hide_works_count` tinyint unsigned NOT NULL DEFAULT '0',
-  `one_compo_event` tinyint unsigned NOT NULL DEFAULT '0' COMMENT 'Event with only one compo',
+  `voting_system` varchar(16) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT 'avg',
   `posted` int unsigned NOT NULL DEFAULT '0',
   `options` text NOT NULL,
   `posted_by` int unsigned NOT NULL DEFAULT '1',
@@ -74,8 +74,8 @@ CREATE TABLE `events` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
 
-INSERT INTO `events` (`id`, `is_hidden`, `title`, `alias`, `alias_group`, `announcement`, `announcement_og`, `date_from`, `date_to`, `content`, `hide_works_count`, `one_compo_event`, `posted`, `options`, `posted_by`, `posted_username`, `poster_ip`, `edited`, `edited_by`, `edited_username`, `edited_ip`) VALUES
-(1,	0,	'The event',	'the_event',	NULL,	'The event announce',	'',	1652130000,	1680296399,	'<p>The event description</p>',	0,	0,	1652170374,	'YTowOnt9',	5,	'admin',	'192.168.0.1',	1652170438,	5,	'admin',	'192.168.0.1');
+INSERT INTO `events` (`id`, `is_hidden`, `title`, `alias`, `alias_group`, `announcement`, `announcement_og`, `date_from`, `date_to`, `content`, `hide_works_count`, `voting_system`, `posted`, `options`, `posted_by`, `posted_username`, `poster_ip`, `edited`, `edited_by`, `edited_username`, `edited_ip`) VALUES
+(1,	0,	'The event',	'the_event',	NULL,	'The event announce',	'',	1726325953,	1726433999,	'<p>The event description</p>',	0,	'avg',	1652170374,	'YTowOnt9',	5,	'admin',	'192.168.0.1',	1726325960,	5,	'admin',	'172.21.0.1');
 
 DROP TABLE IF EXISTS `events_managers`;
 CREATE TABLE `events_managers` (
@@ -101,8 +101,6 @@ CREATE TABLE `logs` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
 
-INSERT INTO `logs` (`id`, `posted`, `poster`, `poster_username`, `ip`, `url`, `message`, `additional`, `kind`, `user_agent`, `browser`) VALUES
-(1,	1713886983,	5,	'admin',	'172.24.0.1',	'https://127.0.0.1/',	'',	NULL,	10,	'Mozilla/5.0 (X11; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0',	NULL);
 
 DROP TABLE IF EXISTS `media`;
 CREATE TABLE `media` (
@@ -122,6 +120,8 @@ CREATE TABLE `media` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
 
+INSERT INTO `media` (`id`, `position`, `owner_id`, `owner_class`, `session_id`, `secure_storage`, `basename`, `filesize`, `comment`, `posted_by`, `posted_username`, `poster_ip`, `posted`) VALUES
+(1,	0,	1,	'works',	NULL,	1,	'readme.md',	1052,	'',	5,	'admin',	'172.21.0.1',	1726326023);
 
 DROP TABLE IF EXISTS `media_sessions`;
 CREATE TABLE `media_sessions` (
@@ -132,6 +132,10 @@ CREATE TABLE `media_sessions` (
   UNIQUE KEY `session_id` (`session_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
 
+INSERT INTO `media_sessions` (`session_id`, `data`, `posted`, `posted_by`) VALUES
+('m474cb6862ec5a7b',	'YToxNzp7czoxNDoic2FmZV9maWxlbmFtZXMiO2I6MTtzOjEyOiJmb3JjZV9yZW5hbWUiO2I6MTtzOjExOiJpbWFnZXNfb25seSI7YjoxO3M6OToidG1iX3dpZHRoIjtpOjEwMDtzOjEwOiJ0bWJfaGVpZ2h0IjtpOjEwMDtzOjExOiJpbWFnZV9tYXhfeCI7aToyMDQ4O3M6MTE6ImltYWdlX21heF95IjtpOjIwNDg7czoxMToib3duZXJfY2xhc3MiO3M6MTQ6ImV2ZW50c19wcmV2aWV3IjtzOjg6Im93bmVyX2lkIjtzOjE6IjEiO3M6MTM6InNpbmdsZV91cGxvYWQiO2I6MTtzOjg6InRlbXBsYXRlIjtzOjI2OiJfYWRtaW5fZXZlbnRzX3ByZXZpZXdfZm9ybSI7czoxNToicHJldmlld19kZWZhdWx0IjtzOjQ5OiJodHRwOi8vZXZlbnRzLmxvY2FsL2Fzc2V0cy9tYWluL25ld3Mtbm8taW1hZ2UucG5nIjtzOjc6InByZXZpZXciO2E6Mjp7czoyOiJpZCI7YjowO3M6MzoidXJsIjtiOjA7fXM6MTQ6InNlY3VyZV9zdG9yYWdlIjtiOjA7czoxMzoiTUFYX0ZJTEVfU0laRSI7aTo2NzEwODg2NDtzOjE2OiJNQVhfU0VTU0lPTl9TSVpFIjtpOjY3MTA4ODY0O3M6MTA6InNlc3Npb25faWQiO3M6MTY6Im00NzRjYjY4NjJlYzVhN2IiO30=',	1726325944,	5),
+('m7075301f520793d',	'YToxNzp7czoxNDoic2FmZV9maWxlbmFtZXMiO2I6MTtzOjEyOiJmb3JjZV9yZW5hbWUiO2I6MTtzOjExOiJpbWFnZXNfb25seSI7YjoxO3M6OToidG1iX3dpZHRoIjtpOjEwMDtzOjEwOiJ0bWJfaGVpZ2h0IjtpOjEwMDtzOjExOiJpbWFnZV9tYXhfeCI7aToyMDQ4O3M6MTE6ImltYWdlX21heF95IjtpOjIwNDg7czoxMToib3duZXJfY2xhc3MiO3M6MjA6ImV2ZW50c19wcmV2aWV3X2xhcmdlIjtzOjg6Im93bmVyX2lkIjtzOjE6IjEiO3M6MTM6InNpbmdsZV91cGxvYWQiO2I6MTtzOjg6InRlbXBsYXRlIjtzOjI2OiJfYWRtaW5fZXZlbnRzX3ByZXZpZXdfZm9ybSI7czoxNToicHJldmlld19kZWZhdWx0IjtzOjQ5OiJodHRwOi8vZXZlbnRzLmxvY2FsL2Fzc2V0cy9tYWluL25ld3Mtbm8taW1hZ2UucG5nIjtzOjc6InByZXZpZXciO2E6Mjp7czoyOiJpZCI7YjowO3M6MzoidXJsIjtiOjA7fXM6MTQ6InNlY3VyZV9zdG9yYWdlIjtiOjA7czoxMzoiTUFYX0ZJTEVfU0laRSI7aTo2NzEwODg2NDtzOjE2OiJNQVhfU0VTU0lPTl9TSVpFIjtpOjY3MTA4ODY0O3M6MTA6InNlc3Npb25faWQiO3M6MTY6Im03MDc1MzAxZjUyMDc5M2QiO30=',	1726325944,	5),
+('m213e4073de57ec0',	'YToxMzp7czoxNDoic2FmZV9maWxlbmFtZXMiO2I6MTtzOjEyOiJmb3JjZV9yZW5hbWUiO2I6MTtzOjExOiJpbWFnZXNfb25seSI7YjowO3M6OToidG1iX3dpZHRoIjtpOjEwMDtzOjEwOiJ0bWJfaGVpZ2h0IjtpOjEwMDtzOjExOiJpbWFnZV9tYXhfeCI7aToyMDQ4O3M6MTE6ImltYWdlX21heF95IjtpOjIwNDg7czoxMToib3duZXJfY2xhc3MiO3M6NjoiZXZlbnRzIjtzOjg6Im93bmVyX2lkIjtzOjE6IjEiO3M6MTQ6InNlY3VyZV9zdG9yYWdlIjtiOjA7czoxMzoiTUFYX0ZJTEVfU0laRSI7aTo2NzEwODg2NDtzOjE2OiJNQVhfU0VTU0lPTl9TSVpFIjtpOjY3MTA4ODY0O3M6MTA6InNlc3Npb25faWQiO3M6MTY6Im0yMTNlNDA3M2RlNTdlYzAiO30=',	1726325944,	5);
 
 DROP TABLE IF EXISTS `news`;
 CREATE TABLE `news` (
@@ -192,24 +196,17 @@ CREATE TABLE `permissions` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
 
 INSERT INTO `permissions` (`role`, `module`, `action`, `description`) VALUES
-('dm-000.base',	'admin',	'',	'Доступ к панели администрирования'),
-('dm-000.base',	'profile',	'admin',	'Редактирование своего профиля'),
+('dm-000.base',	'admin',	'',	'Entering in control panel'),
+('dm-000.base',	'profile',	'admin',	'Editing own profile'),
 ('dm-000.base',	'events',	'admin',	'Events: view'),
-('dm-000.base',	'users',	'read',	'Пользователи: просмотр'),
-('dm-005.timeline',	'timeline',	'admin',	'Manage timeline'),
-('dm-010.demoparty',	'events',	'update',	'Events: update'),
-('dm-010.demoparty',	'competitions',	'update',	'Competitions: full control'),
-('dm-010.demoparty',	'works',	'update',	'Works: full control'),
-('dm-010.demoparty',	'vote',	'admin',	'Votings: full control'),
-('dm-020.site',	'news',	'admin',	'Новости: администрирование'),
-('dm-020.site',	'pages',	'admin',	'Страницы: просмотр и редактирование'),
-('dm-020.site',	'pages',	'advanced-admin',	'Страницы: добавление и удаление'),
+('dm-000.base',	'users',	'read',	'Users: view'),
 ('dm-100.admin',	'events',	'manage',	'Events: full control'),
-('dm-100.admin',	'pages',	'advanced-admin',	'Страницы: добавление и удаление'),
-('dm-100.admin',	'permissions',	'update',	'Права пользователей: редактирование'),
-('dm-100.admin',	'settings',	'update',	'Настройки: просмотр и редактирование'),
-('dm-100.admin',	'users',	'update',	'Пользователи: редактирование'),
-('dm-100.admin',	'view_logs',	'admin',	'Просмотр логов');
+('dm-100.admin',	'pages',	'admin',	'Pages: administration'),
+('dm-100.admin',	'permissions',	'update',	'Users permissions: edit'),
+('dm-100.admin',	'settings',	'update',	'Settings: view and edit'),
+('dm-100.admin',	'users',	'update',	'Users: edit'),
+('dm-100.admin',	'view_logs',	'admin',	'View logs'),
+('dm-100.admin',	'timeline',	'admin',	'Manage timeline');
 
 DROP TABLE IF EXISTS `settings`;
 CREATE TABLE `settings` (
@@ -234,8 +231,18 @@ INSERT INTO `settings` (`id`, `is_admin`, `name`, `varname`, `attributes`, `valu
 
 DROP TABLE IF EXISTS `timeline`;
 CREATE TABLE `timeline` (
-  `date_from` int unsigned NOT NULL DEFAULT '0',
-  `content` text
+  `position` int unsigned NOT NULL DEFAULT '0',
+  `event_id` int unsigned NOT NULL,
+  `competition_id` int unsigned DEFAULT NULL,
+  `begin` int unsigned NOT NULL DEFAULT '0',
+  `begin_source` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `end` int unsigned NOT NULL DEFAULT '0',
+  `end_source` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `title` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
+  `description` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
+  `type` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `place` varchar(256) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `is_public` tinyint unsigned NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
 
 
@@ -290,7 +297,9 @@ CREATE TABLE `votekeys` (
   `posted` int unsigned NOT NULL DEFAULT '0',
   `poster_ip` varchar(39) NOT NULL DEFAULT '0.0.0.0',
   `is_used` tinyint unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `event_id` (`event_id`),
+  KEY `posted` (`posted`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
 
 
@@ -305,7 +314,9 @@ CREATE TABLE `votes` (
   `useragent` varchar(255) NOT NULL DEFAULT '',
   `posted` int unsigned NOT NULL DEFAULT '0',
   `poster_ip` varchar(39) NOT NULL DEFAULT '0.0.0.0',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `event_id` (`event_id`),
+  KEY `posted` (`posted`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
 
 
@@ -341,6 +352,8 @@ CREATE TABLE `works` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
 
+INSERT INTO `works` (`id`, `competition_id`, `status`, `status_reason`, `position`, `title`, `author`, `author_note`, `description`, `platform`, `format`, `external_html`, `media_info`, `release_basename`, `place`, `num_votes`, `total_scores`, `average_vote`, `iqm_vote`, `posted`, `posted_by`, `posted_username`, `poster_ip`, `edited`, `edited_by`, `edited_username`, `edited_ip`) VALUES
+(1,	1,	0,	'',	1,	'The Prod',	'The Author',	'',	'Display additional: Yes',	'ZX Spectrum',	'',	'',	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	NULL,	1726326025,	5,	'admin',	'172.21.0.1',	NULL,	NULL,	NULL,	NULL);
 
 DROP TABLE IF EXISTS `works_comments`;
 CREATE TABLE `works_comments` (
@@ -377,4 +390,4 @@ CREATE TABLE `works_managers_notes` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
 
 
--- 2024-07-02 06:59:06
+-- 2024-09-14 15:02:43

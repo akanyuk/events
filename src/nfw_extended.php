@@ -27,7 +27,6 @@ class NFWX extends NFW {
         self::$_ext_instance = $this;
 
         $this->resources_depends['main'] = array('resources' => array('jquery', 'bootstrap3.typeahead', 'font-awesome'));
-        $this->resources_depends['owl-carousel'] = array('resources' => array('jquery'));
 
         // Preload all available settings
         $CSettings = new settings();
@@ -112,7 +111,8 @@ class NFWX extends NFW {
             'admin' => array(''),
             'profile' => array('admin'),
             'events' => array('admin'),
-            'users' => array('admin'),
+            'users' => array('admin', 'ip2geo'),
+            'view_logs' => array('admin', 'export'),
         );
         if (!empty($managed_events) && isset($allow_cp[$module]) && in_array($action, $allow_cp[$module])) return true;
 

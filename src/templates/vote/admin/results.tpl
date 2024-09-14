@@ -1,125 +1,76 @@
 <?php
 /**
- * @var object $Module
- * @var array  $event
+ * @var vote $Module
+ * @var array $event
  */
 ?>
 <script type="text/javascript">
-$(document).ready(function(){
-	
-	// Save results
-	$(document).off('click', 'button[id="save-results"]').on('click', 'button[id="save-results"]', function(){
-		if (!confirm('Save current results permanent to works profiles (for publishing)?')) return false;
-		
-		$.post('<?php echo $Module->formatURL('results').'&event_id='.$event['id'].'&part=save-results'?>', { 
-			'votekey': $('select[id="results-filter-votekey"]').val(),
-			'order': $('select[id="results-filter-order"]').val()
-		}, function(response){
-			$.jGrowl(response);
-		});
-	});
+    $(document).ready(function () {
+        const table = $('table[id="results"]');
+        const calcBy = $('select[id="results-calc-by"]');
 
+        calcBy.change(function () {
+            loadTable();
+        }).trigger('change');
 
-	// Votes list
-	var config = dataTablesDefaultConfig;
+        $('button[id="save-results"]').click(function () {
+            if (!confirm('Save results with "<?php echo $event['voting_system']?>" calculation permanently to works profiles (for publishing)?')) {
+                return false;
+            }
 
-	// Infinity scrolling
-	config.scrollY = $(window).height() - $('table[id="results"]').offset().top - 130;
-	// Fix horizontal scroll
-	//config.scrollX = '100%';
-	config.deferRender = true;
-	config.scroller = true;
+            $.get('<?php echo $Module->formatURL('results') . '&event_id=' . $event['id']?>&part=save-results', function (response) {
+                $.jGrowl(response);
+            });
+        });
 
-	// Server-side
-	config.bServerSide = true;
-	config.bProcessing = false;
-	config.sAjaxSource = '<?php echo $Module->formatURL('results').'&event_id='.$event['id'].'&part=list.js'?>';
-	config.fnServerData = function (sSource, aoData, fnCallback) {
-		aoData.push({ 'name':'votekey', 'value': $('select[id="results-filter-votekey"]').val() });
-		aoData.push({ 'name':'order', 'value': $('select[id="results-filter-order"]').val() });
-		
-		$.ajax( {
-			'dataType': 'json', 
-			'type': "POST", 
-			'url': sSource, 
-			'data': aoData, 
-			'success': fnCallback
-		});
-	};
-
-	config.aoColumns = [
-		{ 'sortable': false, 'className': 'strong icon-column' }, 	// position
-		{ 'sortable': false, 'width': '100%' },						// work 
-		{ 'sortable': false, 'className': 'center' },				// votes
-        { 'sortable': false, 'className': 'center' },				// sum
-        { 'sortable': false, 'className': 'center' },				// avg
-        { 'sortable': false, 'className': 'center' }				// iqm
-	];
-
-	config.fnRowCallback = function(nRow, aData, iDisplayIndex) {
-		if (aData[0] === '') {
-			// Competition header
-			$('td:eq(1)', nRow).html('<h4>' + aData[1] + '</h4>');
-			return;
-		}
-
-		if ($('select[id="results-filter-order"]').val() === 'avg') {
-			$('td:eq(3)', nRow).removeClass('strong');
-			$('td:eq(4)', nRow).addClass('strong');
-            $('td:eq(5)', nRow).removeClass('strong');
-		} else if ($('select[id="results-filter-order"]').val() === 'iqm') {
-            $('td:eq(3)', nRow).removeClass('strong');
-            $('td:eq(4)', nRow).removeClass('strong');
-            $('td:eq(5)', nRow).addClass('strong');
-        } else {
-			$('td:eq(3)', nRow).addClass('strong');
-			$('td:eq(4)', nRow).removeClass('strong');
-            $('td:eq(5)', nRow).removeClass('strong');
-		}
-		
-		$('td:eq(4)', nRow).html(number_format(aData[4], 2, '.', ''));
-        $('td:eq(5)', nRow).html(number_format(aData[5], 2, '.', ''));
-	};
-
-    const resultsTable = $('table[id="results"]').dataTable(config);
-
-    // Custom filtering function
-    $('div[id="results_length"]').closest('div[class="col-sm-6"]').removeClass('col-sm-6').addClass('col-sm-8');
-    $('div[id="results_filter"]').closest('div[class="col-sm-6"]').removeClass('col-sm-6').addClass('col-sm-4');
-	$('div[id="results_length"]').empty().html($('div[id="results-custom-filters"]').html());
-	$('div[id="results-custom-filters"]').remove();
-
-	$('select[id="results-filter-votekey"], select[id="results-filter-order"]').change(function(){
-		resultsTable.fnDraw();
-	});
-});
+        function loadTable() {
+            $.get('<?php echo $Module->formatURL('results') . '&event_id=' . $event['id'] ?>&part=list&calc_by=' + calcBy.val(), function (response) {
+                table.find('tbody').html(response);
+            });
+        }
+    });
 </script>
+<style>
+    #results td {
+        vertical-align: middle;
+    }
+</style>
+<div class="row">
+    <div class="col-sm-9 col-md-8 col-lg-5">
+        <div class="input-group">
+            <select id="results-calc-by" class="form-control">
+                <option <?php echo $event['voting_system'] == "avg" ? 'selected="selected"' : '' ?> value="avg">Preview
+                    with Avg
+                </option>
+                <option <?php echo $event['voting_system'] == "iqm" ? 'selected="selected"' : '' ?> value="iqm">Preview
+                    with IQM
+                </option>
+                <option <?php echo $event['voting_system'] == "pts" ? 'selected="selected"' : '' ?> value="pts">Preview
+                    with Sum
+                </option>
+            </select>
 
-<div id="results-custom-filters" style="display: none;">
-	<select id="results-filter-votekey" class="form-control" style="width: inherit;">
-		<option value="-1">--- all results ---</option>
-		<option value="1">with votekey (online)</option>
-		<option value="0">without votekey (partyplace)</option>
-	</select>
-
-	<select id="results-filter-order" class="form-control" style="width: inherit;">
-		<option value="avg">order by «Average»</option>
-		<option value="pts">order by «Total»</option>
-        <option value="iqm">order by «Interquartile mean»</option>
-	</select>
-	
-	<button id="save-results" class="btn btn-warning" title="Publish results permanently">Save results</button>
+            <div class="input-group-btn">
+                <button id="save-results" title="Publish results permanently"
+                        class="btn btn-warning">Save results by <strong><?php echo $event['voting_system'] ?></strong>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="hidden-xs col-sm-3 col-md-4 col-lg-7">
+        <a class="btn btn-link"
+           href="<?php echo NFW::i()->absolute_path . '/admin/events?action=update&record_id=' . $event['id'] ?>">Change
+            voting system</a>
+    </div>
 </div>
 
 <table id="results" class="table table-striped">
-	<thead>
-		<tr>
-			<th></th>
-			<th>Work</th>
-			<th>Votes</th>
-			<th>Sum</th>
-			<th>Avg</th>
-            <th>IQM</th>
-		</tr>
-	</thead>
+    <thead>
+    <tr>
+        <th>Score</th>
+        <th>#</th>
+        <th>Work</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
 </table>

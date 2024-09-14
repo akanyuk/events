@@ -123,11 +123,6 @@ $(function () {
             $('[role="<?php echo $session_id?>-prop"][id="screenshot"]').not($(this)).removeClass('active btn-info');
         }
 
-        // Only one slide allowed
-        if ($(this).attr('id') === 'slide') {
-            $('[role="<?php echo $session_id?>-prop"][id="slide"]').not($(this)).removeClass('active btn-info');
-        }
-
         $(this).blur();
 
         // Save properties immediately
@@ -136,7 +131,6 @@ $(function () {
             aPost.push({
                 'id': $(this).data('id'),
                 'screenshot': $(this).find('button[id="screenshot"].active').length,
-                'slide': $(this).find('button[id="slide"].active').length,
                 'voting': $(this).find('button[id="voting"].active').length,
                 'image': $(this).find('button[id="image"].active').length,
                 'audio': $(this).find('button[id="audio"].active').length,

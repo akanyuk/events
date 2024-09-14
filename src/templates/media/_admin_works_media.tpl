@@ -15,7 +15,6 @@
 const TITLE_SCREENSHOT = "Screenshot for social media links";
 const TITLE_IMAGE = "Image on work page (can be multiple)";
 const TITLE_AUDIO = "Files for audio playing (mp3 or ogg)";
-const TITLE_SLIDE = "Slide Show Image";
 const TITLE_VOTING = "Download link during voting";
 const TITLE_RELEASE = "Download link after voting";
 
@@ -149,8 +148,6 @@ echo '<style>' . $css . '</style>';
                 <div class="btn-group" role="group">
                     <button role="<?php echo $session_id ?>-prop" id="screenshot" type="button" class="btn btn-default"
                             title="<?php echo TITLE_SCREENSHOT ?>"><span class="fa fa-camera"></span></button>
-                    <button role="<?php echo $session_id ?>-prop" id="slide" type="button" class="btn btn-default"
-                            title="<?php echo TITLE_SLIDE ?>"><span class="fa fa-film"></span></button>
                     <button role="<?php echo $session_id ?>-prop" id="image" type="button" class="btn btn-default"
                             title="<?php echo TITLE_IMAGE ?>"><span class="fa fa-image"></span></button>
                     <button role="<?php echo $session_id ?>-prop" id="audio" type="button" class="btn btn-default"
@@ -232,10 +229,6 @@ echo '<style>' . $css . '</style>';
                                             class="btn btn-default<?php echo $record['is_screenshot'] ? ' btn-info active' : '' ?>"
                                             title="<?php echo TITLE_SCREENSHOT ?>"><span class="fa fa-camera"></span>
                                     </button>
-                                    <button role="<?php echo $session_id ?>-prop" id="slide" type="button"
-                                            class="btn btn-default<?php echo $record['is_slide'] ? ' btn-info active' : '' ?>"
-                                            title="<?php echo TITLE_SLIDE ?>"><span class="fa fa-film"></span>
-                                    </button>
                                     <button role="<?php echo $session_id ?>-prop" id="image" type="button"
                                             class="btn btn-default<?php echo $record['is_image'] ? ' btn-info active' : '' ?>"
                                             title="<?php echo TITLE_IMAGE ?>"><span class="fa fa-image"></span></button>
@@ -263,7 +256,7 @@ echo '<style>' . $css . '</style>';
     </div>
 
     <div class="row">
-        <div class="col-md-6">
+        <div class="hidden-xs col-md-6">
             <div id="dropzone" class="well dropzone"><?php echo $lang_media['Messages']['Dropzone'] ?></div>
         </div>
         <div class="col-md-4">
@@ -301,7 +294,7 @@ echo '<style>' . $css . '</style>';
 </form>
 
 <form id="make-release" class="form-inline" style="padding-top: 20px;">
-    <fieldset>
+    <fieldset style="overflow: hidden">
         <legend>Permanent link:</legend>
         <span id="permanent-link"><?php echo $owner['release_link'] ? '<a href="' . $owner['release_link']['url'] . '">' . $owner['release_link']['url'] . '</a>' : '<em>none</em>' ?></span>
 

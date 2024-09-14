@@ -57,22 +57,23 @@ if (!$eventAlias || !$CEvents->loadByAlias($eventAlias)) {
     NFW::i()->display('main.tpl');
 }
 
-// Page with event, competition or work
-
-if (!$page = $CPages->loadPage('events')) {
-    NFW::i()->stop(404);
-} elseif (!$page['is_active']) {
-    NFW::i()->stop('inactive');
+// Any `event` page can store votekey from request
+if (isset($_GET['key'])) {
+    $votekey = votekey::getVotekey($_GET['key'], $CEvents->record['id']);
+    if (!$votekey->error) {
+        NFW::i()->setCookie('votekey', $_GET['key']);
+    }
 }
 
-if (!$competitionAlias || ($CEvents->record['one_compo_event'] && !$workID)) {
+// Page with event, competition or work
+$page = $CPages->record;
+$page['path'] = "foo";  // Unnecessary. Preventing `index` page
+
+if (!$competitionAlias && !$workID) {
     // Event page
     $page['title'] = $CEvents->record['title'];
 
-    NFW::i()->breadcrumb = array(
-        array('url' => 'events', 'desc' => $lang_main['events']),
-        array('desc' => $CEvents->record['title'])
-    );
+    NFWX::i()->main_search_box = false;
 
     NFWX::i()->main_og['title'] = $CEvents->record['title'];
     NFWX::i()->main_og['description'] = $CEvents->record['announcement_og'] ?: strip_tags($CEvents->record['announcement']);
@@ -86,17 +87,14 @@ if (!$competitionAlias || ($CEvents->record['one_compo_event'] && !$workID)) {
     $competitionsGroups = $CCompetitionsGroups->getRecords($CEvents->record['id']);
 
     // Special render - event with only one compo
-    if ($CEvents->record['one_compo_event'] && !empty($competitions)) {
+    if (count($competitions) == 1) {
         $c = reset($competitions);
         $CCompetitions->reload($c['id']);
 
-        $content = $CEvents->record['content'] . renderCompetitionPage($CCompetitions, $CEvents);
-        setBreadcrumbDesc(null, $CCompetitions->record, 'competition');
-
+        $content = $CEvents->record['content'] . renderCompetitionPage($CCompetitions, $CEvents, true);
         $competitions = array();    // prevent default competitions list
     } else {
         $content = $CEvents->record['content'];
-        setBreadcrumbDesc($CEvents->record, null, 'event');
     }
 
     $page['content'] = $CEvents->renderAction(array(
@@ -130,10 +128,11 @@ if ($workID) {
     }
 
     NFW::i()->breadcrumb = array(
-        array('url' => 'events', 'desc' => $lang_main['events']),
         array('url' => $CEvents->record['alias'], 'desc' => $CEvents->record['title']),
         array('url' => $CEvents->record['alias'] . '/' . $CCompetitions->record['alias'], 'desc' => $CCompetitions->record['title'])
     );
+
+    NFWX::i()->main_search_box = false;
 
     NFWX::i()->main_og['title'] = $CWorks->record['display_title'];
     NFWX::i()->main_og['description'] = $CEvents->record['title'] . ' / ' . $CCompetitions->record['title'];
@@ -146,7 +145,11 @@ if ($workID) {
 
     if ($CCompetitions->record['release_status']['available'] && $CCompetitions->record['release_works']) {
         NFW::i()->registerFunction('display_work_media');
-        $page['content'] = display_work_media($CWorks->record, array('rel' => 'release', 'single' => true));
+        $page['content'] = display_work_media($CWorks->record, [
+            'rel' => 'release',
+            'single' => true,
+            'voting_system' => $CEvents->record['voting_system'],
+        ]);
     } elseif ($CCompetitions->record['voting_status']['available'] && $CCompetitions->record['voting_works']) {
         $page['content'] = $CCompetitions->renderAction(array(
             'event' => $CEvents->record,
@@ -165,11 +168,14 @@ if ($workID) {
 } else {
     // Competition page
     NFW::i()->breadcrumb = array(
-        array('url' => 'events', 'desc' => $lang_main['events']),
         array('url' => $CEvents->record['alias'], 'desc' => $CEvents->record['title']),
         array('desc' => $CCompetitions->record['title'])
     );
-    setBreadcrumbDesc(null, $CCompetitions->record, 'competition');
+    if ($CCompetitions->record['voting_status']['available'] && $CCompetitions->record['voting_works']) {
+        NFW::i()->breadcrumb_status = '<span class="label label-danger">' . $lang_main['voting to'] . ': ' . date('d.m.Y H:i', $CCompetitions->record['voting_to']) . '</span>';
+    }
+
+    NFWX::i()->main_search_box = false;
 
     NFWX::i()->main_og['title'] = $CCompetitions->record['title'];
     NFWX::i()->main_og['description'] = $CEvents->record['title'];
@@ -177,9 +183,12 @@ if ($workID) {
         NFWX::i()->main_og['image'] = tmb($CEvents->record['preview_large'], 500, 500, array('complementary' => true));
     }
 
+    $competitions = $CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id'])));
+    $oneEventCompo = count($competitions) == 1;
+
     $page['title'] = $CCompetitions->record['title'];
     $page['content'] = $CCompetitions->renderAction(array(
-        'content' => renderCompetitionPage($CCompetitions, $CEvents),
+        'content' => renderCompetitionPage($CCompetitions, $CEvents, $oneEventCompo),
         'event' => $CEvents->record,
         'competitions' => $CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id']))),
     ), 'record');
@@ -195,7 +204,7 @@ function setBreadcrumbDesc($event, $competition, $by) {
 
     switch ($by) {
         case 'event':
-            NFW::i()->breadcrumb_status = $event['status_label'] . '&nbsp;&nbsp;&nbsp;<span class="text-muted">' . $event['dates_desc'] . '</span>';
+            NFW::i()->breadcrumb_status = $event['status_label'] . '<span class="text-muted">' . $event['dates_desc'] . '</span>';
             break;
         case 'competition':
             if ($competition['voting_status']['available'] && $competition['voting_works']) {
@@ -205,13 +214,14 @@ function setBreadcrumbDesc($event, $competition, $by) {
     }
 }
 
-function renderCompetitionPage($CCompetitions, $CEvents): string {
+function renderCompetitionPage($CCompetitions, $CEvents, bool $oneCompoEvent): string {
     $compo = $CCompetitions->record;
     $event = $CEvents->record;
 
     if ($compo['release_status']['available'] && $compo['release_works']) {
         return $CCompetitions->renderAction(array(
             'competition' => $compo,
+            'oneCompoEvent' => $oneCompoEvent,
             'event' => $event), '_release');
     } elseif ($compo['voting_status']['available'] && $compo['voting_works']) {
         // Get voting works
@@ -222,13 +232,12 @@ function renderCompetitionPage($CCompetitions, $CEvents): string {
             'filter' => array('voting_only' => true, 'competition_id' => $compo['id']),
             'ORDER BY' => 'w.position'
         ));
-
         return $CCompetitions->renderAction(array(
             'event' => $event,
             'competition' => $compo,
             'works' => $voting_works,
         ), '_voting');
-    } elseif ($event['one_compo_event']) {
+    } elseif ($oneCompoEvent) {
         return $CCompetitions->renderAction(array(
             'showWorksCount' => !$event['hide_works_count'],
             'competition' => $compo,

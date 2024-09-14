@@ -64,15 +64,27 @@ foreach ($CWorks->getRecords(array(
     $works_plain[] = $w;
 }
 
+$calcBy = $CEvents->record['voting_system'];
+
 $CVote = new vote();
 $votes = array();
-foreach ($CVote->getResults($CEvents->record['id']) as $c) {
+foreach ($CVote->getResults($CEvents->record['id'], $calcBy) as $c) {
     foreach ($c['works'] as $v) {
+        switch ($calcBy) {
+            case "iqm":
+                $score = $v['iqm_vote'];
+                break;
+            case "sum":
+                $score = $v['total_scores'];
+                break;
+            default:
+                $score = $v['average_vote'];
+        }
+
         $votes[$v['id']] = array(
             'num_votes' => $v['num_votes'],
             'total_scores' => $v['total_scores'],
-            'average_vote' => $v['average_vote'],
-            'iqm_vote' => $v['iqm_vote'],
+            'score' => $score,
             'place' => $v['place'],
         );
     }
@@ -84,16 +96,11 @@ foreach ($compos as $compo_index => $c) {
     $cur_index = 1;
     foreach ($works_plain as $w) {
         if ($c2i[$w['competition_id']] == $compo_index) {
-            $screenshot = array(
+            $screenshot = $w['screenshot'] ? array(
                 'url' => $w['screenshot']['url'],
                 'filesize' => $w['screenshot']['filesize'],
                 'mime_type' => $w['screenshot']['mime_type']
-            );
-            $slide = array(
-                'url' => $w['slide']['url'],
-                'filesize' => $w['slide']['filesize'],
-                'mime_type' => $w['slide']['mime_type']
-            );
+            ) : null;
 
             $images = array();
             foreach ($w['image_files'] as $f)
@@ -119,6 +126,12 @@ foreach ($compos as $compo_index => $c) {
                     'mime_type' => $f['mime_type']
                 );
 
+            if ($w['place']) {
+                $place = intval($w['place']);
+            } else {
+                $place = $votes[$w['id']]['place'] ?? null;
+            }
+
             $works[$compo_index][$cur_index++] = array(
                 'workId' => $w['id'],
                 'workTitle' => $w['title'],
@@ -130,12 +143,10 @@ foreach ($compos as $compo_index => $c) {
                 'Audio' => $audio,
                 'VotingFiles' => $voting_files,
                 'Screenshot' => $screenshot,
-                'Slide' => $slide,
                 'NumVotes' => $votes[$w['id']]['num_votes'] ?? null,
-                'TotalScores' => $votes[$w['id']]['total_scores'] ?? null,
-                'AverageVote' => $votes[$w['id']]['average_vote'] ?? null,
-                'IQMVote' => $votes[$w['id']]['iqm_vote'] ?? null,
-                'Place' => $votes[$w['id']]['place'] ?? null,
+                'Sum' => $votes[$w['id']]['total_scores'] ?? null,
+                'Score' => $votes[$w['id']]['score'] ?? null,
+                'Place' => $place,
             );
         }
     }

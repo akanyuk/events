@@ -7,9 +7,10 @@ NFW::i()->registerFunction('cache_media');
 /**
  * @param array $work
  * @param array $options :
- *        $options['rel']            string     required    Relation to 'voting' or 'release'
- *        $options['single']         bool       required    Is single work or list
+ *        $options['rel']            string   required    Relation to 'voting' or 'release'
+ *        $options['single']         bool     required    Is single work or list
  *        $options['vote_options']   array
+ *        $options['voting_system']  string               enum: avg, iqm, sum
  * @return false|string
  */
 function display_work_media(array $work = array(), array $options = array()) {
@@ -37,14 +38,12 @@ function display_work_media(array $work = array(), array $options = array()) {
         'vk.com' => array('title' => 'VK', 'bg_pos' => '-256px 0px', 'iframe' => "vkVideoIframeCreator"),
     );
 
-    $lang_main = NFW::i()->getLang('main');
+    $langMain = NFW::i()->getLang('main');
 
-    ob_start();
-    echo '<div class="label label-platform" title="' . $lang_main['works platform'] . '">' . htmlspecialchars($work['platform']) . '</div>';
+    $platformFormat = '<div class="label label-platform" title="' . $langMain['works platform'] . '">' . htmlspecialchars($work['platform']) . '</div>';
     if ($work['format']) {
-        echo '<div class="label label-format" title="' . $lang_main['works format'] . '">' . htmlspecialchars($work['format']) . '</div>';
+        $platformFormat .= '<div class="label label-format" title="' . $langMain['works format'] . '">' . htmlspecialchars($work['format']) . '</div>';
     }
-    $platform_format = ob_get_clean();
 
     ob_start();
 
@@ -53,57 +52,56 @@ function display_work_media(array $work = array(), array $options = array()) {
     // Display header
 
     if ($options['rel'] == 'preview') {
-        $header_title = '<h2>' . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</h2>';
+        $headerTitle = '<h2>' . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</h2>';
     } elseif ($options['rel'] == 'voting' && $options['single']) {
-        $header_title = '<h2>' . htmlspecialchars($work['title']) . '</h2>';
+        $headerTitle = '<h2>' . htmlspecialchars($work['title']) . '</h2>';
     } else if ($options['rel'] == 'voting' && !$options['single']) {
-        $header_title = '<h3><a href="' . $work['main_link'] . '">' . htmlspecialchars($work['title']) . '</a></h3>';
+        $headerTitle = '<h3><a href="' . $work['main_link'] . '">' . htmlspecialchars($work['title']) . '</a></h3>';
     } else if ($options['rel'] == 'release' && $options['single']) {
-        $header_title = '<h2>' . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</h2>';
+        $headerTitle = '<h2>' . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</h2>';
     } else if ($options['rel'] == 'release' && !$options['single']) {
-        $header_title = '<h3><a href="' . $work['main_link'] . '"/>' . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</a></h3>';
+        $headerTitle = '<h3><a href="' . $work['main_link'] . '"/>' . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</a></h3>';
     } else {
-        $header_title = "";
+        $headerTitle = "";
     }
 
     if ($options['rel'] == 'voting' && !$options['single']) {
-        $header_number = '<h3>' . $work['position'] . '.</h3>';
+        $headerNumber = '<h3>' . $work['position'] . '.</h3>';
     } elseif ($options['rel'] == 'release' && $work['place']) {
-        $header_number = '<span class="label label-place" style="font-size: 150%;">' . $work['place'] . '</span>';
+        $headerNumber = '<span class="label label-place" style="font-size: 150%;">' . $work['place'] . '</span>';
     } else {
-        $header_number = false;
+        $headerNumber = false;
     }
 
     echo '<div class="header">';
     echo '<div class="row">';
-    echo $header_number ? '<div class="cell cell-number">' . $header_number . '</div>' : '';
-    echo '<div class="cell">' . $header_title . '</div>';
+    echo $headerNumber ? '<div class="cell cell-number">' . $headerNumber . '</div>' : '';
+    echo '<div class="cell">' . $headerTitle . '</div>';
     echo '</div>';
 
     echo '<div class="row">';
-    echo $header_number ? '<div class="cell"></div>' : '';
-    echo '<div class="cell cell-platform">' . $platform_format . '</div>';
+    echo $headerNumber ? '<div class="cell"></div>' : '';
+    echo '<div class="cell cell-platform">' . $platformFormat . '</div>';
     echo '</div>';
     echo '</div>';
     echo platformDescription($work);
 
-    echo $work['author_note'] ? '<div class="author-note"><strong>' . $lang_main['works author note'] . ':</strong><br />' . nl2br($work['author_note']) . '</div>' : '';
+    echo $work['author_note'] ? '<div class="author-note"><strong>' . $langMain['works author note'] . ':</strong><br />' . nl2br($work['author_note']) . '</div>' : '';
 
-
-    list($linksHTML, $navHTML) = prepareWorkLinks($lang_main, $work, $linksProps, $options['rel']);
+    list($linksHTML, $navHTML) = prepareWorkLinks($langMain, $work, $linksProps, $options['rel']);
 
     echo '<div class="additional-html">' . $work['external_html'] . '</div>' . $navHTML . '<div id="work-iframe"></div>';
 
     if (!empty($work['audio_files'])) {
         echo '<div style="padding: 5px 0;"><audio controls="controls" preload="">';
         foreach ($work['audio_files'] as $f) echo '<source src="' . cache_media($f) . '" type="' . $f['mime_type'] . '" />';
-        echo $lang_main['voting audio not support'] . '</audio></div>';
+        echo $langMain['voting audio not support'] . '</audio></div>';
     }
 
     echo $linksHTML;
 
     if ($options['rel'] != 'preview' && !$options['single']) {
-        echo '<div style="padding-top: 10px;"><a class="btn btn-default" href="' . NFW::i()->absolute_path . '/' . $work['event_alias'] . '/' . $work['competition_alias'] . '/' . $work['id'] . '#comments">' . $lang_main['works comments count'] . ' ' . ($work['comments_count'] ? '<span class="badge">' . $work['comments_count'] . '</span>' : '') . '</a></div>';
+        echo '<div style="padding-top: 10px;"><a class="btn btn-default" href="' . NFW::i()->absolute_path . '/' . $work['event_alias'] . '/' . $work['competition_alias'] . '/' . $work['id'] . '#comments">' . $langMain['works comments count'] . ' ' . ($work['comments_count'] ? '<span class="badge">' . $work['comments_count'] . '</span>' : '') . '</a></div>';
     }
 
     echo '<div style="padding-top: 15px;">';
@@ -112,17 +110,43 @@ function display_work_media(array $work = array(), array $options = array()) {
         foreach ($options['vote_options'] as $i => $d) echo '<option value="' . $i . '">' . $d . '</option>';
         echo '</select>';
     } elseif ($options['rel'] == 'release' && $work['num_votes']) {
-        echo 'vts:<strong>' . $work['num_votes'] . '</strong> pts:<strong>' . $work['total_scores'] . '</strong> avg:<strong>' . $work['average_vote'] . '</strong>';
+        $vs = isset($options['voting_system']) && $options['voting_system'] ? $options['voting_system'] : 'avg';
+
+        echo 'vts:<strong>' . $work['num_votes'] . '</strong>';
+
+        $sum = 'sum:<strong>' . $work['total_scores'] . '</strong>';
+        if ($vs == 'sum') {
+            $sum = '<span class="label label-vts">'.$sum.'</span>';
+        }
+        echo ' '.$sum;
+
+        $avg = 'avg:<strong>' . $work['average_vote'] . '</strong>';
+        if ($vs == 'avg') {
+            $avg = '<span class="label label-vts">'.$avg.'</span>';
+        }
+        echo ' '.$avg;
+
         if (isset($work['iqm_vote']) && $work['iqm_vote'] > 0) {
-            echo ' iqm:<strong>' . $work['iqm_vote'] . '</strong>';
+            $iqm = 'iqm:<strong>' . $work['iqm_vote'] . '</strong>';
+            if ($vs == 'iqm') {
+                $iqm = '<span class="label label-vts">'.$iqm.'</span>';
+            }
+            echo ' '.$iqm;
         }
     }
     echo '</div>'; # <div style="padding-top: 10px;">
 
+
+    if (in_array($work['event_id'], events::get_managed())) {
+        echo '<div style="padding-top: 15px;">';
+        echo '<a class="btn btn-default" href="'.NFW::i()->absolute_path.'/admin/works?action=update&record_id='.$work['id'].'"><i class="fas fa-edit"></i> Edit work profile</a>';
+        echo '</div>';
+    }
+
     if ($options['rel'] == 'voting') {
         echo '
             <div style="padding-top: 10px;">
-                <textarea class="form-control work-comment" name="comment[' . $work['id'] . ']" placeholder="' . $lang_main['works your comment'] . '"></textarea>
+                <textarea class="form-control work-comment" name="comment[' . $work['id'] . ']" placeholder="' . $langMain['works your comment'] . '"></textarea>
             </div>';
     }
 

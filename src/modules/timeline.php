@@ -29,6 +29,7 @@ class timeline extends active_record {
         'title' => array('desc' => 'Title', 'type' => 'str', 'required' => true, 'minlength' => 4, 'maxlength' => 255),
         'description' => array('desc' => 'Description (multilanguage HTML)', 'type' => 'textarea', 'minlength' => 4, 'maxlength' => 2048),
         'type' => array('desc' => 'Type', 'type' => 'string', 'maxlength' => 32),
+        'place' => array('desc' => 'Place', 'type' => 'string', 'maxlength' => 255),
         'is_public' => array('desc' => 'Public', 'type' => 'bool'),
     );
 
@@ -105,6 +106,7 @@ class timeline extends active_record {
 
         foreach ($_POST['title'] as $key => $title) {
             $values = [
+                $key,
                 $CEvents->record['id'],
                 intval($_POST['competition_id'][$key]),
                 strtotime($_POST['begin'][$key]),
@@ -113,11 +115,12 @@ class timeline extends active_record {
                 '\'' . NFW::i()->db->escape($title) . '\'',
                 '\'' . NFW::i()->db->escape($_POST['description'][$key]) . '\'',
                 '\'' . NFW::i()->db->escape($_POST['type'][$key]) . '\'',
+                '\'' . NFW::i()->db->escape($_POST['place'][$key]) . '\'',
                 '\'' . NFW::i()->db->escape($_POST['begin_source'][$key]) . '\'',
                 '\'' . NFW::i()->db->escape($_POST['end_source'][$key]) . '\'',
             ];
             $query = array(
-                'INSERT' => '`event_id`, `competition_id`, `begin`, `end`, `is_public`, `title`, `description`, `type`, `begin_source`, `end_source`',
+                'INSERT' => '`position`, `event_id`, `competition_id`, `begin`, `end`, `is_public`, `title`, `description`, `type`, `place`, `begin_source`, `end_source`',
                 'INTO' => $this->db_table,
                 'VALUES' => implode(', ', $values),
             );
@@ -172,5 +175,9 @@ function formatTimelineRecord($item): array {
 }
 
 function sortTimeline($a, $b): int {
-    return $a['begin'] > $b['begin'] ? 1 : -1;
+    if ($a['begin'] != $b['begin']) {
+        return $a['begin'] > $b['begin'] ? 1 : -1;
+    }
+
+    return $a['position'] > $b['position'] ? 1 : -1;
 }

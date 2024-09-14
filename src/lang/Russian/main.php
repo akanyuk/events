@@ -27,7 +27,6 @@ $lang_main = array(
     'cabinet prods' => 'Мои работы',
     'cabinet profile' => 'Мой профиль',
     'cabinet add work' => 'Загрузить работу',
-    'cabinet add work at' => 'Загрузить работу для',
     'cabinet add choose event' => 'Выберите событие',
     'cabinet add choose event desc' => 'Выберите событие для загрузки работы',
 
@@ -74,8 +73,7 @@ $lang_main = array(
     'works add file comment' => 'Комментарий',
     'works filesize' => 'Размер',
     'works uploaded' => 'Загружен',
-    'filestatus screenshot' => 'Скриншот для ссылок в социальных сетях',
-    'filestatus slide' => 'Файл для показа работы на экране во время фестиваля (пати)',
+    'filestatus screenshot' => 'Скриншот для ссылок в социальных сетях и для показа работы на экране во время фестиваля (пати)',
     'filestatus voting' => 'Файл будет доступен для скачивания во время онлайн голосования',
     'filestatus image' => 'Файл будет отображаться в качестве изображения в публичном профиле работы',
     'filestatus audio' => 'Файл будет использоваться в audio-плеере во время голосования и в публичном профиле работы',
@@ -142,9 +140,9 @@ $lang_main = array(
 
     'votekey-request note' => 'Ключ для голосования будет выслан на указанный e-mail адрес. <br />Адрес опубликован не будет.',
     'votekey-request email label' => 'E-mail адрес',
-    'votekey-request' => 'Запросить ключ',
-    'votekey-another' => 'Другой ключ',
-    'votekey-request long' => 'Запросить ключ голосования',
+    'votekey-request' => 'Запросить НОВЫЙ ключ',
+    'change-votekey' => 'Сменить ключ',
+    'votekey-request long' => 'Запрос ключа голосования',
     'votekey-request send' => 'Отправить запрос',
     'votekey-request wrong email' => 'Некорректный e-mail адрес',
     'votekey-request success note' => 'Ключ голосования отправлен на указанный e-mail адрес.',
@@ -152,6 +150,9 @@ $lang_main = array(
     'votelist nickname' => 'Ваше имя или ник',
     'votelist note' => '<p>В поле «Vote» напротив работы поставьте оценку от <strong>1 до 10</strong>, которой на Ваш взгляд заслуживает работа.</p><p>Если Вы затрудняетесь с оценкой работы, или просто не хотите голосовать - оставьте поле пустым.</p><p>В свободном месте после названия работы Вы можете оставить свой комментарий.</p>',
 
-    // /upload link
-    'upload info' => 'Для загрузки работы Вам необходимо авторизоваться или пройти <a href="/users?action=register">регистрацию</a>.'
+    // `/upload/%alias%` link
+    'upload info' => 'Для загрузки работы Вам необходимо авторизоваться или пройти <a href="/users?action=register">регистрацию</a>.',
+
+    // Live voting related
+    'live voting info' => 'Для использования живого голосования Вам необходимо авторизоваться или пройти <a href="/users?action=register">регистрацию</a>.',
 );

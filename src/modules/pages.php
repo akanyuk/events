@@ -10,8 +10,6 @@ class pages extends active_record {
 			array('module' => 'pages', 'action' => 'update'),
 			array('module' => 'pages', 'action' => 'media_upload'),
 			array('module' => 'pages', 'action' => 'media_modify'),
-		),
-		'advanced-admin' => array(
 			array('module' => 'pages', 'action' => 'insert'),
 			array('module' => 'pages', 'action' => 'delete'),
 		)

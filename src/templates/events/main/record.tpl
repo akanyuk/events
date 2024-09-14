@@ -8,7 +8,17 @@
 
 // Preparing competitions
 $langMain = NFW::i()->getLang('main');
+$isReceptionCan = false;
+$isVotingCan = false;
 foreach ($competitions as $key => $c) {
+    if ($c['reception_status']['future'] || $c['reception_status']['now']) {
+        $isReceptionCan = true;
+    }
+
+    if ($c['voting_status']['future'] || $c['voting_status']['now']) {
+        $isVotingCan = true;
+    }
+
     if ($c['release_status']['available'] && $c['release_works']) {
         $competitions[$key]['is_link'] = true;
         $counter = $c['release_works'];
@@ -49,8 +59,23 @@ if ($event['alias_group'] != "") {
         ];
     }
 }
+?>
+<?php if ($event['is_preview_img']): ?>
+    <div style="display: flex; justify-content: space-between;">
+        <div>
+            <h1 style="margin-top: 0; font-size: 30px;"><?php echo htmlspecialchars($event['title']) ?></h1>
+            <p class="text-muted"><?php echo $event['dates_desc'] ?></p>
+        </div>
+        <div style="margin-left: 10px;">
+            <img src="<?php echo $event['preview_img'] ?>" alt="<?php echo htmlspecialchars($event['title']) ?>"/>
+        </div>
+    </div>
+<?php else: ?>
+    <h1 style="margin-top: 0;"><?php echo htmlspecialchars($event['title']) ?></h1>
+    <p class="text-muted"><?php echo $event['dates_desc'] ?></p>
+<?php endif; ?>
 
-if (sizeof($eventsGroup) > 1): ?>
+<?php if (sizeof($eventsGroup) > 1): ?>
     <nav aria-label="...">
         <ul class="pagination pagination-sm">
             <?php foreach ($eventsGroup as $g): ?>
@@ -60,21 +85,56 @@ if (sizeof($eventsGroup) > 1): ?>
             <?php endforeach; ?>
         </ul>
     </nav>
+<?php else: ?>
+    <hr style="margin: 10px 0;"/>
 <?php endif;
+
+$uploadButton = '';
+if ($isReceptionCan) {
+    if (stristr($content, '%UPLOAD-BUTTON%')) {
+        $content = str_replace('%UPLOAD-BUTTON%', '<a href="' . NFW::i()->absolute_path . '/upload/' . $event['alias'] . '" class="btn btn-upload">' . $langMain['cabinet add work'] . '</a>', $content);
+    } else {
+        $uploadButton = '<a href="' . NFW::i()->absolute_path . '/upload/' . $event['alias'] . '" class="btn btn-upload">' . $langMain['cabinet add work'] . '</a>';
+    }
+} else {
+    $content = str_replace('%UPLOAD-BUTTON%', '', $content);
+}
+
+$liveVotingButton = '';
+if ($isVotingCan) {
+    if (stristr($content, '%LIVE-VOTING-BUTTON%')) {
+        $content = str_replace('%LIVE-VOTING-BUTTON%', '<a href="' . NFW::i()->absolute_path . '/live_voting/' . $event['alias'] . '" class="btn btn-live-voting">Live voting</a>', $content);
+    } else {
+        $liveVotingButton = '<a href="' . NFW::i()->absolute_path . '/live_voting/' . $event['alias'] . '" class="btn btn-live-voting">Live voting</a>';
+    }
+} else {
+    $content = str_replace('%LIVE-VOTING-BUTTON%', '', $content);
+}
+
+if (stristr($content, '%TIMETABLE%')) {
+    $content = str_replace('%TIMETABLE%', timetable($event['id']), $content);
+    $timetable = '';
+} else {
+    $timetable = timetable($event['id']);
+}
 
 if (stristr($content, '%COMPETITIONS-LIST-SHORT%')) {
     $content = str_replace('%COMPETITIONS-LIST-SHORT%', competitionsListShort($competitionsGroups, $competitions), $content);
+    $competitionsListShort = '';
+} else {
+    $competitionsListShort = competitionsListShort($competitionsGroups, $competitions);
 }
 
 if (stristr($content, '%COMPETITIONS-LIST%')) {
     $content = str_replace('%COMPETITIONS-LIST%', competitionsList($competitionsGroups, $competitions), $content);
-    echo $content;
+    $competitionsList = '';
 } else {
-    echo $content . competitionsList($competitionsGroups, $competitions);
+    $competitionsList = competitionsList($competitionsGroups, $competitions);
 }
 
+echo $content . ' ' . $uploadButton . ' ' . $liveVotingButton . ' ' . $timetable . ' ' . $competitionsListShort . ' ' . $competitionsList;
 
-function competitionsListShort($competitionsGroups, $competitions) {
+function competitionsListShort($competitionsGroups, $competitions): string {
     ob_start();
 
     if (empty($competitionsGroups)) {
@@ -90,7 +150,7 @@ function competitionsListShort($competitionsGroups, $competitions) {
                 <div class="counter"><?php echo $c['count_label'] ?></div>
             </div>
         <?php endforeach;
-        return ob_get_clean();
+        return '<div class="competitions-list-short">' . ob_get_clean() . '</div>';
     }
 
     foreach ($competitionsGroups as $group): ?>
@@ -128,7 +188,7 @@ function competitionsListShort($competitionsGroups, $competitions) {
         </div>
     <?php endif; endforeach;
 
-    return ob_get_clean();
+    return '<div class="competitions-list-short">' . ob_get_clean() . '</div>';
 }
 
 function competitionsList($competitionsGroups, $competitions): string {
@@ -139,20 +199,21 @@ function competitionsList($competitionsGroups, $competitions): string {
     ob_start();
     if (empty($competitionsGroups)) {
         foreach ($competitions as $compo) {
-            echo competitionsListCompo($compo);
+            echo _compo($compo);
         }
         return '<div class="event-competitions">' . ob_get_clean() . '</div>';
     }
 
     foreach ($competitionsGroups as $group) {
-?>
-        <div id="<?php echo str_replace(" ", "_", htmlspecialchars($group['title'])) ?>" style="position: relative; top: -60px;"></div>
+        ?>
+        <div id="<?php echo str_replace(" ", "_", htmlspecialchars($group['title'])) ?>"
+             style="position: relative; top: -60px;"></div>
         <h2><?php echo htmlspecialchars($group['title']) ?></h2>
         <?php echo $group['announcement'] ?>
-<?php
+        <?php
         foreach ($competitions as $compo) {
             if ($compo['competitions_groups_id'] == $group['id']) {
-                echo competitionsListCompo($compo);
+                echo _compo($compo);
             }
         }
     }
@@ -160,15 +221,17 @@ function competitionsList($competitionsGroups, $competitions): string {
     // Without group
     foreach ($competitions as $compo) {
         if ($compo['competitions_groups_id'] == 0) {
-            echo competitionsListCompo($compo);
+            echo _compo($compo);
         }
     }
 
-    return '<div class="event-competitions">'.ob_get_clean().'</div>';
+    return '<div class="event-competitions">' . ob_get_clean() . '</div>';
 }
 
-function competitionsListCompo($compo) {
+function _compo($compo) {
     $langMain = NFW::i()->getLang('main');
+    $receptionAvailable = $compo['reception_status']['now'] || $compo['reception_status']['future'];
+    $votingAvailable = $compo['voting_status']['now'] || $compo['voting_status']['future'];
 
     ob_start();
     ?>
@@ -183,42 +246,113 @@ function competitionsListCompo($compo) {
 
     <p><?php echo $compo['announcement'] ?></p>
 
-    <div class="panel panel-default">
-        <div class="panel-body">
-            <p><?php echo $langMain['competitions reception'] ?>:
-                <?php if ($compo['reception_from']): ?>
-                    <span class="hidden-xs">
-                                <strong><?php echo date('d.m.Y H:i', $compo['reception_from']) . ' - ' . date('d.m.Y H:i', $compo['reception_to']) ?></strong>
-                            </span>
-                <?php endif; ?>
+    <?php if (!$compo['reception_status']['newer'] || !$compo['voting_status']['newer']): ?>
+    <ul>
+        <?php if (!$compo['reception_status']['newer']): ?>
+        <li>
+            <?php echo $langMain['competitions reception'] ?>
+            <?php if ($compo['reception_from']): ?>
+                <span style="white-space: nowrap; <?php echo $compo['reception_status']['past'] ? 'color: #777;' : 'font-weight: bold;'?>"><?php echo date('d.m H:i', $compo['reception_from']) . ' - ' . date('d.m H:i', $compo['reception_to']) ?></span>
+            <?php endif; ?>
+            <?php if ($receptionAvailable): ?>
                 <span class="label <?php echo $compo['reception_status']['label-class'] ?>"><?php echo $compo['reception_status']['desc'] ?></span>
-                <?php if ($compo['reception_from']): ?>
-                    <span class="visible-xs">
-                                <small class="text-muted" style="display: block; padding-top: 5px;">
-                                    <?php echo date('d.m.Y H:i', $compo['reception_from']) . ' - ' . date('d.m.Y H:i', $compo['reception_to']) ?>
-                                </small>
-                            </span>
-                <?php endif; ?>
-            </p>
-            <p><?php echo $langMain['competitions voting'] ?>:
-                <?php if ($compo['voting_from']): ?>
-                    <span class="hidden-xs">
-                                <strong><?php echo date('d.m.Y H:i', $compo['voting_from']) . ' - ' . date('d.m.Y H:i', $compo['voting_to']) ?></strong>
-                            </span>
-                <?php endif; ?>
+            <?php endif; ?>
+        </li>
+        <?php endif; ?>
+        <?php if (!$compo['voting_status']['newer']): ?>
+        <li>
+            <?php echo $langMain['competitions voting'] ?>
+            <?php if ($compo['voting_from']): ?>
+                <span style="white-space: nowrap; <?php echo $compo['voting_status']['past'] ? 'color: #777;' : 'font-weight: bold;'?>"><?php echo date('d.m H:i', $compo['voting_from']) . ' - ' . date('d.m H:i', $compo['voting_to']) ?></span>
+            <?php endif; ?>
+            <?php if ($votingAvailable): ?>
                 <span class="label <?php echo $compo['voting_status']['label-class'] ?>"><?php echo $compo['voting_status']['desc'] ?></span>
-                <?php if ($compo['voting_from']): ?>
-                    <span class="visible-xs">
-                            <small class="text-muted" style="display: block; padding-top: 5px;">
-                                <?php echo date('d.m.Y H:i', $compo['voting_from']) . ' - ' . date('d.m.Y H:i', $compo['voting_to']) ?>
-                            </small>
-                        </span>
-                <?php endif; ?>
-            </p>
-        </div>
-    </div>
+            <?php endif; ?>
+        </li>
+        <?php endif; ?>
+    </ul>
+    <?php endif; ?>
 
-    <div style="font-size: 200%;"><a href="#top"><span class="fa fa-caret-up"></span></a></div>
+    <div style="font-size: 200%;"><a href="<?php echo '#top' ?>"><span class="fa fa-caret-up"></span></a></div>
     <?php
     return ob_get_clean();
+}
+
+function timetable(int $eventID) {
+    $rows = _timetableRows($eventID);
+    if (empty($rows)) {
+        return "";
+    }
+
+    ob_start();
+    ?>
+    <table class="table table-condensed table-timetable">
+        <tbody>
+        <?php
+        foreach ($rows as $r) {
+            if (isset($r['date'])) {
+                echo '<tr><td colspan="3"><h3>' . $r['date'] . '</h3></td></tr>';
+                continue;
+            }
+            ?>
+            <tr class="<?php echo $r['type'] ?>">
+                <?php echo $r['time'] ? '<td class="td-dt" rowspan="' . $r['rowspan'] . '">' . $r['time'] . '</td>' : '' ?>
+                <td class="td-place"><?php echo $r['place'] ? '<span class="label label-default label-' . $r['place'] . '">' . $r['place'] . '</span>' : '' ?></td>
+                <td><?php echo $r['description'] ?></td>
+            </tr>
+            <?
+        }
+        ?>
+        </tbody>
+    </table>
+    <?php
+    return ob_get_clean();
+}
+
+function _timetableRows(int $eventID): array {
+    $CTimeline = new timeline();
+
+    $result = [];
+    $curDate = '';
+    foreach ($CTimeline->getRecords($eventID) as $record) {
+        if (!$record['is_public']) {
+            continue;
+        }
+
+        $d = date('d.m.Y', $record['begin']);
+        if ($curDate != $d) {
+            $result[] = [
+                'date' => $d,
+            ];
+            $curDate = $d;
+        }
+
+        $result[] = [
+            'time' => date('H:i', $record['begin']),
+            'type' => $record['type'],
+            'place' => $record['place'],
+            'description' => $record['description'],
+            'rowspan' => 1,
+        ];
+    }
+
+    $prevT = "-";
+    $rowspanKey = 0;
+    foreach ($result as $k => $r) {
+        if (!isset($r['time'])) {
+            continue;
+        }
+
+        $curT = $r['time'];
+        if ($r['time'] == $prevT) {
+            $result[$k]['time'] = '';
+            $result[$rowspanKey]['rowspan']++;
+        } else {
+            $rowspanKey = $k;
+        }
+
+        $prevT = $curT;
+    }
+
+    return $result;
 }

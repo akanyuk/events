@@ -99,21 +99,17 @@ class works extends active_record {
         $record['status_info'] = $this->attributes['status']['options'][$record['status']];
 
         // Convert `media_info`
-        $record['screenshot'] = $record['slide'] = false;
+        $record['screenshot'] = false;
         $record['voting_files'] = $record['release_files'] = $record['audio_files'] = $record['image_files'] = [];
 
         $media_info = NFW::i()->unserializeArray($record['media_info']);
         $record['media_info'] = array();
         foreach ($record['attachments'] as $a) {
-            $a['is_screenshot'] = $a['is_slide'] = $a['is_voting'] = $a['is_image'] = $a['is_audio'] = $a['is_release'] = false;
+            $a['is_screenshot'] = $a['is_voting'] = $a['is_image'] = $a['is_audio'] = $a['is_release'] = false;
 
             if (isset($media_info[$a['id']]['screenshot']) && $media_info[$a['id']]['screenshot']) {
                 $record['screenshot'] = $a;
                 $a['is_screenshot'] = true;
-            }
-            if (isset($media_info[$a['id']]['slide']) && $media_info[$a['id']]['slide']) {
-                $record['slide'] = $a;
-                $a['is_slide'] = true;
             }
             if (isset($media_info[$a['id']]['voting']) && $media_info[$a['id']]['voting']) {
                 $record['voting_files'][] = $a;
@@ -711,6 +707,16 @@ class works extends active_record {
             return false;
         }
 
+        $CCompetitions = new competitions($this->record['competition_id']);
+        if (!$CCompetitions->record['id']) {
+            $this->error($CCompetitions->last_msg);
+            return false;
+        }
+
+        if (!$this->load($_GET['record_id']) || !$this->loadEditorOptions($this->record['event_id'])) {
+            return false;
+        }
+
         // Fetch personal info
         if (!$result = NFW::i()->db->query_build(array('SELECT' => 'is_checked, is_marked, comment', 'FROM' => 'works_managers_notes', 'WHERE' => 'work_id=' . $this->record['id'] . ' AND user_id=' . NFW::i()->user['id']))) {
             return false;
@@ -731,6 +737,7 @@ class works extends active_record {
         }
 
         return $this->renderAction([
+            "CCompetitions" => $CCompetitions,
             "personalNote" => $personalNote,
             "linkTitles" => $linkTitles,
         ]);

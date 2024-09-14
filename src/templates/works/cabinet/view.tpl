@@ -171,9 +171,6 @@ $successDialog->render();
                             <?php if ($a['is_screenshot']): ?>
                                 <span class="fa fa-camera text-success" title="<?php echo $lang_main['filestatus screenshot']?>"></span>
                             <?php endif;?>
-                            <?php if ($a['is_slide']): ?>
-                                <span class="fa fa-film text-success" title="<?php echo $lang_main['filestatus slide']?>"></span>
-                            <?php endif;?>
                             <?php if ($a['is_image']): ?>
                                 <span class="fa fa-image text-success" title="<?php echo $lang_main['filestatus image']?>"></span>
                             <?php endif;?>
@@ -198,7 +195,6 @@ $successDialog->render();
                 <td class="nowrap filestatus">
                     <div class="hidden-xs">
                         <span class="fa fa-camera <?php echo $a['is_screenshot'] ? 'text-success' : 'text-muted'?>" title="<?php echo $lang_main['filestatus screenshot']?>"></span>
-                        <span class="fa fa-film <?php echo $a['is_slide'] ? 'text-success' : 'text-muted'?>" title="<?php echo $lang_main['filestatus slide']?>"></span>
                         <span class="fa fa-image <?php echo $a['is_image'] ? 'text-success' : 'text-muted'?>" title="<?php echo $lang_main['filestatus image']?>"></span>
                         <span class="fa fa-headphones <?php echo $a['is_audio'] ? 'text-success' : 'text-muted'?>" title="<?php echo $lang_main['filestatus audio']?>"></span>
                         <span class="fa fa-poll <?php echo $a['is_voting'] ? 'text-success' : 'text-muted'?>" title="<?php echo $lang_main['filestatus voting']?>"></span>

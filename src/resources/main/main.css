@@ -46,6 +46,41 @@ html[lang="ru"] .hidden-lang-ru {
     color: #fff;
 }
 
+
+.dm-nav .lang-change {
+    color: #fff;
+    font-size: 80%;
+    font-weight: bold;
+    float: right;
+    padding-top: 12px;
+    padding-right: 20px;
+}
+
+.dm-nav .lang-change a {
+    color: #fff;
+    font-weight: normal;
+}
+
+.dm-nav .lang-change a:hover {
+    color: #FFFBD7;
+}
+
+.mobile-login-form {
+    margin-top: 10px;
+}
+
+.mobile-login-form .help-block {
+    color: #a00;
+}
+
+.mobile-login-form A {
+    color: #fff;
+}
+
+.mobile-login-form A:hover {
+    color: #FFFBD7;
+}
+
 #page-content {
     padding-top: 60px;
     padding-bottom: 1em;
@@ -169,8 +204,12 @@ h2.index-head {
     background-color: #31606e;
 }
 
-.label-place {
+.label-place, .label-vts {
     background-color: #212e72;
+}
+
+.label-vts {
+    font-size: 100%;
 }
 
 /* display works */
@@ -331,11 +370,6 @@ audio {
         display: none;
     }
 
-    .owl-carousel .owl-item img {
-        width: inherit !important;
-        display: inline !important;
-    }
-
     .works-media-container TEXTAREA.work-comment {
         width: 640px;
         height: 100px;
@@ -346,57 +380,52 @@ audio {
     }
 }
 
-.dm-nav .lang-change {
+/* event page */
+
+.btn-upload, .btn-live-voting {
     color: #fff;
-    font-size: 80%;
-    font-weight: bold;
-    float: right;
-    padding-top: 12px;
-    padding-right: 20px;
+    background-color: #4a9b4a;
+    border-color: #4a9b4a;
 }
 
-.dm-nav .lang-change a {
-    color: #fff;
-    font-weight: normal;
+.btn-upload:focus,
+.btn-live-voting:focus {
+    color: #fff !important;
+    background-color: #346f34;
+    border-color: #346f34;
 }
 
-.dm-nav .lang-change a:hover {
-    color: #FFFBD7;
+.btn-upload:hover,
+.btn-live-voting:hover {
+    color: #fff !important;
+    background-color: #346f34;
+    border-color: #346f34;
 }
 
-.mobile-login-form {
-    margin-top: 10px;
+.btn-upload:active,
+.btn-live-voting:active {
+    color: #fff !important;
+    background-color: #346f34;
+    border-color: #346f34;
 }
 
-.mobile-login-form .help-block {
-    color: #a00;
+@media (max-width: 768px) {
+    .btn-full-xs, .btn-upload, .btn-live-voting {
+        display: block;
+        width: 100%;
+        margin-bottom: 5px !important;
+    }
 }
 
-.mobile-login-form A {
-    color: #fff;
-}
-
-.mobile-login-form A:hover {
-    color: #FFFBD7;
-}
-
-/* List of competitions on event page */
-
-.event-competitions .panel-primary {
-    border-color: #ccc;
-}
-
-.event-competitions .panel {
-    background-color: #f5f5f5;
-}
-
-.event-competitions .panel-body {
-    padding: 10px 15px;
+.competitions-list-short {
+    margin-top: 20px;
+    margin-bottom: 10px;
 }
 
 .competitions-list-short .item {
     display: flex;
     justify-content: space-between;
+    padding: 0.3rem 1rem;
     margin-bottom: 0.2em;
 }
 
@@ -418,47 +447,36 @@ audio {
     padding-right: 20px;
 }
 
-.live-voting {
-    transition: opacity 1s;
-    background-color: #000;
-    color: #fff;
-    margin-bottom: 10px;
+.competitions-list-short .item:nth-child(odd) {
+    background-color: #f8f8f8;
 }
 
-.live-voting > .top-container {
-    padding: 2px;
-    display: flex;
-    align-items: center;
+.competitions-list-short .item:hover {
+    background-color: #eee;
 }
 
-.live-voting > .top-container DIV {
-    padding: 10px 20px;
+/* Timetable */
+
+.table-timetable > tbody > tr > td {
+    padding: 5px;
 }
 
-.live-voting IMG {
-    max-width: 256px;
+.table-timetable > tbody > tr:first-child > td{
+    border-top: none;
 }
 
-.btn-group-live-voting .btn-default {
-    color: #fff;
-    background-color: #1f2a20;
-    border-color: #63745b;
+.table-timetable .td-dt {
+    vertical-align: middle;
+    font-weight: bold;
+    text-align: right;
+    font-size: 120%;
 }
 
-.btn-group-live-voting .btn-primary.active {
-    color: #000;
-    background-color: #beeab8;
-    border-color: #63745b;
+.table-timetable .td-place {
+    text-align: center;
+    vertical-align: middle;
 }
 
-@media (max-width: 768px) {
-    .live-voting IMG {
-        max-width: 128px;
-    }
-
-    .btn-group-live-voting A {
-        padding: 3px 5px;
-        font-size: 12px;
-        line-height: 1.5;
-    }
+.table-timetable .td-place SPAN {
+    display: block;
 }
