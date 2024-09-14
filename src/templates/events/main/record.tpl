@@ -266,7 +266,7 @@ function _compo($compo) {
         </dd>
     </dl>
 
-    <div style="font-size: 200%;"><a href="#top"><span class="fa fa-caret-up"></span></a></div>
+    <div style="font-size: 200%;"><a href="<?php echo '#top'?>"><span class="fa fa-caret-up"></span></a></div>
     <?php
     return ob_get_clean();
 }
