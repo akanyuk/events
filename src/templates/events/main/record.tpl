@@ -251,7 +251,7 @@ function _compo($compo) {
         </dt>
         <dd>
             <?php if ($compo['reception_from']): ?>
-                <?php echo date('d.m.Y H:i', $compo['reception_from']) . ' - ' . date('d.m.Y H:i', $compo['reception_to']) ?>
+                <?php echo date('d.m.y H:i', $compo['reception_from']) . ' - ' . date('d.m.y H:i', $compo['reception_to']) ?>
             <?php endif; ?>
         </dd>
 
@@ -261,7 +261,7 @@ function _compo($compo) {
         </dt>
         <dd>
             <?php if ($compo['voting_from']): ?>
-                <?php echo date('d.m.Y H:i', $compo['voting_from']) . ' - ' . date('d.m.Y H:i', $compo['voting_to']) ?>
+                <?php echo date('d.m.y H:i', $compo['voting_from']) . ' - ' . date('d.m.y H:i', $compo['voting_to']) ?>
             <?php endif; ?>
         </dd>
     </dl>
