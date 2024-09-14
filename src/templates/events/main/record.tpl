@@ -230,6 +230,8 @@ function competitionsList($competitionsGroups, $competitions): string {
 
 function _compo($compo) {
     $langMain = NFW::i()->getLang('main');
+    $receptionAvailable = $compo['reception_status']['now'] || $compo['reception_status']['future'];
+    $votingAvailable = $compo['voting_status']['now'] || $compo['voting_status']['future'];
 
     ob_start();
     ?>
@@ -244,29 +246,34 @@ function _compo($compo) {
 
     <p><?php echo $compo['announcement'] ?></p>
 
-    <dl>
-        <dt>
+    <?php if (!$compo['reception_status']['newer'] || !$compo['voting_status']['newer']): ?>
+    <ul>
+        <?php if (!$compo['reception_status']['newer']): ?>
+        <li>
             <?php echo $langMain['competitions reception'] ?>
-            <span class="label <?php echo $compo['reception_status']['label-class'] ?>"><?php echo $compo['reception_status']['desc'] ?></span>
-        </dt>
-        <dd>
             <?php if ($compo['reception_from']): ?>
-                <?php echo date('d.m.y H:i', $compo['reception_from']) . ' - ' . date('d.m.y H:i', $compo['reception_to']) ?>
+                <span style="white-space: nowrap; <?php echo $compo['reception_status']['past'] ? 'color: #777;' : 'font-weight: bold;'?>"><?php echo date('d.m H:i', $compo['reception_from']) . ' - ' . date('d.m H:i', $compo['reception_to']) ?></span>
             <?php endif; ?>
-        </dd>
-
-        <dt>
+            <?php if ($receptionAvailable): ?>
+                <span class="label <?php echo $compo['reception_status']['label-class'] ?>"><?php echo $compo['reception_status']['desc'] ?></span>
+            <?php endif; ?>
+        </li>
+        <?php endif; ?>
+        <?php if (!$compo['voting_status']['newer']): ?>
+        <li>
             <?php echo $langMain['competitions voting'] ?>
-            <span class="label <?php echo $compo['voting_status']['label-class'] ?>"><?php echo $compo['voting_status']['desc'] ?></span>
-        </dt>
-        <dd>
             <?php if ($compo['voting_from']): ?>
-                <?php echo date('d.m.y H:i', $compo['voting_from']) . ' - ' . date('d.m.y H:i', $compo['voting_to']) ?>
+                <span style="white-space: nowrap; <?php echo $compo['voting_status']['past'] ? 'color: #777;' : 'font-weight: bold;'?>"><?php echo date('d.m H:i', $compo['voting_from']) . ' - ' . date('d.m H:i', $compo['voting_to']) ?></span>
             <?php endif; ?>
-        </dd>
-    </dl>
+            <?php if ($votingAvailable): ?>
+                <span class="label <?php echo $compo['voting_status']['label-class'] ?>"><?php echo $compo['voting_status']['desc'] ?></span>
+            <?php endif; ?>
+        </li>
+        <?php endif; ?>
+    </ul>
+    <?php endif; ?>
 
-    <div style="font-size: 200%;"><a href="<?php echo '#top'?>"><span class="fa fa-caret-up"></span></a></div>
+    <div style="font-size: 200%;"><a href="<?php echo '#top' ?>"><span class="fa fa-caret-up"></span></a></div>
     <?php
     return ob_get_clean();
 }
