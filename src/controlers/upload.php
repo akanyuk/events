@@ -12,7 +12,6 @@ $event = count($pathParts) == 2 ? eventFromAlias($pathParts[1]) : false;
 if (NFW::i()->user['is_guest']) {
     $lang_main = NFW::i()->getLang("main");
 
-    NFWX::i()->main_search_box = false;
     NFWX::i()->main_right_pane = false;
 
     $pageTitle = $lang_main['cabinet add work'];

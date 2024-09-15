@@ -78,7 +78,7 @@ $(document).ready(function(){
 		 	<span class="help-block"></span>
 		 </div>
 		<div class="col-md-6">
-			<div class="alert alert-warning dm-alert-cond">
+			<div class="alert alert-warning">
 				<p><?php echo $lang_media['MaxFileSize']?>: <strong><?php echo number_format($MAX_FILE_SIZE / 1048576, 2, '.', ' ')?>Mb</strong></p>
 				<p><?php echo $lang_media['MaxSessionSize']?>: <strong><?php echo number_format($MAX_SESSION_SIZE / 1048576, 2, '.', ' ')?>Mb</strong></p>
 				<p><?php echo $lang_media['CurrentSessionSize']?>: <strong><span id="session_size">0</span>Mb</strong></p>

@@ -73,8 +73,6 @@ if (!$competitionAlias && !$workID) {
     // Event page
     $page['title'] = $CEvents->record['title'];
 
-    NFWX::i()->main_search_box = false;
-
     NFWX::i()->main_og['title'] = $CEvents->record['title'];
     NFWX::i()->main_og['description'] = $CEvents->record['announcement_og'] ?: strip_tags($CEvents->record['announcement']);
     if ($CEvents->record['preview_img_large']) {
@@ -132,8 +130,6 @@ if ($workID) {
         array('url' => $CEvents->record['alias'] . '/' . $CCompetitions->record['alias'], 'desc' => $CCompetitions->record['title'])
     );
 
-    NFWX::i()->main_search_box = false;
-
     NFWX::i()->main_og['title'] = $CWorks->record['display_title'];
     NFWX::i()->main_og['description'] = $CEvents->record['title'] . ' / ' . $CCompetitions->record['title'];
     if ($CWorks->record['screenshot']) {
@@ -175,8 +171,6 @@ if ($workID) {
         NFW::i()->breadcrumb_status = '<span class="label label-danger">' . $lang_main['voting to'] . ': ' . date('d.m.Y H:i', $CCompetitions->record['voting_to']) . '</span>';
     }
 
-    NFWX::i()->main_search_box = false;
-
     NFWX::i()->main_og['title'] = $CCompetitions->record['title'];
     NFWX::i()->main_og['description'] = $CEvents->record['title'];
     if ($CEvents->record['preview_img_large']) {
@@ -195,23 +189,6 @@ if ($workID) {
 
     NFW::i()->assign('page', $page);
     NFW::i()->display('main.tpl');
-}
-
-function setBreadcrumbDesc($event, $competition, $by) {
-    NFW::i()->breadcrumb_status = '';
-
-    $lang_main = NFW::i()->getLang('main');
-
-    switch ($by) {
-        case 'event':
-            NFW::i()->breadcrumb_status = $event['status_label'] . '<span class="text-muted">' . $event['dates_desc'] . '</span>';
-            break;
-        case 'competition':
-            if ($competition['voting_status']['available'] && $competition['voting_works']) {
-                NFW::i()->breadcrumb_status = '<span class="label label-danger">' . $lang_main['voting to'] . ': ' . date('d.m.Y H:i', $competition['voting_to']) . '</span>';
-                break;
-            }
-    }
 }
 
 function renderCompetitionPage($CCompetitions, $CEvents, bool $oneCompoEvent): string {

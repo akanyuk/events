@@ -44,10 +44,6 @@ if (!empty($upcoming)) {
     }
 }
 
-echo '<div class="well well-sm">';
-echo '<input id="works-search" class="form-control" placeholder="' . $lang_main['search hint'] . '" />';
-echo '</div>';
-
 if ($worksComments) {
     echo '<div class="hidden-md hidden-sm hidden-lg">';
     echo '<h2 class="index-head">' . $lang_main['latest comments'] . '</h2>';

@@ -6,7 +6,6 @@ NFW::i()->registerResource('jquery.activeForm');
 NFW::i()->registerResource('bootstrap3.typeahead');
 
 NFW::i()->assign('page_title', $Module->lang['Registration']);
-NFW::i()->main_login_form = false;
 
 $lang_main = NFW::i()->getLang('main');
 

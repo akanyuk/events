@@ -15,7 +15,6 @@ elseif (!$page['is_active']) {
 }
 
 NFW::i()->current_controler = 'cabinet';
-NFWX::i()->main_search_box = false;
 
 // Determine module, disable subdirectories
 @list($foo, $bar, $module, $wrong) = explode('/', parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));

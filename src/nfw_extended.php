@@ -12,8 +12,6 @@ class NFWX extends NFW {
     var $actual_date = false;
 
     var array $main_og = array();             # мета теги для Open Graph
-    var bool $main_login_form = true;        # форма авторизации, по умолчанию включена
-    var bool $main_search_box = true;        # строка поиска, по умолчанию включена
     var bool $main_right_pane = true;        # правая панель, по умолчанию включена
 
     function __construct($init_cfg = null) {
@@ -26,7 +24,12 @@ class NFWX extends NFW {
         parent::__construct($init_cfg);
         self::$_ext_instance = $this;
 
-        $this->resources_depends['main'] = array('resources' => array('jquery', 'bootstrap3.typeahead', 'font-awesome'));
+        $this->resources_depends['main'] = array(
+            'resources' => array(
+                'jquery',
+//                'bootstrap3.typeahead',
+//                'font-awesome',
+            ));
 
         // Preload all available settings
         $CSettings = new settings();

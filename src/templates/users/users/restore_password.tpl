@@ -1,7 +1,6 @@
 <?php
 	NFW::i()->registerResource('jquery.activeForm');
 	NFW::i()->assign('page_title', $Module->lang['Restore password']);
-	NFW::i()->main_login_form = false;
 
 	// Success dialog
 	NFW::i()->registerFunction('ui_dialog');

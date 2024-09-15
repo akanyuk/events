@@ -87,7 +87,7 @@ echo $CMedia->openSession(array(
 	
 	<div class="row">
 		<div class="col-md-offset-3 col-md-9">
-			<div class="alert alert-info dm-alert-cond"><?php echo $lang_main['works upload info']?></div>
+			<div class="alert alert-info"><?php echo $lang_main['works upload info']?></div>
 			<button id="add-work" class="btn btn-primary"><?php echo $lang_main['works send']?></button>
 		</div>
 	</div>

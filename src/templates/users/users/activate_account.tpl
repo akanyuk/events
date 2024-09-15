@@ -1,7 +1,6 @@
 <?php
 	NFW::i()->registerResource('jquery.activeForm');
 	NFW::i()->assign('page_title', $Module->lang['Activation']);
-	NFW::i()->main_login_form = false;
 ?>
 <script type="text/javascript">
 $(document).ready(function(){

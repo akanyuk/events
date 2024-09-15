@@ -1,5 +1,4 @@
 <?php
-	NFWX::i()->main_search_box = false;
 	NFWX::i()->main_right_pane = false;
 	
 	NFW::i()->registerResource('jquery.activeForm');

@@ -14,7 +14,6 @@ $classname = NFW::i()->getClass('users', true);
 $CUsers = new $classname ();
 
 NFW::i()->assign('Module', $CUsers);
-NFW::i()->main_search_box = false;
 
 $page = array(
 	'path' => parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH),

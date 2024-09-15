@@ -5,7 +5,7 @@
  */
 reset($page);
 
-NFW::i()->registerResource('bootstrap');
+//NFW::i()->registerResource('bootstrap');
 NFW::i()->registerResource('main');
 NFW::i()->registerFunction('page_is');
 
@@ -13,56 +13,46 @@ if (NFW::i()->user['is_guest']) {
     NFW::i()->registerResource('jquery.activeForm');
 }
 
-$lang_main = NFW::i()->getLang('main');
-$lang_users = NFW::i()->getLang('users');
+$langMain = NFW::i()->getLang('main');
+$langUsers = NFW::i()->getLang('users');
 
-// Collecting `meta_keywords` from project and page setting
-$page['meta_keywords'] = $page['meta_keywords'] ?? '';
-$page['meta_description'] = $page['meta_description'] ?? '';
-$meta_keywords = array();
-foreach (explode(',', NFWX::i()->project_settings['meta_keywords'] . ',' . $page['meta_keywords']) as $keyword) {
-    $keyword = trim($keyword);
-    if (!$keyword) continue;
-    $meta_keywords[] = $keyword;
+// Selecting theme
+$theme = 'auto';
+if (isset($_GET['theme']) && in_array($_GET['theme'], ['light', 'dark'])) {
+    $theme = $_GET['theme'];
+    NFW::i()->setCookie('theme', $theme, time() + 60 * 60 * 24 * 365);
+} elseif (isset($_COOKIE['theme']) && in_array($_COOKIE['theme'], ['light', 'dark'])) {
+    $theme = $_COOKIE['theme'];
 }
-$meta_keywords = implode(',', array_unique($meta_keywords));
-
-$is_latest_comments = !(page_is('comments.html') || NFW::i()->current_controler != 'main');
+$themeLinkLight = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . '?' . http_build_query(array_merge($_GET, array('theme' => 'light')));
+$themeLinkDark = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . '?' . http_build_query(array_merge($_GET, array('theme' => 'dark')));
 
 // Generate change language links
-$lang_links = array(
-    NFW::i()->user['language'] == 'English' ? 'english' : '<a href="' . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . '?' . http_build_query(array_merge($_GET, array('lang' => 'English'))) . '">english</a>',
-    NFW::i()->user['language'] == 'Russian' ? 'русский' : '<a href="' . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . '?' . http_build_query(array_merge($_GET, array('lang' => 'Russian'))) . '">русский</a>'
+$langLinks = array(
+    NFW::i()->user['language'] == 'English' ? 'english' : '<a class="text-white" href="' . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . '?' . http_build_query(array_merge($_GET, array('lang' => 'English'))) . '">english</a>',
+    NFW::i()->user['language'] == 'Russian' ? 'русский' : '<a class="text-white" href="' . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . '?' . http_build_query(array_merge($_GET, array('lang' => 'Russian'))) . '">русский</a>'
+);
+$langLinksXs = array(
+    NFW::i()->user['language'] == 'English' ? 'en' : '<a class="text-white" href="' . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . '?' . http_build_query(array_merge($_GET, array('lang' => 'English'))) . '">en</a>',
+    NFW::i()->user['language'] == 'Russian' ? 'ру' : '<a class="text-white" href="' . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . '?' . http_build_query(array_merge($_GET, array('lang' => 'Russian'))) . '">ру</a>'
 );
 
-// Countdown and timeline
-ob_start();
-$countdown = ceil((strtotime(NFWX::i()->project_settings['countdown_date']) - time()) / 86400);
-if ($countdown > 0) {
-    echo '<div style="text-align: right; margin-bottom: 20px;">';
-    echo '<div style="font-weight: bold; font-size: 45pt; line-height: 40pt;">' . $countdown . '</div>';
-    echo '<div style="font-size: 18pt; line-height: 22pt;">' . $lang_main['days left'] . '<br />' . NFW::i()->project_settings['countdown_date'] . '<br />' . nl2br(NFW::i()->project_settings['countdown_desc']) . '</div>';
-    echo '<div class="clearfix"></div>';
-    echo '</div>';
-}
-$countdowns_main = ob_get_clean();
-
 // Comments
-$works_comments = false;
-if ($is_latest_comments) {
+$isLatestComments = !(page_is('comments.html') || NFW::i()->current_controler != 'main');
+$worksComments = false;
+if ($isLatestComments) {
     $CWorksComments = new works_comments();
-    $works_comments = $CWorksComments->displayLatestComments();
+    $worksComments = $CWorksComments->displayLatestComments();
 }
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo NFW::i()->lang['lang'] ?>">
+<html lang="<?php echo NFW::i()->lang['lang'] ?>" data-bs-theme="<?php echo $theme ?>">
 <head><title><?php echo $page_title ?? $page['title'] ?></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <meta http-equiv="Content-Language" content="ru"/>
+    <meta http-equiv="Content-Language" content="<?php echo NFW::i()->lang['lang'] ?>"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="description"
-          content="<?php echo $page['meta_description'] ?: NFWX::i()->project_settings['meta_description'] ?>"/>
-    <meta name="keywords" content="<?php echo $meta_keywords ?>"/>
+    <meta name="description" content="<?php echo NFWX::i()->project_settings['meta_description'] ?>"/>
+    <meta name="keywords" content="<?php echo NFWX::i()->project_settings['meta_keywords'] ?>"/>
 
     <link rel="icon" type="image/png" sizes="16x16"
           href="<?php echo NFW::i()->assets('main/favicon/favicon-16x16.png') ?>"/>
@@ -75,187 +65,218 @@ if ($is_latest_comments) {
     <link rel="image_src" href="<?php echo NFW::i()->assets('main/favicon/image_src.png') ?>"/>
     <link rel="mask-icon"
           href="<?php echo NFW::i()->assets('main/favicon/safari-pinned-tab.svg') ?>" <?php echo 'color="#707070"' ?> />
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="<?php echo '/manifest.json' ?>">
     <meta name="theme-color" content="#707070">
     <meta name="msapplication-config" content="/browserconfig.xml"/>
+
+    <link href="<?php echo NFW::i()->assets('bootstrap5/css/bootstrap.css') ?>" rel="stylesheet">
 
     <?php
     foreach (NFWX::i()->main_og as $type => $value) {
         echo '<meta property="og:' . $type . '" content="' . htmlspecialchars($value) . '">' . "\n";
     }
     ?>
+    <style>
+        .navbar-events {
+            background-color: #303030;
+            color: #fff;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
 
-    <script type="text/javascript">
-        $(document).ready(function () {
-            <?php if (NFW::i()->user['is_guest']):    ?>
-            $('form[id="mobile-login-form"]').activeForm({
-                success: function (response) {
-                    if (response.redirect) {
-                        window.location.href = response.redirect;
-                    } else {
-                        window.location.reload();
-                    }
-                }
-            });
-            <?php endif; ?>
+        .fill-white {
+            fill: #fff;
+        }
 
-            <?php if (NFW::i()->user['is_guest'] && NFWX::i()->main_login_form): ?>
-            $('form[id="login-form"]').activeForm({
-                success: function (response) {
-                    if (response.redirect) {
-                        window.location.href = response.redirect;
-                    } else {
-                        window.location.reload();
-                    }
-                }
-            });
-            <?php endif; ?>
+        .bi {
+            fill: currentColor;
+        }
 
-            <?php if (NFWX::i()->main_search_box): # Search box ?>
-            $('input[id="works-search"]').typeahead({
-                source: function (query, process) {
-                    return $.get('/works?action=search&q=' + query, function (response) {
-                        return process(response);
-                    }, 'json');
-                },
-                displayText: function (item) {
-                    return item.title;
-                },
-                afterSelect: function (sResult) {
-                    $('input[id="works-search"]').val('');
-
-                    if (sResult.link) {
-                        window.location.href = sResult.link;
-                    }
-                },
-                fitToElement: true,
-                items: 'all',
-                minLength: 1
-            }).attr('autocomplete', 'off');
-            <?php endif; ?>
-        });
-    </script>
+        .input-search {
+            padding-top: 0.2rem;
+            padding-bottom: 0.2rem;
+        }
+    </style>
 </head>
 <body>
-<div role="banner" class="navbar navbar-inverse navbar-fixed-top dm-nav">
-    <div class="container">
-        <div class="lang-change lang-change-md"><?php echo implode(' • ', $lang_links) ?></div>
+<svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+    <symbol id="theme-icon-light" viewBox="0 0 16 16">
+        <path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
+    </symbol>
+    <symbol id="theme-icon-dark" viewBox="0 0 16 16">
+        <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
+        <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
+    </symbol>
+    <symbol id="theme-icon-auto" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"></path>
+    </symbol>
+    <symbol id="icon-user" viewBox="0 0 448 512">
+        <path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512l388.6 0c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304l-91.4 0z"/>
+    </symbol>
+    <symbol id="icon-search" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/>
+    </symbol>
+</svg>
 
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" style="margin: 3px 0 0 0;" data-toggle="collapse"
-                    data-target="#navbar-collapse" aria-expanded="false">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
+<main class="fixed-top navbar-events">
+    <header>
+        <div class="container-fluid d-grid gap-3 align-items-center" style="grid-template-columns: 0fr 2fr 1fr;">
+            <a href="/"><img src="<?php echo NFW::i()->assets('main/rse-logo.gif') ?>" alt=""/></a>
 
-            <div class="lang-change lang-change-xs"><?php echo implode(' • ', $lang_links) ?></div>
+            <div class="w-100">
+                <form class="d-none d-sm-block me-3" role="search">
+                    <input type="search" class="form-control input-search" aria-label="Search"
+                           placeholder="<?php echo $langMain['search hint'] ?>">
+                </form>
+            </div>
 
-            <a href="/" style="float: left;"><img src="<?php echo NFW::i()->assets('main/rse-logo.gif') ?>" alt=""/></a>
+            <div class="d-flex py-1 align-items-center">
+                <div class="w-100">&nbsp;</div>
 
-            <ul class="nav navbar-nav hidden-xs">
-                <?php foreach (NFWX::i()->main_menu as $m) { ?>
-                    <li<?php echo page_is($m['path']) ? ' class="active"' : '' ?>><a
-                                href="<?php echo NFW::i()->absolute_path . '/' . $m['path'] ?>"><?php echo NFW::i()->user['language'] == 'English' ? $m['desc_en'] : $m['desc'] ?></a>
-                    </li>
-                <?php } ?>
-            </ul>
-        </div>
-        <div role="navigation" class="collapse navbar-collapse" id="navbar-collapse">
-            <div class="hidden-sm hidden-md hidden-lg">
+                <div class="d-block d-sm-none me-3">
+                    <a href="#" class="text-white"
+                       data-bs-toggle="collapse" data-bs-target="#collapseSearch"
+                       aria-expanded="false" aria-controls="collapseExample">
+                        <svg class="fill-white" width="1em" height="1em">
+                            <use href="#icon-search"></use>
+                        </svg>
+                    </a>
+                </div>
+
+                <div class="d-none d-sm-block">
+                    <div class="text-nowrap me-3"><?php echo implode(' • ', $langLinks) ?></div>
+                </div>
+                <div class="d-block d-sm-none">
+                    <div class="text-nowrap me-3"><?php echo implode(' • ', $langLinksXs) ?></div>
+                </div>
+
+                <?php if ($theme == 'light'): ?>
+                    <a class="text-white" href="<?php echo $themeLinkDark ?>">
+                        <svg class="bi me-3" width="1em" height="1em">
+                            <use href="#theme-icon-light"></use>
+                        </svg>
+                    </a>
+                <?php elseif ($theme == 'dark'): ?>
+                    <a class="text-white" href="<?php echo $themeLinkLight ?>">
+                        <svg class="bi me-3" width="1em" height="1em">
+                            <use href="#theme-icon-dark"></use>
+                        </svg>
+                    </a>
+                <?php endif; ?>
+
                 <?php if (NFW::i()->user['is_guest']): ?>
-                    <form id="mobile-login-form" class="mobile-login-form">
-                        <div data-active-container="username" style="padding-bottom: 5px;">
-                            <input type="text" class="form-control" name="username" placeholder="Username"/>
-                        </div>
-
-                        <div data-active-container="password" style="padding-bottom: 5px;">
-                            <input type="password" class="form-control" name="password" placeholder="Pasword"/>
-                            <span class="help-block"></span>
-                        </div>
-
-                        <button type="submit" name="login" class="btn btn-default"
-                                style="margin-top: 0;"><?php echo NFW::i()->lang['GoIn'] ?></button>
-                        &nbsp;&nbsp;<a
-                                href="<?php echo NFW::i()->base_path ?>users?action=restore_password"><?php echo $lang_users['Restore password'] ?></a>
-                    </form>
-
-                    <ul class="nav navbar-nav">
-                        <li>
-                            <a href="<?php echo NFW::i()->base_path ?>users?action=register"><?php echo $lang_users['Registration'] ?></a>
-                        </li>
-                        <li>
-                            <a href="<?php echo NFW::i()->base_path ?>sceneid?action=performAuth"><img
-                                        src="<?php echo NFW::i()->assets("main/SceneID_Icon_200x32.png") ?>"
-                                        alt="Sign in with SceneID"/></a>
-                        </li>
-                    </ul>
+                    <a href="#" class="d-block py-2 text-white text-decoration-none"
+                       data-bs-toggle="offcanvas"
+                       data-bs-target="#offcanvasLogin"
+                       aria-controls="offcanvasLogin">
+                        <svg class="fill-white" width="1em" height="1em">
+                            <use href="#icon-user"></use>
+                        </svg>
+                    </a>
                 <?php else: ?>
-                    <ul class="nav navbar-nav">
-                        <li<?php echo page_is('cabinet/works?action=list') ? ' class="active"' : '' ?>><a
-                                    href="<?php echo NFW::i()->absolute_path ?>/cabinet/works?action=list"><span
-                                        class="fas fa-bug"></span> <?php echo $lang_main['cabinet prods'] ?></a></li>
-                        <li<?php echo page_is('cabinet/works?action=add') ? ' class="active"' : '' ?>><a
-                                    href="<?php echo NFW::i()->absolute_path ?>/cabinet/works?action=add"><span
-                                        class="fas fa-upload"></span> <?php echo $lang_main['cabinet add work'] ?></a>
-                        </li>
-                        <li<?php echo page_is('users?action=update_profile') ? ' class="active"' : '' ?>><a
-                                    href="<?php echo NFW::i()->absolute_path ?>/users?action=update_profile"><span
-                                        class="fas fa-bug"></span> <?php echo $lang_main['cabinet profile'] ?></a></li>
+                    <div class="me-3 dropdown">
+                        <a href="#" class="d-block py-2 text-white text-decoration-none"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <svg class="fill-white" width="1em" height="1em">
+                                <use href="#icon-user"></use>
+                            </svg>
+                        </a>
+                        <ul class="dropdown-menu text-small shadow">
+                            <li><a href="<?php echo NFW::i()->absolute_path ?>/cabinet/works?action=list"
+                                   class="dropdown-item<?php echo page_is('cabinet/works?action=list') ? ' active' : '' ?>"><?php echo $langMain['cabinet prods'] ?></a>
+                            </li>
+                            <li><a href="<?php echo NFW::i()->absolute_path ?>/cabinet/works?action=add"
+                                   class="dropdown-item<?php echo page_is('cabinet/works?action=add') ? ' active' : '' ?>"><?php echo $langMain['cabinet add work'] ?></a>
+                            </li>
+                            <li><a href="<?php echo NFW::i()->absolute_path ?>/users?action=update_profile"
+                                   class="dropdown-item<?php echo page_is('users?action=update_profile') ? ' active' : '' ?>"><?php echo $langMain['cabinet profile'] ?></a>
+                            </li>
 
-                        <?php if (NFW::i()->checkPermissions('admin')): ?>
-                            <li><a href="/admin"><span class="fa fa-cog"></span> Control panel</a></li>
-                        <?php endif; ?>
+                            <?php if (NFW::i()->checkPermissions('admin')): ?>
+                                <li><a href="/admin" class="dropdown-item">Control panel</a></li>
+                            <?php endif; ?>
 
-                        <li><a href="?action=logout"><span
-                                        class="fa fa-sign-out-alt"></span> <?php echo NFW::i()->lang['Logout'] ?></a>
-                        </li>
-                    </ul>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+
+                            <li><a class="dropdown-item"
+                                   href="?action=logout"><?php echo NFW::i()->lang['Logout'] ?></a></li>
+                        </ul>
+                    </div>
                 <?php endif; ?>
             </div>
         </div>
+    </header>
+    <header class="collapse m-3" id="collapseSearch">
+        <form role="search">
+            <input type="search" class="form-control input-search" aria-label="Search"
+                   placeholder="<?php echo $langMain['search hint'] ?>">
+        </form>
+    </header>
+</main>
+
+<?php if (NFW::i()->user['is_guest']): ?>
+    <div id="offcanvasLogin" class="offcanvas offcanvas-top" style="height: 400px;" tabindex="-1"
+         aria-labelledby="offcanvasLoginLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="offcanvasBottomLabel"><?php echo NFW::i()->lang['Authorization'] ?></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <form id="login-form" class="mb-2">
+                <div data-active-container="username" class="my-2">
+                    <input type="text" class="form-control" name="username" placeholder="Username"/>
+                </div>
+
+                <div data-active-container="password" class="my-2">
+                    <input type="password" class="form-control" name="password" placeholder="Password"/>
+                    <div id="result" class="my-1 text-danger"></div>
+                </div>
+
+                <button type="submit" name="login" class="btn btn-primary"><?php echo NFW::i()->lang['GoIn'] ?></button>
+            </form>
+
+            <p>
+                <a href="<?php echo NFW::i()->base_path ?>users?action=restore_password"><?php echo $langUsers['Restore password'] ?></a>
+            </p>
+            <p>
+                <a href="<?php echo NFW::i()->base_path ?>users?action=register"><?php echo $langUsers['Registration'] ?></a>
+            </p>
+            <a href="<?php echo NFW::i()->base_path ?>sceneid?action=performAuth"><img
+                        src="<?php echo NFW::i()->assets("main/SceneID_Icon_200x32.png") ?>"
+                        alt="Sign in with SceneID"/></a>
+        </div>
     </div>
-</div>
-<?php
+<?php endif; ?>
 
-if (isset($page['is_error']) && $page['is_error']) {
-    echo '<div id="page-content" class="container">' . $page['content'] . '</div>';
-    return;
-}
+<div id="page-content" class="container">
+    <?php
+    ob_start();
 
-ob_start();
-if (NFWX::i()->main_search_box) {
-    echo '<div class="well well-sm">';
-    echo '<input id="works-search" class="form-control" placeholder="' . $lang_main['search hint'] . '" />';
-    echo '</div>';
-}
+    if (!empty(NFW::i()->breadcrumb)) {
+        echo '<ul class="breadcrumb">';
+        echo '<div class="breadcrumb-status pull-right">';
+        echo NFW::i()->breadcrumb_status;
+        echo '</div>';
 
-if (!empty(NFW::i()->breadcrumb)) {
-    echo '<ul class="breadcrumb">';
-    echo '<div class="breadcrumb-status pull-right">';
-    echo NFW::i()->breadcrumb_status;
-    echo '</div>';
+        foreach (NFW::i()->breadcrumb as $b) {
+            echo isset($b['url']) ? '<li><a href="' . NFW::i()->base_path . $b['url'] . '">' . htmlspecialchars($b['desc']) . '</a></li>' : '<li class="active">' . htmlspecialchars($b['desc']) . '</li>';
+        }
 
-    foreach (NFW::i()->breadcrumb as $b) {
-        echo isset($b['url']) ? '<li><a href="' . NFW::i()->base_path . $b['url'] . '">' . htmlspecialchars($b['desc']) . '</a></li>' : '<li class="active">' . htmlspecialchars($b['desc']) . '</li>';
+        echo '<div class="clearfix"></div>';
+        echo '</ul>';
+
+        echo '<div class="breadcrumb-status-mobile">' . NFW::i()->breadcrumb_status . '</div>';
     }
 
-    echo '<div class="clearfix"></div>';
-    echo '</ul>';
+    echo $page['content'];
+    $pageContent = ob_get_clean();
 
-    echo '<div class="breadcrumb-status-mobile">' . NFW::i()->breadcrumb_status . '</div>';
-}
-
-echo $page['content'];
-$page_content = ob_get_clean();
-
-if (!NFWX::i()->main_right_pane) {
-    echo '<div id="page-content" class="container">' . $page_content . '</div>';
-    return;
-}
-?>
-<div id="page-content" class="container">
+    if ((isset($page['is_error']) && $page['is_error']) || !NFWX::i()->main_right_pane) {
+        echo $pageContent;
+    } else {
+    ?>
     <div class="row">
         <div class="col-md-9 col-sm-9 col-xs-12">
             <?php
@@ -263,81 +284,24 @@ if (!NFWX::i()->main_right_pane) {
                 echo NFW::i()->fetch(
                     NFW::i()->findTemplatePath('_main_index.tpl'),
                     array(
-                        'worksComments' => $works_comments,
+                        'worksComments' => $worksComments,
                     )
                 );
             } else {
-                echo $page_content;
+                echo $pageContent;
             }
             ?>
         </div>
         <div class="col-md-3 col-sm-3 hidden-xs">
-            <div class="hidden-xs hidden-sm"><?php echo $countdowns_main ?></div>
-
-            <div id="block-before-menu"></div>
-
-            <?php if (NFW::i()->user['is_guest'] && NFWX::i()->main_login_form): ?>
-                <form id="login-form">
-                    <fieldset>
-                        <legend><?php echo NFW::i()->lang['Authorization'] ?></legend>
-
-                        <div data-active-container="username">
-                            <input type="text" class="form-control" name="username" placeholder="Username"/>
-                            <span class="help-block"></span>
-                        </div>
-
-                        <div data-active-container="password">
-                            <input type="password" class="form-control" name="password" placeholder="Password"/>
-                            <span class="help-block"></span>
-                        </div>
-
-                        <div style="float: left; margin-right: 10px;">
-                            <button type="submit" name="login" class="btn btn-default"
-                                    style="margin-top: 0;"><?php echo NFW::i()->lang['GoIn'] ?></button>
-                        </div>
-                        <div style="padding-top: 10px;">
-                            <a href="<?php echo NFW::i()->base_path ?>users?action=restore_password"><?php echo $lang_users['Restore password'] ?></a>
-                        </div>
-                        <div class="clearfix"></div>
-                        <div style="padding-top: 20px;">
-                            <a class="btn btn-primary"
-                               href="<?php echo NFW::i()->base_path ?>users?action=register"><?php echo $lang_users['Registration'] ?></a>
-                        </div>
-
-                        <div style="padding-top: 20px;">
-                            <a href="<?php echo NFW::i()->base_path ?>sceneid?action=performAuth"><img
-                                        src="<?php echo NFW::i()->assets("main/SceneID_Icon_200x32.png") ?>"
-                                        alt="Sign in with SceneID"/></a>
-                        </div>
-                    </fieldset>
-                </form>
-
-            <?php elseif (!NFW::i()->user['is_guest']): ?>
-                <div class="menu-block">
-                    <p>Welcome, <strong><?php echo htmlspecialchars(NFW::i()->user['realname']) ?></strong></p>
-                    <ul class="nav nav-pills nav-stacked">
-                        <?php if (NFW::i()->checkPermissions('admin')): ?>
-                            <li><a href="/admin">Control panel</a></li>
-                        <?php endif; ?>
-                        <li<?php echo page_is('cabinet/works?action=list') ? ' class="active"' : '' ?>><a
-                                    href="<?php echo NFW::i()->absolute_path ?>/cabinet/works?action=list"><?php echo $lang_main['cabinet prods'] ?></a>
-                        </li>
-                        <li<?php echo page_is('cabinet/works?action=add') ? ' class="active"' : '' ?>><a
-                                    href="<?php echo NFW::i()->base_path ?>cabinet/works?action=add"><?php echo $lang_main['cabinet add work'] ?></a>
-                        </li>
-                        <li<?php echo page_is('users?action=update_profile') ? ' class="active"' : '' ?>><a
-                                    href="<?php echo NFW::i()->absolute_path ?>/users?action=update_profile"><?php echo $lang_main['cabinet profile'] ?></a>
-                        </li>
-                        <li><a href="?action=logout"><?php echo NFW::i()->lang['Logout'] ?></a></li>
-                    </ul>
-                </div>
-            <?php endif; ?>
-
-            <?php echo $is_latest_comments && $works_comments !== false ? '<div style="margin-bottom: 40px;"><h3><a href="' . NFW::i()->base_path . 'comments.html">' . $lang_main['latest comments'] . '</a></h3>' . $works_comments . '</div>' : '' ?>
+            <?php echo $isLatestComments && $worksComments !== false ? '<div style="margin-bottom: 40px;"><h3><a href="' . NFW::i()->base_path . 'comments.html">' . $langMain['latest comments'] . '</a></h3>' . $worksComments . '</div>' : '' ?>
         </div>
     </div>
+    <?php } ?>
 </div>
-
-<?php echo NFW::i()->fetch(NFW::i()->findTemplatePath('_main_bottom_script.tpl')); ?>
+<script src="<?php echo NFW::i()->assets('bootstrap5/js/bootstrap.bundle.js') ?>"></script>
+<?php echo NFW::i()->fetch(
+    NFW::i()->findTemplatePath('_main_bottom_script.tpl'), [
+    'theme' => $theme,
+]); ?>
 </body>
 </html>

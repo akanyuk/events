@@ -1,7 +1,6 @@
 <?php
 	NFW::i()->registerResource('jquery.activeForm');
 	NFW::i()->assign('page_title', NFW::i()->lang['Authorization']);
-    NFWX::i()->main_search_box = false;
     NFWX::i()->main_right_pane = false;
 
     $lang_main = NFW::i()->getLang('main');
