@@ -46,6 +46,7 @@ $preview_form = $CMedia->openSession(array(
     'images_only' => true,
     'template' => '_admin_events_preview_form',
     'preview_default' => NFW::i()->assets('main/news-no-image.png'),
+    'image_max_x' => 64, 'image_max_y' => 64,
     'preview' => $Module->record['preview'] ?: array('id' => false, 'url' => false),
 ));
 
@@ -231,8 +232,8 @@ $successDialog->render();
                     </div>
                 </form>
 
-                    <h3>Available meta tags:</h3>
-<pre>
+                <h3>Available meta tags:</h3>
+                <pre>
 %UPLOAD-BUTTON%
 %LIVE-VOTING-BUTTON%
 %COMPETITIONS-LIST-SHORT%

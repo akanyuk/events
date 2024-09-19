@@ -287,6 +287,10 @@ class works extends active_record {
             $where[] = 'c.id=' . intval($filter['competition_id']);
         }
 
+        if (isset($filter['work_id']) && is_array($filter['work_id'])) {
+            $where[] = 'w.id IN (' . implode(',', $filter['work_id']) . ')';
+        }
+
         if (!(isset($filter['allow_hidden']) && $filter['allow_hidden'])) {
             $where[] = 'e.is_hidden=0';
         }

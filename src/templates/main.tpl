@@ -36,14 +36,6 @@ $langLinksXs = array(
     NFW::i()->user['language'] == 'English' ? 'en' : '<a class="text-white" href="' . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . '?' . http_build_query(array_merge($_GET, array('lang' => 'English'))) . '">en</a>',
     NFW::i()->user['language'] == 'Russian' ? 'ру' : '<a class="text-white" href="' . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . '?' . http_build_query(array_merge($_GET, array('lang' => 'Russian'))) . '">ру</a>'
 );
-
-// Comments
-$isLatestComments = !(page_is('comments.html') || NFW::i()->current_controler != 'main');
-$worksComments = false;
-if ($isLatestComments) {
-    $CWorksComments = new works_comments();
-    $worksComments = $CWorksComments->displayLatestComments();
-}
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo NFW::i()->lang['lang'] ?>" data-bs-theme="<?php echo $theme ?>">
@@ -252,56 +244,31 @@ if ($isLatestComments) {
 
 <div id="page-content" class="container">
     <?php
-    ob_start();
+    if (isset($page['is_error']) && $page['is_error']) {
+        echo $page['content'];
+    } else if ($page['path'] == '') {
+        echo NFW::i()->fetch(NFW::i()->findTemplatePath('_main_index.tpl'));
+    } else {
+        if (!empty(NFW::i()->breadcrumb)) {
+            echo '<ul class="breadcrumb">';
+            echo '<div class="breadcrumb-status pull-right">';
+            echo NFW::i()->breadcrumb_status;
+            echo '</div>';
 
-    if (!empty(NFW::i()->breadcrumb)) {
-        echo '<ul class="breadcrumb">';
-        echo '<div class="breadcrumb-status pull-right">';
-        echo NFW::i()->breadcrumb_status;
-        echo '</div>';
+            foreach (NFW::i()->breadcrumb as $b) {
+                echo isset($b['url']) ? '<li><a href="' . NFW::i()->base_path . $b['url'] . '">' . htmlspecialchars($b['desc']) . '</a></li>' : '<li class="active">' . htmlspecialchars($b['desc']) . '</li>';
+            }
 
-        foreach (NFW::i()->breadcrumb as $b) {
-            echo isset($b['url']) ? '<li><a href="' . NFW::i()->base_path . $b['url'] . '">' . htmlspecialchars($b['desc']) . '</a></li>' : '<li class="active">' . htmlspecialchars($b['desc']) . '</li>';
+            echo '<div class="clearfix"></div>';
+            echo '</ul>';
+
+            echo '<div class="breadcrumb-status-mobile">' . NFW::i()->breadcrumb_status . '</div>';
         }
 
-        echo '<div class="clearfix"></div>';
-        echo '</ul>';
-
-        echo '<div class="breadcrumb-status-mobile">' . NFW::i()->breadcrumb_status . '</div>';
-    }
-
-    echo $page['content'];
-    $pageContent = ob_get_clean();
-
-    if ((isset($page['is_error']) && $page['is_error']) || !NFWX::i()->main_right_pane) {
-        echo $pageContent;
-    } else {
-    ?>
-    <div class="row">
-        <div class="col-md-9 col-sm-9 col-xs-12">
-            <?php
-            if ($page['path'] == '') {
-                echo NFW::i()->fetch(
-                    NFW::i()->findTemplatePath('_main_index.tpl'),
-                    array(
-                        'worksComments' => $worksComments,
-                    )
-                );
-            } else {
-                echo $pageContent;
-            }
-            ?>
-        </div>
-        <div class="col-md-3 col-sm-3 hidden-xs">
-            <?php echo $isLatestComments && $worksComments !== false ? '<div style="margin-bottom: 40px;"><h3><a href="' . NFW::i()->base_path . 'comments.html">' . $langMain['latest comments'] . '</a></h3>' . $worksComments . '</div>' : '' ?>
-        </div>
-    </div>
-    <?php } ?>
+        echo $page['content'];
+    } ?>
 </div>
 <script src="<?php echo NFW::i()->assets('bootstrap5/js/bootstrap.bundle.js') ?>"></script>
-<?php echo NFW::i()->fetch(
-    NFW::i()->findTemplatePath('_main_bottom_script.tpl'), [
-    'theme' => $theme,
-]); ?>
+<?php echo NFW::i()->fetch(NFW::i()->findTemplatePath('_main_bottom_script.tpl'), ['theme' => $theme]); ?>
 </body>
 </html>

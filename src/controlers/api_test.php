@@ -1,6 +1,4 @@
 <?php
-	NFWX::i()->main_right_pane = false;
-	
 	NFW::i()->registerResource('jquery.activeForm');
     active_field('set_defaults', array('labelCols' => 2, 'inputCols' => 10));
 	

@@ -23,31 +23,6 @@ h2.index-head {
     margin-bottom: 30px;
 }
 
-.btn-events-main {
-    color: #fff;
-    background-color: #254969;
-    border-bottom: 3px solid #10222c;
-}
-
-.btn-events-main:focus, .btn-events-main:hover, .btn-events-main:active {
-    color: #fff;
-    background-color: #286090;
-    border-color: #183748;
-}
-
-@media (max-width: 768px) {
-    .btn-events-main {
-        display: block;
-    }
-}
-
-@media (min-width: 769px) {
-    .btn-events-main {
-        padding: 10px 50px;
-    }
-}
-
-
 /* event page */
 
 .btn-upload, .btn-live-voting {

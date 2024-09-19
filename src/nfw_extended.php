@@ -7,12 +7,10 @@ class NFWX extends NFW {
     // Come from `settings` DB table
     var $project_settings = array();
     var array $notify_emails = array();
-    var array $main_menu = array();
 
     var $actual_date = false;
 
     var array $main_og = array();             # мета теги для Open Graph
-    var bool $main_right_pane = true;        # правая панель, по умолчанию включена
 
     function __construct($init_cfg = null) {
         // Глобально кодировка для mb-операций

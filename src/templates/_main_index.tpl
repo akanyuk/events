@@ -1,27 +1,11 @@
 <?php
-/**
- * @var $worksComments string Pre rendered works comments HTML content
- */
-
 // Index page
-$lang_main = NFW::i()->getLang('main');
 
-$CEvents = new events();
-$upcoming = $current = $past = array();
-$lastEvents = $CEvents->getRecords(array('limit' => 5, 'load_media' => true));
-foreach ($lastEvents as $record) {
-    switch ($record['status_type']) {
-        case 'upcoming':
-            array_unshift($upcoming, $record);
-            break;
-        case 'current':
-            $current[] = $record;
-            break;
-        default:
-            $past[] = $record;
-            break;
-    }
-}
+$CWorksComments = new works_comments();
+$worksComments = $CWorksComments->displayLatestComments();
+
+$langMain = NFW::i()->getLang('main');
+list($upcoming, $current, $past) = lastEvents();
 ?>
     <style>
         .vote-now-body DIV {
@@ -43,31 +27,43 @@ if (!empty($upcoming)) {
         displayIndexEvent($record, $layout);
     }
 }
-
-if ($worksComments) {
-    echo '<div class="hidden-md hidden-sm hidden-lg">';
-    echo '<h2 class="index-head">' . $lang_main['latest comments'] . '</h2>';
-    echo $worksComments;
-    echo '<div style="margin-top: 20px; margin-bottom: 40px;">';
-    echo '<a class="btn btn-lg btn-events-main" href="' . NFW::i()->base_path . 'comments.html">' . $lang_main['all comments'] . '</a>';
-    echo '</div>';
-    echo '</div>';
-}
-
-if (!empty($past)) {
-    echo '<h2 class="index-head">' . $lang_main['latest events'] . '</h2>';
-    foreach ($past as $record) {
-        displayIndexEvent($record);
-    }
-}
-
-if (count($lastEvents) > 0) {
-    ?>
-    <div style="margin-bottom: 40px; text-align: center;">
-        <a class="btn btn-lg btn-primary btn-events-main"
-           href="<?php echo NFW::i()->absolute_path ?>/events"><?php echo $lang_main['all events'] ?></a>
+?>
+    <div class="row">
+        <div class="col-md-6 mb-5">
+            <h2 class="index-head"><?php echo $langMain['latest events'] ?></h2>
+            <?php foreach ($past as $record) displayIndexEvent($record); ?>
+            <a class="btn btn-lg btn-primary"
+               href="<?php echo NFW::i()->absolute_path ?>/events"><?php echo $langMain['all events'] ?></a>
+        </div>
+        <div class="col-md-6">
+            <h2 class="index-head"><?php echo $langMain['latest comments'] ?></h2>
+            <div class="mb-4">
+                <?php echo $worksComments ?>
+            </div>
+            <a class="btn btn-lg btn-primary"
+               href="<?php echo NFW::i()->base_path . 'comments.html' ?>"><?php echo $langMain['all comments'] ?></a>
+        </div>
     </div>
-    <?php
+<?php
+
+function lastEvents(): array {
+    $CEvents = new events();
+    $upcoming = $current = $past = array();
+    $lastEvents = $CEvents->getRecords(array('limit' => 20, 'load_media' => true));
+    foreach ($lastEvents as $record) {
+        switch ($record['status_type']) {
+            case 'upcoming':
+                array_unshift($upcoming, $record);
+                break;
+            case 'current':
+                $current[] = $record;
+                break;
+            default:
+                $past[] = $record;
+                break;
+        }
+    }
+    return [$upcoming, $current, array_slice($past, 0, 5)];
 }
 
 function displayIndexEvent($record, $layout = 'small'): void {
@@ -83,7 +79,7 @@ function displayIndexEvent($record, $layout = 'small'): void {
                     </div>
                     <div style="display: table-cell; vertical-align: middle;">
                         <h4 style="margin-bottom: 0;"><a
-                                    href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><?php echo htmlspecialchars($record['title']) ?></a>
+                                href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><?php echo htmlspecialchars($record['title']) ?></a>
                         </h4>
                         <div class="text-muted"><?php echo $record['dates_desc'] ?></div>
                         <div><?php echo $record['status_label'] ?></div>
@@ -101,8 +97,9 @@ function displayIndexEvent($record, $layout = 'small'): void {
                 <div class="row">
                     <div class="col-sm-12 col-md-5">
                         <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>">
-                            <img src="<?php echo $record['preview_img_large'] ?: NFW::i()->assets('main/current-event-large.png') ?>"
-                                 style="width: 100%; margin-top: 20px;" alt=""/>
+                            <img
+                                src="<?php echo $record['preview_img_large'] ?: NFW::i()->assets('main/current-event-large.png') ?>"
+                                style="width: 100%; margin-top: 20px;" alt=""/>
                         </a>
                     </div>
                     <div class="col-sm-12 col-md-7">
@@ -126,8 +123,9 @@ function displayIndexEvent($record, $layout = 'small'): void {
                 <div class="row">
                     <div class="col-sm-12 col-md-5">
                         <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>">
-                            <img src="<?php echo $record['preview_img_large'] ?: NFW::i()->assets('main/current-event-large.png') ?>"
-                                 style="width: 100%; margin-top: 20px;" alt=""/>
+                            <img
+                                src="<?php echo $record['preview_img_large'] ?: NFW::i()->assets('main/current-event-large.png') ?>"
+                                style="width: 100%; margin-top: 20px;" alt=""/>
                         </a>
                     </div>
                     <div class="col-sm-12 col-md-7">

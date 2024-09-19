@@ -17,7 +17,7 @@
   "scripts": {
     "post-update-cmd": [
       "rm -rf public_html/assets/bootstrap5",
-      "cp -R vendor/twbs/bootstrap/dist public_html/assets/bootstrap5",
+      "cp -R vendor/twbs/bootstrap/dist public_html/assets/bootstrap5"
     ]
   }
 }

@@ -91,11 +91,11 @@ class events extends active_record {
 
         $record['dates_desc'] = date('d.m.Y', $record['date_from']) == date('d.m.Y', $record['date_to']) ? date('d.m.Y', $record['date_from']) : date('d.m.Y', $record['date_from']) . ' - ' . date('d.m.Y', $record['date_to']);
 
-        $days_left = ceil(($record['date_from'] - NFW::i()->actual_date) / 86400);
+        $days_left = ceil(($record['date_from'] - NFWX::i()->actual_date) / 86400);
         if ($days_left >= 1) {
             $record['status_label'] = '<span class="label label-info">+' . $days_left . ' ' . word_suffix($days_left, $lang_main['days suffix']) . '</span>';
             $record['status_type'] = 'upcoming';
-        } elseif ($record['date_from'] < NFW::i()->actual_date && $record['date_to'] > NFW::i()->actual_date) {
+        } elseif ($record['date_from'] < NFWX::i()->actual_date && $record['date_to'] > NFWX::i()->actual_date) {
             $record['status_label'] = '<span class="label label-danger">NOW!</span>';
             $record['status_type'] = 'current';
         } else {
@@ -105,10 +105,8 @@ class events extends active_record {
 
         // Prepare thumbnails
 
-        NFW::i()->registerFunction('tmb');
-
         if (isset($record['preview']['url']) && file_exists($record['preview']['fullpath'])) {
-            $record['preview_img'] = tmb($record['preview'], 64, 64, array('complementary' => true));
+            $record['preview_img'] = $record['preview']['url'];
             $record['is_preview_img'] = true;
         } else {
             $record['preview_img'] = NFW::i()->assets('main/news-no-image.png');

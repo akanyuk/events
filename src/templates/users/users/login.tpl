@@ -1,15 +1,14 @@
 <?php
 	NFW::i()->registerResource('jquery.activeForm');
 	NFW::i()->assign('page_title', NFW::i()->lang['Authorization']);
-    NFWX::i()->main_right_pane = false;
 
     $lang_main = NFW::i()->getLang('main');
 	$lang_users = NFW::i()->getLang('users');
 ?>
 <script type="text/javascript">
 $(document).ready(function(){
-	var f = $('form[id="login"]');
-	f.activeForm({
+    const f = $('form[id="login"]');
+    f.activeForm({
 		success: function(response) {
 			if (response.redirect) {
 				window.location.href = response.redirect;
