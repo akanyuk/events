@@ -93,10 +93,10 @@ class events extends active_record {
 
         $days_left = ceil(($record['date_from'] - NFWX::i()->actual_date) / 86400);
         if ($days_left >= 1) {
-            $record['status_label'] = '<span class="label label-info">+' . $days_left . ' ' . word_suffix($days_left, $lang_main['days suffix']) . '</span>';
+            $record['status_label'] = '+' . $days_left . ' ' . word_suffix($days_left, $lang_main['days suffix']);
             $record['status_type'] = 'upcoming';
         } elseif ($record['date_from'] < NFWX::i()->actual_date && $record['date_to'] > NFWX::i()->actual_date) {
-            $record['status_label'] = '<span class="label label-danger">NOW!</span>';
+            $record['status_label'] = 'NOW!';
             $record['status_type'] = 'current';
         } else {
             $record['status_label'] = '';
