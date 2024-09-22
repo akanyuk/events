@@ -12,7 +12,7 @@ class works_comments extends active_record {
     static function upsertCommentByVotekey(int $votekeyID, int $workID, string $message, string $username) {
         NFW::i()->db->query_build(array(
             'DELETE' => 'works_comments',
-            'WHERE' => 'votekey_id='.$votekeyID.' AND work_id='.$workID
+            'WHERE' => 'votekey_id=' . $votekeyID . ' AND work_id=' . $workID
         ));
 
         $message = trim($message);
@@ -25,14 +25,14 @@ class works_comments extends active_record {
         NFW::i()->db->query_build(array(
             'INSERT' => '`work_id`, `message`, `votekey_id`, `posted`, `posted_username`, `poster_ip`, `posted_by`',
             'INTO' => 'works_comments',
-            'VALUES' => $workID.',\''.NFW::i()->db->escape($message).'\''.', '.$votekeyID.', '.$now.', \''.NFW::i()->db->escape($username).'\', \''.$poster_ip.'\', '.NFW::i()->user['id']
+            'VALUES' => $workID . ',\'' . NFW::i()->db->escape($message) . '\'' . ', ' . $votekeyID . ', ' . $now . ', \'' . NFW::i()->db->escape($username) . '\', \'' . $poster_ip . '\', ' . NFW::i()->user['id']
         ));
     }
 
     protected function load($id) {
         $query = array(
             'SELECT' => 'wc.*, c.event_id',
-            'FROM' => $this->db_table.' AS wc',
+            'FROM' => $this->db_table . ' AS wc',
             'JOINS' => array(
                 array(
                     'INNER JOIN' => 'works AS w',
@@ -43,7 +43,7 @@ class works_comments extends active_record {
                     'ON' => 'w.competition_id=c.id'
                 ),
             ),
-            'WHERE' => 'wc.id='.intval($id),
+            'WHERE' => 'wc.id=' . intval($id),
         );
 
         if (!$result = NFW::i()->db->query_build($query)) {
@@ -70,7 +70,7 @@ class works_comments extends active_record {
             'SELECT' => 'work_id, COUNT(id) AS comments_count',
             'FROM' => $this->db_table,
             'GROUP BY' => 'work_id',
-            'WHERE' => 'work_id IN('.implode(',', $works_ids).')',
+            'WHERE' => 'work_id IN(' . implode(',', $works_ids) . ')',
         ))) {
             $this->error('Unable to count works comments', __FILE__, __LINE__, NFW::i()->db->error());
             return false;
@@ -92,13 +92,13 @@ class works_comments extends active_record {
         $where = array('e.is_hidden=0');
 
         if (isset($filter['work_id'])) {
-            $where[] = 'wc.work_id='.intval($filter['work_id']);
+            $where[] = 'wc.work_id=' . intval($filter['work_id']);
         }
 
         $where = empty($where) ? null : implode(' AND ', $where);
 
         $query = array(
-            'FROM' => $this->db_table.' AS wc',
+            'FROM' => $this->db_table . ' AS wc',
             'JOINS' => array(
                 array(
                     'INNER JOIN' => 'works AS w',
@@ -134,14 +134,14 @@ class works_comments extends active_record {
             $page = isset($options['page']) ? intval($options['page']) : 1;
             $this->cur_page = ($page <= 1 || $page > $this->num_pages) ? 1 : $page;
 
-            $query['LIMIT'] = $options['records_on_page'] * ($this->cur_page - 1).','.$options['records_on_page'];
+            $query['LIMIT'] = $options['records_on_page'] * ($this->cur_page - 1) . ',' . $options['records_on_page'];
         }
 
         // ----------------
         // Fetching records
         // ----------------
 
-        $query['SELECT'] = 'wc.*, w.title AS work_title, c.works_type, c.alias AS competition_alias, e.title AS event_title, e.alias AS event_alias, c.event_id';
+        $query['SELECT'] = 'wc.*, w.title AS work_title, w.author AS work_author, c.works_type, c.alias AS competition_alias, e.title AS event_title, e.alias AS event_alias, c.event_id';
 
         $records = array();
 
@@ -164,7 +164,48 @@ class works_comments extends active_record {
             return false;
         }
 
-        return $this->renderAction(array('comments' => $comments), '_display_latest_comments');
+
+        // grouping comments by work ID
+        $gComments = [];
+        $worksID = [];
+        foreach ($comments as $comment) {
+            $workID = $comment['work_id'];
+            $worksID[] = $workID;
+
+            if (empty($gComments[$workID]['comments'])) {
+                $gComments[$workID]['work_id'] = $workID;
+                $gComments[$workID]['work_url'] = NFW::i()->absolute_path . '/' . $comment['event_alias'] . '/' . $comment['competition_alias'] . '/' . $comment['work_id'] . '#comment' . $comment['id'];
+                $gComments[$workID]['title'] = $comment['event_title'] . ' / ' . $comment['work_title'] . ' by ' . $comment['work_author'];
+            }
+            $gComments[$workID]['items'][] = [
+                'posted' => $comment['posted'],
+                'posted_username' => $comment['posted_username'],
+                'message' => $comment['message'],
+            ];
+        }
+
+        // Loading works screenshots
+
+        $CWorks = new works();
+        $works = $CWorks->getRecords([
+            'filter' => [
+                'work_id' => array_unique($worksID)
+            ],
+            'skip_pagination' => true,
+            'load_attachments' => true,
+        ]);
+
+        $screenshots = [];
+        foreach ($works as $work) {
+            if ($work['screenshot']) {
+                $screenshots[$work['id']] = $work['screenshot'];
+            }
+        }
+
+        return $this->renderAction(array(
+            'gComments' => $gComments,
+            'screenshots' => $screenshots,
+        ), '_display_latest_comments');
     }
 
     function displayWorkComments($work_id) {
@@ -190,7 +231,7 @@ class works_comments extends active_record {
         foreach ($this->getRecords(array('filter' => array('work_id' => $CWorks->record['id']))) as $comment) {
             $comments[] = array(
                 'id' => $comment['id'],
-                'posted_str' => friendly_date($comment['posted'], $lang_main).' '.date('H:i', $comment['posted']).' by '.htmlspecialchars($comment['posted_username']),
+                'posted_str' => friendly_date($comment['posted'], $lang_main) . ' ' . date('H:i', $comment['posted']) . ' by ' . htmlspecialchars($comment['posted_username']),
                 'message' => nl2br(htmlspecialchars($comment['message'])),
             );
         }

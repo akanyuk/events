@@ -1,41 +1,20 @@
 <?php
 /**
- * @var $comments array
+ * @var $gComments array
+ * @var $screenshots array
  */
+
 NFW::i()->registerFunction('cache_media');
+NFW::i()->registerFunction('friendly_date');
 
 $noImage = NFW::i()->assets('main/current-event-large.png');
-$worksID = [];
-$screenshots = [];
-foreach ($comments as $comment) {
-    $worksID[] = $comment['work_id'];
-    $screenshots[$comment['work_id']] = [
-        'class' => 'no-screenshot',
-        'url' => $noImage
-    ];
-}
-$CWorks = new works();
-$works = $CWorks->getRecords([
-    'filter' => [
-        'work_id' => array_unique($worksID)
-    ],
-    'skip_pagination' => true,
-    'load_attachments' => true,
-]);
-
-foreach ($works as $work) {
-    if ($work['screenshot']) {
-        $screenshots[$work['id']] = [
-            'class' => '',
-            'url' => cache_media($work['screenshot'])
-        ];
-    }
-}
-
-NFW::i()->registerFunction('friendly_date');
 $langMain = NFW::i()->getLang('main');
 ?>
     <style>
+        .card .blockquote {
+            font-size: 1rem;
+        }
+
         @media (min-width: 576px) {
             .card {
                 flex-direction: row;
@@ -46,23 +25,22 @@ $langMain = NFW::i()->getLang('main');
                 margin-top: 1em;
                 margin-left: 1em;
                 margin-bottom: auto;
-                border-radius: 0.7em;
+                padding-bottom: 1em;
+                border-radius: 0;
             }
 
             IMG.no-screenshot {
                 opacity: 20%;
             }
+
+            HR.comment-delimiter {
+                display: none;
+            }
         }
 
         @media (max-width: 575px) {
             .card {
-                border-top: none;
-                border-left: none;
-                border-right: none;
-            }
-
-            .card IMG {
-                border-radius: 0;
+                border: none;
             }
 
             IMG.no-screenshot {
@@ -70,17 +48,32 @@ $langMain = NFW::i()->getLang('main');
             }
         }
     </style>
-<?php foreach ($comments as $comment): ?>
+<?php foreach ($gComments as $workID => $w): ?>
     <div class="card mb-3">
-        <img src="<?php echo $screenshots[$comment['work_id']]['url'] ?>"
-             class="card-img-top <?php echo $screenshots[$comment['work_id']]['class'] ?>" alt="">
+        <img src="<?php echo isset($screenshots[$workID]) ? cache_media($screenshots[$workID]) : $noImage ?>"
+             class="card-img-top <?php echo isset($screenshots[$workID]) ? '' : 'no-screenshot' ?>" alt="">
         <div class="card-body">
             <h5 class="card-title"><a
-                        href="<?php echo NFW::i()->absolute_path . '/' . $comment['event_alias'] . '/' . $comment['competition_alias'] . '/' . $comment['work_id'] . '#comment' . $comment['id'] ?>"
-                        title="<?php echo htmlspecialchars($comment['work_title']) ?>"><?php echo htmlspecialchars($comment['event_title'] . ' / ' . $comment['work_title']) ?></a>
+                        href="<?php echo $w['work_url'] ?>"><?php echo htmlspecialchars($w['title']) ?></a>
             </h5>
-            <h6 class="card-subtitle mb-2 text-muted"><?php echo friendly_date($comment['posted'], $langMain) . ' ' . date('H:i', $comment['posted']) . ' by ' . htmlspecialchars($comment['posted_username']) ?></h6>
-            <p class="card-text"><?php echo nl2br(htmlspecialchars($comment['message'])) ?></p>
+
+            <?php foreach ($w['items'] as $comment): ?>
+                <figure>
+                    <blockquote class="blockquote">
+                        <?php echo nl2br(htmlspecialchars($comment['message'])) ?>
+                    </blockquote>
+                    <figcaption class="blockquote-footer">
+                        <?php echo friendly_date($comment['posted'], $langMain) . ' ' . date('H:i', $comment['posted']) . ' ' . htmlspecialchars($comment['posted_username']) ?>
+                    </figcaption>
+                </figure>
+            <?php endforeach; ?>
         </div>
     </div>
-<?php endforeach; ?>
+    <?php
+
+    next($gComments);
+    if (key($gComments) !== null && !isset($screenshots[key($gComments)])) {
+        echo '<hr class="comment-delimiter"/>';
+    }
+
+endforeach;
