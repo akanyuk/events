@@ -8,7 +8,7 @@ $lang_main = NFW::i()->getLang('main');
 if ($competition['voting_works'] >= 3) {
     $worksLabelClass = 'text-bg-success';
 } elseif ($competition['voting_works'] > 0) {
-    $worksLabelClass = 'label-warning';
+    $worksLabelClass = 'text-bg-warning';
 } else {
     $worksLabelClass = 'text-bg-default';
 }

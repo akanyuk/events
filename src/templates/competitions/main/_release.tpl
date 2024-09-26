@@ -20,5 +20,5 @@ foreach ($release_works as $work) {
             'rel' => 'release',
             'single' => false,
             'voting_system' => $event['voting_system'],
-        ]) . '<hr />';
+        ]);
 }

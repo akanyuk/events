@@ -31,17 +31,16 @@
     <?php endif; ?>
 
 
-    /*
         $('#work-frames-nav a').click(function (e) {
             e.preventDefault();
 
-            const container = $(this).closest('.works-media-container');
+            const container = $(this).closest('.work-container');
             const iframeContainer = container.find('#work-iframe');
             const nav = container.find('#work-frames-nav');
             const iframeHTML = $(this).data('iframe');
 
-            nav.find('li').removeClass('active');
-            $(this).closest('li').addClass('active');
+            nav.find('a').removeClass('active');
+            $(this).closest('a').addClass('active');
 
             iframeContainer.empty().html(iframeHTML);
         })
@@ -49,6 +48,7 @@
             $(obj).find('a:first').trigger('click');
         });
 
+    /*
         if ($.blockUI) {
             $.blockUI.defaults.message = null;
             $.blockUI.defaults.fadeOut = 0;

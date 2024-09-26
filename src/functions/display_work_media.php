@@ -40,71 +40,66 @@ function display_work_media(array $work = array(), array $options = array()) {
 
     $langMain = NFW::i()->getLang('main');
 
-    $platformFormat = '<div class="label label-platform" title="' . $langMain['works platform'] . '">' . htmlspecialchars($work['platform']) . '</div>';
+    $platformFormat = '<div class="badge badge-platform me-1 mb-2" title="' . $langMain['works platform'] . '">' . htmlspecialchars($work['platform']) . '</div>';
     if ($work['format']) {
-        $platformFormat .= '<div class="label label-format" title="' . $langMain['works format'] . '">' . htmlspecialchars($work['format']) . '</div>';
+        $platformFormat .= '<div class="badge badge-format" title="' . $langMain['works format'] . '">' . htmlspecialchars($work['format']) . '</div>';
     }
 
     ob_start();
 
-    echo '<div class="works-media-container" id="work-' . $work['id'] . '">';    # special for external custom styling
+    echo '<div class="work-container mb-5">';
 
     // Display header
 
+    if ($options['rel'] == 'voting' && !$options['single']) {
+        $headerPrefix = $work['position'] . '. ';
+    } elseif ($options['rel'] == 'release' && $work['place']) {
+        $headerPrefix = '<span class="badge badge-place me-2">' . $work['place'] . '</span>';
+    } else {
+        $headerPrefix = "";
+    }
+
     if ($options['rel'] == 'preview') {
-        $headerTitle = '<h2>' . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</h2>';
+        $headerTitle = '<h2>' . $headerPrefix . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</h2>';
     } elseif ($options['rel'] == 'voting' && $options['single']) {
-        $headerTitle = '<h2>' . htmlspecialchars($work['title']) . '</h2>';
+        $headerTitle = '<h2>' . $headerPrefix . htmlspecialchars($work['title']) . '</h2>';
     } else if ($options['rel'] == 'voting' && !$options['single']) {
-        $headerTitle = '<h3><a href="' . $work['main_link'] . '">' . htmlspecialchars($work['title']) . '</a></h3>';
+        $headerTitle = '<h3>' . $headerPrefix . '<a href="' . $work['main_link'] . '">' . htmlspecialchars($work['title']) . '</a></h3>';
     } else if ($options['rel'] == 'release' && $options['single']) {
-        $headerTitle = '<h2>' . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</h2>';
+        $headerTitle = '<h2>' . $headerPrefix . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</h2>';
     } else if ($options['rel'] == 'release' && !$options['single']) {
-        $headerTitle = '<h3><a href="' . $work['main_link'] . '"/>' . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</a></h3>';
+        $headerTitle = '<h3>' . $headerPrefix . '<a href="' . $work['main_link'] . '"/>' . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</a></h3>';
     } else {
         $headerTitle = "";
     }
 
-    if ($options['rel'] == 'voting' && !$options['single']) {
-        $headerNumber = '<h3>' . $work['position'] . '.</h3>';
-    } elseif ($options['rel'] == 'release' && $work['place']) {
-        $headerNumber = '<span class="label label-place" style="font-size: 150%;">' . $work['place'] . '</span>';
-    } else {
-        $headerNumber = false;
-    }
-
-    echo '<div class="header">';
-    echo '<div class="row">';
-    echo $headerNumber ? '<div class="cell cell-number">' . $headerNumber . '</div>' : '';
-    echo '<div class="cell">' . $headerTitle . '</div>';
-    echo '</div>';
-
-    echo '<div class="row">';
-    echo $headerNumber ? '<div class="cell"></div>' : '';
-    echo '<div class="cell cell-platform">' . $platformFormat . '</div>';
-    echo '</div>';
-    echo '</div>';
-    echo platformDescription($work);
-
+    echo $headerTitle.$platformFormat.platformDescription($work);
     echo $work['author_note'] ? '<div class="author-note"><strong>' . $langMain['works author note'] . ':</strong><br />' . nl2br($work['author_note']) . '</div>' : '';
 
     list($linksHTML, $navHTML) = prepareWorkLinks($langMain, $work, $linksProps, $options['rel']);
 
-    echo '<div class="additional-html">' . $work['external_html'] . '</div>' . $navHTML . '<div id="work-iframe"></div>';
+    echo '<div class="mb-3">' . $work['external_html'] . '</div>' . $navHTML . '<div id="work-iframe"></div>';
 
     if (!empty($work['audio_files'])) {
-        echo '<div style="padding: 5px 0;"><audio controls="controls" preload="">';
+        echo '<div class="mb-3"><audio controls="controls" preload="">';
         foreach ($work['audio_files'] as $f) echo '<source src="' . cache_media($f) . '" type="' . $f['mime_type'] . '" />';
         echo $langMain['voting audio not support'] . '</audio></div>';
     }
 
     echo $linksHTML;
 
+    $actionLinks = [];
     if ($options['rel'] != 'preview' && !$options['single']) {
-        echo '<div style="padding-top: 10px;"><a class="btn btn-default" href="' . NFW::i()->absolute_path . '/' . $work['event_alias'] . '/' . $work['competition_alias'] . '/' . $work['id'] . '#comments">' . $langMain['works comments count'] . ' ' . ($work['comments_count'] ? '<span class="badge">' . $work['comments_count'] . '</span>' : '') . '</a></div>';
+        $actionLinks[] = '<a class="btn btn-link" href="' . NFW::i()->absolute_path . '/' . $work['event_alias'] . '/' . $work['competition_alias'] . '/' . $work['id'] . '#comments">' . $langMain['works comments count'] . ' ' . ($work['comments_count'] ? '<span class="badge rounded-circle text-bg-secondary">' . $work['comments_count'] . '</span>' : '') . '</a>';
+    }
+    if (in_array($work['event_id'], events::get_managed()) && $options['rel'] != 'preview') {
+        $actionLinks[] = '<a class="btn btn-link" href="' . NFW::i()->absolute_path . '/admin/works?action=update&record_id=' . $work['id'] . '">Edit work</a>';
+    }
+    if (count($actionLinks) > 0) {
+        echo '<div class="mb-3">'.implode('', $actionLinks).'</div>';
     }
 
-    echo '<div style="padding-top: 15px;">';
+    echo '<div class="mb-3">';
     if ($options['rel'] == 'voting' && !empty($options['vote_options'])) {
         echo '<select name="votes[' . $work['id'] . ']" id="' . $work['id'] . '" class="form-control work-vote" style="display: inline;">';
         foreach ($options['vote_options'] as $i => $d) echo '<option value="' . $i . '">' . $d . '</option>';
@@ -116,32 +111,25 @@ function display_work_media(array $work = array(), array $options = array()) {
 
         $sum = 'sum:<strong>' . $work['total_scores'] . '</strong>';
         if ($vs == 'sum') {
-            $sum = '<span class="label label-vts">'.$sum.'</span>';
+            $sum = '<span class="badge badge-vts">' . $sum . '</span>';
         }
-        echo ' '.$sum;
+        echo ' ' . $sum;
 
         $avg = 'avg:<strong>' . $work['average_vote'] . '</strong>';
         if ($vs == 'avg') {
-            $avg = '<span class="label label-vts">'.$avg.'</span>';
+            $avg = '<span class="badge badge-vts">' . $avg . '</span>';
         }
-        echo ' '.$avg;
+        echo ' ' . $avg;
 
         if (isset($work['iqm_vote']) && $work['iqm_vote'] > 0) {
             $iqm = 'iqm:<strong>' . $work['iqm_vote'] . '</strong>';
             if ($vs == 'iqm') {
-                $iqm = '<span class="label label-vts">'.$iqm.'</span>';
+                $iqm = '<span class="badge badge-vts">' . $iqm . '</span>';
             }
-            echo ' '.$iqm;
+            echo ' ' . $iqm;
         }
     }
-    echo '</div>'; # <div style="padding-top: 10px;">
-
-
-    if (in_array($work['event_id'], events::get_managed())) {
-        echo '<div style="padding-top: 15px;">';
-        echo '<a class="btn btn-default" href="'.NFW::i()->absolute_path.'/admin/works?action=update&record_id='.$work['id'].'"><i class="fas fa-edit"></i> Edit work profile</a>';
-        echo '</div>';
-    }
+    echo '</div>';
 
     if ($options['rel'] == 'voting') {
         echo '
@@ -162,7 +150,7 @@ function prepareWorkLinks($langMain, $work, $linksProps, $rel): array {
 
     foreach ($work['image_files'] as $f) {
         $iframe = '<div class="img-container"><img src="' . cache_media($f, IMAGE_WIDTH) . '" alt="" /></div>';
-        $navHTML[] = '<li><a data-role="work-iframe-toggle" data-iframe="' . htmlspecialchars($iframe) . '" href="' . $f['url'] . '">' . ucfirst($f['filename']) . '</a></li>';
+        $navHTML[] = '<li class="nav-item"><a class="nav-link" data-role="work-iframe-toggle" data-iframe="' . htmlspecialchars($iframe) . '" href="' . $f['url'] . '">' . ucfirst($f['filename']) . '</a></li>';
     }
 
     foreach ($work['links'] as $l) {
@@ -181,7 +169,7 @@ function prepareWorkLinks($langMain, $work, $linksProps, $rel): array {
             if (isset($linksProps[$url]['iframe'])) {
                 list($iframe, $linkURL) = $linksProps[$url]['iframe']($linkURL);
                 if ($iframe != "") {
-                    $navHTML[] = '<li role="presentation"><a href="' . $linkURL . '" data-role="work-iframe-toggle" data-iframe="' . htmlspecialchars($iframe) . '"><span class="icon" style="background-position: ' . $bgPos . ';"></span>' . $title . '</a></li>';
+                    $navHTML[] = '<li class="nav-item"><a class="nav-link" href="' . $linkURL . '" data-role="work-iframe-toggle" data-iframe="' . htmlspecialchars($iframe) . '"><span class="icon" style="background-position: ' . $bgPos . ';"></span>' . $title . '</a></li>';
                     continue;
                 }
             }
@@ -207,7 +195,7 @@ function prepareWorkLinks($langMain, $work, $linksProps, $rel): array {
 
     return [
         empty($linksHTML) ? '' : '<div class="links">' . implode('', $linksHTML) . '</div>',
-        empty($navHTML) ? '' : '<ul id="work-frames-nav" class="nav nav-pills" style="display: ' . (count($navHTML) > 1 ? 'block' : 'none') . '">' . implode('', $navHTML) . '</ul>',
+        empty($navHTML) ? '' : '<ul id="work-frames-nav" class="nav nav-underline" style="display: ' . (count($navHTML) > 1 ? 'flex' : 'none') . '">' . implode('', $navHTML) . '</ul>',
     ];
 }
 
@@ -283,5 +271,5 @@ function platformDescription($work): string {
         return '';
     }
 
-    return '<ul class="platform-description"><li>' . implode('</li><li>', $pd) . '</li></ul>';
+    return '<ul><li>' . implode('</li><li>', $pd) . '</li></ul>';
 }

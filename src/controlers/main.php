@@ -168,7 +168,7 @@ if ($workID) {
         array('desc' => $CCompetitions->record['title'])
     );
     if ($CCompetitions->record['voting_status']['available'] && $CCompetitions->record['voting_works']) {
-        NFW::i()->breadcrumb_status = '<span class="label label-danger">' . $lang_main['voting to'] . ': ' . date('d.m.Y H:i', $CCompetitions->record['voting_to']) . '</span>';
+        NFW::i()->breadcrumb_status = '<span class="badge text-bg-danger">' . $lang_main['voting to'] . ': ' . date('d.m.Y H:i', $CCompetitions->record['voting_to']) . '</span>';
     }
 
     NFWX::i()->main_og['title'] = $CCompetitions->record['title'];

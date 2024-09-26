@@ -259,8 +259,7 @@ $langLinksXs = array(
         echo NFW::i()->fetch(NFW::i()->findTemplatePath('_main_index.tpl'));
     } else {
         if (!empty(NFW::i()->breadcrumb)) {
-            echo '<h2 class="text-bg-primary">'.NFW::i()->breadcrumb_status.'</h2>';
-
+            echo '<div class="d-flex flex-column flex-md-row justify-content-between">';
             echo '<nav aria-label="breadcrumb">';
             echo '<ol class="breadcrumb">';
             foreach (NFW::i()->breadcrumb as $b) {
@@ -272,6 +271,8 @@ $langLinksXs = array(
             }
             echo '</ol>';
             echo '</nav>';
+            echo '<div class="mb-3">'.NFW::i()->breadcrumb_status.'</div>';
+            echo '</div>';
         }
 
         if (NFWX::i()->mainLayoutLeftContent) {
