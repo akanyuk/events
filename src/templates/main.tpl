@@ -80,7 +80,7 @@ $langLinksXs = array(
             fill: #fff;
         }
 
-        .bi {
+        svg {
             fill: currentColor;
         }
 
@@ -107,6 +107,9 @@ $langLinksXs = array(
     </symbol>
     <symbol id="icon-search" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
         <path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/>
+    </symbol>
+    <symbol id="icon-caret-up" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+        <path d="M182.6 137.4c-12.5-12.5-32.8-12.5-45.3 0l-128 128c-9.2 9.2-11.9 22.9-6.9 34.9s16.6 19.8 29.6 19.8l256 0c12.9 0 24.6-7.8 29.6-19.8s2.2-25.7-6.9-34.9l-128-128z"/>
     </symbol>
 </svg>
 
@@ -144,13 +147,13 @@ $langLinksXs = array(
 
                 <?php if ($theme == 'light'): ?>
                     <a class="text-white" href="<?php echo $themeLinkDark ?>">
-                        <svg class="bi me-3" width="1em" height="1em">
+                        <svg class="me-3" width="1em" height="1em">
                             <use href="#theme-icon-light"></use>
                         </svg>
                     </a>
                 <?php elseif ($theme == 'dark'): ?>
                     <a class="text-white" href="<?php echo $themeLinkLight ?>">
-                        <svg class="bi me-3" width="1em" height="1em">
+                        <svg class="me-3" width="1em" height="1em">
                             <use href="#theme-icon-dark"></use>
                         </svg>
                     </a>
@@ -265,7 +268,14 @@ $langLinksXs = array(
             echo '<div class="breadcrumb-status-mobile">' . NFW::i()->breadcrumb_status . '</div>';
         }
 
-        echo $page['content'];
+        if (NFWX::i()->mainLayoutLeftContent) {
+            echo '<div class="row">';
+            echo '<div class="col-md-3">'.NFWX::i()->mainLayoutLeftContent.'</div>';
+            echo '<div class="col-md-9">'.$page['content'].'</div>';
+            echo '</div>';
+        } else {
+            echo $page['content'];
+        }
     } ?>
 </div>
 <script src="<?php echo NFW::i()->assets('bootstrap5/js/bootstrap.bundle.js') ?>"></script>

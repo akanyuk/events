@@ -81,7 +81,6 @@ $successDialog->render();
 
         // Visual edit
         const switchEditor = $('a[id="switch-editor"]');
-        const saveEditorBtn = $('[id="editor-save-button"]');
         const result = JSON.parse(localStorage.getItem('eventVisualEditor'));
         const visualEditor = result != null && result;
         if (visualEditor) {
@@ -91,10 +90,8 @@ $successDialog->render();
             });
 
             switchEditor.text("Switch to source editor");
-            saveEditorBtn.hide();
         } else {
             switchEditor.text("Switch to visual editor");
-            saveEditorBtn.show();
         }
 
         switchEditor.click(function (e) {
@@ -209,7 +206,7 @@ $successDialog->render();
                     <div class="form-group">
                         <div class="col-md-10 col-md-offset-2">
                             <button type="submit" class="btn btn-primary"><span
-                                        class="fa fa-save"></span> <?php echo NFW::i()->lang['Save changes'] ?></button>
+                                    class="fa fa-save"></span> <?php echo NFW::i()->lang['Save changes'] ?></button>
                         </div>
                     </div>
                 </form>
@@ -222,24 +219,30 @@ $successDialog->render();
                     <textarea name="content" class="form-control"
                               style="height: 500px;"><?php echo htmlspecialchars($Module->record['content']) ?></textarea>
 
-                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
-                        <div id="editor-save-button" style="display: none;">
-                            <button type="submit" class="btn btn-primary"><span
-                                        class="fa fa-save"></span> <?php echo NFW::i()->lang['Save changes'] ?></button>
-                        </div>
-
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px; margin-bottom: 20px;">
                         <a id="switch-editor" href="#">Switch to source editor</a>
                     </div>
-                </form>
 
-                <h3>Available meta tags:</h3>
-                <pre>
-%UPLOAD-BUTTON%
-%LIVE-VOTING-BUTTON%
-%COMPETITIONS-LIST-SHORT%
+                    <h4>Available meta tags:</h4>
+                    <pre>
 %COMPETITIONS-LIST%
 %TIMETABLE%
 </pre>
+
+                    <h3>Description in column</h3>
+                    <textarea name="content_column" class="form-control"
+                              style="height: 200px;"><?php echo htmlspecialchars($Module->record['content_column']) ?></textarea>
+
+                    <h4>Available meta tags:</h4>
+                    <pre>
+%UPLOAD-BUTTON%
+%LIVE-VOTING-BUTTON%
+%COMPETITIONS-LIST-SHORT%
+</pre>
+
+                    <button type="submit" class="btn btn-primary"><span
+                            class="fa fa-save"></span> <?php echo NFW::i()->lang['Save changes'] ?></button>
+                </form>
             </div>
 
             <div role="tabpanel" class="tab-pane" style="padding-top: 20px;" id="voting_settings">
@@ -256,7 +259,7 @@ $successDialog->render();
                         <div class="cell">
                             <button data-action="remove-values-record" class="btn btn-danger btn-xs"
                                     title="<?php echo NFW::i()->lang['Remove'] ?>"><span
-                                        class="glyphicon glyphicon-remove"></span></button>
+                                    class="glyphicon glyphicon-remove"></span></button>
                         </div>
                     </div>
                 </div>
@@ -293,7 +296,7 @@ $successDialog->render();
                                 <div class="cell">
                                     <button data-action="remove-values-record" class="btn btn-danger btn-xs"
                                             title="<?php echo NFW::i()->lang['Remove'] ?>"><span
-                                                class="glyphicon glyphicon-remove"></span></button>
+                                            class="glyphicon glyphicon-remove"></span></button>
                                 </div>
                             </div>
                         <?php } ?>
@@ -301,7 +304,7 @@ $successDialog->render();
                     <div style="padding-top: 20px;">
                         <button id="add-values-record" class="btn btn-default">Add value</button>
                         <button type="submit" name="form-send" class="btn btn-primary"><span
-                                    class="fa fa-save"></span> <?php echo NFW::i()->lang['Save changes'] ?></button>
+                                class="fa fa-save"></span> <?php echo NFW::i()->lang['Save changes'] ?></button>
                     </div>
                 </form>
             </div>
@@ -370,7 +373,7 @@ $successDialog->render();
                                 <span class="input-group-btn">
 			        							<button name="save_results_txt" value="1" type="submit"
                                                         class="btn btn-primary" title="Save results file"><span
-                                                            class="fa fa-save"></span></button>
+                                                        class="fa fa-save"></span></button>
 											</span>
                             </div>
                             <span class="help-block"></span>
@@ -397,22 +400,22 @@ $successDialog->render();
             <div class="panel-body">
                 <ul class="nav nav-pills nav-stacked">
                     <li role="presentation"><a
-                                href="<?php echo NFW::i()->base_path . 'admin/competitions?event_id=' . $Module->record['id'] ?>"
-                                title="Manage competitions of this events">Manage competitions</a></li>
+                            href="<?php echo NFW::i()->base_path . 'admin/competitions?event_id=' . $Module->record['id'] ?>"
+                            title="Manage competitions of this events">Manage competitions</a></li>
                     <li role="presentation"><a
-                                href="<?php echo NFW::i()->base_path . 'admin/works?event_id=' . $Module->record['id'] ?>"
-                                title="Manage works of this events">Manage works</a></li>
+                            href="<?php echo NFW::i()->base_path . 'admin/works?event_id=' . $Module->record['id'] ?>"
+                            title="Manage works of this events">Manage works</a></li>
                     <li role="presentation"><a
-                                href="<?php echo NFW::i()->base_path . 'admin/vote?event_id=' . $Module->record['id'] ?>"
-                                title="Manage voting of this events">Manage voting</a></li>
+                            href="<?php echo NFW::i()->base_path . 'admin/vote?event_id=' . $Module->record['id'] ?>"
+                            title="Manage voting of this events">Manage voting</a></li>
                 </ul>
 
                 <?php if (!empty($competitions)): ?>
                     <hr/>
                     <?php foreach ($competitions as $competition) { ?>
                         <p><?php echo $competition['position'] ?>.&nbsp;<a
-                                    href="<?php echo NFW::i()->base_path . 'admin/competitions?action=update&record_id=' . $competition['id'] ?>"
-                                    title="Manage `<?php echo htmlspecialchars($competition['title']) ?>` competition"><?php echo htmlspecialchars($competition['title']) ?></a>
+                                href="<?php echo NFW::i()->base_path . 'admin/competitions?action=update&record_id=' . $competition['id'] ?>"
+                                title="Manage `<?php echo htmlspecialchars($competition['title']) ?>` competition"><?php echo htmlspecialchars($competition['title']) ?></a>
                         </p>
                     <?php } ?>
                 <?php endif; ?>

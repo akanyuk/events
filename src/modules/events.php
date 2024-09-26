@@ -24,6 +24,7 @@ class events extends active_record {
         'announcement_og' => array('desc' => 'Announcement for Open Graph', 'type' => 'str', 'maxlength' => 128),
         'options' => array('desc' => 'Options', 'type' => 'custom'),
         'content' => array('desc' => 'Description', 'type' => 'str', 'maxlength' => 1048576),
+        'content_column' => array('desc' => 'Description in column', 'type' => 'str', 'maxlength' => 1048576),
         'date_from' => array('desc' => 'Date from', 'type' => 'date', 'required' => true),
         'date_to' => array('desc' => 'Date to', 'type' => 'date', 'is_end' => true, 'required' => true),
         'hide_works_count' => array('desc' => 'Hide works count', 'type' => 'bool'),

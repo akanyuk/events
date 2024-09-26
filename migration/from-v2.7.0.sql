@@ -1,0 +1,1 @@
+ALTER TABLE `events` ADD `content_column` text COLLATE 'utf8mb3_general_ci' NULL COMMENT 'Content for column' AFTER `content`;

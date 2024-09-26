@@ -70,7 +70,7 @@ class competitions extends active_record {
         } elseif ($record['reception_from'] < NFWX::i()->actual_date && $record['reception_to'] > NFWX::i()->actual_date) {
             $record['reception_status']['desc'] = 'NOW! +' . NFWX::i()->formatTimeDelta($record['reception_to']);
             $record['reception_status']['text-class'] = 'text-danger';
-            $record['reception_status']['label-class'] = 'label-danger';
+            $record['reception_status']['label-class'] = 'text-bg-danger';
             $record['reception_status']['informable'] = true;
             $record['reception_status']['now'] = true;
         } else {
@@ -90,7 +90,7 @@ class competitions extends active_record {
         } elseif ($record['voting_from'] <= NFWX::i()->actual_date && $record['voting_to'] >= NFWX::i()->actual_date) {
             $record['voting_status']['desc'] = 'NOW! +' . NFWX::i()->formatTimeDelta($record['voting_to']);
             $record['voting_status']['text-class'] = 'text-danger';
-            $record['voting_status']['label-class'] = 'label-danger';
+            $record['voting_status']['label-class'] = 'text-bg-danger';
             $record['voting_status']['available'] = true;
             $record['voting_status']['informable'] = true;
             $record['voting_status']['now'] = true;
