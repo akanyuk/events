@@ -178,12 +178,13 @@ if ($workID) {
     }
 
     $competitions = $CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id'])));
-    $oneEventCompo = count($competitions) == 1;
+    $oneCompoEvent = count($competitions) == 1;
 
     $page['title'] = $CCompetitions->record['title'];
     $page['content'] = $CCompetitions->renderAction(array(
-        'content' => renderCompetitionPage($CCompetitions, $CEvents, $oneEventCompo),
+        'content' => renderCompetitionPage($CCompetitions, $CEvents, $oneCompoEvent),
         'event' => $CEvents->record,
+        'announcement' => $oneCompoEvent ? '' : $CCompetitions->record['announcement'],
         'competitions' => $CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id']))),
     ), 'record');
 

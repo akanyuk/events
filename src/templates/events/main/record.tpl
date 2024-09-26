@@ -154,7 +154,11 @@ function competitionsListShort($competitionsGroups, $competitions): string {
         foreach ($competitions as $c): ?>
             <div class="item">
                 <div class="header">
-                    <a href="#<?php echo $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
+                    <?php if ($c['is_link']): ?>
+                        <a href="<?php echo NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
+                    <?php else: ?>
+                        <a href="#<?php echo $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
+                    <?php endif; ?>
                 </div>
                 <div class="counter"><?php echo $c['count_label'] ?></div>
             </div>
@@ -172,7 +176,11 @@ function competitionsListShort($competitionsGroups, $competitions): string {
         <?php foreach ($competitions as $c): if ($c['competitions_groups_id'] == $group['id']): ?>
             <div class="item item-subgroup">
                 <div class="header">
-                    <a href="#<?php echo $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
+                    <?php if ($c['is_link']): ?>
+                        <a href="<?php echo NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
+                    <?php else: ?>
+                        <a href="#<?php echo $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
+                    <?php endif; ?>
                 </div>
                 <div class="counter"><?php echo $c['count_label'] ?></div>
             </div>
@@ -183,7 +191,11 @@ function competitionsListShort($competitionsGroups, $competitions): string {
     foreach ($competitions as $c): if ($c['competitions_groups_id'] == 0): ?>
         <div class="item">
             <div class="header">
-                <a href="#<?php echo $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
+                <?php if ($c['is_link']): ?>
+                    <a href="<?php echo NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
+                <?php else: ?>
+                    <a href="#<?php echo $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
+                <?php endif; ?>
             </div>
             <div class="counter"><?php echo $c['count_label'] ?></div>
         </div>

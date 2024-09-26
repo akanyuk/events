@@ -309,10 +309,6 @@ audio {
         font-size: 85%;
     }
 
-    .lang-change-md {
-        display: none;
-    }
-
     .breadcrumb {
         white-space: nowrap;
         overflow: auto;

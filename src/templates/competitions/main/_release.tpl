@@ -2,16 +2,9 @@
 /**
  * @var array $event
  * @var array $competition
- * @var bool $oneCompoEvent
  */
 
 NFW::i()->registerFunction('display_work_media');
-
-$lang_main = NFW::i()->getLang('main');
-
-if (!$oneCompoEvent) {
-    echo $competition['announcement'];
-}
 
 // Get release works
 $CWorks = new works();
