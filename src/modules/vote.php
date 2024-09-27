@@ -273,42 +273,6 @@ class vote extends active_record {
         return true;
     }
 
-    function actionMainRequestVotekey() {
-        $CEvents = new events($_POST['event_id'] ?? false);
-        if (!$CEvents->record['id']) {
-            $this->error('System error: wrong `event_id`');
-            NFW::i()->renderJSON(array('result' => 'error', 'errors' => array('email' => $this->last_msg)));
-        }
-
-        $CCompetitions = new competitions();
-        $competitions = $CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id'], 'open_voting' => true)));
-        if (empty($competitions)) {
-            $this->error('System error: Voting closed for this event');
-            NFW::i()->renderJSON(array('result' => 'error', 'errors' => array('email' => $this->last_msg)));
-        }
-
-        $lang_main = NFW::i()->getLang('main');
-
-        $email = isset($_POST['email']) ? trim($_POST['email']) : false;
-        if (!$email || !$this->is_valid_email($email)) {
-            $this->error($lang_main['votekey-request wrong email']);
-            NFW::i()->renderJSON(array('result' => 'error', 'errors' => array('email' => $this->last_msg)));
-        }
-
-        $votekey = votekey::findOrCreateVotekey($CEvents->record['id'], $email);
-        if ($votekey->error) {
-            NFW::i()->renderJSON(array('result' => 'error', 'errors' => array('email' => $this->last_msg)));
-        }
-
-        email::sendFromTemplate($email, 'votekey_request', array(
-            'event' => $CEvents->record,
-            'votekey' => $votekey,
-            'language' => NFW::i()->user['language']
-        ));
-
-        NFW::i()->renderJSON(array('result' => 'success', 'message' => $lang_main['votekey-request success note']));
-    }
-
     function actionMainAddVote(): bool {
         $this->error_report_type = 'active_form';
 

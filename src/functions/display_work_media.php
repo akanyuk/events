@@ -73,7 +73,7 @@ function display_work_media(array $work = array(), array $options = array()) {
         $headerTitle = "";
     }
 
-    echo $headerTitle.$platformFormat.platformDescription($work);
+    echo $headerTitle . $platformFormat . platformDescription($work);
     echo $work['author_note'] ? '<div class="author-note"><strong>' . $langMain['works author note'] . ':</strong><br />' . nl2br($work['author_note']) . '</div>' : '';
 
     list($linksHTML, $navHTML) = prepareWorkLinks($langMain, $work, $linksProps, $options['rel']);
@@ -96,14 +96,27 @@ function display_work_media(array $work = array(), array $options = array()) {
         $actionLinks[] = '<a class="btn btn-link" href="' . NFW::i()->absolute_path . '/admin/works?action=update&record_id=' . $work['id'] . '">Edit work</a>';
     }
     if (count($actionLinks) > 0) {
-        echo '<div class="mb-3">'.implode('', $actionLinks).'</div>';
+        echo '<div class="mb-3">' . implode('', $actionLinks) . '</div>';
+    }
+
+    if ($options['rel'] == 'voting') {
+        echo '
+            <div class="mb-3">
+                <textarea class="form-control work-comment" name="comment[' . $work['id'] . ']" placeholder="' . $langMain['works your comment'] . '"></textarea>
+            </div>';
     }
 
     echo '<div class="mb-3">';
     if ($options['rel'] == 'voting' && !empty($options['vote_options'])) {
-        echo '<select name="votes[' . $work['id'] . ']" id="' . $work['id'] . '" class="form-control work-vote" style="display: inline;">';
-        foreach ($options['vote_options'] as $i => $d) echo '<option value="' . $i . '">' . $d . '</option>';
-        echo '</select>';
+        echo '<div class="btn-group btn-group-sm" role="group" aria-label="Voting options">';
+        foreach ($options['vote_options'] as $i => $d) {
+            if ($i == 0) {
+                continue;
+            }
+            echo '<input type="radio" class="btn-check" name="votes[' . $work['id'] . ']" value="' . $i . '" id="w' . $work['id'] . '-' . $i . '" autocomplete="off" />';
+            echo '<label class="btn btn-outline-success" title="' . $d . '" for="w' . $work['id'] . '-' . $i . '">' . $i . '</label>';
+        }
+        echo '</div>';
     } elseif ($options['rel'] == 'release' && $work['num_votes']) {
         $vs = isset($options['voting_system']) && $options['voting_system'] ? $options['voting_system'] : 'avg';
 
@@ -131,14 +144,7 @@ function display_work_media(array $work = array(), array $options = array()) {
     }
     echo '</div>';
 
-    if ($options['rel'] == 'voting') {
-        echo '
-            <div style="padding-top: 10px;">
-                <textarea class="form-control work-comment" name="comment[' . $work['id'] . ']" placeholder="' . $langMain['works your comment'] . '"></textarea>
-            </div>';
-    }
-
-    echo '</div>';    # <div class="works-media-container">
+    echo '</div>';
 
     return ob_get_clean();
 }
@@ -195,7 +201,7 @@ function prepareWorkLinks($langMain, $work, $linksProps, $rel): array {
 
     return [
         empty($linksHTML) ? '' : '<div class="links">' . implode('', $linksHTML) . '</div>',
-        empty($navHTML) ? '' : '<ul id="work-frames-nav" class="nav nav-underline" style="display: ' . (count($navHTML) > 1 ? 'flex' : 'none') . '">' . implode('', $navHTML) . '</ul>',
+        empty($navHTML) ? '' : '<ul id="work-frames-nav" class="nav nav-underline mb-2" style="display: ' . (count($navHTML) > 1 ? 'flex' : 'none') . '">' . implode('', $navHTML) . '</ul>',
     ];
 }
 
@@ -235,7 +241,7 @@ function vkVideoIframeCreator($url): array {
     }
 
     return [
-        '<iframe src="https://vk.com/video_ext.php?oid=-' . $oid . '&id=' . $id . $hashStr . '&hd=1" width="640" height="360" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" allowfullscreen style="border: none;"></iframe>',
+        '<iframe width="640" height="360" src="https://vk.com/video_ext.php?oid=-' . $oid . '&id=' . $id . $hashStr . '&hd=1" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" allowfullscreen style="border: none;"></iframe>',
         preg_replace('%(&hash=.*)&?#?%i', '', $url),
     ];
 }

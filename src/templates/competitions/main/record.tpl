@@ -2,7 +2,7 @@
 /**
  * @var object $Module
  * @var array $event
-  * @var array $competitions
+ * @var array $competitions
  * @var string $content
  * @var string $announcement
  */
@@ -25,6 +25,6 @@ if (!empty($competitions)) {
     $compoList = ob_get_clean();
 }
 
-NFWX::i()->mainLayoutLeftContent = $announcement.'<div class="d-none d-md-block">' . $compoList . '</div>';
+NFWX::i()->mainLayoutLeftContent = $announcement . NFWX::i()->mainLayoutLeftContent . '<div class="d-none d-md-block">' . $compoList . '</div>';
 
 echo $content . '<div class="d-block d-md-none">' . $compoList . '</div>';

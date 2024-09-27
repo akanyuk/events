@@ -140,6 +140,41 @@ class votekey extends base_module {
         return array($records, $totalRecords, $numFiltered);
     }
 
+    public function requestVotekey($eventID, $email):bool {
+        $CEvents = new events($eventID);
+        if (!$CEvents->record['id']) {
+            $this->error('System error: wrong `event_id`');
+            return false;
+        }
+
+        $CCompetitions = new competitions();
+        $competitions = $CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id'], 'open_voting' => true)));
+        if (empty($competitions)) {
+            $this->error('System error: Voting closed for this event');
+            return false;
+        }
+
+        $langMain = NFW::i()->getLang('main');
+
+        if (!$email || !$this->is_valid_email($email)) {
+            $this->error($langMain['votekey-request wrong email']);
+            return false;
+        }
+
+        $votekey = votekey::findOrCreateVotekey($CEvents->record['id'], $email);
+        if ($votekey->error) {
+            return false;
+        }
+
+        email::sendFromTemplate($email, 'votekey_request', array(
+            'event' => $CEvents->record,
+            'votekey' => $votekey->votekey,
+            'language' => NFW::i()->user['language']
+        ));
+
+        return true;
+    }
+
     // Set `is_used` state and store votekey in COOKIE for future use
     public function used(): bool {
         NFW::i()->setCookie('votekey', $this->votekey, time() + 60 * 60 * 24 * 7);

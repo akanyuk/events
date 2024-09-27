@@ -202,6 +202,8 @@ h2.index-head {
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
+    width: 640px;
+    max-width: 100%;
 }
 
 .work-container .links {
@@ -222,17 +224,26 @@ h2.index-head {
     width: 16px;
     height: 16px;
     margin-right: 3px;
-    background: url("icons-16x16.png?20240914");
+    background: url("icons-16x16.png?20240927");
+}
+
+[data-bs-theme="dark"] .work-container .links .icon {
+    background: url("icons-16x16-dark.png?20240927");
 }
 
 audio {
     width: 100%;
 }
 
-/* mobile improvement */
+.work-container .btn-group {
+    width: 640px;
+    max-width: 100%;
+}
 
-.works-media-container .form-control {
-    width: inherit;
+.work-container TEXTAREA.work-comment {
+    width: 640px;
+    max-width: 100%;
+    height: 100px;
 }
 
 @media (max-width: 768px) {
@@ -247,25 +258,5 @@ audio {
 
     .works-media-container .links .item {
         display: block;
-    }
-
-    .works-media-container TEXTAREA.work-comment {
-        width: 100%;
-        height: 100px;
-    }
-
-    .works-media-container SELECT.work-vote {
-        width: 100%;
-    }
-}
-
-@media (min-width: 769px) {
-    .works-media-container TEXTAREA.work-comment {
-        width: 640px;
-        height: 100px;
-    }
-
-    .works-media-container SELECT.work-vote {
-        width: 640px;
     }
 }

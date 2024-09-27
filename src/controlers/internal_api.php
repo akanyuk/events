@@ -21,12 +21,21 @@ switch ($_GET['action']) {
         $req = json_decode(file_get_contents('php://input'));
         $CVote = new vote();
         if (!$CVote->addLiveVoteByRegisteredUser($req->workID, $req->vote)) {
-            NFWX::i()->jsonError("400", $CVote->last_msg);
+            NFWX::i()->jsonError(400, $CVote->last_msg);
         }
         NFWX::i()->jsonSuccess();
         break;
+    case 'requestVotekey':
+        $CVotekey = new votekey();
+        if (!$CVotekey->requestVotekey($_GET['event_id'], $_POST['email'])) {
+            NFWX::i()->jsonError(400, $CVotekey->last_msg);
+        }
+
+        $langMain = NFW::i()->getLang('main');
+        NFWX::i()->jsonSuccess(['message' => $langMain['votekey-request success note']]);
+        break;
     default:
-        NFWX::i()->jsonError("400", "Unknown action");
+        NFWX::i()->jsonError(400, "Unknown action");
 }
 
 function liveVoting(int $eventID, $state) {

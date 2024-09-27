@@ -5,7 +5,6 @@
  */
 reset($page);
 
-//NFW::i()->registerResource('bootstrap');
 NFW::i()->registerResource('main');
 NFW::i()->registerFunction('page_is');
 
@@ -221,7 +220,7 @@ $langLinksXs = array(
     <div id="offcanvasLogin" class="offcanvas offcanvas-top" style="height: 400px;" tabindex="-1"
          aria-labelledby="offcanvasLoginLabel">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="offcanvasBottomLabel"><?php echo NFW::i()->lang['Authorization'] ?></h5>
+            <h5 class="offcanvas-title" id="offcanvasLoginLabel"><?php echo NFW::i()->lang['Authorization'] ?></h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
@@ -259,9 +258,9 @@ $langLinksXs = array(
         echo NFW::i()->fetch(NFW::i()->findTemplatePath('_main_index.tpl'));
     } else {
         if (!empty(NFW::i()->breadcrumb)) {
-            echo '<div class="d-flex flex-column flex-md-row justify-content-between">';
+            echo '<div class="d-flex flex-column flex-md-row justify-content-between border-bottom mb-2">';
             echo '<nav aria-label="breadcrumb">';
-            echo '<ol class="breadcrumb">';
+            echo '<ol class="breadcrumb mb-1">';
             foreach (NFW::i()->breadcrumb as $b) {
                 if (isset($b['url']) && $b['url']) {
                     echo '<li class="breadcrumb-item"><a href="' . NFW::i()->base_path . $b['url'] . '">' . htmlspecialchars($b['desc']) . '</a></li>';
@@ -271,7 +270,7 @@ $langLinksXs = array(
             }
             echo '</ol>';
             echo '</nav>';
-            echo '<div class="mb-3">'.NFW::i()->breadcrumb_status.'</div>';
+            echo '<div class="mb-2">'.NFW::i()->breadcrumb_status.'</div>';
             echo '</div>';
         }
 
