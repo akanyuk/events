@@ -1,31 +1,23 @@
 <?php
 /**
- * @var object $Module
+ * @var competitions $Module
  * @var array $event
  * @var array $competitions
+ * @var array $competitionsGroups
  * @var string $content
  * @var string $announcement
  */
 
-$compoList = '';
-if (!empty($competitions)) {
-    ob_start();
-    foreach ($competitions as $c) {
-        echo '<h6>';
-        if ($c['id'] == $Module->record['id']) {
-            echo '<strong>' . htmlspecialchars($c['title']) . '</strong>';
-        } else if ($c['release_status']['available'] && $c['release_works']) {
-            echo '<a href="' . NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] . '">' . htmlspecialchars($c['title']) . '</a>';
-        } else if ($c['voting_status']['available'] && $c['voting_works']) {
-            echo '<a href="' . NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] . '">' . htmlspecialchars($c['title']) . '</a>';
-        }
-        echo '</h6>';
-    }
-    echo '<div class="mb-3">&nbsp;</div>';
-    $compoList = ob_get_clean();
-}
+NFW::i()->registerFunction('competitions_list_short');
+$compoList = competitions_list_short(
+    $competitionsGroups,
+    $competitions,
+    $event['hide_works_count'],
+    true,
+    $Module->record['id']
+);
 
-// NFWX::i()->mainLayoutRightContent contains `username` and `votekey` fields
+// !!! NFWX::i()->mainLayoutRightContent already contains `username` and `votekey` fields
 
 // Main content
 echo '<div class="d-block d-md-none"><div class="mb-5">' . $announcement . '</div>' . NFWX::i()->mainLayoutRightContent . '</div>' . $content;

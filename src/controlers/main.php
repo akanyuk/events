@@ -180,12 +180,16 @@ if ($workID) {
     $competitions = $CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id'])));
     $oneCompoEvent = count($competitions) == 1;
 
+    $CCompetitionsGroups = new competitions_groups();
+    $competitionsGroups = $CCompetitionsGroups->getRecords($CEvents->record['id']);
+
     $page['title'] = $CCompetitions->record['title'];
     $page['content'] = $CCompetitions->renderAction(array(
         'content' => renderCompetitionPage($CCompetitions, $CEvents, $oneCompoEvent),
         'event' => $CEvents->record,
         'announcement' => $oneCompoEvent ? '' : $CCompetitions->record['announcement'],
         'competitions' => $CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id']))),
+        'competitionsGroups' => $competitionsGroups,
     ), 'record');
 
     NFW::i()->assign('page', $page);

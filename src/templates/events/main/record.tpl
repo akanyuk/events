@@ -6,8 +6,11 @@
  * @var string $content
  */
 
-// Preparing competitions
+NFW::i()->registerFunction('competitions_list_short');
+
 $langMain = NFW::i()->getLang('main');
+
+// Preparing competitions
 $isReceptionCan = false;
 $isVotingCan = false;
 foreach ($competitions as $key => $c) {
@@ -19,33 +22,8 @@ foreach ($competitions as $key => $c) {
         $isVotingCan = true;
     }
 
-    if ($c['voting_status']['available'] && $c['voting_works']) {
-        $competitions[$key]['second_label'] = '<small><div class="badge rounded-pill text-bg-danger" title="Vote now!">!</div></small>';
-    } else if ($c['reception_status']['now']) {
-        $competitions[$key]['second_label'] = '<small><div class="badge rounded-pill text-bg-info" title="Reception available">+</div></small>';
-    } else {
-        $competitions[$key]['second_label'] = '<small><div></div></small>';
-    }
-
-    if ($c['release_status']['available'] && $c['release_works']) {
-        $competitions[$key]['is_link'] = true;
-        $competitions[$key]['counter'] = $c['release_works'];
-    } elseif ($c['voting_status']['available'] && $c['voting_works']) {
-        $competitions[$key]['is_link'] = true;
-        $competitions[$key]['counter'] = $c['voting_works'];
-    } else {
-        $competitions[$key]['is_link'] = false;
-        $competitions[$key]['counter'] = $c['release_works'];
-    }
-
-    if ($event['hide_works_count']) {
-        $competitions[$key]['count_label'] = '<div class="badge text-bg-secondary" title="' . $langMain['competitions received works'] . '">?</div>';
-    } elseif (!$competitions[$key]['counter']) {
-        $competitions[$key]['count_label'] = '<div class="badge text-bg-secondary" title="' . $langMain['competitions received works'] . '">' . $competitions[$key]['counter'] . '</div>';
-    } elseif ($competitions[$key]['counter'] < 3) {
-        $competitions[$key]['count_label'] = '<div class="badge text-bg-warning" title="' . $langMain['competitions received works'] . '">' . $competitions[$key]['counter'] . '</div>';
-    } else {
-        $competitions[$key]['count_label'] = '<div class="badge text-bg-success" title="' . $langMain['competitions received works'] . '">' . $competitions[$key]['counter'] . '</div>';
+    if ($isReceptionCan && $isVotingCan) {
+        break;
     }
 }
 
@@ -87,10 +65,10 @@ if ($isVotingCan) {
 }
 
 if (stristr($event['content_column'], '%COMPETITIONS-LIST-SHORT%')) {
-    $event['content_column'] = str_replace('%COMPETITIONS-LIST-SHORT%', competitionsListShort($competitionsGroups, $competitions), $event['content_column']);
+    $event['content_column'] = str_replace('%COMPETITIONS-LIST-SHORT%', competitions_list_short($competitionsGroups, $competitions, $event['hide_works_count']), $event['content_column']);
     $competitionsListShort = '';
 } else {
-    $competitionsListShort = competitionsListShort($competitionsGroups, $competitions);
+    $competitionsListShort = competitions_list_short($competitionsGroups, $competitions, $event['hide_works_count']);
 }
 
 if (stristr($content, '%TIMETABLE%')) {
@@ -101,10 +79,10 @@ if (stristr($content, '%TIMETABLE%')) {
 }
 
 if (stristr($content, '%COMPETITIONS-LIST%')) {
-    $content = str_replace('%COMPETITIONS-LIST%', competitionsList($competitionsGroups, $competitions), $content);
+    $content = str_replace('%COMPETITIONS-LIST%', competitionsList($competitionsGroups, $competitions, $event['hide_works_count']), $content);
     $competitionsList = '';
 } else {
-    $competitionsList = competitionsList($competitionsGroups, $competitions);
+    $competitionsList = competitionsList($competitionsGroups, $competitions, $event['hide_works_count']);
 }
 
 // Left column begin
@@ -122,7 +100,7 @@ ob_start();
         echo eventsGroup($eventsGroup);
         echo '<p>' . $event['content_column'] . '</p>';
         echo $uploadButton . ' ' . $liveVotingButton;
-        echo competitionsListShort($competitionsGroups, $competitions);
+        echo $competitionsListShort;
         ?>
     </div>
 <?php
@@ -148,7 +126,7 @@ NFWX::i()->mainLayoutRightContent = ob_get_clean();
         echo eventsGroup($eventsGroup);
         echo '<p>' . $event['content_column'] . '</p>';
         echo $uploadButton . ' ' . $liveVotingButton;
-        echo competitionsListShort($competitionsGroups, $competitions);
+        echo $competitionsListShort;
         ?>
     </div>
 
@@ -175,54 +153,7 @@ function eventsGroup(array $eventsGroup): string {
     return ob_get_clean();
 }
 
-function competitionsListShort($competitionsGroups, $competitions): string {
-    ob_start();
-
-    if (empty($competitionsGroups)) {
-        foreach ($competitions as $c): ?>
-            <?php if ($c['is_link']): ?>
-                <a href="<?php echo NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
-            <?php else: ?>
-                <a href="#<?php echo $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
-            <?php endif; ?>
-            <div class="badge text-bg-primary">?</div>
-            <?php echo $c['count_label'] ?>
-        <?php endforeach;
-        return '<div class="d-grid gap-1" style="grid-template-columns: 12fr 1fr 1fr;">' . ob_get_clean() . '</div>';
-    }
-
-    foreach ($competitionsGroups as $group): ?>
-        <a href="#<?php echo str_replace(" ", "_", htmlspecialchars($group['title'])) ?>"><b><?php echo htmlspecialchars($group['title']) ?></b></a>
-        <div></div>
-        <div></div>
-
-        <?php foreach ($competitions as $c): if ($c['competitions_groups_id'] == $group['id']): ?>
-            <?php if ($c['is_link']): ?>
-                <a class="ps-3"
-                   href="<?php echo NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
-            <?php else: ?>
-                <a class="ps-3" href="#<?php echo $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
-            <?php endif; ?>
-            <?php echo $c['second_label'] ?>
-            <?php echo $c['count_label'] ?>
-        <?php endif; endforeach;
-    endforeach;
-
-    // Without group
-    foreach ($competitions as $c): if ($c['competitions_groups_id'] == 0): ?>
-        <?php if ($c['is_link']): ?>
-            <a href="<?php echo NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
-        <?php else: ?>
-            <a href="#<?php echo $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
-        <?php endif; ?>
-        <?php echo $c['second_label'] ?>
-        <?php echo $c['count_label'] ?>
-    <?php endif; endforeach;
-
-    return '<div class="d-grid gap-1" style="grid-template-columns: 12fr 1fr 1fr;">' . ob_get_clean() . '</div>';
-}
-
-function competitionsList($competitionsGroups, $competitions): string {
+function competitionsList($competitionsGroups, $competitions, bool $hideWorksCount): string {
     if (empty($competitions)) {
         return "";
     }
@@ -230,7 +161,7 @@ function competitionsList($competitionsGroups, $competitions): string {
     ob_start();
     if (empty($competitionsGroups)) {
         foreach ($competitions as $compo) {
-            echo _compo($compo);
+            echo _compo($compo, $hideWorksCount);
         }
         return ob_get_clean();
     }
@@ -244,7 +175,7 @@ function competitionsList($competitionsGroups, $competitions): string {
         <?php
         foreach ($competitions as $compo) {
             if ($compo['competitions_groups_id'] == $group['id']) {
-                echo _compo($compo);
+                echo _compo($compo, $hideWorksCount);
             }
         }
     }
@@ -252,14 +183,14 @@ function competitionsList($competitionsGroups, $competitions): string {
     // Without group
     foreach ($competitions as $compo) {
         if ($compo['competitions_groups_id'] == 0) {
-            echo _compo($compo);
+            echo _compo($compo, $hideWorksCount);
         }
     }
 
     return ob_get_clean();
 }
 
-function _compo($compo) {
+function _compo(array $compo, bool $hideWorksCount) {
     $langMain = NFW::i()->getLang('main');
     $receptionAvailable = $compo['reception_status']['now'] || $compo['reception_status']['future'];
     $votingAvailable = $compo['voting_status']['now'] || $compo['voting_status']['future'];
@@ -269,9 +200,9 @@ function _compo($compo) {
     <div id="<?php echo $compo['alias'] ?>" style="position: relative; top: -60px;"></div>
     <h3>
         <?php if ($compo['is_link']): ?>
-            <a href="<?php echo NFW::i()->absolute_path . '/' . $compo['event_alias'] . '/' . $compo['alias'] ?>"><?php echo htmlspecialchars($compo['title']) . ' (' . $compo['counter'] . ')' ?></a>
+            <a href="<?php echo NFW::i()->absolute_path . '/' . $compo['event_alias'] . '/' . $compo['alias'] ?>"><?php echo htmlspecialchars($compo['title']) . ($hideWorksCount ? '' : ' (' . $compo['counter'] . ')') ?></a>
         <?php else: ?>
-            <?php echo htmlspecialchars($compo['title']) . ' (' . $compo['counter'] . ')' ?>
+            <?php echo htmlspecialchars($compo['title']) . ($hideWorksCount ? '' : ' (' . $compo['counter'] . ')') ?>
         <?php endif; ?>
     </h3>
 

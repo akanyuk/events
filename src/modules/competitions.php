@@ -104,6 +104,17 @@ class competitions extends active_record {
             $record['release_status']['available'] = true;
         }
 
+        if ($record['release_status']['available'] && isset($record['release_works']) && $record['release_works']) {
+            $record['counter'] = $record['release_works'];
+            $record['is_link'] = true;
+        } elseif ($record['voting_status']['available'] && isset($record['voting_works']) && $record['voting_works']) {
+            $record['counter'] = $record['voting_works'];
+            $record['is_link'] = true;
+        } else {
+            $record['counter'] = $record['release_works'] ?? 0;
+            $record['is_link'] = false;
+        }
+
         return $record;
     }
 
@@ -183,11 +194,15 @@ class competitions extends active_record {
 
         $records = array();
         while ($record = NFW::i()->db->fetch_assoc($result)) {
-            $records[] = $this->formatRecord($record);
+            $records[] = $record;
         }
 
         $CWorks = new works();
         $CWorks->loadCounters($records);
+
+        foreach ($records as $key=>$record) {
+            $records[$key] = $this->formatRecord($record);
+        }
 
         return $records;
     }
