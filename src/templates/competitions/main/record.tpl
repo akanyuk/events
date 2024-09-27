@@ -21,10 +21,13 @@ if (!empty($competitions)) {
         }
         echo '</h6>';
     }
-    echo '<div class="mb-3"></div>';
+    echo '<div class="mb-3">&nbsp;</div>';
     $compoList = ob_get_clean();
 }
 
-NFWX::i()->mainLayoutLeftContent = $announcement . NFWX::i()->mainLayoutLeftContent . '<div class="d-none d-md-block">' . $compoList . '</div>';
+// NFWX::i()->mainLayoutRightContent contains `username` and `votekey` fields
 
-echo $content . '<div class="d-block d-md-none">' . $compoList . '</div>';
+// Main content
+echo '<div class="d-block d-md-none"><div class="mb-5">' . $announcement . '</div>' . NFWX::i()->mainLayoutRightContent . '</div>' . $content;
+
+NFWX::i()->mainLayoutRightContent = '<div class="d-none d-md-block"><div class="mb-5">' . $announcement . '</div>' . NFWX::i()->mainLayoutRightContent . '</div>' . $compoList;

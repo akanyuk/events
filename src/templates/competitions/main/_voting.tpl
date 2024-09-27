@@ -99,27 +99,35 @@ NFW::i()->registerFunction('active_field');
             });
 
             // Request votekey
-            const errorToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('errorToast'));
+            const requestVotekeyEmail = $('input[id="request-votekey-email"]');
             const successToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('successToast'));
             const offcanvasRequestVotekey = new bootstrap.Offcanvas('#offcanvasRequestVotekey')
             $('button[id="request-votekey"]').click(function () {
+                requestVotekeyEmail.removeClass('is-invalid');
+                $('#request-votekey-email-feedback').text('').hide();
+
                 $.ajax('<?php echo NFW::i()->base_path . 'internal_api?action=requestVotekey&event_id=' . $competition['event_id']?>',
                     {
                         method: "POST",
                         dataType: "json",
                         data: {
-                            'email': $('input[id="request-votekey-email"]').val()
+                            'email': requestVotekeyEmail.val()
                         },
                         error: function (response) {
                             if (response['responseJSON']['errors']['general'] === undefined) {
                                 return
                             }
 
-                            document.getElementById('errorToast-text').innerText = response['responseJSON']['errors']['general'];
-                            errorToast.show();
+                            requestVotekeyEmail.addClass('is-invalid');
+                            $('#request-votekey-email-feedback').text(response['responseJSON']['errors']['general']).show();
                         },
                         success: function (response) {
                             offcanvasRequestVotekey.hide();
+
+                            requestVotekeyEmail.val('');
+                            requestVotekeyEmail.removeClass('is-invalid');
+                            $('#request-votekey-email-feedback').text('').hide();
+
                             document.getElementById('successToast-text').innerText = response['message'];
                             successToast.show();
                         }
@@ -144,13 +152,6 @@ NFW::i()->registerFunction('active_field');
     </script>
 
     <div class="toast-container position-fixed top-0 end-0 p-3">
-        <div id="errorToast" class="toast text-bg-danger"
-             role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
-            <div class="d-flex">
-                <div id="errorToast-text" class="toast-body"></div>
-                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-        </div>
         <div id="successToast" class="toast text-bg-success"
              role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
             <div class="d-flex">
@@ -174,6 +175,7 @@ NFW::i()->registerFunction('active_field');
             <div class="mb-3">
                 <label for="email">E-mail address</label>
                 <input id="request-votekey-email" type="text" class="form-control"/>
+                <div id="request-votekey-email-feedback" class="invalid-feedback"></div>
             </div>
 
             <button id="request-votekey" class="btn btn-primary"
@@ -182,7 +184,8 @@ NFW::i()->registerFunction('active_field');
     </div>
 <?php
 
-ob_start();
+if (NFW::i()->user['is_guest']) {
+    ob_start();
 ?>
     <div class="mb-3">
         <label for="username"><?php echo $langMain['voting name'] ?></label>
@@ -212,19 +215,14 @@ ob_start();
         </div>
     </div>
 
-<?php if (NFW::i()->user['is_guest']): ?>
-    <div class="mb-3">
+    <div class="mb-5">
         <a href="<?php echo NFW::i()->base_path ?>sceneid?action=performAuth"><img
-                src="<?php echo NFW::i()->assets("main/SceneID_Icon_200x32.png") ?>"
-                alt="Sign in with SceneID"/></a>
+                    src="<?php echo NFW::i()->assets("main/SceneID_Icon_200x32.png") ?>"
+                    alt="Sign in with SceneID"/></a>
     </div>
-<?php endif; ?>
-
-    <div class="mb-2">&nbsp;</div>
-
 <?php
-NFWX::i()->mainLayoutLeftContent .= ob_get_clean();
-
+    NFWX::i()->mainLayoutRightContent .= ob_get_clean();
+}
 
 $curPos = 1;
 foreach ($works as $work) {

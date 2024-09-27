@@ -11,7 +11,7 @@ class NFWX extends NFW {
     var $actual_date = false;
 
     var array $main_og = array();             # мета теги для Open Graph
-    var string $mainLayoutLeftContent = "";   # Содержимое левого блока страницы. Если не задано, правый блок не отображается
+    var string $mainLayoutRightContent = "";   # Содержимое левого блока страницы. Если не задано, правый блок не отображается
 
 
     function __construct($init_cfg = null) {

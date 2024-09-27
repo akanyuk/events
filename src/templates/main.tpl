@@ -274,10 +274,10 @@ $langLinksXs = array(
             echo '</div>';
         }
 
-        if (NFWX::i()->mainLayoutLeftContent) {
+        if (NFWX::i()->mainLayoutRightContent) {
             echo '<div class="row">';
-            echo '<div class="col-md-3">' . NFWX::i()->mainLayoutLeftContent . '</div>';
-            echo '<div class="col-md-9">' . $page['content'] . '</div>';
+            echo '<div class="col-md-8">' . $page['content'] . '</div>';
+            echo '<div class="col-md-4">' . NFWX::i()->mainLayoutRightContent . '</div>';
             echo '</div>';
         } else {
             echo $page['content'];

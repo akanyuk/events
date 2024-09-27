@@ -55,50 +55,6 @@ h2.index-head {
     border-color: #346f34 !important;
 }
 
-@media (max-width: 768px) {
-    .btn-full-xs {
-        display: block;
-        width: 100%;
-        margin-bottom: 5px !important;
-    }
-}
-
-.competitions-list-short {
-    margin-top: 20px;
-    margin-bottom: 10px;
-}
-
-.competitions-list-short .item {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.3rem 1rem;
-    margin-bottom: 0.2em;
-}
-
-.competitions-list-short .item-subgroup .header {
-    padding-left: 20px;
-}
-
-.competitions-list-short .group-title {
-    font-weight: bold;
-}
-
-.competitions-list-short .item:nth-child(odd) {
-    background-color: #f8f8f8;
-}
-
-[data-bs-theme="dark"] .competitions-list-short .item:nth-child(odd) {
-    background-color: #272727;
-}
-
-.competitions-list-short .item:hover {
-    background-color: #eee;
-}
-
-[data-bs-theme="dark"] .competitions-list-short .item:hover {
-    background-color: #333;
-}
-
 /* Timetable */
 
 .table-timetable > tbody > tr > td {

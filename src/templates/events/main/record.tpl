@@ -19,25 +19,33 @@ foreach ($competitions as $key => $c) {
         $isVotingCan = true;
     }
 
+    if ($c['voting_status']['available'] && $c['voting_works']) {
+        $competitions[$key]['second_label'] = '<small><div class="badge rounded-pill text-bg-danger" title="Vote now!">!</div></small>';
+    } else if ($c['reception_status']['now']) {
+        $competitions[$key]['second_label'] = '<small><div class="badge rounded-pill text-bg-info" title="Reception available">+</div></small>';
+    } else {
+        $competitions[$key]['second_label'] = '<small><div></div></small>';
+    }
+
     if ($c['release_status']['available'] && $c['release_works']) {
         $competitions[$key]['is_link'] = true;
-        $counter = $c['release_works'];
+        $competitions[$key]['counter'] = $c['release_works'];
     } elseif ($c['voting_status']['available'] && $c['voting_works']) {
         $competitions[$key]['is_link'] = true;
-        $counter = $c['voting_works'];
+        $competitions[$key]['counter'] = $c['voting_works'];
     } else {
         $competitions[$key]['is_link'] = false;
-        $counter = $c['release_works'];
+        $competitions[$key]['counter'] = $c['release_works'];
     }
 
     if ($event['hide_works_count']) {
-        $competitions[$key]['count_label'] = '<span class="badge text-bg-secondary" title="' . $langMain['competitions received works'] . '">?</span>';
-    } elseif (!$counter) {
-        $competitions[$key]['count_label'] = '<span class="badge text-bg-secondary" title="' . $langMain['competitions received works'] . '">' . $counter . '</span>';
-    } elseif ($counter < 3) {
-        $competitions[$key]['count_label'] = '<span class="badge text-bg-warning" title="' . $langMain['competitions received works'] . '">' . $counter . '</span>';
+        $competitions[$key]['count_label'] = '<div class="badge text-bg-secondary" title="' . $langMain['competitions received works'] . '">?</div>';
+    } elseif (!$competitions[$key]['counter']) {
+        $competitions[$key]['count_label'] = '<div class="badge text-bg-secondary" title="' . $langMain['competitions received works'] . '">' . $competitions[$key]['counter'] . '</div>';
+    } elseif ($competitions[$key]['counter'] < 3) {
+        $competitions[$key]['count_label'] = '<div class="badge text-bg-warning" title="' . $langMain['competitions received works'] . '">' . $competitions[$key]['counter'] . '</div>';
     } else {
-        $competitions[$key]['count_label'] = '<span class="badge text-bg-success" title="' . $langMain['competitions received works'] . '">' . $counter . '</span>';
+        $competitions[$key]['count_label'] = '<div class="badge text-bg-success" title="' . $langMain['competitions received works'] . '">' . $competitions[$key]['counter'] . '</div>';
     }
 }
 
@@ -103,29 +111,58 @@ if (stristr($content, '%COMPETITIONS-LIST%')) {
 
 ob_start();
 ?>
-    <div class="d-block d-md-none d-flex justify-content-start">
-        <?php if ($event['is_preview_img']): ?>
-            <div class="me-3">
-                <img src="<?php echo $event['preview_img'] ?>" alt="<?php echo htmlspecialchars($event['title']) ?>"/>
-            </div>
-        <?php endif; ?>
-        <div>
-            <h2 class="fs-4"><?php echo htmlspecialchars($event['title']) ?></h2>
-            <p class="text-muted"><?php echo $event['dates_desc'] ?></p>
-        </div>
-    </div>
-
     <div class="d-none d-md-block">
         <?php if ($event['preview_img_large']): ?>
             <img class="w-100 mb-3" src="<?php echo $event['preview_img_large'] ?>"
                  alt="<?php echo htmlspecialchars($event['title']) ?>"/>
         <?php endif; ?>
         <p class="text-muted"><?php echo $event['dates_desc'] ?></p>
+        <?php
+        echo '<p>' . $event['announcement'] . '</p>';
+        echo eventsGroup($eventsGroup);
+        echo '<p>' . $event['content_column'] . '</p>';
+        echo $uploadButton . ' ' . $liveVotingButton;
+        echo competitionsListShort($competitionsGroups, $competitions);
+        ?>
+    </div>
+<?php
+NFWX::i()->mainLayoutRightContent = ob_get_clean();
+
+// Main content begin
+?>
+    <div class="d-block d-md-none mb-3">
+        <div class="d-flex justify-content-start">
+            <?php if ($event['is_preview_img']): ?>
+                <div class="me-3">
+                    <img src="<?php echo $event['preview_img'] ?>"
+                         alt="<?php echo htmlspecialchars($event['title']) ?>"/>
+                </div>
+            <?php endif; ?>
+            <div>
+                <h2 class="fs-4"><?php echo htmlspecialchars($event['title']) ?></h2>
+                <p class="text-muted"><?php echo $event['dates_desc'] ?></p>
+            </div>
+        </div>
+        <?php
+        echo '<p>' . $event['announcement'] . '</p>';
+        echo eventsGroup($eventsGroup);
+        echo '<p>' . $event['content_column'] . '</p>';
+        echo $uploadButton . ' ' . $liveVotingButton;
+        echo competitionsListShort($competitionsGroups, $competitions);
+        ?>
     </div>
 
-    <p><?php echo $event['announcement'] ?></p>
+    <h1 class="d-none d-md-block"><?php echo htmlspecialchars($event['title']) ?></h1>
 <?php
-if (sizeof($eventsGroup) > 1): ?>
+echo $content . ' ' . $timetable . ' ' . $competitionsList;
+
+function eventsGroup(array $eventsGroup): string {
+    if (sizeof($eventsGroup) < 2) {
+        return "";
+    }
+
+    ob_start();
+    ?>
     <ul class="nav nav-pills mb-3">
         <?php foreach ($eventsGroup as $g): ?>
             <li class="nav-item nav-item-sm"><a class="nav-link <?php echo $g['is_current'] ? 'active"' : '' ?>"
@@ -134,74 +171,55 @@ if (sizeof($eventsGroup) > 1): ?>
             </li>
         <?php endforeach; ?>
     </ul>
-<?php endif;
-echo '<p>'.$event['content_column'].'</p>';
-echo $uploadButton . ' ' . $liveVotingButton;
-echo competitionsListShort($competitionsGroups, $competitions);
-echo '<div class="mb-3"></div>';
-NFWX::i()->mainLayoutLeftContent = ob_get_clean();
-
-// Main content begin
-
-echo '<h1 class="d-none d-md-block">' . htmlspecialchars($event['title']) . '</h1>';
-
-echo $content . ' ' . $timetable . ' ' . $competitionsList;
+    <?php
+    return ob_get_clean();
+}
 
 function competitionsListShort($competitionsGroups, $competitions): string {
     ob_start();
 
     if (empty($competitionsGroups)) {
         foreach ($competitions as $c): ?>
-            <div class="item">
-                <div class="header">
-                    <?php if ($c['is_link']): ?>
-                        <a href="<?php echo NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
-                    <?php else: ?>
-                        <a href="#<?php echo $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
-                    <?php endif; ?>
-                </div>
-                <div class="counter"><?php echo $c['count_label'] ?></div>
-            </div>
+            <?php if ($c['is_link']): ?>
+                <a href="<?php echo NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
+            <?php else: ?>
+                <a href="#<?php echo $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
+            <?php endif; ?>
+            <div class="badge text-bg-primary">?</div>
+            <?php echo $c['count_label'] ?>
         <?php endforeach;
-        return '<div class="competitions-list-short">' . ob_get_clean() . '</div>';
+        return '<div class="d-grid gap-1" style="grid-template-columns: 12fr 1fr 1fr;">' . ob_get_clean() . '</div>';
     }
 
     foreach ($competitionsGroups as $group): ?>
-        <div class="item">
-            <div class="group-title">
-                <a href="#<?php echo str_replace(" ", "_", htmlspecialchars($group['title'])) ?>"><?php echo htmlspecialchars($group['title']) ?></a>
-            </div>
-        </div>
+        <a href="#<?php echo str_replace(" ", "_", htmlspecialchars($group['title'])) ?>"><b><?php echo htmlspecialchars($group['title']) ?></b></a>
+        <div></div>
+        <div></div>
 
         <?php foreach ($competitions as $c): if ($c['competitions_groups_id'] == $group['id']): ?>
-            <div class="item item-subgroup">
-                <div class="header">
-                    <?php if ($c['is_link']): ?>
-                        <a href="<?php echo NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
-                    <?php else: ?>
-                        <a href="#<?php echo $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
-                    <?php endif; ?>
-                </div>
-                <div class="counter"><?php echo $c['count_label'] ?></div>
-            </div>
+            <?php if ($c['is_link']): ?>
+                <a class="ps-3"
+                   href="<?php echo NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
+            <?php else: ?>
+                <a class="ps-3" href="#<?php echo $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
+            <?php endif; ?>
+            <?php echo $c['second_label'] ?>
+            <?php echo $c['count_label'] ?>
         <?php endif; endforeach;
     endforeach;
 
     // Without group
     foreach ($competitions as $c): if ($c['competitions_groups_id'] == 0): ?>
-        <div class="item">
-            <div class="header">
-                <?php if ($c['is_link']): ?>
-                    <a href="<?php echo NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
-                <?php else: ?>
-                    <a href="#<?php echo $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
-                <?php endif; ?>
-            </div>
-            <div class="counter"><?php echo $c['count_label'] ?></div>
-        </div>
+        <?php if ($c['is_link']): ?>
+            <a href="<?php echo NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
+        <?php else: ?>
+            <a href="#<?php echo $c['alias'] ?>"><?php echo htmlspecialchars($c['title']) ?></a>
+        <?php endif; ?>
+        <?php echo $c['second_label'] ?>
+        <?php echo $c['count_label'] ?>
     <?php endif; endforeach;
 
-    return '<div class="competitions-list-short">' . ob_get_clean() . '</div>';
+    return '<div class="d-grid gap-1" style="grid-template-columns: 12fr 1fr 1fr;">' . ob_get_clean() . '</div>';
 }
 
 function competitionsList($competitionsGroups, $competitions): string {
@@ -214,7 +232,7 @@ function competitionsList($competitionsGroups, $competitions): string {
         foreach ($competitions as $compo) {
             echo _compo($compo);
         }
-        return '<div class="event-competitions">' . ob_get_clean() . '</div>';
+        return ob_get_clean();
     }
 
     foreach ($competitionsGroups as $group) {
@@ -238,7 +256,7 @@ function competitionsList($competitionsGroups, $competitions): string {
         }
     }
 
-    return '<div class="event-competitions">' . ob_get_clean() . '</div>';
+    return ob_get_clean();
 }
 
 function _compo($compo) {
@@ -251,11 +269,10 @@ function _compo($compo) {
     <div id="<?php echo $compo['alias'] ?>" style="position: relative; top: -60px;"></div>
     <h3>
         <?php if ($compo['is_link']): ?>
-            <a href="<?php echo NFW::i()->absolute_path . '/' . $compo['event_alias'] . '/' . $compo['alias'] ?>"><?php echo htmlspecialchars($compo['title']) ?></a>
+            <a href="<?php echo NFW::i()->absolute_path . '/' . $compo['event_alias'] . '/' . $compo['alias'] ?>"><?php echo htmlspecialchars($compo['title']) . ' (' . $compo['counter'] . ')' ?></a>
         <?php else: ?>
-            <?php echo htmlspecialchars($compo['title']) ?>
+            <?php echo htmlspecialchars($compo['title']) . ' (' . $compo['counter'] . ')' ?>
         <?php endif; ?>
-        <small><?php echo $compo['count_label']?></small>
     </h3>
 
     <p><?php echo $compo['announcement'] ?></p>
@@ -267,11 +284,11 @@ function _compo($compo) {
                     <?php echo $langMain['competitions reception'] ?>
                     <?php if ($compo['reception_from']): ?>
                         <span
-                            style="white-space: nowrap; <?php echo $compo['reception_status']['past'] ? 'color: #777;' : 'font-weight: bold;' ?>"><?php echo date('d.m H:i', $compo['reception_from']) . ' - ' . date('d.m H:i', $compo['reception_to']) ?></span>
+                                style="white-space: nowrap; <?php echo $compo['reception_status']['past'] ? 'color: #777;' : 'font-weight: bold;' ?>"><?php echo date('d.m H:i', $compo['reception_from']) . ' - ' . date('d.m H:i', $compo['reception_to']) ?></span>
                     <?php endif; ?>
                     <?php if ($receptionAvailable): ?>
                         <span
-                            class="badge <?php echo $compo['reception_status']['label-class'] ?>"><?php echo $compo['reception_status']['desc'] ?></span>
+                                class="badge <?php echo $compo['reception_status']['label-class'] ?>"><?php echo $compo['reception_status']['desc'] ?></span>
                     <?php endif; ?>
                 </li>
             <?php endif; ?>
@@ -280,11 +297,11 @@ function _compo($compo) {
                     <?php echo $langMain['competitions voting'] ?>
                     <?php if ($compo['voting_from']): ?>
                         <span
-                            style="white-space: nowrap; <?php echo $compo['voting_status']['past'] ? 'color: #777;' : 'font-weight: bold;' ?>"><?php echo date('d.m H:i', $compo['voting_from']) . ' - ' . date('d.m H:i', $compo['voting_to']) ?></span>
+                                style="white-space: nowrap; <?php echo $compo['voting_status']['past'] ? 'color: #777;' : 'font-weight: bold;' ?>"><?php echo date('d.m H:i', $compo['voting_from']) . ' - ' . date('d.m H:i', $compo['voting_to']) ?></span>
                     <?php endif; ?>
                     <?php if ($votingAvailable): ?>
                         <span
-                            class="badge <?php echo $compo['voting_status']['label-class'] ?>"><?php echo $compo['voting_status']['desc'] ?></span>
+                                class="badge <?php echo $compo['voting_status']['label-class'] ?>"><?php echo $compo['voting_status']['desc'] ?></span>
                     <?php endif; ?>
                 </li>
             <?php endif; ?>

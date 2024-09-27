@@ -14,7 +14,7 @@
 
     <?php if (NFW::i()->user['is_guest']): ?>
     $('form[id="login-form"]').activeForm({
-        cleanErrors: function() {
+        cleanErrors: function () {
             $(this).find('#result').text('');
         },
         error: function (response) {
@@ -31,34 +31,34 @@
     <?php endif; ?>
 
 
-        $('#work-frames-nav a').click(function (e) {
-            e.preventDefault();
+    $('#work-frames-nav a').click(function (e) {
+        e.preventDefault();
 
-            const container = $(this).closest('.work-container');
-            const iframeContainer = container.find('#work-iframe');
-            const nav = container.find('#work-frames-nav');
-            const iframeHTML = $(this).data('iframe');
+        const container = $(this).closest('.work-container');
+        const iframeContainer = container.find('#work-iframe');
+        const nav = container.find('#work-frames-nav');
+        const iframeHTML = $(this).data('iframe');
 
-            nav.find('a').removeClass('active');
-            $(this).closest('a').addClass('active');
+        nav.find('a').removeClass('active');
+        $(this).closest('a').addClass('active');
 
-            iframeContainer.empty().html(iframeHTML);
-        })
-        $('[id="work-frames-nav"]').each(function(i, obj){
-            $(obj).find('a:first').trigger('click');
-        });
+        iframeContainer.empty().html(iframeHTML);
+    })
+    $('[id="work-frames-nav"]').each(function (i, obj) {
+        $(obj).find('a:first').trigger('click');
+    });
 
+    if ($.blockUI) {
+        $.blockUI.defaults.message = null;
+        $.blockUI.defaults.fadeOut = 0;
+        $.blockUI.defaults.fadeIn = 0;
+        $.blockUI.defaults.timeout = 10000;
+        $.blockUI.defaults.overlayCSS.backgroundColor = '#26f';
+        $.blockUI.defaults.overlayCSS.opacity = 0.4;
+        $.blockUI.defaults.baseZ = 2000;
+        $(document).ajaxStart($.blockUI).ajaxStop($.unblockUI);
+    }
     /*
-        if ($.blockUI) {
-            $.blockUI.defaults.message = null;
-            $.blockUI.defaults.fadeOut = 0;
-            $.blockUI.defaults.fadeIn = 0;
-            $.blockUI.defaults.timeout = 10000;
-            $.blockUI.defaults.overlayCSS.backgroundColor = '#26f';
-            $.blockUI.defaults.overlayCSS.opacity = 0.4;
-            $.blockUI.defaults.baseZ = 2000;
-            $(document).ajaxStart($.blockUI).ajaxStop($.unblockUI);
-        }
 
      $('input[id="works-search"]').typeahead({
         source: function (query, process) {
