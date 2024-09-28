@@ -60,7 +60,7 @@ $langLinksXs = array(
     <meta name="theme-color" content="#707070">
     <meta name="msapplication-config" content="/browserconfig.xml"/>
 
-    <link href="<?php echo NFW::i()->assets('bootstrap5/css/bootstrap.css') ?>" rel="stylesheet">
+    <link href="<?php echo NFW::i()->base_path?>vendor/bootstrap5/theme/bootstrap.min.css" rel="stylesheet">
 
     <?php
     foreach (NFWX::i()->main_og as $type => $value) {
@@ -121,7 +121,7 @@ $langLinksXs = array(
 <main class="fixed-top navbar-events">
     <header>
         <div class="container-fluid d-grid gap-3 align-items-center" style="grid-template-columns: 0fr 2fr 1fr;">
-            <a href="/"><img src="<?php echo NFW::i()->assets('main/rse-logo.gif') ?>" alt=""/></a>
+            <a href="/"><img src="<?php echo NFW::i()->assets('main/logo.gif') ?>" alt=""/></a>
 
             <div class="w-100">
                 <form class="d-none d-sm-block me-3" role="search">
@@ -258,7 +258,7 @@ $langLinksXs = array(
         echo NFW::i()->fetch(NFW::i()->findTemplatePath('_main_index.tpl'));
     } else {
         if (!empty(NFW::i()->breadcrumb)) {
-            echo '<div class="d-flex flex-column flex-md-row justify-content-between border-bottom mb-2">';
+            echo '<div class="d-flex flex-column flex-md-row justify-content-between mb-3">';
             echo '<nav aria-label="breadcrumb">';
             echo '<ol class="breadcrumb mb-1">';
             foreach (NFW::i()->breadcrumb as $b) {
@@ -284,7 +284,7 @@ $langLinksXs = array(
         }
     } ?>
 </div>
-<script src="<?php echo NFW::i()->assets('bootstrap5/js/bootstrap.bundle.js') ?>"></script>
+<script src="<?php echo NFW::i()->base_path?>vendor/bootstrap5/js/bootstrap.bundle.js"></script>
 <?php echo NFW::i()->fetch(NFW::i()->findTemplatePath('_main_bottom_script.tpl'), ['theme' => $theme]); ?>
 </body>
 </html>

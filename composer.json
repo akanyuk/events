@@ -12,12 +12,21 @@
     "ext-simplexml": "*",
     "ext-libxml": "*",
     "ext-apcu": "*",
-    "twbs/bootstrap": "5.3.3"
+    "twbs/bootstrap": "5.3.3",
+    "thomaspark/bootswatch": "5.3.3"
   },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/thomaspark/bootswatch.git"
+    }
+  ],
   "scripts": {
     "post-update-cmd": [
-      "rm -rf public_html/assets/bootstrap5",
-      "cp -R vendor/twbs/bootstrap/dist public_html/assets/bootstrap5"
+      "rm -rf public_html/vendor/bootstrap5",
+      "mkdir -p public_html/vendor/bootstrap5/theme",
+      "cp -R vendor/twbs/bootstrap/dist/* public_html/vendor/bootstrap5/",
+      "cp -f vendor/thomaspark/bootswatch/dist/cosmo/bootstrap.min.css public_html/vendor/bootstrap5/theme/"
     ]
   }
 }

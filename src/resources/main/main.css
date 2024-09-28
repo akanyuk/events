@@ -23,38 +23,6 @@ h2.index-head {
     margin-bottom: 30px;
 }
 
-/* event page */
-
-.btn-upload, .btn-live-voting {
-    color: #fff !important;
-    background-color: #4a9b4a !important;
-    border-color: #4a9b4a !important;
-    display: block;
-    width: 100%;
-    margin-bottom: 5px !important;
-}
-
-.btn-upload:focus,
-.btn-live-voting:focus {
-    color: #fff !important;
-    background-color: #346f34 !important;
-    border-color: #346f34 !important;
-}
-
-.btn-upload:hover,
-.btn-live-voting:hover {
-    color: #fff !important;
-    background-color: #346f34 !important;
-    border-color: #346f34 !important;
-}
-
-.btn-upload:active,
-.btn-live-voting:active {
-    color: #fff !important;
-    background-color: #346f34 !important;
-    border-color: #346f34 !important;
-}
-
 /* Timetable */
 
 .table-timetable > tbody > tr > td {

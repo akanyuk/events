@@ -45,9 +45,9 @@ if ($event['alias_group'] != "") {
 $uploadButton = '';
 if ($isReceptionCan) {
     if (stristr($event['content_column'], '%UPLOAD-BUTTON%')) {
-        $event['content_column'] = str_replace('%UPLOAD-BUTTON%', '<a href="' . NFW::i()->absolute_path . '/upload/' . $event['alias'] . '" class="btn btn-upload">' . $langMain['cabinet add work'] . '</a>', $event['content_column']);
+        $event['content_column'] = str_replace('%UPLOAD-BUTTON%', '<a href="' . NFW::i()->absolute_path . '/upload/' . $event['alias'] . '" class="btn btn-success d-block mb-1">' . $langMain['cabinet add work'] . '</a>', $event['content_column']);
     } else {
-        $uploadButton = '<a href="' . NFW::i()->absolute_path . '/upload/' . $event['alias'] . '" class="btn btn-upload">' . $langMain['cabinet add work'] . '</a>';
+        $uploadButton = '<a href="' . NFW::i()->absolute_path . '/upload/' . $event['alias'] . '" class="btn btn-success d-block mb-1">' . $langMain['cabinet add work'] . '</a>';
     }
 } else {
     $event['content_column'] = str_replace('%UPLOAD-BUTTON%', '', $event['content_column']);
@@ -56,9 +56,9 @@ if ($isReceptionCan) {
 $liveVotingButton = '';
 if ($isVotingCan) {
     if (stristr($event['content_column'], '%LIVE-VOTING-BUTTON%')) {
-        $event['content_column'] = str_replace('%LIVE-VOTING-BUTTON%', '<a href="' . NFW::i()->absolute_path . '/live_voting/' . $event['alias'] . '" class="btn btn-live-voting">Live voting</a>', $event['content_column']);
+        $event['content_column'] = str_replace('%LIVE-VOTING-BUTTON%', '<a href="' . NFW::i()->absolute_path . '/live_voting/' . $event['alias'] . '" class="btn btn-success d-block mb-1">Live voting</a>', $event['content_column']);
     } else {
-        $liveVotingButton = '<a href="' . NFW::i()->absolute_path . '/live_voting/' . $event['alias'] . '" class="btn btn-live-voting">Live voting</a>';
+        $liveVotingButton = '<a href="' . NFW::i()->absolute_path . '/live_voting/' . $event['alias'] . '" class="btn btn-success d-block mb-1">Live voting</a>';
     }
 } else {
     $event['content_column'] = str_replace('%LIVE-VOTING-BUTTON%', '', $event['content_column']);
