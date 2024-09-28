@@ -284,6 +284,9 @@ $langLinksXs = array(
         }
     } ?>
 </div>
+
+<?php echo NFWX::i()->project_settings['footer']?>
+
 <script src="<?php echo NFW::i()->base_path?>vendor/bootstrap5/js/bootstrap.bundle.js"></script>
 <?php echo NFW::i()->fetch(NFW::i()->findTemplatePath('_main_bottom_script.tpl'), ['theme' => $theme]); ?>
 </body>
