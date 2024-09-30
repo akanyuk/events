@@ -89,7 +89,7 @@ if (!$competitionAlias && !$workID) {
         $c = reset($competitions);
         $CCompetitions->reload($c['id']);
 
-        $content = $CEvents->record['content'] . renderCompetitionPage($CCompetitions, $CEvents, true);
+        $content = $CEvents->record['content'] . renderCompetitionPage($CCompetitions, $CEvents);
         $competitions = array();    // prevent default competitions list
     } else {
         $content = $CEvents->record['content'];
@@ -185,7 +185,7 @@ if ($workID) {
 
     $page['title'] = $CCompetitions->record['title'];
     $page['content'] = $CCompetitions->renderAction(array(
-        'content' => renderCompetitionPage($CCompetitions, $CEvents, $oneCompoEvent),
+        'content' => renderCompetitionPage($CCompetitions, $CEvents),
         'event' => $CEvents->record,
         'announcement' => $oneCompoEvent ? '' : $CCompetitions->record['announcement'],
         'competitions' => $CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id']))),
@@ -196,14 +196,13 @@ if ($workID) {
     NFW::i()->display('main.tpl');
 }
 
-function renderCompetitionPage($CCompetitions, $CEvents, bool $oneCompoEvent): string {
+function renderCompetitionPage($CCompetitions, $CEvents): string {
     $compo = $CCompetitions->record;
     $event = $CEvents->record;
 
     if ($compo['release_status']['available'] && $compo['release_works']) {
         return $CCompetitions->renderAction(array(
             'competition' => $compo,
-            'oneCompoEvent' => $oneCompoEvent,
             'event' => $event), '_release');
     } elseif ($compo['voting_status']['available'] && $compo['voting_works']) {
         // Get voting works
@@ -219,12 +218,8 @@ function renderCompetitionPage($CCompetitions, $CEvents, bool $oneCompoEvent): s
             'competition' => $compo,
             'works' => $voting_works,
         ), '_voting');
-    } elseif ($oneCompoEvent) {
-        return $CCompetitions->renderAction(array(
-            'showWorksCount' => !$event['hide_works_count'],
-            'competition' => $compo,
-        ), '_one_compo_event');
     } else {
+        // Placeholder. Not reachable
         return nl2br($compo['announcement']);
     }
 }
