@@ -90,31 +90,25 @@ function display_work_media(array $work = array(), array $options = array()) {
 
     $actionLinks = [];
     if ($options['rel'] != 'preview' && !$options['single']) {
-        $actionLinks[] = '<a class="btn btn-link" href="' . NFW::i()->absolute_path . '/' . $work['event_alias'] . '/' . $work['competition_alias'] . '/' . $work['id'] . '#comments">' . $langMain['works comments count'] . ' ' . ($work['comments_count'] ? '<span class="badge rounded-circle text-bg-secondary">' . $work['comments_count'] . '</span>' : '') . '</a>';
+        $actionLinks[] = '<a class="btn btn-outline-primary" href="' . NFW::i()->absolute_path . '/' . $work['event_alias'] . '/' . $work['competition_alias'] . '/' . $work['id'] . '#comments">' . $langMain['works comments count'] . ' ' . ($work['comments_count'] ? '<span class="badge rounded-circle text-bg-secondary">' . $work['comments_count'] . '</span>' : '') . '</a>';
     }
     if (in_array($work['event_id'], events::get_managed()) && $options['rel'] != 'preview') {
-        $actionLinks[] = '<a class="btn btn-link" href="' . NFW::i()->absolute_path . '/admin/works?action=update&record_id=' . $work['id'] . '">Edit work</a>';
+        $actionLinks[] = '<a class="btn btn-outline-warning" href="' . NFW::i()->absolute_path . '/admin/works?action=update&record_id=' . $work['id'] . '" title="Edit work"><svg width="1em" height="1em"><use href="#pencil-square"></use></svg></a>';
     }
     if (count($actionLinks) > 0) {
-        echo '<div class="mb-3">' . implode('', $actionLinks) . '</div>';
-    }
-
-    if ($options['rel'] == 'voting') {
-        echo '
-            <div class="mb-3">
-                <textarea class="form-control work-comment" name="comment[' . $work['id'] . ']" placeholder="' . $langMain['works your comment'] . '"></textarea>
-            </div>';
+        echo '<div class="mb-3 d-flex gap-1">' . implode('', $actionLinks) . '</div>';
     }
 
     echo '<div class="mb-3">';
     if ($options['rel'] == 'voting' && !empty($options['vote_options'])) {
-        echo '<div class="btn-group btn-group-sm" role="group" aria-label="Voting options">';
+        echo '<div class="btn-group btn-group-sm gap-1 w-640" role="group" aria-label="Voting options">';
         foreach ($options['vote_options'] as $i => $d) {
             if ($i == 0) {
                 continue;
             }
-            echo '<input type="radio" class="btn-check" name="votes[' . $work['id'] . ']" value="' . $i . '" id="w' . $work['id'] . '-' . $i . '" autocomplete="off" />';
-            echo '<label class="btn btn-outline-success" title="' . $d . '" for="w' . $work['id'] . '-' . $i . '">' . $i . '</label>';
+            echo '<button type="button" class="btn btn-outline-success"'.
+                (strval($i) == $d ? '' : ' data-bs-toggle="tooltip" data-bs-title="' . $d . '"').'
+                data-vote-work="' . $work['id'] . '">' . $i . '</button>';
         }
         echo '</div>';
     } elseif ($options['rel'] == 'release' && $work['num_votes']) {

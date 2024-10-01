@@ -131,32 +131,36 @@ NFW::i()->registerResource('jquery.blockUI');
     </div>
 
 <?php if (NFW::i()->user['is_guest']): ?>
-    <div class="mb-3">
-        <label for="username"><?php echo $langMain['voting name'] ?></label>
-        <input type="text" id="username" class="form-control " maxlength="64"
-               value="<?php echo isset(NFW::i()->user['realname']) && NFW::i()->user['realname'] ? htmlspecialchars(NFW::i()->user['realname']) : "" ?>">
-    </div>
-
-    <div class="mb-3">
-        <label for="votekey">Votekey</label>
-
-        <div class="input-group mb-3">
-            <input name="votekey" type="text" maxlength="8" class="form-control"
-                   style="font-size: 120%; font-family: monospace; font-weight: bold;"
-                   value="<?php echo $votekey->votekey ?>"/>
-            <button class="btn btn-outline-secondary"
-                    title="<?php echo $langMain['votekey-request'] ?>"
-                    data-bs-toggle="offcanvas"
-                    data-bs-target="#offcanvasRequestVotekey"
-                    aria-controls="offcanvasRequestVotekey"><svg width="1.5em" height="1.2em">
-                    <use href="#arrow-repeat"></use>
-                </svg></button>
+    <div class="w-640">
+        <div class="mb-3">
+            <label for="username"><?php echo $langMain['voting name'] ?></label>
+            <input type="text" id="username" class="form-control " maxlength="64"
+                   value="<?php echo isset(NFW::i()->user['realname']) && NFW::i()->user['realname'] ? htmlspecialchars(NFW::i()->user['realname']) : "" ?>">
         </div>
-    </div>
 
-    <div class="mb-5">
-        <a href="<?php echo NFW::i()->base_path ?>sceneid?action=performAuth"><img
-                src="<?php echo NFW::i()->assets("main/SceneID_Icon_200x32.png") ?>"
-                alt="Sign in with SceneID"/></a>
+        <div class="mb-3">
+            <label for="votekey">Votekey</label>
+
+            <div class="input-group mb-3">
+                <input name="votekey" type="text" maxlength="8" class="form-control"
+                       style="font-size: 120%; font-family: monospace; font-weight: bold;"
+                       value="<?php echo $votekey->votekey ?>"/>
+                <button class="btn btn-outline-secondary"
+                        title="<?php echo $langMain['votekey-request'] ?>"
+                        data-bs-toggle="offcanvas"
+                        data-bs-target="#offcanvasRequestVotekey"
+                        aria-controls="offcanvasRequestVotekey">
+                    <svg width="1.5em" height="1.2em">
+                        <use href="#arrow-repeat"></use>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="mb-5">
+            <a href="<?php echo NFW::i()->base_path ?>sceneid?action=performAuth"><img
+                        src="<?php echo NFW::i()->assets("main/SceneID_Icon_200x32.png") ?>"
+                        alt="Sign in with SceneID"/></a>
+        </div>
     </div>
 <?php endif; ?>

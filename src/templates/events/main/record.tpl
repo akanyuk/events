@@ -46,9 +46,9 @@ if ($event['alias_group'] != "") {
 $uploadButton = '';
 if ($isReceptionCan) {
     if (stristr($event['content_column'], '%UPLOAD-BUTTON%')) {
-        $event['content_column'] = str_replace('%UPLOAD-BUTTON%', '<a href="' . NFW::i()->absolute_path . '/upload/' . $event['alias'] . '" class="btn btn-success d-block mb-1">' . $langMain['cabinet add work'] . '</a>', $event['content_column']);
+        $event['content_column'] = str_replace('%UPLOAD-BUTTON%', '<a href="' . NFW::i()->absolute_path . '/upload/' . $event['alias'] . '" class="btn btn-primary d-block mb-1">' . $langMain['cabinet add work'] . '</a>', $event['content_column']);
     } else {
-        $uploadButton = '<a href="' . NFW::i()->absolute_path . '/upload/' . $event['alias'] . '" class="btn btn-success d-block mb-1">' . $langMain['cabinet add work'] . '</a>';
+        $uploadButton = '<a href="' . NFW::i()->absolute_path . '/upload/' . $event['alias'] . '" class="btn btn-primary d-block mb-1">' . $langMain['cabinet add work'] . '</a>';
     }
 } else {
     $event['content_column'] = str_replace('%UPLOAD-BUTTON%', '', $event['content_column']);
@@ -57,9 +57,9 @@ if ($isReceptionCan) {
 $liveVotingButton = '';
 if ($isVotingCan) {
     if (stristr($event['content_column'], '%LIVE-VOTING-BUTTON%')) {
-        $event['content_column'] = str_replace('%LIVE-VOTING-BUTTON%', '<a href="' . NFW::i()->absolute_path . '/live_voting/' . $event['alias'] . '" class="btn btn-success d-block mb-1">Live voting</a>', $event['content_column']);
+        $event['content_column'] = str_replace('%LIVE-VOTING-BUTTON%', '<a href="' . NFW::i()->absolute_path . '/live_voting/' . $event['alias'] . '" class="btn btn-primary d-block mb-1">Live voting</a>', $event['content_column']);
     } else {
-        $liveVotingButton = '<a href="' . NFW::i()->absolute_path . '/live_voting/' . $event['alias'] . '" class="btn btn-success d-block mb-1">Live voting</a>';
+        $liveVotingButton = '<a href="' . NFW::i()->absolute_path . '/live_voting/' . $event['alias'] . '" class="btn btn-primary d-block mb-1">Live voting</a>';
     }
 } else {
     $event['content_column'] = str_replace('%LIVE-VOTING-BUTTON%', '', $event['content_column']);
@@ -144,9 +144,9 @@ function eventsGroup(array $eventsGroup): string {
     ?>
     <ul class="nav nav-pills mb-3">
         <?php foreach ($eventsGroup as $g): ?>
-            <li class="nav-item nav-item-sm"><a class="nav-link <?php echo $g['is_current'] ? 'active"' : '' ?>"
-                                                href="../<?php echo $g['alias'] ?>"
-                                                title="<?php echo $g['title'] ?>"><?php echo $g['year'] ?></a>
+            <li class="nav-item nav-item-sm"><a class="nav-link <?php echo $g['is_current'] ? 'active disabled' : '' ?>"
+                                                href="<?php echo NFW::i()->absolute_path.'/'.$g['alias'] ?>"
+                                                title="<?php echo htmlspecialchars($g['title']) ?>"><?php echo $g['year'] ?></a>
             </li>
         <?php endforeach; ?>
     </ul>
@@ -240,7 +240,7 @@ function _compo(array $compo, bool $hideWorksCount) {
         </ul>
     <?php endif; ?>
 
-    <a class="d-block mb-3" href="<?php echo '#top' ?>">
+    <a class="d-block mb-3 text-info" href="<?php echo '#top' ?>">
         <svg width="2em" height="2em">
             <use href="#icon-caret-up"></use>
         </svg>

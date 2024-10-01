@@ -164,7 +164,6 @@ class works_comments extends active_record {
             return false;
         }
 
-
         // grouping comments by work ID
         $gComments = [];
         $worksID = [];

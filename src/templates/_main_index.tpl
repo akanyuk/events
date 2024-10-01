@@ -62,7 +62,7 @@ function displayIndexEvent($record, $layout = ""): void {
         case 'upcoming':
         case 'current':
             ?>
-            <div class="row mb-5">
+            <div class="row mb-4 gy-4">
                 <div class="col-sm-12 col-md-4">
                     <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>">
                         <img class="w-100" alt=""

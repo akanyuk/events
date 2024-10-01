@@ -11,6 +11,10 @@ $noImage = NFW::i()->assets('main/current-event-large.png');
 $langMain = NFW::i()->getLang('main');
 ?>
     <style>
+        .card {
+            border: none;
+        }
+
         .card .blockquote {
             font-size: 1rem;
         }
@@ -22,8 +26,6 @@ $langMain = NFW::i()->getLang('main');
 
             .card IMG {
                 width: 200px;
-                margin-top: 1em;
-                margin-left: 1em;
                 margin-bottom: auto;
                 padding-bottom: 1em;
                 border-radius: 0;
@@ -39,10 +41,6 @@ $langMain = NFW::i()->getLang('main');
         }
 
         @media (max-width: 575px) {
-            .card {
-                border: none;
-            }
-
             IMG.no-screenshot {
                 display: none;
             }
@@ -52,7 +50,7 @@ $langMain = NFW::i()->getLang('main');
     <div class="card mb-3">
         <img src="<?php echo isset($screenshots[$workID]) ? cache_media($screenshots[$workID]) : $noImage ?>"
              class="card-img-top <?php echo isset($screenshots[$workID]) ? '' : 'no-screenshot' ?>" alt="">
-        <div class="card-body">
+        <div class="card-body pt-0">
             <h5 class="card-title"><a
                         href="<?php echo $w['work_url'] ?>"><?php echo htmlspecialchars($w['title']) ?></a>
             </h5>

@@ -117,7 +117,7 @@ $lang_main = array(
     'voting audio not support' => 'Your browser not supported audio play.<br />You can download this file by link bellow.',
     'voting votes' => array(
         0 => 'Skip voting',
-        1 => '1: Very bad',
+        1 => 'Very bad',
         2 => '2',
         3 => '3',
         4 => '4',
@@ -126,7 +126,7 @@ $lang_main = array(
         7 => '7',
         8 => '8',
         9 => '9',
-        10 => '10: Best'
+        10 => 'Best'
     ),
     'voting name' => 'Your name or nick',
     'voting vote' => 'Your vote',

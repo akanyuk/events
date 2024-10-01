@@ -49,59 +49,12 @@ h2.index-head {
     display: block;
 }
 
-/* Competition page */
-
-@media (max-width: 768px) {
-    .table-compo-status {
-        display: none;
-    }
-}
-
-.table-compo-status > tbody > tr > td {
-    border-top: none;
-    white-space: nowrap;
-}
-
-.table-compo-status td.title {
-    text-align: right;
-    font-weight: bold;
-}
-
-.table-compo-status td.dates {
-    width: 100%;
-    font-size: 120%;
-    position: relative;
-    top: -2px;
-}
-
-.table-compo-status .label {
-    font-size: 110%;
-}
-
-@media (min-width: 769px) {
-    .compo-status-mobile {
-        display: none;
-    }
-}
-
-.compo-status-mobile .title {
-    font-weight: bold;
-    font-size: 130%;
-}
-
-.compo-status-mobile .label {
-    font-size: 110%;
-}
-
-.compo-status-mobile .dates {
-    padding-top: 5px;
-    padding-bottom: 5px;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #eee;
-    font-size: 110%;
-}
-
 /* Work */
+
+.w-640 {
+    width: 640px;
+    max-width: 100%;
+}
 
 .work-container .badge-platform {
     background-color: #6e3731;
@@ -112,12 +65,12 @@ h2.index-head {
 }
 
 .work-container .badge-place {
-    background-color: #212e72;
+    background-color: #512172;
 }
 
 .work-container .badge-vts {
     font-size: 100% !important;
-    background-color: #212e72;
+    background-color: #512172;
 }
 
 .work-container .author-note {
@@ -161,17 +114,6 @@ audio {
 
 .work-container .img-container IMG {
     max-width: 100%;
-}
-
-.work-container .btn-group {
-    width: 640px;
-    max-width: 100%;
-}
-
-.work-container TEXTAREA.work-comment {
-    width: 640px;
-    max-width: 100%;
-    height: 100px;
 }
 
 @media (max-width: 768px) {

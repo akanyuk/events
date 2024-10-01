@@ -17,7 +17,6 @@ ob_start();
 ?>
 <div class="d-none d-md-block">
     <div class="mb-5"><?php echo $announcement ?></div>
-    <?php echo $votingBlock ?>
 </div>
 <?php
 echo $compoList;
