@@ -141,7 +141,6 @@ $lang_main = array(
     'votekey-request note' => 'Ключ для голосования будет выслан на указанный e-mail адрес. <br />Адрес опубликован не будет.',
     'votekey-request email label' => 'E-mail адрес',
     'votekey-request' => 'Запросить НОВЫЙ ключ',
-    'change-votekey' => 'Сменить ключ',
     'votekey-request long' => 'Запрос ключа голосования',
     'votekey-request send' => 'Отправить запрос',
     'votekey-request wrong email' => 'Некорректный e-mail адрес',

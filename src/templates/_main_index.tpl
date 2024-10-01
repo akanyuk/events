@@ -19,7 +19,7 @@ foreach ($upcoming as $record) {
         <div class="col-md-6 mb-5">
             <h2 class="index-head"><?php echo $langMain['latest events'] ?></h2>
             <?php foreach ($past as $record) displayIndexEvent($record); ?>
-            <div class="d-grid mx-auto col-md-6">
+            <div class="d-grid mx-auto col-lg-6">
                 <a class="btn btn-lg btn-primary"
                    href="<?php echo NFW::i()->absolute_path ?>/events"><?php echo $langMain['all events'] ?></a>
             </div>
@@ -29,7 +29,7 @@ foreach ($upcoming as $record) {
             <div class="mb-4">
                 <?php echo $worksComments ?>
             </div>
-            <div class="d-grid mx-auto col-md-6">
+            <div class="d-grid mx-auto col-lg-6">
                 <a class="btn btn-lg btn-primary"
                    href="<?php echo NFW::i()->base_path . 'comments.html' ?>"><?php echo $langMain['all comments'] ?></a>
             </div>

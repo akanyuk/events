@@ -10,8 +10,8 @@ class NFWX extends NFW {
 
     var $actual_date = false;
 
-    var array $main_og = array();             # мета теги для Open Graph
-    var string $mainLayoutRightContent = "";   # Содержимое левого блока страницы. Если не задано, правый блок не отображается
+    var array $main_og = array();             # Open Graph meta tags
+    var string $mainLayoutRightContent = "";   # The content of the right block of the page. If not specified, the right block is not displayed
 
 
     function __construct($init_cfg = null) {

@@ -1,21 +1,21 @@
 <?php
 /**
- * @var array $event
- * @var array $competition
+ * @var int $eventID
  * @var array $works
  */
 
+$votekeyKey = 'votekey-' . $eventID;
 $votekey = new votekey();
-if (isset($_COOKIE['votekey'])) {
-    $votekey = votekey::getVotekey($_COOKIE['votekey'], $event['id']);
-    if ($votekey->error) {
-        NFW::i()->setCookie('votekey', null);
-    }
-} else if (!NFW::i()->user['is_guest']) {
-    $result = votekey::findOrCreateVotekey($event["id"], NFW::i()->user['email']);
+if (!NFW::i()->user['is_guest']) {
+    $result = votekey::findOrCreateVotekey($eventID, NFW::i()->user['email']);
     if (!$result->error) {
         $votekey = $result;
-        NFW::i()->setCookie('votekey', $votekey->votekey);
+        NFW::i()->setCookie($votekeyKey, $votekey->votekey);
+    }
+} else if (isset($_COOKIE['votekey-' . $eventID])) {
+    $votekey = votekey::getVotekey($_COOKIE[$votekeyKey], $eventID);
+    if ($votekey->error) {
+        NFW::i()->setCookie($votekeyKey, null);
     }
 }
 
@@ -32,71 +32,18 @@ if ($votekey->id) {
 
 $langMain = NFW::i()->getLang('main');
 
-$votingOptions = $langMain['voting votes'];
-if (!empty($event['options'])) {
-    $votingOptions = [];
-    foreach ($event['options'] as $v) {
-        $votingOptions[$v['value']] = $v['label_' . NFW::i()->user['language']] ? $v['label_' . NFW::i()->user['language']] : $v['value'];
-    }
-}
-
 NFW::i()->registerResource('jquery.activeForm', false, true);
 NFW::i()->registerResource('jquery.blockUI');
-NFW::i()->registerResource('base');
-
-NFW::i()->registerFunction('display_work_media');
-NFW::i()->registerFunction('active_field');
 ?>
     <script type="text/javascript">
         $(document).ready(function () {
-            // Load state
-            let votingCache = [];
-            let result;
-            try {
-                result = JSON.parse(localStorage.getItem('votingCache'));
-                if (result) {
-                    votingCache = result;
-                }
-            } catch (err) {
-            }
-
             let votingForm = $('form[id="voting"]');
-
-            // Applying storage state, removing expired
-            const expire = new Date().getTime() - 60 * 60 * 24 * 14 * 1000;
-            votingCache.forEach(function (record, key) {
-                if (record.timestamp < expire) {
-                    votingCache.splice(key, 1);
-                } else {
-                    votingForm.find('select[id="' + record.work_id + '"] option').removeAttr('selected');
-                    votingForm.find('select[id="' + record.work_id + '"] option[value="' + record.value + '"]').attr('selected', 'selected');
-                }
-            });
-            localStorage.setItem('votingCache', JSON.stringify(votingCache));
 
             // Applying DB state
             <?php foreach ($storedVotes as $workID=>$vote): ?>
             votingForm.find('select[id="<?php echo $workID?>"] option').removeAttr('selected');
             votingForm.find('select[id="<?php echo $workID?>"] option[value="<?php echo $vote?>"]').attr('selected', 'selected');
             <?php endforeach; ?>
-
-            // Save state
-            votingForm.find('select').change(function () {
-                votingCache.push({
-                    'work_id': $(this).attr('id'),
-                    'value': $(this).val(),
-                    'timestamp': new Date().getTime()
-                });
-                localStorage.setItem('votingCache', JSON.stringify(votingCache));
-            });
-
-            // Change votekey
-            const newVotekeySelector = $('div[id="input-votekey"]');
-            $('button[id="another-votekey"]').click(function () {
-                newVotekeySelector.find('input[name="votekey"]').val('');
-                $('div[id="saved-votekey"]').remove();
-                newVotekeySelector.show();
-            });
 
             // Request votekey
             const requestVotekeyEmail = $('input[id="request-votekey-email"]');
@@ -106,7 +53,7 @@ NFW::i()->registerFunction('active_field');
                 requestVotekeyEmail.removeClass('is-invalid');
                 $('#request-votekey-email-feedback').text('').hide();
 
-                $.ajax('<?php echo NFW::i()->base_path . 'internal_api?action=requestVotekey&event_id=' . $competition['event_id']?>',
+                $.ajax('<?php echo NFW::i()->base_path . 'internal_api?action=requestVotekey&event_id=' . $eventID?>',
                     {
                         method: "POST",
                         dataType: "json",
@@ -144,7 +91,7 @@ NFW::i()->registerFunction('active_field');
             });
 
             // Load saved username
-            result = localStorage.getItem('votingUsername');
+            const result = localStorage.getItem('votingUsername');
             if (result) {
                 votingForm.find('input[name="username"]').val(result);
             }
@@ -182,11 +129,8 @@ NFW::i()->registerFunction('active_field');
                     type="button"><?php echo $langMain['votekey-request send'] ?></button>
         </div>
     </div>
-<?php
 
-if (NFW::i()->user['is_guest']) {
-    ob_start();
-?>
+<?php if (NFW::i()->user['is_guest']): ?>
     <div class="mb-3">
         <label for="username"><?php echo $langMain['voting name'] ?></label>
         <input type="text" id="username" class="form-control " maxlength="64"
@@ -196,41 +140,23 @@ if (NFW::i()->user['is_guest']) {
     <div class="mb-3">
         <label for="votekey">Votekey</label>
 
-        <?php if ($votekey->id): ?>
-            <div id="saved-votekey" class="d-flex">
-                <span style="font-size: 160%; font-family: monospace; font-weight: bold;"
-                      class="text-muted me-2"><?php echo $votekey->votekey ?></span>
-                <button id="another-votekey"
-                        class="btn btn-sm btn-secondary"><?php echo $langMain['change-votekey'] ?></button>
-            </div>
-        <?php endif; ?>
-
-        <div id="input-votekey" style="display: <?php echo $votekey->id ? 'none' : 'block' ?>;">
-            <input name="votekey" type="text" maxlength="8" class="form-control"/>
-
-            <button class="btn btn-sm btn-secondary my-2"
+        <div class="input-group mb-3">
+            <input name="votekey" type="text" maxlength="8" class="form-control"
+                   style="font-size: 120%; font-family: monospace; font-weight: bold;"
+                   value="<?php echo $votekey->votekey ?>"/>
+            <button class="btn btn-outline-secondary"
+                    title="<?php echo $langMain['votekey-request'] ?>"
                     data-bs-toggle="offcanvas"
                     data-bs-target="#offcanvasRequestVotekey"
-                    aria-controls="offcanvasRequestVotekey"><?php echo $langMain['votekey-request'] ?></button>
+                    aria-controls="offcanvasRequestVotekey"><svg width="1.5em" height="1.2em">
+                    <use href="#arrow-repeat"></use>
+                </svg></button>
         </div>
     </div>
 
     <div class="mb-5">
         <a href="<?php echo NFW::i()->base_path ?>sceneid?action=performAuth"><img
-                    src="<?php echo NFW::i()->assets("main/SceneID_Icon_200x32.png") ?>"
-                    alt="Sign in with SceneID"/></a>
+                src="<?php echo NFW::i()->assets("main/SceneID_Icon_200x32.png") ?>"
+                alt="Sign in with SceneID"/></a>
     </div>
-<?php
-    NFWX::i()->mainLayoutRightContent .= ob_get_clean();
-}
-
-$curPos = 1;
-foreach ($works as $work) {
-    $work['position'] = $curPos++;
-    echo display_work_media($work, [
-        'rel' => 'voting',
-        'single' => count($works) == 1,
-        'vote_options' => $votingOptions,
-        'voting_system' => $event['voting_system'],
-    ]);
-}
+<?php endif; ?>

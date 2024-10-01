@@ -159,6 +159,10 @@ audio {
     width: 100%;
 }
 
+.work-container .img-container IMG {
+    max-width: 100%;
+}
+
 .work-container .btn-group {
     width: 640px;
     max-width: 100%;

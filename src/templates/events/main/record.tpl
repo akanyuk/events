@@ -3,7 +3,8 @@
  * @var array $event
  * @var array $competitions
  * @var array $competitionsGroups
- * @var string $content
+ * @var string $worksBlock // for one compo event
+ * @var string $votingBlock // for one compo event
  */
 
 NFW::i()->registerFunction('competitions_list_short');
@@ -71,15 +72,15 @@ if (stristr($event['content_column'], '%COMPETITIONS-LIST-SHORT%')) {
     $competitionsListShort = competitions_list_short($competitionsGroups, $competitions, $event['hide_works_count']);
 }
 
-if (stristr($content, '%TIMETABLE%')) {
-    $content = str_replace('%TIMETABLE%', timetable($event['id']), $content);
+if (stristr($event['content'], '%TIMETABLE%')) {
+    $event['content'] = str_replace('%TIMETABLE%', timetable($event['id']), $event['content']);
     $timetable = '';
 } else {
     $timetable = timetable($event['id']);
 }
 
-if (stristr($content, '%COMPETITIONS-LIST%')) {
-    $content = str_replace('%COMPETITIONS-LIST%', competitionsList($competitionsGroups, $competitions, $event['hide_works_count']), $content);
+if (stristr($event['content'], '%COMPETITIONS-LIST%')) {
+    $event['content'] = str_replace('%COMPETITIONS-LIST%', competitionsList($competitionsGroups, $competitions, $event['hide_works_count']), $event['content']);
     $competitionsList = '';
 } else {
     $competitionsList = competitionsList($competitionsGroups, $competitions, $event['hide_works_count']);
@@ -132,7 +133,7 @@ NFWX::i()->mainLayoutRightContent = ob_get_clean();
 
     <h1 class="d-none d-md-block"><?php echo htmlspecialchars($event['title']) ?></h1>
 <?php
-echo $content . ' ' . $timetable . ' ' . $competitionsList;
+echo $event['content'] . ' ' . $timetable . ' ' . $competitionsList . $votingBlock . $worksBlock;
 
 function eventsGroup(array $eventsGroup): string {
     if (sizeof($eventsGroup) < 2) {
@@ -154,7 +155,7 @@ function eventsGroup(array $eventsGroup): string {
 }
 
 function competitionsList($competitionsGroups, $competitions, bool $hideWorksCount): string {
-    if (empty($competitions)) {
+    if (count($competitions) < 2) {
         return "";
     }
 
@@ -215,11 +216,11 @@ function _compo(array $compo, bool $hideWorksCount) {
                     <?php echo $langMain['competitions reception'] ?>
                     <?php if ($compo['reception_from']): ?>
                         <span
-                                style="white-space: nowrap; <?php echo $compo['reception_status']['past'] ? 'color: #777;' : 'font-weight: bold;' ?>"><?php echo date('d.m H:i', $compo['reception_from']) . ' - ' . date('d.m H:i', $compo['reception_to']) ?></span>
+                            style="white-space: nowrap; <?php echo $compo['reception_status']['past'] ? 'color: #777;' : 'font-weight: bold;' ?>"><?php echo date('d.m H:i', $compo['reception_from']) . ' - ' . date('d.m H:i', $compo['reception_to']) ?></span>
                     <?php endif; ?>
                     <?php if ($receptionAvailable): ?>
                         <span
-                                class="badge <?php echo $compo['reception_status']['label-class'] ?>"><?php echo $compo['reception_status']['desc'] ?></span>
+                            class="badge <?php echo $compo['reception_status']['label-class'] ?>"><?php echo $compo['reception_status']['desc'] ?></span>
                     <?php endif; ?>
                 </li>
             <?php endif; ?>
@@ -228,11 +229,11 @@ function _compo(array $compo, bool $hideWorksCount) {
                     <?php echo $langMain['competitions voting'] ?>
                     <?php if ($compo['voting_from']): ?>
                         <span
-                                style="white-space: nowrap; <?php echo $compo['voting_status']['past'] ? 'color: #777;' : 'font-weight: bold;' ?>"><?php echo date('d.m H:i', $compo['voting_from']) . ' - ' . date('d.m H:i', $compo['voting_to']) ?></span>
+                            style="white-space: nowrap; <?php echo $compo['voting_status']['past'] ? 'color: #777;' : 'font-weight: bold;' ?>"><?php echo date('d.m H:i', $compo['voting_from']) . ' - ' . date('d.m H:i', $compo['voting_to']) ?></span>
                     <?php endif; ?>
                     <?php if ($votingAvailable): ?>
                         <span
-                                class="badge <?php echo $compo['voting_status']['label-class'] ?>"><?php echo $compo['voting_status']['desc'] ?></span>
+                            class="badge <?php echo $compo['voting_status']['label-class'] ?>"><?php echo $compo['voting_status']['desc'] ?></span>
                     <?php endif; ?>
                 </li>
             <?php endif; ?>

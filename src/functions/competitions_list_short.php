@@ -5,6 +5,10 @@ function competitions_list_short(
     bool  $hideWorksCount,
     bool  $shortList = false,
     int   $current = 0): string {
+    if (count($competitions) < 2) {
+        return "";
+    }
+
     $langMain = NFW::i()->getLang('main');
 
     foreach ($competitions as $key => $c) {

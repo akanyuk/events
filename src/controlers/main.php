@@ -2,6 +2,7 @@
 $pathParts = explode('/', parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 
 // Try to do some action
+// TODO: deprecated. Must be moved into internal_api controller
 if (isset($_GET['action'])) {
     // Determine module and action
     $module = count($pathParts) > 0 ? $pathParts[1] : '';
@@ -61,7 +62,7 @@ if (!$eventAlias || !$CEvents->loadByAlias($eventAlias)) {
 if (isset($_GET['key'])) {
     $votekey = votekey::getVotekey($_GET['key'], $CEvents->record['id']);
     if (!$votekey->error) {
-        NFW::i()->setCookie('votekey', $_GET['key']);
+        NFW::i()->setCookie('votekey-'.$CEvents->record['id'], $_GET['key']);
     }
 }
 
@@ -84,22 +85,23 @@ if (!$competitionAlias && !$workID) {
     $CCompetitionsGroups = new competitions_groups();
     $competitionsGroups = $CCompetitionsGroups->getRecords($CEvents->record['id']);
 
+    $worksBlock = '';
+    $votingBlock = '';
+
     // Special render - event with only one compo
     if (count($competitions) == 1) {
         $c = reset($competitions);
         $CCompetitions->reload($c['id']);
 
-        $content = $CEvents->record['content'] . renderCompetitionPage($CCompetitions, $CEvents);
-        $competitions = array();    // prevent default competitions list
-    } else {
-        $content = $CEvents->record['content'];
+        list($worksBlock, $votingBlock) = renderWorksBlock($CEvents->record, $CCompetitions->record);
     }
 
     $page['content'] = $CEvents->renderAction(array(
         'event' => $CEvents->record,
         'competitions' => $competitions,
         'competitionsGroups' => $competitionsGroups,
-        'content' => $content,
+        'worksBlock' => $worksBlock,
+        'votingBlock' => $votingBlock,
     ), 'record');
 
     NFW::i()->assign('page', $page);
@@ -110,59 +112,15 @@ if (!$CCompetitions->loadByAlias($competitionAlias, $CEvents->record['id'])) {
     NFW::i()->stop(404);
 }
 
-if ($workID) {
-    // Work page
-    $CWorks = new works($workID);
-    if (!$CWorks->record['id'] || $CWorks->record['competition_id'] != $CCompetitions->record['id']) {
-        NFW::i()->stop(404);
-    }
-
-    if ($CCompetitions->record['voting_status']['available'] && !$CWorks->record['status_info']['voting']) {
-        NFW::i()->stop(404);
-    }
-
-    if ($CCompetitions->record['release_status']['available'] && !$CWorks->record['status_info']['release']) {
-        NFW::i()->stop(404);
-    }
-
-    NFW::i()->breadcrumb = array(
-        array('url' => $CEvents->record['alias'], 'desc' => $CEvents->record['title']),
-        array('url' => $CEvents->record['alias'] . '/' . $CCompetitions->record['alias'], 'desc' => $CCompetitions->record['title'])
-    );
-
-    NFWX::i()->main_og['title'] = $CWorks->record['display_title'];
-    NFWX::i()->main_og['description'] = $CEvents->record['title'] . ' / ' . $CCompetitions->record['title'];
-    if ($CWorks->record['screenshot']) {
-        NFW::i()->registerFunction('cache_media');
-        NFWX::i()->main_og['image'] = cache_media($CWorks->record['screenshot'], 640);
-    }
-
-    $page['title'] = $CWorks->record['display_title'];
-
-    if ($CCompetitions->record['release_status']['available'] && $CCompetitions->record['release_works']) {
-        NFW::i()->registerFunction('display_work_media');
-        $page['content'] = display_work_media($CWorks->record, [
-            'rel' => 'release',
-            'single' => true,
-            'voting_system' => $CEvents->record['voting_system'],
-        ]);
-    } elseif ($CCompetitions->record['voting_status']['available'] && $CCompetitions->record['voting_works']) {
-        $page['content'] = $CCompetitions->renderAction(array(
-            'event' => $CEvents->record,
-            'competition' => $CCompetitions->record,
-            'works' => [$CWorks->record],
-        ), '_voting');
-    } else {
-        NFW::i()->stop(404);
-    }
-
-    $CWorksComments = new works_comments();
-    $page['content'] .= $CWorksComments->displayWorkComments($CWorks->record['id']);
-
-    NFW::i()->assign('page', $page);
-    NFW::i()->display('main.tpl');
-} else {
+if (!$workID) {
     // Competition page
+    $competitions = $CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id'])));
+    if (count($competitions) == 1) {
+        header('Location: ' . NFW::i()->absolute_path . '/' . $CEvents->record['alias']);
+    }
+
+    $CCompetitionsGroups = new competitions_groups();
+
     NFW::i()->breadcrumb = array(
         array('url' => $CEvents->record['alias'], 'desc' => $CEvents->record['title']),
         array('desc' => $CCompetitions->record['title'])
@@ -177,49 +135,130 @@ if ($workID) {
         NFWX::i()->main_og['image'] = tmb($CEvents->record['preview_large'], 500, 500, array('complementary' => true));
     }
 
-    $competitions = $CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id'])));
-    $oneCompoEvent = count($competitions) == 1;
-
-    $CCompetitionsGroups = new competitions_groups();
-    $competitionsGroups = $CCompetitionsGroups->getRecords($CEvents->record['id']);
+    list($worksBlock, $votingBlock) = renderWorksBlock($CEvents->record, $CCompetitions->record);
 
     $page['title'] = $CCompetitions->record['title'];
-    $page['content'] = $CCompetitions->renderAction(array(
-        'content' => renderCompetitionPage($CCompetitions, $CEvents),
-        'event' => $CEvents->record,
-        'announcement' => $oneCompoEvent ? '' : $CCompetitions->record['announcement'],
+    $page['content'] = NFW::i()->fetch(NFW::i()->findTemplatePath('competitions/main/record.tpl'), [
+        'announcement' => $CCompetitions->record['announcement'],
         'competitions' => $CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id']))),
-        'competitionsGroups' => $competitionsGroups,
-    ), 'record');
+        'competitionsGroups' => $CCompetitionsGroups->getRecords($CEvents->record['id']),
+        'competitionID' => $CCompetitions->record['id'],
+        'hideWorksCount' => $CEvents->record['hide_works_count'],
+        'worksBlock' => $worksBlock,
+        'votingBlock' => $votingBlock,
+    ]);
 
     NFW::i()->assign('page', $page);
     NFW::i()->display('main.tpl');
 }
 
-function renderCompetitionPage($CCompetitions, $CEvents): string {
-    $compo = $CCompetitions->record;
-    $event = $CEvents->record;
+// Work page
+$CWorks = new works($workID);
+if (!$CWorks->record['id'] || $CWorks->record['competition_id'] != $CCompetitions->record['id']) {
+    NFW::i()->stop(404);
+}
 
+if ($CCompetitions->record['voting_status']['available'] && !$CWorks->record['status_info']['voting']) {
+    NFW::i()->stop(404);
+}
+
+if ($CCompetitions->record['release_status']['available'] && !$CWorks->record['status_info']['release']) {
+    NFW::i()->stop(404);
+}
+
+NFW::i()->breadcrumb = array(
+    array('url' => $CEvents->record['alias'], 'desc' => $CEvents->record['title']),
+    array('url' => $CEvents->record['alias'] . '/' . $CCompetitions->record['alias'], 'desc' => $CCompetitions->record['title'])
+);
+
+NFWX::i()->main_og['title'] = $CWorks->record['display_title'];
+NFWX::i()->main_og['description'] = $CEvents->record['title'] . ' / ' . $CCompetitions->record['title'];
+if ($CWorks->record['screenshot']) {
+    NFW::i()->registerFunction('cache_media');
+    NFWX::i()->main_og['image'] = cache_media($CWorks->record['screenshot'], 640);
+}
+
+$page['title'] = $CWorks->record['display_title'];
+
+if ($CCompetitions->record['release_status']['available'] && $CCompetitions->record['release_works']) {
+    NFW::i()->registerFunction('display_work_media');
+    $page['content'] = display_work_media($CWorks->record, [
+        'rel' => 'release',
+        'single' => true,
+        'voting_system' => $CEvents->record['voting_system'],
+    ]);
+} elseif ($CCompetitions->record['voting_status']['available'] && $CCompetitions->record['voting_works']) {
+    $page['content'] = $CCompetitions->renderAction(array(
+        'event' => $CEvents->record,
+        'competition' => $CCompetitions->record,
+        'works' => [$CWorks->record],
+    ), '_voting');
+} else {
+    NFW::i()->stop(404);
+}
+
+$CWorksComments = new works_comments();
+$page['content'] .= $CWorksComments->displayWorkComments($CWorks->record['id']);
+
+NFW::i()->assign('page', $page);
+NFW::i()->display('main.tpl');
+
+function renderWorksBlock(array $event, array $compo): array {
+    NFW::i()->registerFunction('display_work_media');
+    $CWorks = new works();
+    $worksBlock = '';
     if ($compo['release_status']['available'] && $compo['release_works']) {
-        return $CCompetitions->renderAction(array(
-            'competition' => $compo,
-            'event' => $event), '_release');
+        $releaseWorks = $CWorks->getRecords(array(
+            'load_attachments' => true,
+            'load_attachments_icons' => false,
+            'filter' => array('release_only' => true, 'competition_id' => $compo['id']),
+            'ORDER BY' => 'sorting_place, w.average_vote DESC, w.total_scores DESC, w.position',
+            'skip_pagination' => true,
+        ));
+        foreach ($releaseWorks as $work) {
+            $worksBlock .= display_work_media($work, [
+                'rel' => 'release',
+                'single' => false,
+                'voting_system' => $event['voting_system'],
+            ]);
+        }
+        return [$worksBlock, ""];
     } elseif ($compo['voting_status']['available'] && $compo['voting_works']) {
-        // Get voting works
-        $CWorks = new works();
-        list($voting_works) = $CWorks->getRecords(array(
+        $langMain = NFW::i()->getLang('main');
+        $votingOptions = $langMain['voting votes'];
+        if (!empty($event['options'])) {
+            $votingOptions = [];
+            foreach ($event['options'] as $v) {
+                $votingOptions[$v['value']] = $v['label_' . NFW::i()->user['language']] ? $v['label_' . NFW::i()->user['language']] : $v['value'];
+            }
+        }
+
+        $works = $CWorks->getRecords(array(
             'load_attachments' => true,
             'load_attachments_icons' => false,
             'filter' => array('voting_only' => true, 'competition_id' => $compo['id']),
-            'ORDER BY' => 'w.position'
+            'ORDER BY' => 'w.position',
+            'skip_pagination' => true,
         ));
-        return $CCompetitions->renderAction(array(
-            'event' => $event,
-            'competition' => $compo,
-            'works' => $voting_works,
-        ), '_voting');
-    } else {
-        // Placeholder. Not reachable
-        return nl2br($compo['announcement']);
+        $curPos = 1;
+        foreach ($works as $work) {
+            $work['position'] = $curPos++;
+            $worksBlock .= display_work_media($work, [
+                'rel' => 'voting',
+                'single' => count($works) == 1,
+                'vote_options' => $votingOptions,
+                'voting_system' => $event['voting_system'],
+            ]);
+        }
+
+        $votingBlock = NFW::i()->fetch(NFW::i()->findTemplatePath('competitions/main/_voting.tpl'), [
+            'eventID' => $event['id'],
+            'works' => $works,
+        ]);
+
+        return [$worksBlock, $votingBlock];
     }
+
+    // Placeholder. Not reachable
+    return [nl2br($compo['announcement']), ""];
 }

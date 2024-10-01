@@ -1,25 +1,33 @@
 <?php
 /**
- * @var competitions $Module
- * @var array $event
+ * @var int $competitionID
+ * @var bool $hideWorksCount
  * @var array $competitions
  * @var array $competitionsGroups
- * @var string $content
+ * @var string $votingBlock
+ * @var string $worksBlock
  * @var string $announcement
  */
 
 NFW::i()->registerFunction('competitions_list_short');
-$compoList = competitions_list_short(
-    $competitionsGroups,
-    $competitions,
-    $event['hide_works_count'],
-    true,
-    $Module->record['id']
-);
+$compoList = competitions_list_short($competitionsGroups, $competitions, $hideWorksCount, true, $competitionID);
 
-// !!! NFWX::i()->mainLayoutRightContent already contains `username` and `votekey` fields
+// Right column content
+ob_start();
+?>
+<div class="d-none d-md-block">
+    <div class="mb-5"><?php echo $announcement ?></div>
+    <?php echo $votingBlock ?>
+</div>
+<?php
+echo $compoList;
+NFWX::i()->mainLayoutRightContent = ob_get_clean();
 
 // Main content
-echo '<div class="d-block d-md-none"><div class="mb-5">' . $announcement . '</div>' . NFWX::i()->mainLayoutRightContent . '</div>' . $content;
+?>
+<div class="d-block d-md-none">
+    <div class="mb-5"><?php echo $announcement ?></div>
+</div>
 
-NFWX::i()->mainLayoutRightContent = '<div class="d-none d-md-block"><div class="mb-5">' . $announcement . '</div>' . NFWX::i()->mainLayoutRightContent . '</div>' . $compoList;
+<?php echo $votingBlock.$worksBlock ?>
+
