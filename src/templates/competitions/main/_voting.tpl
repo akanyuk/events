@@ -2,22 +2,8 @@
 /**
  * @var int $eventID
  * @var array $works
+ * @var votekey $votekey
  */
-
-$votekeyKey = 'votekey-' . $eventID;
-$votekey = new votekey();
-if (!NFW::i()->user['is_guest']) {
-    $result = votekey::findOrCreateVotekey($eventID, NFW::i()->user['email']);
-    if (!$result->error) {
-        $votekey = $result;
-        NFW::i()->setCookie($votekeyKey, $votekey->votekey);
-    }
-} else if (isset($_COOKIE['votekey-' . $eventID])) {
-    $votekey = votekey::getVotekey($_COOKIE[$votekeyKey], $eventID);
-    if ($votekey->error) {
-        NFW::i()->setCookie($votekeyKey, null);
-    }
-}
 
 $storedVotes = [];
 if ($votekey->id) {
@@ -37,17 +23,106 @@ NFW::i()->registerResource('jquery.blockUI');
 ?>
     <script type="text/javascript">
         $(document).ready(function () {
-            let votingForm = $('form[id="voting"]');
+            const errorToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('errorToast'));
+            const successToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('successToast'));
+            const acceptedToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('acceptedToast'));
+            const canceledToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('canceledToast'));
+
+            const scrollToError = document.getElementById('username').offsetTop - 80;
+            const inputUsername = $('input[id="username"]');
+            const usernameFeedback = $('#username-feedback');
+            const inputVotekey = $('input[id="votekey"]');
+            const votekeyFeedback = $('#votekey-feedback');
+
+            // Load saved username
+            const result = localStorage.getItem('votingUsername');
+            if (result) {
+                inputUsername.val(result);
+            }
 
             // Applying DB state
             <?php foreach ($storedVotes as $workID=>$vote): ?>
-            votingForm.find('select[id="<?php echo $workID?>"] option').removeAttr('selected');
-            votingForm.find('select[id="<?php echo $workID?>"] option[value="<?php echo $vote?>"]').attr('selected', 'selected');
+            $('button[data-role="vote"][data-work-id="<?php echo $workID?>"][data-vote-value="<?php echo $vote?>"]').addClass('active');
             <?php endforeach; ?>
+
+            $('button[data-role="vote"]').click(async function () {
+                const workID = $(this).data('work-id');
+                const username = inputUsername.val();
+                const votekey = $('input[id="votekey"]').val();
+
+                let voteValue = parseInt($(this).data('vote-value'));
+                if ($(this).hasClass('active')) {
+                    voteValue = 0;
+                }
+
+                inputUsername.removeClass('is-valid is-invalid');
+                usernameFeedback.text('').hide();
+                inputVotekey.removeClass('is-valid is-invalid');
+                votekeyFeedback.text('').hide();
+
+                let response = await fetch("/internal_api?action=vote", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        workID: workID,
+                        vote: voteValue,
+                        username: username,
+                        votekey: votekey,
+                    }),
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8"
+                    }
+                });
+
+                if (!response.ok) {
+                    const resp = await response.json();
+                    const errors = resp.errors;
+                    let isScroll = false;
+
+                    if (errors["general"] !== undefined && errors["general"] !== "") {
+                        document.getElementById('errorToast-text').innerText = errors["general"];
+                        errorToast.show();
+                    }
+
+                    if (errors["username"] !== undefined && errors["username"] !== "") {
+                        inputUsername.addClass('is-invalid');
+                        usernameFeedback.text(errors["username"]).show();
+                        isScroll = true;
+                    } else {
+                        inputUsername.addClass('is-valid');
+                    }
+
+                    if (errors["votekey"] !== undefined && errors["votekey"] !== "") {
+                        inputVotekey.addClass('is-invalid');
+                        votekeyFeedback.text(errors["votekey"]).show();
+                        isScroll = true;
+                    } else {
+                        inputVotekey.addClass('is-valid');
+                    }
+
+                    if (isScroll) {
+                        window.scrollTo({top: scrollToError, behavior: "smooth"});
+                    }
+
+                    return;
+                }
+
+                $('button[data-role="vote"][data-work-id="' + workID + '"]').removeClass('active');
+
+                if (voteValue === 0) {
+                    acceptedToast.hide();
+                    canceledToast.show();
+                } else {
+                    $(this).addClass('active');
+                    canceledToast.hide();
+                    acceptedToast.show();
+                }
+
+                // Save username for future use
+                localStorage.setItem('votingUsername', username);
+            });
 
             // Request votekey
             const requestVotekeyEmail = $('input[id="request-votekey-email"]');
-            const successToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('successToast'));
             const offcanvasRequestVotekey = new bootstrap.Offcanvas('#offcanvasRequestVotekey')
             $('button[id="request-votekey"]').click(function () {
                 requestVotekeyEmail.removeClass('is-invalid');
@@ -81,28 +156,32 @@ NFW::i()->registerResource('jquery.blockUI');
                     }
                 );
             });
-
-            votingForm.activeForm({
-                'success': function (response) {
-                    alert(response.message);
-                    // Save username for future use
-                    localStorage.setItem('votingUsername', votingForm.find('input[name="username"]').val());
-                }
-            });
-
-            // Load saved username
-            const result = localStorage.getItem('votingUsername');
-            if (result) {
-                votingForm.find('input[name="username"]').val(result);
-            }
         });
     </script>
 
-    <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div class="toast-container position-fixed top-0 start-50 translate-middle-x" style="top: 44px !important;">
+        <div id="acceptedToast" class="toast text-bg-success"
+             role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="800">
+            <div class="toast-body text-center">Accepted</div>
+        </div>
+
+        <div id="canceledToast" class="toast text-bg-info"
+             role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="800">
+            <div class="toast-body text-center">Cancelled</div>
+        </div>
+
         <div id="successToast" class="toast text-bg-success"
-             role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
+             role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="2000">
             <div class="d-flex">
                 <div id="successToast-text" class="toast-body"></div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+
+        <div id="errorToast" class="toast text-bg-danger"
+             role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="2000">
+            <div class="d-flex">
+                <div id="errorToast-text" class="toast-body"></div>
                 <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         </div>
@@ -136,15 +215,16 @@ NFW::i()->registerResource('jquery.blockUI');
             <label for="username"><?php echo $langMain['voting name'] ?></label>
             <input type="text" id="username" class="form-control " maxlength="64"
                    value="<?php echo isset(NFW::i()->user['realname']) && NFW::i()->user['realname'] ? htmlspecialchars(NFW::i()->user['realname']) : "" ?>">
+            <div id="username-feedback" class="invalid-feedback"></div>
         </div>
 
         <div class="mb-3">
             <label for="votekey">Votekey</label>
 
-            <div class="input-group mb-3">
-                <input name="votekey" type="text" maxlength="8" class="form-control"
+            <div class="input-group">
+                <input id="votekey" type="text" maxlength="8" class="form-control"
                        style="font-size: 120%; font-family: monospace; font-weight: bold;"
-                       value="<?php echo $votekey->votekey ?>"/>
+                       value="<?php echo $votekey->val ?>"/>
                 <button class="btn btn-outline-secondary"
                         title="<?php echo $langMain['votekey-request'] ?>"
                         data-bs-toggle="offcanvas"
@@ -155,12 +235,16 @@ NFW::i()->registerResource('jquery.blockUI');
                     </svg>
                 </button>
             </div>
+            <div id="votekey-feedback" class="invalid-feedback"></div>
         </div>
 
         <div class="mb-5">
             <a href="<?php echo NFW::i()->base_path ?>sceneid?action=performAuth"><img
-                        src="<?php echo NFW::i()->assets("main/SceneID_Icon_200x32.png") ?>"
-                        alt="Sign in with SceneID"/></a>
+                    src="<?php echo NFW::i()->assets("main/SceneID_Icon_200x32.png") ?>"
+                    alt="Sign in with SceneID"/></a>
         </div>
     </div>
+<?php else: ?>
+    <input type="hidden" id="username"/>
+    <input type="hidden" id="votekey"/>
 <?php endif; ?>

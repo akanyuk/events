@@ -7,6 +7,7 @@
  * @var string $votingBlock
  * @var string $worksBlock
  * @var string $announcement
+ * @var string $workComments
  */
 
 NFW::i()->registerFunction('competitions_list_short');
@@ -28,5 +29,5 @@ NFWX::i()->mainLayoutRightContent = ob_get_clean();
     <div class="mb-5"><?php echo $announcement ?></div>
 </div>
 
-<?php echo $votingBlock.$worksBlock ?>
+<?php echo $votingBlock.$worksBlock.$workComments ?>
 

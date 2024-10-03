@@ -26,13 +26,22 @@ switch ($_GET['action']) {
         NFWX::i()->jsonSuccess();
         break;
     case 'requestVotekey':
-        $CVotekey = new votekey();
-        if (!$CVotekey->requestVotekey($_GET['event_id'], $_POST['email'])) {
-            NFWX::i()->jsonError(400, $CVotekey->last_msg);
+        $CVotekeys = new votekeys();
+        if (!$CVotekeys->requestVotekey($_GET['event_id'], $_POST['email'])) {
+            NFWX::i()->jsonError(400, $CVotekeys->last_msg);
         }
 
         $langMain = NFW::i()->getLang('main');
         NFWX::i()->jsonSuccess(['message' => $langMain['votekey-request success note']]);
+        break;
+    case 'vote':
+        $req = json_decode(file_get_contents('php://input'));
+
+        $CVote = new vote();
+        if (!$CVote->addVote($req->workID, $req->vote, $req->username, $req->votekey)) {
+            NFWX::i()->jsonError(400, $CVote->errors, $CVote->last_msg);
+        }
+        NFWX::i()->jsonSuccess();
         break;
     default:
         NFWX::i()->jsonError(400, "Unknown action");

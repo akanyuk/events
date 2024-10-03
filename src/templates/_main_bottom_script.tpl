@@ -12,8 +12,8 @@
     document.cookie = "theme=" + theme + "; domain=<?php echo NFW::i()->cfg['cookie']['domain']?>; path=/; expires=" + date.toUTCString();
     <?php endif; ?>
 
-    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    [...tooltipTriggerList].map(tooltipTriggerEl =>  new bootstrap.Tooltip(tooltipTriggerEl));
 
     <?php if (NFW::i()->user['is_guest']): ?>
     $('form[id="login-form"]').activeForm({

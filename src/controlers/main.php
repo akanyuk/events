@@ -59,10 +59,25 @@ if (!$eventAlias || !$CEvents->loadByAlias($eventAlias)) {
 }
 
 // Any `event` page can store votekey from request
-if (isset($_GET['key'])) {
+$votekey = new votekey($CEvents->record['id']);
+NFW::i()->assign('votekey', $votekey); // Empty votekey by default
+
+if (!NFW::i()->user['is_guest']) {
+    $votekey = votekey::findOrCreateVotekey($CEvents->record['id'], NFW::i()->user['email']);
+    if (!$votekey->error) {
+        $votekey->cookieStore();
+        NFW::i()->assign('votekey', $votekey);
+    }
+} else if (isset($_GET['key'])) {
     $votekey = votekey::getVotekey($_GET['key'], $CEvents->record['id']);
     if (!$votekey->error) {
-        NFW::i()->setCookie('votekey-'.$CEvents->record['id'], $_GET['key']);
+        $votekey->cookieStore();
+        NFW::i()->assign('votekey', $votekey);
+    }
+} else {
+    $votekey = votekey::cookieRestore($CEvents->record['id']);
+    if (!$votekey->error) {
+        NFW::i()->assign('votekey', $votekey);
     }
 }
 
@@ -119,8 +134,6 @@ if (!$workID) {
         header('Location: ' . NFW::i()->absolute_path . '/' . $CEvents->record['alias']);
     }
 
-    $CCompetitionsGroups = new competitions_groups();
-
     NFW::i()->breadcrumb = array(
         array('url' => $CEvents->record['alias'], 'desc' => $CEvents->record['title']),
         array('desc' => $CCompetitions->record['title'])
@@ -137,6 +150,8 @@ if (!$workID) {
 
     list($worksBlock, $votingBlock) = renderWorksBlock($CEvents->record, $CCompetitions->record);
 
+    $CCompetitionsGroups = new competitions_groups();
+
     $page['title'] = $CCompetitions->record['title'];
     $page['content'] = NFW::i()->fetch(NFW::i()->findTemplatePath('competitions/main/record.tpl'), [
         'announcement' => $CCompetitions->record['announcement'],
@@ -146,6 +161,7 @@ if (!$workID) {
         'hideWorksCount' => $CEvents->record['hide_works_count'],
         'worksBlock' => $worksBlock,
         'votingBlock' => $votingBlock,
+        'workComments' => '',
     ]);
 
     NFW::i()->assign('page', $page);
@@ -180,45 +196,46 @@ if ($CWorks->record['screenshot']) {
 
 $page['title'] = $CWorks->record['display_title'];
 
-if ($CCompetitions->record['release_status']['available'] && $CCompetitions->record['release_works']) {
-    NFW::i()->registerFunction('display_work_media');
-    $page['content'] = display_work_media($CWorks->record, [
-        'rel' => 'release',
-        'single' => true,
-        'voting_system' => $CEvents->record['voting_system'],
-    ]);
-} elseif ($CCompetitions->record['voting_status']['available'] && $CCompetitions->record['voting_works']) {
-    $page['content'] = $CCompetitions->renderAction(array(
-        'event' => $CEvents->record,
-        'competition' => $CCompetitions->record,
-        'works' => [$CWorks->record],
-    ), '_voting');
-} else {
-    NFW::i()->stop(404);
-}
+list($worksBlock, $votingBlock) = renderWorksBlock($CEvents->record, $CCompetitions->record, $workID);
 
+$CCompetitionsGroups = new competitions_groups();
 $CWorksComments = new works_comments();
-$page['content'] .= $CWorksComments->displayWorkComments($CWorks->record['id']);
+
+$page['content'] = NFW::i()->fetch(NFW::i()->findTemplatePath('competitions/main/record.tpl'), [
+    'announcement' => $CCompetitions->record['announcement'],
+    'competitions' => $CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id']))),
+    'competitionsGroups' => $CCompetitionsGroups->getRecords($CEvents->record['id']),
+    'competitionID' => $CCompetitions->record['id'],
+    'hideWorksCount' => $CEvents->record['hide_works_count'],
+    'worksBlock' => $worksBlock,
+    'votingBlock' => $votingBlock,
+    'workComments' => $CWorksComments->displayWorkComments($CWorks->record['id']),
+]);
 
 NFW::i()->assign('page', $page);
 NFW::i()->display('main.tpl');
 
-function renderWorksBlock(array $event, array $compo): array {
+function renderWorksBlock(array $event, array $compo, $workID = 0): array {
     NFW::i()->registerFunction('display_work_media');
     $CWorks = new works();
     $worksBlock = '';
     if ($compo['release_status']['available'] && $compo['release_works']) {
+        $filter = [
+            'release_only' => true,
+            'competition_id' => $compo['id'],
+            'work_id' => $workID ? [$workID] : null,
+        ];
         $releaseWorks = $CWorks->getRecords(array(
             'load_attachments' => true,
             'load_attachments_icons' => false,
-            'filter' => array('release_only' => true, 'competition_id' => $compo['id']),
+            'filter' => $filter,
             'ORDER BY' => 'sorting_place, w.average_vote DESC, w.total_scores DESC, w.position',
             'skip_pagination' => true,
         ));
         foreach ($releaseWorks as $work) {
             $worksBlock .= display_work_media($work, [
                 'rel' => 'release',
-                'single' => false,
+                'single' => count($releaseWorks) == 1,
                 'voting_system' => $event['voting_system'],
             ]);
         }
@@ -233,10 +250,15 @@ function renderWorksBlock(array $event, array $compo): array {
             }
         }
 
+        $filter = [
+            'voting_only' => true,
+            'competition_id' => $compo['id'],
+            'work_id' => $workID ? [$workID] : null,
+        ];
         $works = $CWorks->getRecords(array(
             'load_attachments' => true,
             'load_attachments_icons' => false,
-            'filter' => array('voting_only' => true, 'competition_id' => $compo['id']),
+            'filter' => $filter,
             'ORDER BY' => 'w.position',
             'skip_pagination' => true,
         ));

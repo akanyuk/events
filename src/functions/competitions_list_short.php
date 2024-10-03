@@ -34,22 +34,28 @@ function competitions_list_short(
     $result = '';
 
     if (empty($competitionsGroups)) {
+        $composContent = [];
         foreach ($competitions as $c) {
             if (!$c['is_link'] && $shortList) {
                 continue;
             }
 
             if ($shortList && $c['id'] == $current) {
-                $title = '<strong class="text-bg-primary ps-3">' . htmlspecialchars($c['title']) . '</strong>';
+                $title = '<a class="text-bg-primary fw-bold ps-3" href="' . NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] . '">' . htmlspecialchars($c['title']) . '</a>';
             } elseif ($c['is_link']) {
                 $title = '<a class="ps-3" href="' . NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] . '">' . htmlspecialchars($c['title']) . '</a>';
             } else {
                 $title = '<a class="text-muted ps-3" href="#' . $c['alias'] . '">' . htmlspecialchars($c['title']) . '</a>';
             }
 
-            $result .= $title . $c['second_label'] . $c['count_label'];
+            $composContent[] = $title . $c['second_label'] . $c['count_label'];
         }
-        return '<div class="d-grid gap-1" style="grid-template-columns: 12fr 1fr 1fr;">' . $result . '</div>';
+
+        if (empty($composContent) || ($shortList && count($composContent) == 1)) {
+            return "";
+        }
+
+        return '<div class="d-grid gap-1" style="grid-template-columns: 12fr 1fr 1fr;">' . implode('', $composContent) . '</div>';
     }
 
     foreach ($competitionsGroups as $group) {
@@ -66,7 +72,7 @@ function competitions_list_short(
             }
 
             if ($shortList && $c['id'] == $current) {
-                $title = '<strong class="text-bg-primary ps-3">' . htmlspecialchars($c['title']) . '</strong>';
+                $title = '<a class="text-bg-primary fw-bold ps-3" href="' . NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] . '">' . htmlspecialchars($c['title']) . '</a>';
             } elseif ($c['is_link']) {
                 $title = '<a class="ps-3" href="' . NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] . '">' . htmlspecialchars($c['title']) . '</a>';
             } else {
@@ -88,7 +94,7 @@ function competitions_list_short(
         }
 
         if ($shortList && $c['id'] == $current) {
-            $title = '<strong class="text-bg-primary ps-3">' . htmlspecialchars($c['title']) . '</strong>';
+            $title = '<a class="text-bg-primary fw-bold ps-3" href="' . NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] . '">' . htmlspecialchars($c['title']) . '</a>';
         } elseif ($c['is_link']) {
             $title = '<a href="' . NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] . '">' . htmlspecialchars($c['title']) . '</a>';
         } else {

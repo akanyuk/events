@@ -64,11 +64,11 @@ function display_work_media(array $work = array(), array $options = array()) {
     } elseif ($options['rel'] == 'voting' && $options['single']) {
         $headerTitle = '<h2>' . $headerPrefix . htmlspecialchars($work['title']) . '</h2>';
     } else if ($options['rel'] == 'voting' && !$options['single']) {
-        $headerTitle = '<h3>' . $headerPrefix . '<a href="' . $work['main_link'] . '">' . htmlspecialchars($work['title']) . '</a></h3>';
+        $headerTitle = '<h2>' . $headerPrefix . '<a href="' . $work['main_link'] . '">' . htmlspecialchars($work['title']) . '</a></h2>';
     } else if ($options['rel'] == 'release' && $options['single']) {
         $headerTitle = '<h2>' . $headerPrefix . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</h2>';
     } else if ($options['rel'] == 'release' && !$options['single']) {
-        $headerTitle = '<h3>' . $headerPrefix . '<a href="' . $work['main_link'] . '"/>' . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</a></h3>';
+        $headerTitle = '<h2>' . $headerPrefix . '<a href="' . $work['main_link'] . '"/>' . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</a></h2>';
     } else {
         $headerTitle = "";
     }
@@ -106,9 +106,10 @@ function display_work_media(array $work = array(), array $options = array()) {
             if ($i == 0) {
                 continue;
             }
-            echo '<button type="button" class="btn btn-outline-success"'.
-                (strval($i) == $d ? '' : ' data-bs-toggle="tooltip" data-bs-title="' . $d . '"').'
-                data-vote-work="' . $work['id'] . '">' . $i . '</button>';
+
+            $tooltip = $d === "" || strval($i) === $d ? '' : 'data-bs-toggle="tooltip" data-bs-title="' . htmlspecialchars($d) . '"';
+            echo '<button type="button" class="btn btn-outline-success" ' . $tooltip . '
+                data-role="vote" data-work-id="' . $work['id'] . '" data-vote-value="' . $i . '">' . $i . '</button>';
         }
         echo '</div>';
     } elseif ($options['rel'] == 'release' && $work['num_votes']) {

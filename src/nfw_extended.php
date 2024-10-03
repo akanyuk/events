@@ -27,8 +27,6 @@ class NFWX extends NFW {
         $this->resources_depends['main'] = array(
             'resources' => array(
                 'jquery',
-//                'bootstrap3.typeahead',
-//                'font-awesome',
             ));
 
         // Preload all available settings
@@ -325,11 +323,14 @@ class NFWX extends NFW {
         return true;
     }
 
-    function jsonError(int $errorCode, $req = array()) {
+    function jsonError(int $errorCode, $req = array(), $generalMsg = "") {
         if (is_array($req)) {
             $response = [
                 'errors' => $req,
             ];
+            if ($generalMsg != "") {
+                $response['errors']['general'] = $generalMsg;
+            }
         } else {
             $response = [
                 'errors' => [
