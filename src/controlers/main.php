@@ -235,7 +235,7 @@ function renderWorksBlock(array $event, array $compo, $workID = 0): array {
         foreach ($releaseWorks as $work) {
             $worksBlock .= display_work_media($work, [
                 'rel' => 'release',
-                'single' => count($releaseWorks) == 1,
+                'single' => (bool)$workID,
                 'voting_system' => $event['voting_system'],
             ]);
         }
@@ -267,7 +267,7 @@ function renderWorksBlock(array $event, array $compo, $workID = 0): array {
             $work['position'] = $curPos++;
             $worksBlock .= display_work_media($work, [
                 'rel' => 'voting',
-                'single' => count($works) == 1,
+                'single' => (bool)$workID,
                 'vote_options' => $votingOptions,
                 'voting_system' => $event['voting_system'],
             ]);

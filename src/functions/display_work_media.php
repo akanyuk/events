@@ -108,7 +108,7 @@ function display_work_media(array $work = array(), array $options = array()) {
             }
 
             $tooltip = $d === "" || strval($i) === $d ? '' : 'data-bs-toggle="tooltip" data-bs-title="' . htmlspecialchars($d) . '"';
-            echo '<button type="button" class="btn btn-outline-success" ' . $tooltip . '
+            echo '<button type="button" class="btn btn-outline-success btn-vote" ' . $tooltip . '
                 data-role="vote" data-work-id="' . $work['id'] . '" data-vote-value="' . $i . '">' . $i . '</button>';
         }
         echo '</div>';

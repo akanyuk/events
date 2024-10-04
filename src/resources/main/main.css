@@ -125,8 +125,24 @@ audio {
         width: 100%;
         height: 256px;
     }
-
-    .works-media-container .links .item {
-        display: block;
-    }
 }
+
+.work-container .btn-vote {
+    --bs-btn-hover-color: #3fb618 !important;
+    --bs-btn-hover-bg: none !important;
+    --bs-btn-hover-border-color: #3fb618 !important;
+}
+
+.work-container .btn-vote:not(.active):active {
+    color: #9eed84 !important;;
+    border-color: #8cd575 !important;
+    background-color: unset !important;
+}
+
+.work-container .btn-vote.active:active {
+    color: #9eed84 !important;;
+    border-color: #8cd575 !important;
+    background-color: #40752f !important;
+}
+
+
