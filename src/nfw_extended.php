@@ -12,7 +12,7 @@ class NFWX extends NFW {
 
     var array $main_og = array();             # Open Graph meta tags
     var string $mainLayoutRightContent = "";   # The content of the right block of the page. If not specified, the right block is not displayed
-
+    var bool $disableBlockUI = false;
 
     function __construct($init_cfg = null) {
         // Глобально кодировка для mb-операций

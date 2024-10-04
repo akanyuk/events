@@ -230,7 +230,7 @@ NFW::i()->registerResource('jquery.blockUI');
                         data-bs-target="#offcanvasRequestVotekey"
                         aria-controls="offcanvasRequestVotekey">
                     <svg width="1.5em" height="1.2em">
-                        <use href="#arrow-repeat"></use>
+                        <use href="#icon-arrow-repeat"></use>
                     </svg>
                 </button>
             </div>

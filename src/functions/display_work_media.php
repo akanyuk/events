@@ -64,16 +64,16 @@ function display_work_media(array $work = array(), array $options = array()) {
     } elseif ($options['rel'] == 'voting' && $options['single']) {
         $headerTitle = '<h2>' . $headerPrefix . htmlspecialchars($work['title']) . '</h2>';
     } else if ($options['rel'] == 'voting' && !$options['single']) {
-        $headerTitle = '<h2>' . $headerPrefix . '<a href="' . $work['main_link'] . '">' . htmlspecialchars($work['title']) . '</a></h2>';
+        $headerTitle = '<h2>' . $headerPrefix . '<a href="' . $work['main_link'] . '#title">' . htmlspecialchars($work['title']) . '</a></h2>';
     } else if ($options['rel'] == 'release' && $options['single']) {
         $headerTitle = '<h2>' . $headerPrefix . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</h2>';
     } else if ($options['rel'] == 'release' && !$options['single']) {
-        $headerTitle = '<h2>' . $headerPrefix . '<a href="' . $work['main_link'] . '"/>' . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</a></h2>';
+        $headerTitle = '<h2>' . $headerPrefix . '<a href="' . $work['main_link'] . '#title"/>' . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</a></h2>';
     } else {
         $headerTitle = "";
     }
 
-    echo $headerTitle . $platformFormat . platformDescription($work);
+    echo '<div id="title" style="position: relative; top: -50px;"></div>'.$headerTitle . $platformFormat . platformDescription($work);
     echo $work['author_note'] ? '<div class="author-note"><strong>' . $langMain['works author note'] . ':</strong><br />' . nl2br($work['author_note']) . '</div>' : '';
 
     list($linksHTML, $navHTML) = prepareWorkLinks($langMain, $work, $linksProps, $options['rel']);
@@ -90,10 +90,10 @@ function display_work_media(array $work = array(), array $options = array()) {
 
     $actionLinks = [];
     if ($options['rel'] != 'preview' && !$options['single']) {
-        $actionLinks[] = '<a class="btn btn-outline-primary" href="' . NFW::i()->absolute_path . '/' . $work['event_alias'] . '/' . $work['competition_alias'] . '/' . $work['id'] . '#comments">' . $langMain['works comments count'] . ' ' . ($work['comments_count'] ? '<span class="badge rounded-circle text-bg-secondary">' . $work['comments_count'] . '</span>' : '') . '</a>';
+        $actionLinks[] = '<a class="btn btn-outline-primary" href="' . $work['main_link'] . '#comments">' . $langMain['works comments count'] . ' ' . ($work['comments_count'] ? '<span class="badge rounded-circle text-bg-secondary">' . $work['comments_count'] . '</span>' : '') . '</a>';
     }
     if (in_array($work['event_id'], events::get_managed()) && $options['rel'] != 'preview') {
-        $actionLinks[] = '<a class="btn btn-outline-warning" href="' . NFW::i()->absolute_path . '/admin/works?action=update&record_id=' . $work['id'] . '" title="Edit work"><svg width="1em" height="1em"><use href="#pencil-square"></use></svg></a>';
+        $actionLinks[] = '<a class="btn btn-outline-warning" href="' . NFW::i()->absolute_path . '/admin/works?action=update&record_id=' . $work['id'] . '" title="Edit work"><svg width="1em" height="1em"><use href="#icon-pencil-square"></use></svg></a>';
     }
     if (count($actionLinks) > 0) {
         echo '<div class="mb-3 d-flex gap-1">' . implode('', $actionLinks) . '</div>';
