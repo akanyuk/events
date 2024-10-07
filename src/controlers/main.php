@@ -1,39 +1,6 @@
 <?php
 $pathParts = explode('/', parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 
-// Try to do some action
-// TODO: deprecated. Must be moved into internal_api controller
-if (isset($_GET['action'])) {
-    // Determine module and action
-    $module = count($pathParts) > 0 ? $pathParts[1] : '';
-    $action = $_GET['action'];
-
-    $classname = NFW::i()->getClass($module, true);
-    if (!class_exists($classname)) {
-        NFW::i()->stop(NFW::i()->lang['Errors']['Bad_request'], 'plain');
-    }
-
-    $CModule = new $classname ();
-    // Check module_name->action permissions
-    if (!NFW::i()->checkPermissions($module, $action, $CModule)) {
-        NFW::i()->stop(NFW::i()->lang['Errors']['Bad_request'], 'plain');
-    }
-
-    NFW::i()->assign('Module', $CModule);
-    $content = $CModule->action($action);
-    if ($CModule->error) {
-        NFW::i()->stop($CModule->last_msg, $CModule->error_report_type);
-    }
-
-    // Экшен должен останавливаться сам.
-    // На всякий случай принудительная остановка
-    NFW::i()->stop();
-}
-
-// -------------
-//  Normal page
-// -------------
-
 NFW::i()->registerFunction('tmb');
 
 $CPages = new pages();
@@ -182,10 +149,15 @@ if ($CCompetitions->record['release_status']['available'] && !$CWorks->record['s
     NFW::i()->stop(404);
 }
 
-NFW::i()->breadcrumb = array(
-    array('url' => $CEvents->record['alias'], 'desc' => $CEvents->record['title']),
-    array('url' => $CEvents->record['alias'] . '/' . $CCompetitions->record['alias'], 'desc' => $CCompetitions->record['title'])
-);
+$competitions = $CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id'])));
+
+NFW::i()->breadcrumb = [
+    ['url' => $CEvents->record['alias'], 'desc' => $CEvents->record['title']],
+];
+if (count($competitions) > 1) {
+    NFW::i()->breadcrumb[] = ['url' => $CEvents->record['alias'] . '/' . $CCompetitions->record['alias'], 'desc' => $CCompetitions->record['title']];
+
+}
 
 NFWX::i()->main_og['title'] = $CWorks->record['display_title'];
 NFWX::i()->main_og['description'] = $CEvents->record['title'] . ' / ' . $CCompetitions->record['title'];
@@ -203,7 +175,7 @@ $CWorksComments = new works_comments();
 
 $page['content'] = NFW::i()->fetch(NFW::i()->findTemplatePath('competitions/main/record.tpl'), [
     'announcement' => $CCompetitions->record['announcement'],
-    'competitions' => $CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id']))),
+    'competitions' => $competitions,
     'competitionsGroups' => $CCompetitionsGroups->getRecords($CEvents->record['id']),
     'competitionID' => $CCompetitions->record['id'],
     'hideWorksCount' => $CEvents->record['hide_works_count'],
