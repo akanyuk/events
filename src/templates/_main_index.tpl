@@ -74,7 +74,8 @@ function displayIndexEvent($record, $layout = ""): void {
                         <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><?php echo htmlspecialchars($record['title']) ?></a>
                     </h2>
                     <p class="h5"><?php echo $record['dates_desc'] ?>
-                        <span class="badge text-bg-<?php echo $layout == 'current' ? 'danger' : 'info' ?>"><?php echo $record['status_label'] ?></span>
+                        <span
+                            class="badge text-bg-<?php echo $layout == 'current' ? 'danger' : 'info' ?>"><?php echo $record['status_label'] ?></span>
                     </p>
                     <?php if ($record['announcement']): ?>
                         <div class="mt-3"><?php echo nl2br($record['announcement']) ?></div>
@@ -87,21 +88,18 @@ function displayIndexEvent($record, $layout = ""): void {
         default:
             ?>
             <div class="table-row">
-                <div style="display: table-cell; width: 80px; vertical-align: middle; text-align: left;">
-                    <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><img class="media-object"
-                                                                                        src="<?php echo $record['preview_img'] ?>"
-                                                                                        alt=""/></a>
+                <div class="align-middle text-left" style="display: table-cell; width: 80px;"><a
+                        href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><img class="media-object"
+                                                                                         src="<?php echo $record['preview_img'] ?>"
+                                                                                         alt=""/></a>
                 </div>
-                <div style="display: table-cell; vertical-align: middle;">
-                    <h4><a
-                                href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><?php echo htmlspecialchars($record['title']) ?></a>
+                <div class="align-middle text-left" style="display: table-cell;"><h4><a
+                            href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><?php echo htmlspecialchars($record['title']) ?></a>
                     </h4>
                     <div class="text-muted"><?php echo $record['dates_desc'] ?></div>
                 </div>
             </div>
-            <?php if ($record['announcement']): ?>
-            <div class="my-3"><?php echo nl2br($record['announcement']) ?></div>
-        <?php endif; ?>
+            <div class="mb-5"><?php echo nl2br($record['announcement']) ?></div>
         <?php
     }
 }

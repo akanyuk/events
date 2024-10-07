@@ -44,7 +44,7 @@ $allowDelete = NFWX::i()->checkPermissions('works_comments', 'delete', array('wo
     const messageFeedback = document.getElementById("comment-message-feedback");
 
     addCommentBtn.onclick = async function () {
-        let response = await fetch("/internal_api?action=add_comment", {
+        let response = await fetch("/internal_api?action=addComment", {
             method: "POST",
             body: JSON.stringify({
                 workID: <?php echo $workID?>,
@@ -82,7 +82,7 @@ $allowDelete = NFWX::i()->checkPermissions('works_comments', 'delete', array('wo
 
     function loadComments() {
         commentsContainer.innerHTML = "";
-        fetch('/internal_api?action=comments_list&work_id=<?php echo $workID?>').then(response => response.json()).then(response => {
+        fetch('/internal_api?action=commentsList&work_id=<?php echo $workID?>').then(response => response.json()).then(response => {
             response['comments'].forEach((comment) => {
                 const message = document.createElement('blockquote');
                 message.innerText = comment['message']
@@ -108,7 +108,7 @@ $allowDelete = NFWX::i()->checkPermissions('works_comments', 'delete', array('wo
                         return false;
                     }
 
-                    let response = await fetch("/internal_api?action=delete_comment", {
+                    let response = await fetch("/internal_api?action=deleteComment", {
                         method: "POST",
                         body: JSON.stringify({
                             commentID: comment['id']

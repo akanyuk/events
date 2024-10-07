@@ -48,8 +48,8 @@ $langMain = NFW::i()->getLang('main');
     </style>
 <?php foreach ($gComments as $workID => $w): ?>
     <div class="card mb-3">
-        <img src="<?php echo isset($screenshots[$workID]) ? cache_media($screenshots[$workID]) : $noImage ?>"
-             class="card-img-top <?php echo isset($screenshots[$workID]) ? '' : 'no-screenshot' ?>" alt="">
+        <a href="<?php echo $w['work_url'] ?>"><img src="<?php echo isset($screenshots[$workID]) ? cache_media($screenshots[$workID]) : $noImage ?>"
+                                                    class="card-img-top <?php echo isset($screenshots[$workID]) ? '' : 'no-screenshot' ?>" alt=""></a>
         <div class="card-body pt-0">
             <h5 class="card-title"><a
                         href="<?php echo $w['work_url'] ?>"><?php echo htmlspecialchars($w['title']) ?></a>

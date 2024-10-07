@@ -25,9 +25,16 @@ switch ($_GET['action']) {
         }
         NFWX::i()->jsonSuccess();
         break;
+    case 'vote':
+        $req = json_decode(file_get_contents('php://input'));
+        $CVote = new vote();
+        if (!$CVote->addVote($req->workID, $req->vote, $req->username, $req->votekey)) {
+            NFWX::i()->jsonError(400, $CVote->errors, $CVote->last_msg);
+        }
+        NFWX::i()->jsonSuccess();
+        break;
     case 'requestVotekey':
         $req = json_decode(file_get_contents('php://input'));
-
         $CVotekeys = new votekeys();
         if (!$CVotekeys->requestVotekey($_GET['event_id'], $req->email)) {
             NFWX::i()->jsonError(400, $CVotekeys->last_msg);
@@ -36,16 +43,7 @@ switch ($_GET['action']) {
         $langMain = NFW::i()->getLang('main');
         NFWX::i()->jsonSuccess(['message' => $langMain['votekey-request success note']]);
         break;
-    case 'vote':
-        $req = json_decode(file_get_contents('php://input'));
-
-        $CVote = new vote();
-        if (!$CVote->addVote($req->workID, $req->vote, $req->username, $req->votekey)) {
-            NFWX::i()->jsonError(400, $CVote->errors, $CVote->last_msg);
-        }
-        NFWX::i()->jsonSuccess();
-        break;
-    case 'comments_list':
+    case 'commentsList':
         $CWorksComments = new works_comments();
         $result = $CWorksComments->workComments(intval($_GET['work_id']));
         if ($result === false) {
@@ -53,7 +51,7 @@ switch ($_GET['action']) {
         }
         NFWX::i()->jsonSuccess(['comments' => $result]);
         break;
-    case 'add_comment':
+    case 'addComment':
         if (!NFWX::i()->checkPermissions('works_comments', 'add_comment')) {
             NFWX::i()->jsonError(403, 'No permissions');
         }
@@ -66,7 +64,7 @@ switch ($_GET['action']) {
         }
         NFWX::i()->jsonSuccess();
         break;
-    case 'delete_comment':
+    case 'deleteComment':
         $req = json_decode(file_get_contents('php://input'));
 
         $CWorksComments = new works_comments($req->commentID);
