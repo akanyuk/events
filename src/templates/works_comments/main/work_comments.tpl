@@ -139,7 +139,6 @@ $allowDelete = NFWX::i()->checkPermissions('works_comments', 'delete', array('wo
                 const item = document.createElement('figure');
                 item.appendChild(message);
                 item.appendChild(footer);
-
                 commentsContainer.appendChild(item);
             });
         });

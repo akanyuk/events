@@ -208,6 +208,66 @@ class NFWX extends NFW {
         return false;
     }
 
+    // Authenticate user if possible
+    function login($action = '', $login_options = array()) {
+        $this->user = $this->default_user;
+        $this->user['language'] = $this->current_language;
+
+        $classname = isset(NFW::i()->cfg['auth_class']) && NFW::i()->cfg['auth_class'] ? NFW::i()->cfg['auth_class'] : 'users';
+        $CUsers = new $classname ();
+
+        // Logout action
+        if ($action == 'logout' || isset($_GET['action']) && $_GET['action'] == 'logout') {
+            $CUsers->cookie_logout();
+            // Send no-cache headers
+            header('Expires: Thu, 21 Jul 1977 07:30:00 GMT');    // When yours truly first set eyes on this world! :)
+            header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+            header('Cache-Control: post-check=0, pre-check=0', false);
+            header('Pragma: no-cache');        // For HTTP/1.0 compatibility
+            header('Content-type: text/html; charset=utf-8');
+            NFW::i()->stop('<html lang="en"><head><meta http-equiv="refresh" content="0;URL=' . $this->absolute_path . '" /><title>.</title></head><body></body></html>');
+        }
+
+        // Login form action
+        if ($action == 'form') {
+            $this->assign('login_options', $login_options);
+            $this->display('login.tpl');
+        }
+
+        // Authenticate send
+        if (isset($_GET['action']) && $_GET['action'] == 'login') {
+            $req = json_decode(file_get_contents('php://input'));
+            if (!$account = $CUsers->authentificate($req->username, $req->password)) {
+                $langCookie = NFW::i()->cfg['cookie']['name'] . '_lang';
+                if (isset($_COOKIE[$langCookie]) && in_array($_COOKIE[$langCookie], array('Russian', 'English')) && $_COOKIE[$langCookie] != $this->user['language']) {
+                    $this->user['language'] = $_COOKIE[$langCookie];
+                    // Reload lang file
+                    $this->current_language = $this->user['language'];
+                    $this->lang = $this->getLang('nfw_main');
+                }
+
+                $this->jsonError(400, $this->lang['Errors']['Wrong_auth']);
+            }
+
+            $this->user = $account;
+            $this->user['is_guest'] = false;
+
+            $CUsers->cookie_update($this->user);
+            logs::write(logs::KIND_LOGIN);
+
+            // Долгая операция. Лучше сделать один раз заранее. Здесь самое место (?)
+            $this->registerResource('icons');
+
+            $this->jsonSuccess();
+        }
+
+        // Cookie login
+        if ($account = $CUsers->cookie_login()) {
+            $this->user = $account;
+            $this->user['is_guest'] = false;
+        }
+    }
+
     function renderNews($options = array()) {
         $CNews = new news();
         if (!$records = $CNews->getRecords($options)) {

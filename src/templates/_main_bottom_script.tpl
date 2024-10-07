@@ -52,21 +52,38 @@
     [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
 
     <?php if (NFW::i()->user['is_guest']): ?>
-    $('form[id="login-form"]').activeForm({
-        cleanErrors: function () {
-            $(this).find('#result').text('');
-        },
-        error: function (response) {
-            $('form[id="login-form"]').find('#result').text(response.errors['password']);
-        },
-        success: function (response) {
-            if (response.redirect) {
-                window.location.href = response.redirect;
-            } else {
-                window.location.reload();
+    const loginUsername = document.getElementById("login-username");
+    const loginPassword = document.getElementById("login-password");
+    const loginFeedback = document.getElementById("login-feedback");
+    loginFormSubmit = async function () {
+        let response = await fetch("?action=login", {
+            method: "POST",
+            body: JSON.stringify({
+                username: loginUsername.value,
+                password: loginPassword.value
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
             }
+        });
+
+        if (!response.ok) {
+            const resp = await response.json();
+            const errors = resp.errors;
+
+            loginUsername.classList.add('is-invalid');
+            loginPassword.classList.add('is-invalid');
+
+            if (errors["general"] !== undefined && errors["general"] !== "") {
+                loginFeedback.innerText = errors["general"];
+                loginFeedback.className = 'invalid-feedback d-block';
+            }
+
+            return;
         }
-    });
+
+        window.location.reload();
+    }
     <?php endif; ?>
 
     document.querySelectorAll("#work-frames-nav a").forEach((activeFrameA) => {

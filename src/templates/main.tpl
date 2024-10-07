@@ -8,10 +8,6 @@ reset($page);
 NFW::i()->registerResource('main');
 NFW::i()->registerFunction('page_is');
 
-if (NFW::i()->user['is_guest']) {
-    NFW::i()->registerResource('jquery.activeForm');
-}
-
 $langMain = NFW::i()->getLang('main');
 $langUsers = NFW::i()->getLang('users');
 
@@ -60,7 +56,7 @@ $langLinksXs = array(
     <meta name="theme-color" content="#707070">
     <meta name="msapplication-config" content="/browserconfig.xml"/>
 
-    <link href="<?php echo NFW::i()->base_path?>vendor/bootstrap5/theme/bootstrap.min.css" rel="stylesheet">
+    <link href="<?php echo NFW::i()->base_path ?>vendor/bootstrap5/theme/bootstrap.min.css" rel="stylesheet">
 
     <?php
     foreach (NFWX::i()->main_og as $type => $value) {
@@ -118,17 +114,22 @@ $langLinksXs = array(
     </symbol>
 
     <symbol id="icon-arrow-repeat" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-        <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41m-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9"/>
-        <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5 5 0 0 0 8 3M3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9z"/>
+        <path
+            d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41m-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9"/>
+        <path fill-rule="evenodd"
+              d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5 5 0 0 0 8 3M3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9z"/>
     </symbol>
 
     <symbol id="icon-pencil-square" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-        <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-        <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+        <path
+            d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+        <path fill-rule="evenodd"
+              d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
     </symbol>
 
     <symbol id="icon-x" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+        <path
+            d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
     </symbol>
 </svg>
 
@@ -158,7 +159,7 @@ $langLinksXs = array(
                 </div>
 
                 <div class="d-none d-sm-block">
-                    <div class="text-nowrap me-3"><?php echo implode(' • ', $langLinks) ?></div>
+                    <div class="text-nowrap me-4"><?php echo implode(' • ', $langLinks) ?></div>
                 </div>
                 <div class="d-block d-sm-none">
                     <div class="text-nowrap me-3"><?php echo implode(' • ', $langLinksXs) ?></div>
@@ -166,20 +167,20 @@ $langLinksXs = array(
 
                 <?php if ($theme == 'light'): ?>
                     <a class="text-white" href="<?php echo $themeLinkDark ?>">
-                        <svg class="me-3" width="1em" height="1em">
+                        <svg class="me-3 me-lg-4" width="1em" height="1em">
                             <use href="#theme-icon-light"></use>
                         </svg>
                     </a>
                 <?php elseif ($theme == 'dark'): ?>
                     <a class="text-white" href="<?php echo $themeLinkLight ?>">
-                        <svg class="me-3" width="1em" height="1em">
+                        <svg class="me-3 me-lg-4" width="1em" height="1em">
                             <use href="#theme-icon-dark"></use>
                         </svg>
                     </a>
                 <?php endif; ?>
 
                 <?php if (NFW::i()->user['is_guest']): ?>
-                    <a href="#" class="d-block py-2 text-white text-decoration-none"
+                    <a href="#" class="d-block me-3 me-lg-4 py-2 text-white text-decoration-none"
                        data-bs-toggle="offcanvas"
                        data-bs-target="#offcanvasLogin"
                        aria-controls="offcanvasLogin">
@@ -188,7 +189,7 @@ $langLinksXs = array(
                         </svg>
                     </a>
                 <?php else: ?>
-                    <div class="me-3 dropdown">
+                    <div class="me-3 me-lg-4 dropdown">
                         <a href="#" class="d-block py-2 text-white text-decoration-none"
                            data-bs-toggle="dropdown" aria-expanded="false">
                             <svg class="fill-white" width="1em" height="1em">
@@ -231,35 +232,44 @@ $langLinksXs = array(
 </main>
 
 <?php if (NFW::i()->user['is_guest']): ?>
-    <div id="offcanvasLogin" class="offcanvas offcanvas-top" style="height: 400px;" tabindex="-1"
+    <div id="offcanvasLogin" class="offcanvas offcanvas-top" style="height: fit-content;" tabindex="-1"
          aria-labelledby="offcanvasLoginLabel">
         <div class="offcanvas-header">
             <h5 class="offcanvas-title" id="offcanvasLoginLabel"><?php echo NFW::i()->lang['Authorization'] ?></h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
-            <form id="login-form" class="mb-2">
-                <div data-active-container="username" class="my-2">
-                    <input type="text" class="form-control" name="username" placeholder="Username"/>
+            <form onsubmit="loginFormSubmit(); return false;">
+                <div class="mx-left col-sm-6 col-md-4 col-lg-3 mb-3">
+                    <label for="login-username"><?php echo $langMain['voting name'] ?></label>
+                    <input type="text" name="username" id="login-username" class="form-control " maxlength="64">
                 </div>
 
-                <div data-active-container="password" class="my-2">
-                    <input type="password" class="form-control" name="password" placeholder="Password"/>
-                    <div id="result" class="my-1 text-danger"></div>
+                <div class="mx-left col-sm-6 col-md-4 col-lg-3 mb-3">
+                    <label for="login-password"><?php echo $langMain['voting name'] ?></label>
+                    <input type="password" name="password" id="login-password" class="form-control " maxlength="64">
+                    <div id="login-feedback" class="invalid-feedback"></div>
                 </div>
 
-                <button type="submit" name="login" class="btn btn-primary"><?php echo NFW::i()->lang['GoIn'] ?></button>
+                <div class="mb-3">
+                    <button type="submit" id="login-btn"
+                            class="btn btn-primary"><?php echo NFW::i()->lang['GoIn'] ?></button>
+                </div>
             </form>
 
-            <p>
+            <div class="mb-3">
                 <a href="<?php echo NFW::i()->base_path ?>users?action=restore_password"><?php echo $langUsers['Restore password'] ?></a>
-            </p>
-            <p>
+            </div>
+
+            <div class="mb-3">
                 <a href="<?php echo NFW::i()->base_path ?>users?action=register"><?php echo $langUsers['Registration'] ?></a>
-            </p>
-            <a href="<?php echo NFW::i()->base_path ?>sceneid?action=performAuth"><img
-                    src="<?php echo NFW::i()->assets("main/SceneID_Icon_200x32.png") ?>"
-                    alt="Sign in with SceneID"/></a>
+            </div>
+
+            <div class="mb-5">
+                <a href="<?php echo NFW::i()->base_path ?>sceneid?action=performAuth"><img
+                        src="<?php echo NFW::i()->assets("main/SceneID_Icon_200x32.png") ?>"
+                        alt="Sign in with SceneID"/></a>
+            </div>
         </div>
     </div>
 <?php endif; ?>
@@ -284,7 +294,7 @@ $langLinksXs = array(
             }
             echo '</ol>';
             echo '</nav>';
-            echo '<div class="mb-2">'.NFW::i()->breadcrumb_status.'</div>';
+            echo '<div class="mb-2">' . NFW::i()->breadcrumb_status . '</div>';
             echo '</div>';
         }
 
@@ -299,9 +309,9 @@ $langLinksXs = array(
     } ?>
 </div>
 
-<?php echo NFWX::i()->project_settings['footer']?>
+<?php echo NFWX::i()->project_settings['footer'] ?>
 
-<script src="<?php echo NFW::i()->base_path?>vendor/bootstrap5/js/bootstrap.bundle.js"></script>
+<script src="<?php echo NFW::i()->base_path ?>vendor/bootstrap5/js/bootstrap.bundle.js"></script>
 <?php echo NFW::i()->fetch(NFW::i()->findTemplatePath('_main_bottom_script.tpl'), ['theme' => $theme]); ?>
 </body>
 </html>

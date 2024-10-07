@@ -43,10 +43,9 @@ $langMain = NFW::i()->getLang('main');
 <?php if (NFW::i()->user['is_guest']): ?>
     <div class="w-640">
         <div class="mb-3">
-            <label for="username"><?php echo $langMain['voting name'] ?></label>
-            <input type="text" id="username" class="form-control " maxlength="64"
-                   value="<?php echo isset(NFW::i()->user['realname']) && NFW::i()->user['realname'] ? htmlspecialchars(NFW::i()->user['realname']) : "" ?>">
-            <div id="username-feedback" class="invalid-feedback"></div>
+            <label for="voting-username"><?php echo $langMain['voting name'] ?></label>
+            <input type="text" id="voting-username" class="form-control " maxlength="64">
+            <div id="voting-username-feedback" class="invalid-feedback"></div>
         </div>
 
         <div class="mb-3">
@@ -77,8 +76,8 @@ $langMain = NFW::i()->getLang('main');
     </div>
 <?php else: ?>
     <div class="d-none">
-        <input type="hidden" id="username"/>
-        <div id="username-feedback"></div>
+        <input type="hidden" id="voting-username"/>
+        <div id="voting-username-feedback"></div>
         <input type="hidden" id="votekey"/>
         <div id="votekey-feedback" class="invalid-feedback"></div>
     </div>
@@ -86,16 +85,16 @@ $langMain = NFW::i()->getLang('main');
 
 <script type="text/javascript">
     <?php ob_start(); ?>
-    const inputUsername = document.getElementById('username')
-    const scrollToError = inputUsername.offsetTop - 80;
-    const usernameFeedback = document.getElementById('username-feedback');
+    const inputVotingUsername = document.getElementById('voting-username')
+    const votingUsernameFeedback = document.getElementById('voting-username-feedback');
     const inputVotekey = document.getElementById('votekey');
     const votekeyFeedback = document.getElementById('votekey-feedback');
+    const scrollToError = inputVotingUsername.offsetTop - 80;
 
     // Load saved username
     const result = localStorage.getItem('votingUsername');
     if (result) {
-        inputUsername.value = result;
+        inputVotingUsername.value = result;
     }
 
     // Applying DB state
@@ -106,7 +105,7 @@ $langMain = NFW::i()->getLang('main');
     document.querySelectorAll('button[data-role="vote"]').forEach((btn) => {
         btn.onclick = async function () {
             const workID = btn.getAttribute('data-work-id');
-            const username = inputUsername.value;
+            const username = inputVotingUsername.value;
             const votekey = inputVotekey.value;
 
             let voteValue = parseInt(btn.getAttribute('data-vote-value'));
@@ -114,8 +113,8 @@ $langMain = NFW::i()->getLang('main');
                 voteValue = 0;
             }
 
-            inputUsername.classList.remove('is-valid', 'is-invalid');
-            usernameFeedback.className = 'd-none';
+            inputVotingUsername.classList.remove('is-valid', 'is-invalid');
+            votingUsernameFeedback.className = 'd-none';
             inputVotekey.classList.remove('is-valid', 'is-invalid');
             votekeyFeedback.className = 'd-none';
 
@@ -143,12 +142,12 @@ $langMain = NFW::i()->getLang('main');
                 }
 
                 if (errors["username"] !== undefined && errors["username"] !== "") {
-                    inputUsername.classList.add('is-invalid');
-                    usernameFeedback.innerText = errors["username"];
-                    usernameFeedback.className = 'invalid-feedback d-block';
+                    inputVotingUsername.classList.add('is-invalid');
+                    votingUsernameFeedback.innerText = errors["username"];
+                    votingUsernameFeedback.className = 'invalid-feedback d-block';
                     isScroll = true;
                 } else {
-                    inputUsername.classList.add('is-valid');
+                    inputVotingUsername.classList.add('is-valid');
                 }
 
                 if (errors["votekey"] !== undefined && errors["votekey"] !== "") {

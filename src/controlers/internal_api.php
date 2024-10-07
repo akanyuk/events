@@ -57,7 +57,6 @@ switch ($_GET['action']) {
         }
 
         $req = json_decode(file_get_contents('php://input'));
-
         $CWorksComments = new works_comments();
         if (!$CWorksComments->addComment($req->workID, $req->message)) {
             NFWX::i()->jsonError(400, $CWorksComments->errors, $CWorksComments->last_msg);
@@ -66,7 +65,6 @@ switch ($_GET['action']) {
         break;
     case 'deleteComment':
         $req = json_decode(file_get_contents('php://input'));
-
         $CWorksComments = new works_comments($req->commentID);
         if (!$CWorksComments->record['id']) {
             NFWX::i()->jsonError(400, $CWorksComments->last_msg);

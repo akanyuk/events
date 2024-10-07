@@ -197,7 +197,7 @@ class works_comments extends active_record {
 
             if (empty($gComments[$workID]['comments'])) {
                 $gComments[$workID]['work_id'] = $workID;
-                $gComments[$workID]['work_url'] = NFW::i()->absolute_path . '/' . $comment['event_alias'] . '/' . $comment['competition_alias'] . '/' . $comment['work_id'] . '#comment' . $comment['id'];
+                $gComments[$workID]['work_url'] = NFW::i()->absolute_path . '/' . $comment['event_alias'] . '/' . $comment['competition_alias'] . '/' . $comment['work_id'] . '#comments';
                 $gComments[$workID]['title'] = $comment['event_title'] . ' / ' . $comment['work_title'] . ' by ' . $comment['work_author'];
             }
             $gComments[$workID]['items'][] = [
