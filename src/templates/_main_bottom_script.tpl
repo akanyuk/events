@@ -51,6 +51,7 @@
         $(obj).find('a:first').trigger('click');
     });
 
+    <?php if (!NFWX::i()->disableBlockUI):?>
     if ($.blockUI) {
         $.blockUI.defaults.message = null;
         $.blockUI.defaults.fadeOut = 0;
@@ -61,6 +62,8 @@
         $.blockUI.defaults.baseZ = 2000;
         $(document).ajaxStart($.blockUI).ajaxStop($.unblockUI);
     }
+    <?php endif; ?>
+
     /*
 
      $('input[id="works-search"]').typeahead({

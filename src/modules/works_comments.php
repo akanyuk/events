@@ -86,7 +86,7 @@ class works_comments extends active_record {
     }
 
     public function getRecords($options = array()) {
-        $filter = isset($options['filter']) ? $options['filter'] : array();
+        $filter = $options['filter'] ?? array();
 
         // Setup WHERE from filter
         $where = array('e.is_hidden=0');
@@ -205,14 +205,6 @@ class works_comments extends active_record {
             'gComments' => $gComments,
             'screenshots' => $screenshots,
         ), '_display_latest_comments');
-    }
-
-    function displayWorkComments($work_id) {
-        return $this->renderAction(array(
-            'Module' => $this,
-            'work_id' => $work_id,
-            'comments' => $this->getRecords(array('filter' => array('work_id' => $work_id)))
-        ), '_display_work_comments');
     }
 
     function actionMainCommentsList() {

@@ -158,7 +158,6 @@ NFW::i()->registerResource('jquery.blockUI');
             });
         });
     </script>
-
     <div class="toast-container position-fixed top-0 start-50 translate-middle-x" style="top: 44px !important;">
         <div id="acceptedToast" class="toast text-bg-success"
              role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="800">
@@ -231,7 +230,7 @@ NFW::i()->registerResource('jquery.blockUI');
                         data-bs-target="#offcanvasRequestVotekey"
                         aria-controls="offcanvasRequestVotekey">
                     <svg width="1.5em" height="1.2em">
-                        <use href="#arrow-repeat"></use>
+                        <use href="#icon-arrow-repeat"></use>
                     </svg>
                 </button>
             </div>

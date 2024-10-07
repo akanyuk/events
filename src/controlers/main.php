@@ -171,17 +171,23 @@ $page['title'] = $CWorks->record['display_title'];
 list($worksBlock, $votingBlock) = renderWorksBlock($CEvents->record, $CCompetitions->record, $workID);
 
 $CCompetitionsGroups = new competitions_groups();
-$CWorksComments = new works_comments();
+$competitionsGroups = $CCompetitionsGroups->getRecords($CEvents->record['id']);
+
+$worksComments = NFW::i()->fetch(NFW::i()->findTemplatePath('works_comments/main/work_comments.tpl'),[
+    'workID' => $CWorks->record['id'],
+]);
 
 $page['content'] = NFW::i()->fetch(NFW::i()->findTemplatePath('competitions/main/record.tpl'), [
     'announcement' => $CCompetitions->record['announcement'],
     'competitions' => $competitions,
     'competitionsGroups' => $CCompetitionsGroups->getRecords($CEvents->record['id']),
+    'competitions' => $CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id']))),
+    'competitionsGroups' => $competitionsGroups,
     'competitionID' => $CCompetitions->record['id'],
     'hideWorksCount' => $CEvents->record['hide_works_count'],
     'worksBlock' => $worksBlock,
     'votingBlock' => $votingBlock,
-    'workComments' => $CWorksComments->displayWorkComments($CWorks->record['id']),
+    'workComments' => $worksComments,
 ]);
 
 NFW::i()->assign('page', $page);
@@ -207,7 +213,7 @@ function renderWorksBlock(array $event, array $compo, $workID = 0): array {
         foreach ($releaseWorks as $work) {
             $worksBlock .= display_work_media($work, [
                 'rel' => 'release',
-                'single' => count($releaseWorks) == 1,
+                'single' => (bool)$workID,
                 'voting_system' => $event['voting_system'],
             ]);
         }
@@ -239,7 +245,7 @@ function renderWorksBlock(array $event, array $compo, $workID = 0): array {
             $work['position'] = $curPos++;
             $worksBlock .= display_work_media($work, [
                 'rel' => 'voting',
-                'single' => count($works) == 1,
+                'single' => (bool)$workID,
                 'vote_options' => $votingOptions,
                 'voting_system' => $event['voting_system'],
             ]);
