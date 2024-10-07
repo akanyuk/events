@@ -40,7 +40,11 @@
     <?php endif; ?>
 
     const gErrorToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('errorToast'));
+    const gErrorToastText = document.getElementById('errorToast-text');
+
     const gSuccessToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('successToast'));
+    const gSuccessToastText = document.getElementById('successToast-text');
+
     const gAcceptedToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('acceptedToast'));
     const gCanceledToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('canceledToast'));
 
@@ -80,10 +84,21 @@
             activeFrameA.classList.add("active");
         }
     });
-
     document.querySelectorAll("#work-frames-nav").forEach((frm) => {
         frm.querySelector('a').click();
     });
+
+    // Stop other audio's
+    for (const player of document.getElementsByTagName('audio')) {
+        player.onplay = function () {
+            for (const p of document.getElementsByTagName('audio')) {
+                if (p !== player) {
+                    p.pause();
+                    p.currentTime = 0;
+                }
+            }
+        }
+    }
 
     <?php echo NFWX::i()->mainBottomScript?>
 
@@ -108,15 +123,5 @@
         items: 'all',
         minLength: 1
     }).attr('autocomplete', 'off');
-
-    // Stop other audio's
-    $('audio').bind('play', function () {
-        for (const player of document.getElementsByTagName('audio')) {
-            if (player !== this) {
-                player.pause();
-                player.currentTime = 0;
-            }
-        }
-    });
 <?php */ ?>
 </script>

@@ -17,164 +17,28 @@ if ($votekey->id) {
 }
 
 $langMain = NFW::i()->getLang('main');
-
-NFW::i()->registerResource('jquery.activeForm', false, true);
-NFW::i()->registerResource('jquery.blockUI');
 ?>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            const scrollToError = document.getElementById('username').offsetTop - 80;
-            const inputUsername = $('input[id="username"]');
-            const usernameFeedback = $('#username-feedback');
-            const inputVotekey = $('input[id="votekey"]');
-            const votekeyFeedback = $('#votekey-feedback');
-
-            // Load saved username
-            const result = localStorage.getItem('votingUsername');
-            if (result) {
-                inputUsername.val(result);
-            }
-
-            // Applying DB state
-            <?php foreach ($storedVotes as $workID=>$vote): ?>
-            $('button[data-role="vote"][data-work-id="<?php echo $workID?>"][data-vote-value="<?php echo $vote?>"]').addClass('active');
-            <?php endforeach; ?>
-
-            $('button[data-role="vote"]').click(async function () {
-                const workID = $(this).data('work-id');
-                const username = inputUsername.val();
-                const votekey = $('input[id="votekey"]').val();
-
-                let voteValue = parseInt($(this).data('vote-value'));
-                if ($(this).hasClass('active')) {
-                    voteValue = 0;
-                }
-
-                inputUsername.removeClass('is-valid is-invalid');
-                usernameFeedback.text('').hide();
-                inputVotekey.removeClass('is-valid is-invalid');
-                votekeyFeedback.text('').hide();
-
-                let response = await fetch("/internal_api?action=vote", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        workID: workID,
-                        vote: voteValue,
-                        username: username,
-                        votekey: votekey,
-                    }),
-                    headers: {
-                        "Content-type": "application/json; charset=UTF-8"
-                    }
-                });
-
-                if (!response.ok) {
-                    const resp = await response.json();
-                    const errors = resp.errors;
-                    let isScroll = false;
-
-                    if (errors["general"] !== undefined && errors["general"] !== "") {
-                        document.getElementById('errorToast-text').innerText = errors["general"];
-                        gErrorToast.show();
-                    }
-
-                    if (errors["username"] !== undefined && errors["username"] !== "") {
-                        inputUsername.addClass('is-invalid');
-                        usernameFeedback.text(errors["username"]).show();
-                        isScroll = true;
-                    } else {
-                        inputUsername.addClass('is-valid');
-                    }
-
-                    if (errors["votekey"] !== undefined && errors["votekey"] !== "") {
-                        inputVotekey.addClass('is-invalid');
-                        votekeyFeedback.text(errors["votekey"]).show();
-                        isScroll = true;
-                    } else {
-                        inputVotekey.addClass('is-valid');
-                    }
-
-                    if (isScroll) {
-                        window.scrollTo({top: scrollToError, behavior: "smooth"});
-                    }
-
-                    return;
-                }
-
-                $('button[data-role="vote"][data-work-id="' + workID + '"]').removeClass('active');
-
-                if (voteValue === 0) {
-                    gAcceptedToast.hide();
-                    gCanceledToast.show();
-                } else {
-                    $(this).addClass('active');
-                    gCanceledToast.hide();
-                    gAcceptedToast.show();
-                }
-
-                // Save username for future use
-                localStorage.setItem('votingUsername', username);
-            });
-
-            // Request votekey
-            const requestVotekeyEmail = $('input[id="request-votekey-email"]');
-            const offcanvasRequestVotekey = new bootstrap.Offcanvas('#offcanvasRequestVotekey')
-            $('button[id="request-votekey"]').click(function () {
-                requestVotekeyEmail.removeClass('is-invalid');
-                $('#request-votekey-email-feedback').text('').hide();
-
-                $.ajax('<?php echo NFW::i()->base_path . 'internal_api?action=requestVotekey&event_id=' . $eventID?>',
-                    {
-                        method: "POST",
-                        dataType: "json",
-                        data: {
-                            'email': requestVotekeyEmail.val()
-                        },
-                        error: function (response) {
-                            if (response['responseJSON']['errors']['general'] === undefined) {
-                                return
-                            }
-
-                            requestVotekeyEmail.addClass('is-invalid');
-                            $('#request-votekey-email-feedback').text(response['responseJSON']['errors']['general']).show();
-                        },
-                        success: function (response) {
-                            offcanvasRequestVotekey.hide();
-
-                            requestVotekeyEmail.val('');
-                            requestVotekeyEmail.removeClass('is-invalid');
-                            $('#request-votekey-email-feedback').text('').hide();
-
-                            document.getElementById('successToast-text').innerText = response['message'];
-                            gSuccessToast.show();
-                        }
-                    }
-                );
-            });
-        });
-    </script>
-
-    <div id="offcanvasRequestVotekey" class="offcanvas offcanvas-start" data-bs-backdrop="static" tabindex="-1"
-         aria-labelledby="offcanvasRequestVotekeyLabel">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title"
-                id="offcanvasRequestVotekeyLabel"><?php echo $langMain['votekey-request long'] ?></h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-
-        <div class="offcanvas-body">
-            <div class="alert alert-warning"><?php echo $langMain['votekey-request note'] ?></div>
-
-            <div class="mb-3">
-                <label for="email">E-mail address</label>
-                <input id="request-votekey-email" type="text" class="form-control"/>
-                <div id="request-votekey-email-feedback" class="invalid-feedback"></div>
-            </div>
-
-            <button id="request-votekey" class="btn btn-primary"
-                    type="button"><?php echo $langMain['votekey-request send'] ?></button>
-        </div>
+<div id="offcanvasRequestVotekey" class="offcanvas offcanvas-start" data-bs-backdrop="static" tabindex="-1"
+     aria-labelledby="offcanvasRequestVotekeyLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title"
+            id="offcanvasRequestVotekeyLabel"><?php echo $langMain['votekey-request long'] ?></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
+
+    <div class="offcanvas-body">
+        <div class="alert alert-warning"><?php echo $langMain['votekey-request note'] ?></div>
+
+        <div class="mb-3">
+            <label for="email">E-mail address</label>
+            <input id="request-votekey-email" type="text" class="form-control"/>
+            <div id="request-votekey-email-feedback" class="invalid-feedback"></div>
+        </div>
+
+        <button id="request-votekey" class="btn btn-primary"
+                type="button"><?php echo $langMain['votekey-request send'] ?></button>
+    </div>
+</div>
 
 <?php if (NFW::i()->user['is_guest']): ?>
     <div class="w-640">
@@ -212,6 +76,157 @@ NFW::i()->registerResource('jquery.blockUI');
         </div>
     </div>
 <?php else: ?>
-    <input type="hidden" id="username"/>
-    <input type="hidden" id="votekey"/>
+    <div class="d-none">
+        <input type="hidden" id="username"/>
+        <div id="username-feedback"></div>
+        <input type="hidden" id="votekey"/>
+        <div id="votekey-feedback" class="invalid-feedback"></div>
+    </div>
 <?php endif; ?>
+
+<script type="text/javascript">
+    <?php ob_start(); ?>
+    const inputUsername = document.getElementById('username')
+    const scrollToError = inputUsername.offsetTop - 80;
+    const usernameFeedback = document.getElementById('username-feedback');
+    const inputVotekey = document.getElementById('votekey');
+    const votekeyFeedback = document.getElementById('votekey-feedback');
+
+    // Load saved username
+    const result = localStorage.getItem('votingUsername');
+    if (result) {
+        inputUsername.value = result;
+    }
+
+    // Applying DB state
+    <?php foreach ($storedVotes as $workID=>$vote): ?>
+    document.querySelector('button[data-role="vote"][data-work-id="<?php echo $workID?>"][data-vote-value="<?php echo $vote?>"]').classList.add("active");
+    <?php endforeach; ?>
+
+    document.querySelectorAll('button[data-role="vote"]').forEach((btn) => {
+        btn.onclick = async function () {
+            const workID = btn.getAttribute('data-work-id');
+            const username = inputUsername.value;
+            const votekey = inputVotekey.value;
+
+            let voteValue = parseInt(btn.getAttribute('data-vote-value'));
+            if (btn.classList.contains('active')) {
+                voteValue = 0;
+            }
+
+            inputUsername.classList.remove('is-valid', 'is-invalid');
+            usernameFeedback.className = 'd-none';
+            inputVotekey.classList.remove('is-valid', 'is-invalid');
+            votekeyFeedback.className = 'd-none';
+
+            let response = await fetch("/internal_api?action=vote", {
+                method: "POST",
+                body: JSON.stringify({
+                    workID: workID,
+                    vote: voteValue,
+                    username: username,
+                    votekey: votekey,
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            });
+
+            if (!response.ok) {
+                const resp = await response.json();
+                const errors = resp.errors;
+                let isScroll = false;
+
+                if (errors["general"] !== undefined && errors["general"] !== "") {
+                    gErrorToastText.innerText = errors["general"];
+                    gErrorToast.show();
+                }
+
+                if (errors["username"] !== undefined && errors["username"] !== "") {
+                    inputUsername.classList.add('is-invalid');
+                    usernameFeedback.innerText = errors["username"];
+                    usernameFeedback.className = 'invalid-feedback d-block';
+                    isScroll = true;
+                } else {
+                    inputUsername.classList.add('is-valid');
+                }
+
+                if (errors["votekey"] !== undefined && errors["votekey"] !== "") {
+                    inputVotekey.classList.add('is-invalid');
+                    votekeyFeedback.innerText = errors["votekey"];
+                    votekeyFeedback.className = 'invalid-feedback d-block';
+                    isScroll = true;
+                } else {
+                    inputVotekey.classList.add('is-valid');
+                }
+
+                if (isScroll) {
+                    window.scrollTo({top: scrollToError, behavior: "smooth"});
+                }
+
+                return;
+            }
+
+            document.querySelectorAll('button[data-role="vote"][data-work-id="' + workID + '"]').forEach((btn) => {
+                btn.classList.remove("active");
+            });
+
+            if (voteValue === 0) {
+                gAcceptedToast.hide();
+                gCanceledToast.show();
+            } else {
+                btn.classList.add("active");
+                gCanceledToast.hide();
+                gAcceptedToast.show();
+            }
+
+            // Save username for future use
+            localStorage.setItem('votingUsername', username);
+        };
+    });
+
+    <?php if (NFW::i()->user['is_guest']): ?>
+    // Requesting votekey
+    const requestVotekeyEmail = document.getElementById('request-votekey-email');
+    const requestVotekeyEmailFeedback = document.getElementById('request-votekey-email-feedback');
+    const offcanvasRequestVotekey = new bootstrap.Offcanvas('#offcanvasRequestVotekey');
+    document.getElementById('request-votekey').onclick = async function () {
+        requestVotekeyEmail.classList.remove('is-invalid');
+        requestVotekeyEmailFeedback.className = 'd-none';
+
+        let response = await fetch("/internal_api?action=requestVotekey&event_id=<?php echo $eventID?>", {
+            method: "POST",
+            body: JSON.stringify({
+                'email': requestVotekeyEmail.value
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        });
+
+        if (!response.ok) {
+            const resp = await response.json();
+            const errors = resp.errors;
+
+            if (errors["general"] !== undefined && errors["general"] !== "") {
+                requestVotekeyEmail.classList.add('is-invalid');
+                requestVotekeyEmailFeedback.innerText = errors["general"];
+                requestVotekeyEmailFeedback.className = 'invalid-feedback d-block';
+            }
+
+            return;
+        }
+
+        offcanvasRequestVotekey.hide();
+
+        requestVotekeyEmail.value = "";
+        requestVotekeyEmail.classList.remove('is-invalid');
+        requestVotekeyEmailFeedback.className = 'd-none';
+
+        const resp = await response.json();
+        gSuccessToastText.innerText = resp['message'];
+        gSuccessToast.show();
+    };
+    <?php endif; ?>
+    <?php NFWX::i()->mainBottomScript .= ob_get_clean(); ?>
+</script>

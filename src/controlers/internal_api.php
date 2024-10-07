@@ -26,8 +26,10 @@ switch ($_GET['action']) {
         NFWX::i()->jsonSuccess();
         break;
     case 'requestVotekey':
+        $req = json_decode(file_get_contents('php://input'));
+
         $CVotekeys = new votekeys();
-        if (!$CVotekeys->requestVotekey($_GET['event_id'], $_POST['email'])) {
+        if (!$CVotekeys->requestVotekey($_GET['event_id'], $req->email)) {
             NFWX::i()->jsonError(400, $CVotekeys->last_msg);
         }
 

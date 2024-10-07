@@ -60,12 +60,12 @@ $allowDelete = NFWX::i()->checkPermissions('works_comments', 'delete', array('wo
             const errors = resp.errors;
 
             if (errors["general"] !== undefined && errors["general"] !== "") {
-                document.getElementById('errorToast-text').innerText = errors["general"];
+                gErrorToastText.innerText = errors["general"];
                 gErrorToast.show();
             }
 
             if (errors["message"] !== undefined && errors["message"] !== "") {
-                messageInput.className = 'form-control is-invalid';
+                messageInput.classList.add('is-invalid');
                 messageFeedback.innerText = errors["message"];
                 messageFeedback.className = 'invalid-feedback d-block';
             }
@@ -74,7 +74,7 @@ $allowDelete = NFWX::i()->checkPermissions('works_comments', 'delete', array('wo
         }
 
         messageInput.value = '';
-        messageInput.className = 'form-control';
+        messageInput.classList.remove('is-invalid');
         messageFeedback.className = 'd-none';
         loadComments();
     }
