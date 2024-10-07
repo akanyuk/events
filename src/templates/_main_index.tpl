@@ -105,10 +105,6 @@ function displayIndexEvent($record, $layout = ""): void {
 }
 
 function displayCurrenEventStatus($record): void {
-    if (NFW::i()->user['is_guest']) {
-        return;
-    }
-
     $langMain = NFW::i()->getLang("main");
     ?>
     <div id="vote-now-container-<?php echo $record['id'] ?>" style="display: none;">

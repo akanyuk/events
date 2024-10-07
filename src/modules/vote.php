@@ -327,7 +327,7 @@ class vote extends active_record {
             return false;
         }
 
-        return $this->doVote($CWorks->record['id'], $CEvents['id'], $votekey, $vote, $CEvents->votingOptions(), NFW::i()->user['username']);
+        return $this->doVote($CWorks->record['id'], $CEvents->record['id'], $votekey, $vote, $CEvents->votingOptions(), NFW::i()->user['username']);
     }
 
     function actionAdminAdmin() {

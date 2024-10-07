@@ -2,7 +2,7 @@
 
 function login_required($title, $info) {
     NFW::i()->registerResource('jquery.activeForm');
-    $lang_users = NFW::i()->getLang('users');
+    $langUsers = NFW::i()->getLang('users');
 
     ob_start();
     ?>
@@ -28,27 +28,28 @@ function login_required($title, $info) {
                     <button name="login" class="btn btn-default"
                             type="submit"><?php echo NFW::i()->lang['GoIn'] ?></button>
                     &nbsp;<a
-                            href="<?php echo NFW::i()->base_path ?>users?action=restore_password"><?php echo $lang_users['Restore password'] ?></a><br/>
+                        href="<?php echo NFW::i()->base_path ?>users?action=restore_password"><?php echo $langUsers['Restore password'] ?></a><br/>
                 </div>
             </div>
             <br/>
             <div class="form-group">
                 <div class="col-md-7 col-md-offset-1">
                     <a class="btn btn-primary"
-                       href="<?php echo NFW::i()->base_path ?>users?action=register"><?php echo $lang_users['Registration'] ?></a>
+                       href="<?php echo NFW::i()->base_path ?>users?action=register"><?php echo $langUsers['Registration'] ?></a>
                 </div>
             </div>
             <div class="form-group">
                 <div class="col-md-7 col-md-offset-1">
                     <a href="<?php echo NFW::i()->base_path ?>sceneid?action=performAuth"><img
-                                src="<?php echo NFW::i()->assets("main/SceneID_Icon_200x32.png") ?>"
-                                alt="Sign in with SceneID"/></a>
+                            src="<?php echo NFW::i()->assets("main/SceneID_Icon_200x32.png") ?>"
+                            alt="Sign in with SceneID"/></a>
                 </div>
             </div>
         </fieldset>
     </form>
     <?php
     NFW::i()->assign('page', array(
+        'path' => '/', // Preventing `index` page
         'title' => $title,
         'content' => ob_get_clean(),
     ));

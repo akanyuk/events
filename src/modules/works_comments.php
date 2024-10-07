@@ -6,7 +6,7 @@
 class works_comments extends active_record {
     var $attributes = array(
         'work_id' => array('type' => 'int', 'desc' => 'Work ID', 'required' => true),
-        'message' => array('type' => 'textarea', 'desc' => 'Текст', 'required' => true, 'maxlength' => 2048),
+        'message' => array('type' => 'textarea', 'desc' => 'Message', 'desc_ru' => 'Текст', 'required' => true, 'maxlength' => 2048),
     );
 
     protected function load($id) {

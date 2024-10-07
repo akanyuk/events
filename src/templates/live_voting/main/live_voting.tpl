@@ -3,96 +3,41 @@
  * @var array $event
  * @var string $title
  */
+
+// linter related
+ob_start();
+echo '<div class="live-voting"><div class="btn-group"></div></div>';
+ob_end_flush()
+
 ?>
 <style>
-    @media (max-width: 768px) {
-        H1 {
-            margin-top: 0;
-            font-size: 16px;
-        }
-    }
-
-    .live-voting {
-        background-color: #000;
-        color: #fff;
-        margin-bottom: 10px;
-    }
-
-    .live-voting > .inner {
-        padding: 2px;
-        display: flex;
-        align-items: center;
-    }
-
-    .live-voting > .inner DIV {
-        padding: 10px 20px;
-    }
-
-    .live-voting IMG {
-        max-width: 256px;
-    }
-
-    .btn-group-live-voting A.btn {
-        font-size: 16px;
-    }
-
-    .btn-group-live-voting .btn-default {
-        color: #fff;
-        background-color: #1f2a20;
-        border-color: #63745b;
-    }
-
-    .btn-group-live-voting .btn-primary.active {
-        color: #000;
-        background-color: #beeab8;
-        border-color: #63745b;
+    .live-voting .btn-group {
+        grid-template-columns: auto auto auto auto auto auto auto auto auto auto;
     }
 
     @media (max-width: 768px) {
-        .live-voting IMG {
-            max-width: 112px;
-        }
-
-        .btn-group-live-voting A.btn {
-            padding: 1px 3px;
-            font-size: 12px;
-            line-height: 1.8;
+        .live-voting .btn-group {
+            grid-template-columns: auto auto auto auto auto;
         }
     }
 </style>
 
-<div style="text-align: center">
-    <h1><?php echo $title ?></h1>
-</div>
+<div class="mx-auto w-640">
+    <h1 class="fs-3 mb-4"><?php echo $title ?></h1>
 
-<div class="row">
-    <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
-        <div id="coming-announce" class="live-voting" style="display: none;">
-            <div class="inner">
-                <div>
-                    <h4 id="title"></h4>
-                    <p id="description"></p>
-                </div>
-            </div>
-        </div>
+    <div id="coming-announce" class="alert alert-info mb-4" style="display: none;">
+        <h4 id="title"></h4>
+        <p id="description"></p>
+    </div>
 
-        <div id="current-announce" class="live-voting" style="display: none;">
-            <div class="inner">
-                <div>
-                    <h4 id="title"></h4>
-                </div>
-            </div>
-        </div>
+    <div id="current-announce" class="alert alert-info mb-4" style="display: none;">
+        <h4 id="title"></h4>
+    </div>
 
-        <div id="live-voting-works"></div>
+    <div id="live-voting-works" class="mb-4"></div>
 
-        <div id="end-announce" class="live-voting" style="display: none;">
-            <div class="inner">
-                <div>
-                    <h4 id="title"></h4>
-                </div>
-            </div>
-        </div>
+    <div id="end-announce" class="alert alert-info" style="display: none;">
+        <h4 id="title"></h4>
     </div>
 </div>
 
@@ -135,9 +80,11 @@
 
     function stateHash(state) {
         let works = [];
-        state['works'].forEach((work) => {
-            works.push(work["id"]);
-        });
+        if (state['works'] !== undefined) {
+            state['works'].forEach((work) => {
+                works.push(work["id"]);
+            });
+        }
 
         return JSON.stringify({
             "works": works,
@@ -181,54 +128,54 @@
         worksContainer.innerHTML = "";
 
         if (state['works'] === undefined) {
-            return
+            return;
         }
 
         state['works'].forEach((work) => {
-            let title = document.createElement('h4');
+            let liveVoting = document.createElement('div');
+            liveVoting.className = "live-voting mb-5";
+
+            let title = document.createElement('h2');
+            title.className = "mb-3";
             title.innerText = work["position"] + ". " + work["title"];
-
-            let div = document.createElement('div');
-            div.appendChild(title);
-
-            let inner = document.createElement('div');
-            inner.className = "inner";
+            liveVoting.appendChild(title);
 
             if (work['screenshot']) {
                 let screenshot = document.createElement('img');
                 screenshot.setAttribute('src', work['screenshot']);
-                inner.appendChild(screenshot);
+                screenshot.className = "mb-3 w-100";
+                liveVoting.appendChild(screenshot);
             }
 
-            inner.appendChild(div);
-
-            let liveVoting = document.createElement('div');
-            liveVoting.className = "live-voting";
-            liveVoting.appendChild(inner);
 
             if (work['voting_options']) {
                 let btnGroup = document.createElement('div');
-                btnGroup.className = "btn-group btn-group-live-voting btn-group-justified";
+                btnGroup.className = "d-grid btn-group gap-1";
                 btnGroup.setAttribute("role", "group");
 
                 work['voting_options'].forEach((i) => {
                     let btn = document.createElement('a');
                     btn.setAttribute("type", "button");
-                    btn.className = work['voted'] === i ? "btn btn-primary active" : "btn btn-default";
+
+                    btn.className = "btn btn-outline-success btn-vote";
+                    if (work['voted'] === i) {
+                    btn.classList.add("active");
+                    }
+
                     btn.innerHTML = i.toString();
                     btn.onclick = function () {
-                        const isActive = btn.className === "btn btn-primary active";
+                        const isActive = btn.classList.contains("active");
 
                         for (const b of btnGroup.children) {
-                            b.className = "btn btn-default";
+                            b.classList.remove("active");
                         }
 
                         let voteValue = i;
                         if (isActive) {
-                            btn.className = "btn btn-default";
+                            btn.classList.remove("active");
                             voteValue = 0;
                         } else {
-                            btn.className = "btn btn-primary active";
+                            btn.classList.add("active");
                         }
 
                         isSendingVote = true;
@@ -241,7 +188,7 @@
                             headers: {
                                 "Content-type": "application/json; charset=UTF-8"
                             }
-                        }).then(response => {
+                        }).then(function() {
                             isSendingVote = false;
                         });
                     };
@@ -255,34 +202,5 @@
         });
 
         worksContainer.style.display = "block";
-    }
-
-    function updateVotingOpen(values) {
-        const voteNowContainer = document.getElementById("vote-now-container");
-        const voteNowBody = document.getElementById("vote-now-body");
-
-        if (values.length === 0) {
-            voteNowContainer.style.display = "none";
-            return
-        }
-
-        voteNowBody.innerHTML = "";
-        values.forEach((compo) => {
-            const title = document.createElement('a');
-            title.innerText = compo['title']
-            title.href = compo['url']
-
-            const status = document.createElement('div');
-            status.innerText = compo['statusText']
-            status.className = "text-danger"
-
-            const item = document.createElement('div');
-            item.appendChild(title);
-            item.appendChild(status);
-
-            voteNowBody.appendChild(item);
-        })
-
-        voteNowContainer.style.display = "block";
     }
 </script>

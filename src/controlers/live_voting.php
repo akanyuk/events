@@ -16,6 +16,8 @@ if (!$CEvents->loadByAlias($eventAlias)) {
     NFW::i()->stop(404);
 }
 
+NFW::i()->registerFunction('tmb');
+
 $pageTitle = htmlspecialchars($CEvents->record['title']) . " / Live voting";
 
 NFWX::i()->main_og['title'] = $pageTitle;
