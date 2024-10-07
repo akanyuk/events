@@ -9,26 +9,6 @@ class works_comments extends active_record {
         'message' => array('type' => 'textarea', 'desc' => 'Текст', 'required' => true, 'maxlength' => 2048),
     );
 
-    static function upsertCommentByVotekey(int $votekeyID, int $workID, string $message, string $username) {
-        NFW::i()->db->query_build(array(
-            'DELETE' => 'works_comments',
-            'WHERE' => 'votekey_id=' . $votekeyID . ' AND work_id=' . $workID
-        ));
-
-        $message = trim($message);
-        if (strlen($message) == 0) {
-            return;
-        }
-
-        $poster_ip = logs::get_remote_address();
-        $now = time();
-        NFW::i()->db->query_build(array(
-            'INSERT' => '`work_id`, `message`, `votekey_id`, `posted`, `posted_username`, `poster_ip`, `posted_by`',
-            'INTO' => 'works_comments',
-            'VALUES' => $workID . ',\'' . NFW::i()->db->escape($message) . '\'' . ', ' . $votekeyID . ', ' . $now . ', \'' . NFW::i()->db->escape($username) . '\', \'' . $poster_ip . '\', ' . NFW::i()->user['id']
-        ));
-    }
-
     protected function load($id) {
         $query = array(
             'SELECT' => 'wc.*, c.event_id',
@@ -60,7 +40,7 @@ class works_comments extends active_record {
         return $this->record;
     }
 
-    public function loadCounters(&$works) {
+    public function loadCounters(&$works): bool {
         $works_ids = $counters = array();
         foreach ($works as $work) {
             $works_ids[] = $work['id'];
@@ -80,9 +60,11 @@ class works_comments extends active_record {
         }
 
         foreach ($works as &$work) {
-            $work['comments_count'] = isset($counters[$work['id']]) ? $counters[$work['id']] : 0;
+            $work['comments_count'] = $counters[$work['id']] ?? 0;
         }
         unset($work);
+
+        return true;
     }
 
     public function getRecords($options = array()) {
@@ -158,6 +140,48 @@ class works_comments extends active_record {
         return $records;
     }
 
+    function workComments(int $workID) {
+        $this->error_report_type = 'active_form';
+
+        $CWorks = new works($workID);
+        if (!$CWorks->record['id']) {
+            $this->error($CWorks->last_msg, __FILE__, __LINE__);
+            return false;
+        }
+
+        NFW::i()->registerFunction('friendly_date');
+        $langMain = NFW::i()->getLang('main');
+        $comments = array();
+        foreach ($this->getRecords(array('filter' => array('work_id' => $CWorks->record['id']))) as $comment) {
+            $comments[] = array(
+                'id' => $comment['id'],
+                'posted_str' => friendly_date($comment['posted'], $langMain) . ' ' . date('H:i', $comment['posted']) . ' by ' . htmlspecialchars($comment['posted_username']),
+                'message' => nl2br(htmlspecialchars($comment['message'])),
+            );
+        }
+
+        return $comments;
+    }
+
+    function addComment(int $workID, string $message): bool {
+        $CWorks = new works($workID);
+        if (!$CWorks->record['id']) {
+            $this->error($CWorks->last_msg, __FILE__, __LINE__);
+            return false;
+        }
+
+        $this->formatAttributes([
+            'work_id' => $workID,
+            'message' => $message,
+        ]);
+        $this->errors = $this->validate();
+        if (!empty($this->errors)) {
+            return false;
+        }
+
+        return $this->save();
+    }
+
     function displayLatestComments() {
         $comments = $this->getRecords(array('records_on_page' => 10, 'ORDER BY' => 'wc.id DESC'));
         if (count($comments) == 0) {
@@ -205,60 +229,5 @@ class works_comments extends active_record {
             'gComments' => $gComments,
             'screenshots' => $screenshots,
         ), '_display_latest_comments');
-    }
-
-    function actionMainCommentsList() {
-        $this->error_report_type = 'active_form';
-
-        $CWorks = new works($_GET['work_id']);
-        if (!$CWorks->record['id']) {
-            $this->error($CWorks->last_msg, __FILE__, __LINE__);
-            return false;
-        }
-
-        NFW::i()->registerFunction('friendly_date');
-        $lang_main = NFW::i()->getLang('main');
-        $comments = array();
-        foreach ($this->getRecords(array('filter' => array('work_id' => $CWorks->record['id']))) as $comment) {
-            $comments[] = array(
-                'id' => $comment['id'],
-                'posted_str' => friendly_date($comment['posted'], $lang_main) . ' ' . date('H:i', $comment['posted']) . ' by ' . htmlspecialchars($comment['posted_username']),
-                'message' => nl2br(htmlspecialchars($comment['message'])),
-            );
-        }
-
-        NFW::i()->renderJSON(array('result' => 'success', 'comments' => $comments));
-    }
-
-    function actionMainAddComment() {
-        $this->error_report_type = 'active_form';
-
-        $CWorks = new works($_POST['work_id']);
-        if (!$CWorks->record['id']) {
-            $this->error($CWorks->last_msg, __FILE__, __LINE__);
-            return false;
-        }
-
-        $this->formatAttributes($_POST);
-        $errors = $this->validate();
-
-        if (!empty($errors)) {
-            NFW::i()->renderJSON(array('result' => 'error', 'errors' => $errors));
-        }
-
-        $this->save();
-        if ($this->error) {
-            NFW::i()->renderJSON(array('result' => 'error', 'errors' => array('general' => $this->last_msg)));
-        }
-
-        NFW::i()->renderJSON(array('result' => 'success'));
-    }
-
-    function actionMainDelete() {
-        $this->error_report_type = 'plain';
-        if (!$this->load($_POST['record_id'])) return false;
-
-        $this->delete();
-        NFW::i()->stop('success');
     }
 }

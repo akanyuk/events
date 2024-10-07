@@ -23,11 +23,6 @@ NFW::i()->registerResource('jquery.blockUI');
 ?>
     <script type="text/javascript">
         $(document).ready(function () {
-            const errorToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('errorToast'));
-            const successToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('successToast'));
-            const acceptedToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('acceptedToast'));
-            const canceledToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('canceledToast'));
-
             const scrollToError = document.getElementById('username').offsetTop - 80;
             const inputUsername = $('input[id="username"]');
             const usernameFeedback = $('#username-feedback');
@@ -80,7 +75,7 @@ NFW::i()->registerResource('jquery.blockUI');
 
                     if (errors["general"] !== undefined && errors["general"] !== "") {
                         document.getElementById('errorToast-text').innerText = errors["general"];
-                        errorToast.show();
+                        gErrorToast.show();
                     }
 
                     if (errors["username"] !== undefined && errors["username"] !== "") {
@@ -109,12 +104,12 @@ NFW::i()->registerResource('jquery.blockUI');
                 $('button[data-role="vote"][data-work-id="' + workID + '"]').removeClass('active');
 
                 if (voteValue === 0) {
-                    acceptedToast.hide();
-                    canceledToast.show();
+                    gAcceptedToast.hide();
+                    gCanceledToast.show();
                 } else {
                     $(this).addClass('active');
-                    canceledToast.hide();
-                    acceptedToast.show();
+                    gCanceledToast.hide();
+                    gAcceptedToast.show();
                 }
 
                 // Save username for future use
@@ -151,40 +146,13 @@ NFW::i()->registerResource('jquery.blockUI');
                             $('#request-votekey-email-feedback').text('').hide();
 
                             document.getElementById('successToast-text').innerText = response['message'];
-                            successToast.show();
+                            gSuccessToast.show();
                         }
                     }
                 );
             });
         });
     </script>
-    <div class="toast-container position-fixed top-0 start-50 translate-middle-x" style="top: 44px !important;">
-        <div id="acceptedToast" class="toast text-bg-success"
-             role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="800">
-            <div class="toast-body text-center">Accepted</div>
-        </div>
-
-        <div id="canceledToast" class="toast text-bg-info"
-             role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="800">
-            <div class="toast-body text-center">Cancelled</div>
-        </div>
-
-        <div id="successToast" class="toast text-bg-success"
-             role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="2000">
-            <div class="d-flex">
-                <div id="successToast-text" class="toast-body"></div>
-                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-        </div>
-
-        <div id="errorToast" class="toast text-bg-danger"
-             role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="2000">
-            <div class="d-flex">
-                <div id="errorToast-text" class="toast-body"></div>
-                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-        </div>
-    </div>
 
     <div id="offcanvasRequestVotekey" class="offcanvas offcanvas-start" data-bs-backdrop="static" tabindex="-1"
          aria-labelledby="offcanvasRequestVotekeyLabel">

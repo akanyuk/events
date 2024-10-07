@@ -180,8 +180,6 @@ $worksComments = NFW::i()->fetch(NFW::i()->findTemplatePath('works_comments/main
 $page['content'] = NFW::i()->fetch(NFW::i()->findTemplatePath('competitions/main/record.tpl'), [
     'announcement' => $CCompetitions->record['announcement'],
     'competitions' => $competitions,
-    'competitionsGroups' => $CCompetitionsGroups->getRecords($CEvents->record['id']),
-    'competitions' => $CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id']))),
     'competitionsGroups' => $competitionsGroups,
     'competitionID' => $CCompetitions->record['id'],
     'hideWorksCount' => $CEvents->record['hide_works_count'],

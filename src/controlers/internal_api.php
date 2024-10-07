@@ -43,6 +43,48 @@ switch ($_GET['action']) {
         }
         NFWX::i()->jsonSuccess();
         break;
+    case 'comments_list':
+        $CWorksComments = new works_comments();
+        $result = $CWorksComments->workComments(intval($_GET['work_id']));
+        if ($result === false) {
+            NFWX::i()->jsonError(400, $CWorksComments->last_msg);
+        }
+        NFWX::i()->jsonSuccess(['comments' => $result]);
+        break;
+    case 'add_comment':
+        if (!NFWX::i()->checkPermissions('works_comments', 'add_comment')) {
+            NFWX::i()->jsonError(403, 'No permissions');
+        }
+
+        $req = json_decode(file_get_contents('php://input'));
+
+        $CWorksComments = new works_comments();
+        if (!$CWorksComments->addComment($req->workID, $req->message)) {
+            NFWX::i()->jsonError(400, $CWorksComments->errors, $CWorksComments->last_msg);
+        }
+        NFWX::i()->jsonSuccess();
+        break;
+    case 'delete_comment':
+        $req = json_decode(file_get_contents('php://input'));
+
+        $CWorksComments = new works_comments($req->commentID);
+        if (!$CWorksComments->record['id']) {
+            NFWX::i()->jsonError(400, $CWorksComments->last_msg);
+        }
+
+        if (!NFWX::i()->checkPermissions(
+            'works_comments',
+            'delete',
+            ['work_id' => $CWorksComments->record['work_id']],
+        )) {
+            NFWX::i()->jsonError(403, 'No permissions');
+        }
+
+        if (!$CWorksComments->delete()) {
+            NFWX::i()->jsonError(400, $CWorksComments->last_msg);
+        }
+        NFWX::i()->jsonSuccess();
+        break;
     default:
         NFWX::i()->jsonError(400, "Unknown action");
 }
@@ -61,7 +103,7 @@ function liveVoting(int $eventID, $state) {
         return $a['position'] > $b['position'];
     });
 
-    $state['currentAnnounce'] = 'NOW: '.$state['works'][0]['competition_title'];
+    $state['currentAnnounce'] = 'NOW: ' . $state['works'][0]['competition_title'];
 
     // Fetching already voted
     $votekey = votekey::findOrCreateVotekey($eventID, NFW::i()->user['email']);

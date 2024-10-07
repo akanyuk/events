@@ -12,7 +12,7 @@ class NFWX extends NFW {
 
     var array $main_og = array();             # Open Graph meta tags
     var string $mainLayoutRightContent = "";   # The content of the right block of the page. If not specified, the right block is not displayed
-    var bool $disableBlockUI = false;
+    var string $mainBottomScript = "";
 
     function __construct($init_cfg = null) {
         // Глобально кодировка для mb-операций
@@ -23,11 +23,6 @@ class NFWX extends NFW {
 
         parent::__construct($init_cfg);
         self::$_ext_instance = $this;
-
-        $this->resources_depends['main'] = array(
-            'resources' => array(
-                'jquery',
-            ));
 
         // Preload all available settings
         $CSettings = new settings();
@@ -62,9 +57,6 @@ class NFWX extends NFW {
 
         // Voting actions
         if ($module == 'vote' && in_array($action, array('request_votekey', 'add_vote'))) return true;
-
-        // (re) load comments list
-        if ($module == 'works_comments' && $action == 'comments_list') return true;
 
         // Adding works comments - all registered
         if ($module == 'works_comments' && $action == 'add_comment') {
