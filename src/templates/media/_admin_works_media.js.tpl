@@ -111,11 +111,12 @@ $(function () {
             tpl = tpl.replace(/%iconsrc%/g, 'src="' + data.icons['64x64'] + '"');
         }
 
-        tpl = tpl.replace(/%btn-screenshot%/g, data['mediaInfo']['screenshot'] ? 'btn-info active' : 'btn-default');
-        tpl = tpl.replace(/%btn-audio%/g, data['mediaInfo']['audio'] ? 'btn-info active' : 'btn-default');
-        tpl = tpl.replace(/%btn-image%/g, data['mediaInfo']['image'] ? 'btn-info active' : 'btn-default');
-        tpl = tpl.replace(/%btn-voting%/g, data['mediaInfo']['voting'] ? 'btn-info active' : 'btn-default');
-        tpl = tpl.replace(/%btn-release%/g, data['mediaInfo']['release'] ? 'btn-info active' : 'btn-default');
+        const mediaInfo = data['mediaInfo'] === undefined ? [] : data['mediaInfo'];
+        tpl = tpl.replace(/%btn-screenshot%/g, mediaInfo['screenshot'] ? 'btn-info active' : 'btn-default');
+        tpl = tpl.replace(/%btn-audio%/g, mediaInfo['audio'] ? 'btn-info active' : 'btn-default');
+        tpl = tpl.replace(/%btn-image%/g, mediaInfo['image'] ? 'btn-info active' : 'btn-default');
+        tpl = tpl.replace(/%btn-voting%/g, mediaInfo['voting'] ? 'btn-info active' : 'btn-default');
+        tpl = tpl.replace(/%btn-release%/g, mediaInfo['release'] ? 'btn-info active' : 'btn-default');
 
         mediaContainer.append(tpl);
     };
