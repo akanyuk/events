@@ -1,52 +1,80 @@
 <?php
 
 function login_required($title, $info) {
-    NFW::i()->registerResource('jquery.activeForm');
     $langUsers = NFW::i()->getLang('users');
-
     ob_start();
     ?>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('form[id="login"]').activeForm({
-                success: function () {
-                    window.location.reload();
-                }
-            });
-        });
-    </script>
-    <form id="login" class="form-horizontal">
+    <form onsubmit="loginRequiredFormSubmit(); return false;">
         <fieldset>
             <legend><?php echo $title ?></legend>
             <div class="alert alert-info"><?php echo $info ?></div>
 
-            <?php echo active_field(array('name' => 'username', 'desc' => NFW::i()->lang['Login'], 'labelCols' => 1, 'inputCols' => 3)) ?>
-            <?php echo active_field(array('name' => 'password', 'type' => 'password', 'desc' => NFW::i()->lang['Password'], 'labelCols' => 1, 'inputCols' => 3)) ?>
+            <div class="mx-left col-sm-6 col-md-4 col-lg-3 mb-3">
+                <label for="login-required-username"><?php echo NFW::i()->lang['Login'] ?></label>
+                <input type="text" name="username" id="login-required-username" class="form-control " maxlength="64">
+            </div>
 
-            <div class="form-group">
-                <div class="col-md-7 col-md-offset-1">
-                    <button name="login" class="btn btn-default"
-                            type="submit"><?php echo NFW::i()->lang['GoIn'] ?></button>
-                    &nbsp;<a
-                        href="<?php echo NFW::i()->base_path ?>users?action=restore_password"><?php echo $langUsers['Restore password'] ?></a><br/>
-                </div>
+            <div class="mx-left col-sm-6 col-md-4 col-lg-3 mb-3">
+                <label for="login-required-password"><?php echo NFW::i()->lang['Password'] ?></label>
+                <input type="password" name="password" id="login-required-password" class="form-control "
+                       maxlength="64">
+                <div id="login-required-feedback" class="invalid-feedback"></div>
             </div>
-            <br/>
-            <div class="form-group">
-                <div class="col-md-7 col-md-offset-1">
-                    <a class="btn btn-primary"
-                       href="<?php echo NFW::i()->base_path ?>users?action=register"><?php echo $langUsers['Registration'] ?></a>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="col-md-7 col-md-offset-1">
-                    <a href="<?php echo NFW::i()->base_path ?>sceneid?action=performAuth"><img
-                            src="<?php echo NFW::i()->assets("main/SceneID_Icon_200x32.png") ?>"
-                            alt="Sign in with SceneID"/></a>
-                </div>
+
+            <div class="mb-3">
+                <button type="submit" id="login-required-btn"
+                        class="btn btn-primary"><?php echo NFW::i()->lang['GoIn'] ?></button>
             </div>
         </fieldset>
     </form>
+
+    <div class="mb-3">
+        <a href="<?php echo NFW::i()->base_path ?>users?action=restore_password"><?php echo $langUsers['Restore password'] ?></a>
+    </div>
+
+    <div class="mb-3">
+        <a href="<?php echo NFW::i()->base_path ?>users?action=register"><?php echo $langUsers['Registration'] ?></a>
+    </div>
+
+    <div class="mb-5">
+        <a href="<?php echo NFW::i()->base_path ?>sceneid?action=performAuth"><img
+                src="<?php echo NFW::i()->assets("main/SceneID_Icon_200x32.png") ?>"
+                alt="Sign in with SceneID"/></a>
+    </div>
+    <script type="text/javascript">
+        const loginRequiredUsername = document.getElementById("login-required-username");
+        const loginRequiredPassword = document.getElementById("login-required-password");
+        const loginRequiredFeedback = document.getElementById("login-required-feedback");
+        loginRequiredFormSubmit = async function () {
+            let response = await fetch("?action=login", {
+                method: "POST",
+                body: JSON.stringify({
+                    username: loginRequiredUsername.value,
+                    password: loginRequiredPassword.value
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            });
+
+            if (!response.ok) {
+                const resp = await response.json();
+                const errors = resp.errors;
+
+                loginRequiredUsername.classList.add('is-invalid');
+                loginRequiredPassword.classList.add('is-invalid');
+
+                if (errors["general"] !== undefined && errors["general"] !== "") {
+                    loginRequiredFeedback.innerText = errors["general"];
+                    loginRequiredFeedback.className = 'invalid-feedback d-block';
+                }
+
+                return;
+            }
+
+            window.location.reload();
+        }
+    </script>
     <?php
     NFW::i()->assign('page', array(
         'path' => '/', // Preventing `index` page

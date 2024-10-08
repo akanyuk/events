@@ -17,6 +17,8 @@ if (NFW::i()->user['is_guest']) {
     $path = "upload";
 
     if ($event !== false) {
+        NFW::i()->registerFunction('tmb');
+
         $pageTitle = htmlspecialchars($event['title'])." / ".$pageTitle;
         $uploadLegend = htmlspecialchars($event['title'])." / ".$uploadLegend;
         $path .= "/".$event['alias'];

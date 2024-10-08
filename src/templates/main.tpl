@@ -241,12 +241,12 @@ $langLinksXs = array(
         <div class="offcanvas-body">
             <form onsubmit="loginFormSubmit(); return false;">
                 <div class="mx-left col-sm-6 col-md-4 col-lg-3 mb-3">
-                    <label for="login-username"><?php echo $langMain['voting name'] ?></label>
+                    <label for="login-username"><?php echo NFW::i()->lang['Login'] ?></label>
                     <input type="text" name="username" id="login-username" class="form-control " maxlength="64">
                 </div>
 
                 <div class="mx-left col-sm-6 col-md-4 col-lg-3 mb-3">
-                    <label for="login-password"><?php echo $langMain['voting name'] ?></label>
+                    <label for="login-password"><?php echo NFW::i()->lang['Password'] ?></label>
                     <input type="password" name="password" id="login-password" class="form-control " maxlength="64">
                     <div id="login-feedback" class="invalid-feedback"></div>
                 </div>
