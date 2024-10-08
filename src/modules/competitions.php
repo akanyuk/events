@@ -119,6 +119,14 @@ class competitions extends active_record {
     }
 
     protected function load($id, $options = array()) {
+        if ($id) {
+            $where = ['c.id=' . intval($id)];
+        } else {
+            $where = ['c.alias="' . NFW::i()->db->escape($options['alias']).'"'];
+            if ($options['event_id']) {
+                $where[] = 'c.event_id=' . $options['event_id'];
+            }
+        }
         $query = array(
             'SELECT' => 'c.*, e.title AS event_title, e.alias AS event_alias',
             'FROM' => $this->db_table . ' AS c',
@@ -128,7 +136,7 @@ class competitions extends active_record {
                     'ON' => 'c.event_id=e.id'
                 ),
             ),
-            'WHERE' => $id ? 'c.id=' . intval($id) : 'c.alias="' . NFW::i()->db->escape($options['alias']) . '" AND c.event_id=' . $options['event_id']
+            'WHERE' => implode(' AND ', $where),
         );
         if (!$result = NFW::i()->db->query_build($query)) {
             $this->error('Unable to fetch record', __FILE__, __LINE__, NFW::i()->db->error());
@@ -148,7 +156,7 @@ class competitions extends active_record {
         return $this->record;
     }
 
-    public function loadByAlias($alias, $event_id) {
+    public function loadByAlias($alias, $event_id = 0) {
         return $this->load(false, array('alias' => urldecode($alias), 'event_id' => $event_id));
     }
 

@@ -102,28 +102,28 @@ class works extends active_record {
         $record['screenshot'] = false;
         $record['voting_files'] = $record['release_files'] = $record['audio_files'] = $record['image_files'] = [];
 
-        $media_info = NFW::i()->unserializeArray($record['media_info']);
+        $record['media_info_db'] = NFW::i()->unserializeArray($record['media_info']);
         $record['media_info'] = array();
         foreach ($record['attachments'] as $a) {
             $a['is_screenshot'] = $a['is_voting'] = $a['is_image'] = $a['is_audio'] = $a['is_release'] = false;
 
-            if (isset($media_info[$a['id']]['screenshot']) && $media_info[$a['id']]['screenshot']) {
+            if (isset($record['media_info_db'][$a['id']]['screenshot']) && $record['media_info_db'][$a['id']]['screenshot']) {
                 $record['screenshot'] = $a;
                 $a['is_screenshot'] = true;
             }
-            if (isset($media_info[$a['id']]['voting']) && $media_info[$a['id']]['voting']) {
+            if (isset($record['media_info_db'][$a['id']]['voting']) && $record['media_info_db'][$a['id']]['voting']) {
                 $record['voting_files'][] = $a;
                 $a['is_voting'] = true;
             }
-            if (isset($media_info[$a['id']]['image']) && $media_info[$a['id']]['image']) {
+            if (isset($record['media_info_db'][$a['id']]['image']) && $record['media_info_db'][$a['id']]['image']) {
                 $record['image_files'][] = $a;
                 $a['is_image'] = true;
             }
-            if (isset($media_info[$a['id']]['audio']) && $media_info[$a['id']]['audio']) {
+            if (isset($record['media_info_db'][$a['id']]['audio']) && $record['media_info_db'][$a['id']]['audio']) {
                 $record['audio_files'][] = $a;
                 $a['is_audio'] = true;
             }
-            if (isset($media_info[$a['id']]['release']) && $media_info[$a['id']]['release']) {
+            if (isset($record['media_info_db'][$a['id']]['release']) && $record['media_info_db'][$a['id']]['release']) {
                 $record['release_files'][] = $a;
                 $a['is_release'] = true;
             }
