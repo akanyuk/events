@@ -102,7 +102,7 @@ $(function () {
         tpl = tpl.replace(/%url%/g, data.url);
         tpl = tpl.replace(/%comment%/g, data.comment);
         tpl = tpl.replace(/%posted%/g, data.posted);
-        tpl = tpl.replace(/%posted_username%/g, data.posted_username);
+        tpl = tpl.replace(/%posted_username%/g, data['posted_username']);
         tpl = tpl.replace(/%posted_str%/g, formatDateTime(data.posted, true, true));
 
         if (data.type === 'image') {
@@ -110,6 +110,12 @@ $(function () {
         } else {
             tpl = tpl.replace(/%iconsrc%/g, 'src="' + data.icons['64x64'] + '"');
         }
+
+        tpl = tpl.replace(/%btn-screenshot%/g, data['mediaInfo']['screenshot'] ? 'btn-info active' : 'btn-default');
+        tpl = tpl.replace(/%btn-audio%/g, data['mediaInfo']['audio'] ? 'btn-info active' : 'btn-default');
+        tpl = tpl.replace(/%btn-image%/g, data['mediaInfo']['image'] ? 'btn-info active' : 'btn-default');
+        tpl = tpl.replace(/%btn-voting%/g, data['mediaInfo']['voting'] ? 'btn-info active' : 'btn-default');
+        tpl = tpl.replace(/%btn-release%/g, data['mediaInfo']['release'] ? 'btn-info active' : 'btn-default');
 
         mediaContainer.append(tpl);
     };
@@ -246,7 +252,6 @@ $(function () {
                 method: "POST",
                 dataType: "json",
                 data: {
-                    'target': $(this).data('target'),
                     'file_id': zxScrDialog.data('fileID'),
                     'record_id': <?php echo $owner_id?>,
                     'border_color': borderColor
@@ -260,7 +265,7 @@ $(function () {
                 },
                 success: function (response) {
                     zxScrDialog.modal("hide");
-                    mediaContainer.appendRow(response);
+                    response.forEach((item) => mediaContainer.appendRow(item));
                 }
             },
         );
