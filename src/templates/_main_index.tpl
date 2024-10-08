@@ -63,20 +63,22 @@ function displayIndexEvent($record, $layout = ""): void {
         case 'current':
             ?>
             <div class="row mb-4 gy-4">
-                <div class="col-sm-12 col-md-4">
+                <div class="col-md-4">
                     <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>">
                         <img class="w-100" alt=""
                              src="<?php echo $record['preview_img_large'] ?: NFW::i()->assets('main/current-event-large.png') ?>"/>
                     </a>
                 </div>
-                <div class="col-sm-12 col-md-8">
-                    <h2>
-                        <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><?php echo htmlspecialchars($record['title']) ?></a>
-                    </h2>
-                    <p class="h5"><?php echo $record['dates_desc'] ?>
-                        <span
-                            class="badge text-bg-<?php echo $layout == 'current' ? 'danger' : 'info' ?>"><?php echo $record['status_label'] ?></span>
-                    </p>
+                <div class="col-md-8">
+                    <div class="d-lg-flex justify-content-between">
+                        <h2>
+                            <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><?php echo htmlspecialchars($record['title']) ?></a>
+                        </h2>
+                        <p class="h5"><?php echo $record['dates_desc'] ?>
+                            <span
+                                class="badge text-bg-<?php echo $layout == 'current' ? 'danger' : 'info' ?>"><?php echo $record['status_label'] ?></span>
+                        </p>
+                    </div>
                     <?php if ($record['announcement']): ?>
                         <div class="mt-3"><?php echo nl2br($record['announcement']) ?></div>
                     <?php endif; ?>

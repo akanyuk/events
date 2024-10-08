@@ -135,20 +135,11 @@ $langLinksXs = array(
 
 <main class="fixed-top navbar-events">
     <header>
-        <div class="container-fluid d-grid gap-3 align-items-center" style="grid-template-columns: 0fr 2fr 1fr;">
+        <div class="container-fluid d-grid gap-3 align-items-center" style="grid-template-columns: 0fr 1fr 0fr 0fr;">
             <a href="/"><img src="<?php echo NFW::i()->assets('main/logo.gif') ?>" alt=""/></a>
-
-            <div class="w-100">
-                <form class="d-none d-sm-block me-3" role="search">
-                    <input type="search" class="form-control input-search" aria-label="Search"
-                           placeholder="<?php echo $langMain['search hint'] ?>">
-                </form>
-            </div>
-
+            <div class="w-100">&nbsp;</div>
             <div class="d-flex py-1 align-items-center">
-                <div class="w-100">&nbsp;</div>
-
-                <div class="d-block d-sm-none me-3">
+                <div class="me-3">
                     <a href="#" class="text-white"
                        data-bs-toggle="collapse" data-bs-target="#collapseSearch"
                        aria-expanded="false" aria-controls="collapseExample">
@@ -180,7 +171,7 @@ $langLinksXs = array(
                 <?php endif; ?>
 
                 <?php if (NFW::i()->user['is_guest']): ?>
-                    <a href="#" class="d-block me-3 me-lg-4 py-2 text-white text-decoration-none"
+                    <a href="#" class="d-block py-2 text-white text-decoration-none"
                        data-bs-toggle="offcanvas"
                        data-bs-target="#offcanvasLogin"
                        aria-controls="offcanvasLogin">
@@ -189,12 +180,15 @@ $langLinksXs = array(
                         </svg>
                     </a>
                 <?php else: ?>
-                    <div class="me-3 me-lg-4 dropdown">
-                        <a href="#" class="d-block py-2 text-white text-decoration-none"
+                    <div class="dropdown">
+                        <a href="#" class="d-block py-2 text-white text-decoration-none text-nowrap"
+                           style="max-width: 240px;"
                            data-bs-toggle="dropdown" aria-expanded="false">
                             <svg class="fill-white" width="1em" height="1em">
                                 <use href="#icon-user"></use>
                             </svg>
+                            <span
+                                class="d-none d-sm-inline ps-2"><?php echo htmlspecialchars(NFW::i()->user['username']) ?></span>
                         </a>
                         <ul class="dropdown-menu text-small shadow">
                             <li><a href="<?php echo NFW::i()->absolute_path ?>/cabinet/works?action=list"
@@ -224,7 +218,7 @@ $langLinksXs = array(
         </div>
     </header>
     <header class="collapse m-3" id="collapseSearch">
-        <form role="search">
+        <form role="search" class="mx-auto col-md-8 col-lg-6">
             <input type="search" class="form-control input-search" aria-label="Search"
                    placeholder="<?php echo $langMain['search hint'] ?>">
         </form>

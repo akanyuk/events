@@ -19,7 +19,7 @@ $langMain = NFW::i()->getLang('main');
             font-size: 1rem;
         }
 
-        @media (min-width: 576px) {
+        @media (min-width: 992px) {
             .card {
                 flex-direction: row;
             }
@@ -40,7 +40,7 @@ $langMain = NFW::i()->getLang('main');
             }
         }
 
-        @media (max-width: 575px) {
+        @media (max-width: 991px) {
             IMG.no-screenshot {
                 display: none;
             }
