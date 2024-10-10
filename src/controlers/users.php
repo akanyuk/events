@@ -1,14 +1,5 @@
 <?php
-/***********************************************************************
-  Copyright (C) 2017-2018 Andrey nyuk Marinov (aka.nyuk@gmail.com)
-  $Id$
-
-  Контролер для расширенной работы с учетными записями:
-  регистрация, активация учетной записи, редактирование профиля, восстановление пароля
-   
- ************************************************************************/
-
-$action = isset($_GET['action']) ?  $_GET['action'] : 'update_profile';
+$action = $_GET['action'] ?? 'update_profile';
 
 $classname = NFW::i()->getClass('users', true);
 $CUsers = new $classname ();

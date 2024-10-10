@@ -57,17 +57,6 @@ class users_ext extends users {
     	}
     }
         
-    function actionUsersLogin() {
-    	$this->error_report_type = empty($_POST) ? 'error-page' : 'active_form';
-    	
-    	if (!NFW::i()->user['is_guest']) {
-    		$this->error($this->lang['Errors']['Already registered'], __FILE__, __LINE__);
-    		return false;
-    	}
-    
-   		return $this->renderAction();
-    }
-    
     function actionUsersRegister() {
     	$this->loadServicettributes();
     	
@@ -171,7 +160,7 @@ class users_ext extends users {
     	}
 
     	
-    	// Auto authentificate
+    	// Auto authenticate
     	if ($user = $this->authentificate($account['username'], $this->record['password'])) {
     		$this->cookie_update($user);
     	}
@@ -180,29 +169,23 @@ class users_ext extends users {
     }
     
     function actionUsersRestorePassword() {
-    	$this->error_report_type = empty($_POST) ? 'error-page' : 'active_form';
-    	
-    	if (!NFW::i()->user['is_guest']) {
-    		$this->error($this->lang['Errors']['Already registered'], __FILE__, __LINE__);
-    		return false;
-    	}
-    	 
-    	if (empty($_POST)) {
-    		return $this->renderAction();
-    	}
-    	
-    	$errors = $this->validate('restore_password', $_POST);
+        $req = json_decode(file_get_contents('php://input'));
+        if (!$req) {
+            return $this->renderAction();
+        }
+
+    	$errors = $this->validate('restore_password', ['request_email' => $req->email, 'captcha' => $req->captcha]);
     	if (!empty($errors)) {
-    		NFW::i()->renderJSON(array('result' => 'error', 'errors' => $errors));
+            NFWX::i()->jsonError(400, $errors);
     	}
     	
    		// Fetch user matching $email
    		if (!$result = NFW::i()->db->query_build(array( 'SELECT' => '*', 'FROM' => $this->db_table, 'WHERE' => 'email=\''.NFW::i()->db->escape($_POST['request_email']).'\''))) {
    			$this->error('Unable to search user\'s account',__FILE__, __LINE__,  NFW::i()->db->error());
-   			return false;
-   		}
+            NFWX::i()->jsonError(400, $this->last_msg);
+        }
    		if (!NFW::i()->db->num_rows($result)) {
-   			NFW::i()->renderJSON(array('result' => 'success', 'message' => $this->lang['Restore password message']));
+            NFWX::i()->jsonSuccess(['message' => $this->lang['Restore password message']]);
    		}
     	
    		$account = NFW::i()->db->fetch_assoc($result);
@@ -211,15 +194,15 @@ class users_ext extends users {
    		$activate_key = users::random_key(8, true);
    		if (!NFW::i()->db->query_build(array('UPDATE' => 'users', 'SET' => 'activate_key=\''.$activate_key.'\'', 'WHERE' => 'id='.$account['id']))) {
    			$this->error('Restore password system error',__FILE__, __LINE__,  NFW::i()->db->error());
-   			return false;
+            NFWX::i()->jsonError(400, $this->last_msg);
    		}
     	
    		// Send e-mail
    		if ($this->is_valid_email($account['email'])) {
    			email::sendFromTemplate($account['email'], 'restore_password', array('activation_url' => NFW::i()->absolute_path.'/users/?action=activate_account&key='.$activate_key));
    		}
-   		
-   		NFW::i()->renderJSON(array('result' => 'success', 'message' => $this->lang['Restore password message']));
+
+        NFWX::i()->jsonSuccess(['message' => $this->lang['Restore password message']]);
     }
     
     // Просмотр и редактирование своего профиля клиентом

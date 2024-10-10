@@ -1,57 +1,93 @@
 <?php
-	NFW::i()->registerResource('jquery.activeForm');
-	NFW::i()->assign('page_title', $Module->lang['Restore password']);
+if (!NFW::i()->user['is_guest']) {
+    header('Location: '.NFW::i()->absolute_path);
+}
 
-	// Success dialog
-	NFW::i()->registerFunction('ui_dialog');
-	$succes_dialog = new ui_dialog();
-	$succes_dialog->render(array('title' => $Module->lang['Restore password']));
+$langUsers = NFW::i()->getLang('users');
+NFW::i()->assign('page_title', $langUsers['Restore password']);
 ?>
+<form onsubmit="restorePasswordFormSubmit(); return false;">
+    <fieldset>
+        <legend><?php echo $langUsers['Restore password'] ?></legend>
+        <div class="mx-left col-sm-6 col-md-4 col-lg-3 mb-3">
+            <label for="restore-password-email">E-mail</label>
+            <input type="text" id="restore-password-email" class="form-control " maxlength="64">
+            <div id="restore-password-email-feedback" class="invalid-feedback"></div>
+        </div>
+
+        <div class="mx-left col-sm-6 col-md-4 col-lg-3 mb-3">
+            <label for="captcha"><?php echo NFW::i()->lang['Captcha'] ?></label>
+
+            <div class="input-group">
+                <input id="restore-password-captcha" type="text" maxlength="6" class="form-control"
+                       style="font-family: monospace; font-weight: bold;"/>
+                <img id="restore-password-captcha-img" src="<?php echo NFW::i()->base_path ?>captcha.png" alt=""/>
+            </div>
+
+            <div id="restore-password-captcha-feedback" class="invalid-feedback"></div>
+        </div>
+
+        <div class="mb-3">
+            <button type="submit" id="login-btn"
+                    class="btn btn-primary"><?php echo $langUsers['Restore password send'] ?></button>
+        </div>
+    </fieldset>
+</form>
+
+<div class="mb-3">
+    <a href="<?php echo NFW::i()->base_path ?>users?action=register"><?php echo $langUsers['Registration'] ?></a>
+</div>
 <script type="text/javascript">
-$(document).ready(function(){
-	var f = $('form[id="restore-password"]');
-	f.activeForm({
-		'beforeSubmit': function(d,f,o) {
-			// Reload captcha
-			f.find('img[id="captcha"]').attr('src', '<?php echo NFW::i()->base_path?>captcha.png?' +  + Math.floor(Math.random()*10000000));
-		},		
-		'error': function(response) {
-			f.find('input[name="captcha"]').val('');		
-		},
-		'success': function(response){
-			$(document).trigger('show-<?php echo $succes_dialog->getID()?>', [ response.message ]);
-		}
-	});
+    const restorePasswordEmail = document.getElementById("restore-password-email");
+    const restorePasswordEmailFeedback = document.getElementById("restore-password-email-feedback");
+    const restorePasswordCaptcha = document.getElementById("restore-password-captcha");
+    const restorePasswordCaptchaFeedback = document.getElementById("restore-password-captcha-feedback");
+    const restorePasswordCaptchaImg = document.getElementById("restore-password-captcha-img");
+    restorePasswordFormSubmit = async function () {
+        restorePasswordCaptchaImg.setAttribute('src', '<?php echo NFW::i()->base_path?>captcha.png?' + +Math.floor(Math.random() * 10000000));
 
-	$(document).on('hide-<?php echo $succes_dialog->getID()?>', function(){
-		window.location.href = '/';
-	});
-});
+        let response = await fetch("?action=restore_password", {
+            method: "POST",
+            body: JSON.stringify({
+                request_email: restorePasswordEmail.value,
+                captcha: restorePasswordCaptcha.value
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        });
+
+        restorePasswordEmail.classList.remove('is-valid', 'is-invalid');
+        restorePasswordEmailFeedback.classList.remove('d-block');
+        restorePasswordCaptchaFeedback.classList.remove('d-block');
+
+        if (!response.ok) {
+            const resp = await response.json();
+            const errors = resp.errors;
+
+            if (errors["general"] !== undefined && errors["general"] !== "") {
+                gErrorToastText.innerText = errors["general"];
+                gErrorToast.show();
+                return
+            }
+
+            if (errors["request_email"] !== undefined && errors["request_email"] !== "") {
+                restorePasswordEmail.classList.add('is-invalid');
+                restorePasswordEmailFeedback.innerText = errors["request_email"];
+                restorePasswordEmailFeedback.classList.add('d-block');
+            } else {
+                restorePasswordEmail.classList.add('is-valid');
+            }
+
+            if (errors["captcha"] !== undefined && errors["captcha"] !== "") {
+                restorePasswordCaptcha.classList.add('is-invalid');
+                restorePasswordCaptchaFeedback.innerText = errors["captcha"];
+                restorePasswordCaptchaFeedback.classList.add('d-block');
+            }
+
+            return;
+        }
+
+        window.location.href = '/';
+    }
 </script>
-<form id="restore-password" class="form-horizontal"><fieldset>
-	<legend><?php echo $Module->lang['Restore password']?></legend>
-	
-	<?php echo active_field(array('name' => 'request_email', 'desc' => 'E-mail', 'required' => true, 'inputCols' => '9'));?>
-	
-    <div class="form-group" data-active-container="captcha">
-		<label class="control-label col-md-3" for="captcha"><strong><?php echo NFW::i()->lang['Captcha']?></strong></label>
-		<div class="col-md-9">
-			<div class="pull-left" style="width: 100px; margin-right: 0.5em;">
-				<input type="text" name="captcha" class="form-control" maxlength="6" />
-			</div>
-			<div class="pull-left">
-				<img id="captcha" src="<?php echo NFW::i()->base_path?>captcha.png" style="border: 1px solid #555;" />
-			</div>
-			<div class="clearfix"></div>
-			<span class="help-block"><?php echo NFW::i()->lang['Captcha info']?></span>
-		</div>
-	</div>
-
-	<div class="form-group">
-		<div class="col-md-9 col-md-offset-3">
-			<button type="submit" class="btn btn-primary"><?php echo $Module->lang['Restore password send']?></button>
-			&nbsp;&nbsp;&nbsp;
-			<a href="<?php echo NFW::i()->base_path?>users?action=register"><?php echo $Module->lang['Registration']?></a>			
-		</div>
-	</div>
-</fieldset></form>

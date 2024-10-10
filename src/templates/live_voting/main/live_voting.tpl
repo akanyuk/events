@@ -159,7 +159,7 @@ ob_end_flush()
 
                     btn.className = "btn btn-outline-success btn-vote";
                     if (work['voted'] === i) {
-                    btn.classList.add("active");
+                        btn.classList.add("active");
                     }
 
                     btn.innerHTML = i.toString();
@@ -188,7 +188,7 @@ ob_end_flush()
                             headers: {
                                 "Content-type": "application/json; charset=UTF-8"
                             }
-                        }).then(function() {
+                        }).then(function () {
                             isSendingVote = false;
                         });
                     };
