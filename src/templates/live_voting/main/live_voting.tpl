@@ -131,7 +131,7 @@ ob_end_flush()
             return;
         }
 
-        state['works'].forEach((work) => {
+        state['works'].forEach(work => {
             let liveVoting = document.createElement('div');
             liveVoting.className = "live-voting mb-5";
 
@@ -153,7 +153,7 @@ ob_end_flush()
                 btnGroup.className = "d-grid btn-group gap-1";
                 btnGroup.setAttribute("role", "group");
 
-                work['voting_options'].forEach((i) => {
+                work['voting_options'].forEach(i => {
                     let btn = document.createElement('a');
                     btn.setAttribute("type", "button");
 

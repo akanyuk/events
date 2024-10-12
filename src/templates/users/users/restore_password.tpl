@@ -16,27 +16,28 @@ NFW::i()->assign('page_title', $langUsers['Restore password']);
             </div>
             <div id="restorePasswordSuccessModalBody" class="modal-body"></div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo NFW::i()->lang['Close']?></button>
+                <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal"><?php echo NFW::i()->lang['Close'] ?></button>
             </div>
         </div>
     </div>
 </div>
 
-<form onsubmit="restorePasswordFormSubmit(); return false;">
+<form onsubmit="restorePasswordFormSubmit(); return false;" class="d-grid mx-auto col-sm-8 col-md-6 col-lg-4">
     <fieldset>
         <legend><?php echo $langUsers['Restore password'] ?></legend>
-        <div class="mx-left col-sm-6 col-md-4 col-lg-3 mb-3">
+        <div class="mb-3">
             <label for="restore-password-email">E-mail</label>
-            <input type="text" id="restorePasswordEmail" class="form-control " maxlength="64">
+            <input type="email" required="required" id="restorePasswordEmail" class="form-control">
             <div id="restorePasswordEmailFeedback" class="invalid-feedback"></div>
         </div>
 
-        <div class="mx-left col-sm-6 col-md-4 col-lg-3 mb-3">
+        <div class="mb-3">
             <label for="captcha"><?php echo NFW::i()->lang['Captcha'] ?></label>
 
             <div class="input-group">
-                <input id="restorePasswordCaptcha" type="text" maxlength="6" class="form-control"
-                       style="font-family: monospace; font-weight: bold;"/>
+                <input id="restorePasswordCaptcha" type="text" required="required" maxlength="6"
+                       class="form-control" style="font-family: monospace; font-weight: bold;"/>
                 <img id="restorePasswordCaptchaImg" src="<?php echo NFW::i()->base_path ?>captcha.png" alt=""/>
             </div>
 
@@ -44,20 +45,20 @@ NFW::i()->assign('page_title', $langUsers['Restore password']);
         </div>
 
         <div class="mb-3">
-            <button type="submit" id="login-btn"
-                    class="btn btn-primary"><?php echo $langUsers['Restore password send'] ?></button>
+            <button type="submit" class="btn btn-primary"><?php echo $langUsers['Restore password send'] ?></button>
+        </div>
+
+        <div class="mb-3">
+            <a href="<?php echo NFW::i()->base_path ?>users/register"><?php echo $langUsers['Registration'] ?></a>
         </div>
     </fieldset>
 </form>
 
-<div class="mb-3">
-    <a href="<?php echo NFW::i()->base_path ?>users?action=register"><?php echo $langUsers['Registration'] ?></a>
-</div>
 <script type="text/javascript">
     <?php ob_start(); ?>
     const restorePasswordSuccessModalBody = document.getElementById("restorePasswordSuccessModalBody");
     const restorePasswordSuccessModal = new bootstrap.Modal('#restorePasswordSuccessModal');
-    document.getElementById("restorePasswordSuccessModal").addEventListener('hidden.bs.modal', function() {
+    document.getElementById("restorePasswordSuccessModal").addEventListener('hidden.bs.modal', function () {
         window.location.href = '/';
     })
 

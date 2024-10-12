@@ -10,19 +10,7 @@ class users_ext extends users {
         return parent::__construct($record_id);
     }
 
-    public static function cities(): array {
-        $cities = array();
-
-        if (!$result = NFW::i()->db->query_build(array('SELECT' => 'DISTINCT city', 'FROM' => 'users', 'WHERE' => 'city<> "" AND registered<>0', 'ORDER BY' => 'city'))) {
-            return [];
-        }
-        while ($r = NFW::i()->db->fetch_assoc($result)) {
-            $cities[] = $r['city'];
-        }
-
-        return $cities;
-    }
-
+    // TODO: разобрать по разным валидациям
     private function validateRecord($role = 'update', $record = false): bool {
         switch ($role) {
             case 'register':
@@ -40,12 +28,6 @@ class users_ext extends users {
             case 'update_password':
                 $this->errors = parent::validate($role);
                 return !count($this->errors);
-            case 'restore_password':
-                $this->errors = active_record::validate($record, array(
-                    'captcha' => array('type' => 'captcha'),
-                    'request_email' => array('type' => 'email', 'desc' => 'E-mail', 'required' => true),
-                ));
-                return !count($this->errors);
             case 'update_password_main':
                 $this->errors = parent::validate('update_password');
 
@@ -60,6 +42,28 @@ class users_ext extends users {
         }
     }
 
+    public function loadAdditionalAttributes() {
+        $this->loadServicettributes();
+    }
+
+    public function findActivation(string $key): ?array {
+        if ($key === "") {
+            $this->error($this->lang['Errors']['Wrong key'], __FILE__, __LINE__);
+            return null;
+        }
+
+        if (!$result = NFW::i()->db->query_build(array('SELECT' => '*', 'FROM' => $this->db_table, 'WHERE' => 'activate_key=\'' . NFW::i()->db->escape($key) . '\''))) {
+            $this->error('Unable to fetch activation.', __FILE__, __LINE__, NFW::i()->db->error());
+            return null;
+        }
+        if (!NFW::i()->db->num_rows($result)) {
+            $this->error($this->lang['Errors']['Wrong key'], __FILE__, __LINE__);
+            return null;
+        }
+
+        return NFW::i()->db->fetch_assoc($result);
+    }
+
     public function validateEmailAndCaptcha(string $email, $captcha): bool {
         $this->errors = active_record::validate(
             ['email' => $email, 'captcha' => $captcha],
@@ -72,7 +76,22 @@ class users_ext extends users {
         return !count($this->errors);
     }
 
-    function actionRestorePassword($email): bool {
+    public function validatePasswords(string $password, $password2): bool {
+        if (strlen($password) < 4) {
+            $this->errors['password'] = $this->lang['Errors']['Password too short'];
+            return false;
+        }
+
+        if ($password != $password2) {
+            $this->errors['password'] = $this->lang['Errors']['Passwords mismatch'];
+            $this->errors['password2'] = $this->lang['Errors']['Passwords mismatch'];
+            return false;
+        }
+
+        return true;
+    }
+
+    public function actionRestorePassword($email): bool {
         // Fetch user matching $email
         if (!$result = NFW::i()->db->query_build(array('SELECT' => '*', 'FROM' => $this->db_table, 'WHERE' => 'email=\'' . NFW::i()->db->escape($email) . '\''))) {
             $this->error('Unable to search user account', __FILE__, __LINE__, NFW::i()->db->error());
@@ -101,28 +120,32 @@ class users_ext extends users {
         return true;
     }
 
-    function actionUsersRegister() {
-        $this->loadServicettributes();
-
-        $this->error_report_type = empty($_POST) ? 'error-page' : 'active_form';
-
-        if (!NFW::i()->user['is_guest']) {
-            $this->error($this->lang['Errors']['Already registered'], __FILE__, __LINE__);
+    function actionActivateAccount(array $account, string $password):bool {
+        $salt = self::random_key(12, true);
+        $query = array(
+            'UPDATE' => $this->db_table,
+            'SET' => 'group_id=' . NFW::i()->cfg['users_group_id'] . ', password=\'' . self::hash($password, $salt) . '\', salt=\'' . $salt . '\', activate_key=NULL',
+            'WHERE' => 'id=' . $account['id']
+        );
+        if (!NFW::i()->db->query_build($query)) {
+            $this->error('Unable to activate user', __FILE__, __LINE__, NFW::i()->db->error());
             return false;
         }
 
-        if (empty($_POST)) {
-            return $this->renderAction();
+        // Auto authenticate
+        if ($user = $this->authentificate($account['username'], $password)) {
+            $this->cookie_update($user);
         }
 
-        // Clean old unverified registrators - delete older than 72 hours
-        if (!$result = NFW::i()->db->query_build(array(
+        return true;
+    }
+
+    function actionRegister() {
+        // Cleaning old unverified registration attempts - delete older than 72 hours
+        NFW::i()->db->query_build([
             'DELETE' => $this->db_table,
             'WHERE' => 'group_id=' . NFW::i()->cfg['users_group_id_unverified'] . ' AND registered < ' . (time() - 259200)
-        ))) {
-            $this->error('Unable to delete old unverified registrators.', __FILE__, __LINE__, NFW::i()->db->error());
-            return false;
-        }
+        ]);
 
         $this->formatAttributes($_POST);
         $errors = $this->validateRecord('register');
@@ -154,62 +177,6 @@ class users_ext extends users {
         ));
 
         NFW::i()->renderJSON(array('result' => 'success', 'message' => $this->lang['Registration message']));
-    }
-
-    function actionUsersActivateAccount() {
-        $this->error_report_type = empty($_POST) ? 'error-page' : 'active_form';
-
-        if (!NFW::i()->user['is_guest']) {
-            $this->error($this->lang['Errors']['Already registered'], __FILE__, __LINE__);
-            return false;
-        }
-
-        // Find activation
-        if (!isset($_GET['key'])) {
-            $this->error($this->lang['Errors']['Wrong key'], __FILE__, __LINE__);
-            return false;
-        }
-        if (!$result = NFW::i()->db->query_build(array('SELECT' => '*', 'FROM' => $this->db_table, 'WHERE' => 'activate_key=\'' . NFW::i()->db->escape($_GET['key']) . '\''))) {
-            $this->error('Unable to fetch activation.', __FILE__, __LINE__, NFW::i()->db->error());
-            return false;
-        }
-        if (!NFW::i()->db->num_rows($result)) {
-            $this->error($this->lang['Errors']['Wrong key'], __FILE__, __LINE__);
-            return false;
-        }
-        $account = NFW::i()->db->fetch_assoc($result);
-
-        if (empty($_POST)) {
-            return $this->renderAction(array(
-                'account' => $account
-            ));
-        }
-
-        $this->record['password'] = isset($_POST['password']) ? $_POST['password'] : '';
-        $this->record['password2'] = isset($_POST['password2']) ? $_POST['password2'] : '';
-        $errors = $this->validateRecord('update_password');
-        if (!empty($errors)) {
-            NFW::i()->renderJSON(array('result' => 'error', 'errors' => $errors));
-        }
-
-        $salt = self::random_key(12, true);
-        $query = array(
-            'UPDATE' => $this->db_table,
-            'SET' => 'group_id=' . NFW::i()->cfg['users_group_id'] . ', password=\'' . self::hash($this->record['password'], $salt) . '\', salt=\'' . $salt . '\', activate_key=NULL',
-            'WHERE' => 'id=' . $account['id']
-        );
-        if (!NFW::i()->db->query_build($query)) {
-            $this->error('Unable to activate user', __FILE__, __LINE__, NFW::i()->db->error());
-            return false;
-        }
-
-
-        // Auto authenticate
-        if ($user = $this->authentificate($account['username'], $this->record['password'])) {
-            $this->cookie_update($user);
-        }
-
-        NFW::i()->renderJSON(array('result' => 'success'));
     }
 
     // Просмотр и редактирование своего профиля клиентом

@@ -19,6 +19,25 @@ if (isset($_GET['action'])) {
 
             NFWX::i()->jsonSuccess(['message' => $CUsers->lang['Restore password message']]);
             break;
+        case 'activate_account':
+            $req = json_decode(file_get_contents('php://input'));
+
+            $account = $CUsers->findActivation($req->key);
+            if ($CUsers->error) {
+                NFWX::i()->jsonError(400, $CUsers->last_msg);
+            }
+
+            $CUsers->validatePasswords($req->password, $req->password2);
+            if (count($CUsers->errors)) {
+                NFWX::i()->jsonError(400, $CUsers->errors);
+            }
+
+            if (!$CUsers->actionActivateAccount($account, $req->password)) {
+                NFWX::i()->jsonError(400, $CUsers->last_msg);
+            }
+
+            NFWX::i()->jsonSuccess();
+            break;
         default:
             NFWX::i()->jsonError(400, "Unknown action");
     }
@@ -26,23 +45,57 @@ if (isset($_GET['action'])) {
 
 // Determine page, disable subdirectories
 $pathParts = explode(DIRECTORY_SEPARATOR, parse_url(trim($_SERVER['REQUEST_URI'], DIRECTORY_SEPARATOR), PHP_URL_PATH));
-
-if (count($pathParts) > 2) {
-    NFW::i()->stop(404);
-}
-
-$page = count($pathParts) == 2 ? $pathParts[1] : false;
-if ($page === false) {
-    NFW::i()->stop(404);
-}
-
-switch ($page) {
+switch (count($pathParts) == 2 ? $pathParts[1] : false) {
     case 'restore_password':
         $content = $CUsers->renderAction('restore_password');
         break;
+    case 'activate_account':
+        if (!NFW::i()->user['is_guest']) {
+            NFW::i()->stop($CUsers->lang['Errors']['Already registered'], 'error-page');
+        }
+
+        if (!isset($_GET['key']) || $_GET['key'] === "") {
+            NFW::i()->stop(404);
+        }
+        $key = $_GET['key'];
+
+        $account = $CUsers->findActivation($key);
+        if ($CUsers->error) {
+            NFW::i()->stop($CUsers->last_msg, 'error-page');
+        }
+
+        $content = $CUsers->renderAction([
+            'account' => $account,
+            'key' => $key,
+        ], 'activate_account');
+        break;
+    case 'register':
+        if (!NFW::i()->user['is_guest']) {
+            NFW::i()->stop($CUsers->lang['Errors']['Already registered'], 'error-page');
+        }
+
+        $defaultCountry = $defaultCity = '';
+        if (file_exists(VAR_ROOT . '/SxGeoCity.dat')) {
+            require_once(NFW_ROOT . 'helpers/SxGeo/SxGeo.php');
+            $SxGeo = new SxGeo(VAR_ROOT . '/SxGeoCity.dat');
+            if ($geo = $SxGeo->getCityFull($_SERVER['REMOTE_ADDR'])) {
+                $defaultCountry = $geo['country']['iso'];
+                $defaultCity = NFW::i()->user['language'] == 'Russian' ? $geo['city']['name_ru'] : $geo['city']['name_en'];
+            }
+        }
+
+        $CUsers->loadAdditionalAttributes();
+
+        $content = $CUsers->renderAction([
+            'CUsers' => $CUsers,
+            'defaultCountry' => $defaultCountry,
+            'defaultCity' => $defaultCity,
+        ], 'register');
+        break;
     default:
-        $content = $CUsers->renderAction('update_profile');
+        NFW::i()->stop(404);
+        return; // Not necessary. Linter related
 }
 
-NFW::i()->assign('page', ['path' => $page, 'content' => $content]);
+NFW::i()->assign('page', ['path' => 'users', 'content' => $content]);
 NFW::i()->display('main.tpl');
