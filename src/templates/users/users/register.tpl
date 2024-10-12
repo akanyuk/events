@@ -45,7 +45,7 @@ $successDialog->render(array('title' => $Module->lang['Registration complete']))
         });
 
         const aCities = [];
-        <?php foreach ($Module->getCities() as $c) echo 'aCities.push(' . json_encode($c) . ');' . "\n";?>
+        <?php foreach (users_ext::cities() as $c) echo 'aCities.push(' . json_encode($c) . ');' . "\n";?>
         f.find('input[name="city"]').typeahead({source: aCities}).attr('autocomplete', 'off');
     });
 </script>

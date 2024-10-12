@@ -29,11 +29,11 @@ function login_required($title, $info) {
     </form>
 
     <div class="mb-3">
-        <a href="<?php echo NFW::i()->base_path ?>users?action=restore_password"><?php echo $langUsers['Restore password'] ?></a>
+        <a href="<?php echo NFW::i()->base_path ?>users/restore_password"><?php echo $langUsers['Restore password'] ?></a>
     </div>
 
     <div class="mb-3">
-        <a href="<?php echo NFW::i()->base_path ?>users?action=register"><?php echo $langUsers['Registration'] ?></a>
+        <a href="<?php echo NFW::i()->base_path ?>users/register"><?php echo $langUsers['Registration'] ?></a>
     </div>
 
     <div class="mb-5">

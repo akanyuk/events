@@ -83,7 +83,7 @@ $allowDelete = NFWX::i()->checkPermissions('works_comments', 'delete', array('wo
     function loadComments() {
         commentsContainer.innerHTML = "";
         fetch('/internal_api?action=commentsList&work_id=<?php echo $workID?>').then(response => response.json()).then(response => {
-            response['comments'].forEach((comment) => {
+            response['comments'].forEach(comment => {
                 const message = document.createElement('blockquote');
                 message.innerHTML = comment['message']
                 message.className = "blockquote";

@@ -86,7 +86,7 @@
     }
     <?php endif; ?>
 
-    document.querySelectorAll("#work-frames-nav a").forEach((activeFrameA) => {
+    document.querySelectorAll("#work-frames-nav a").forEach(activeFrameA => {
         activeFrameA.onclick = function (e) {
             e.preventDefault();
 
@@ -101,7 +101,7 @@
             activeFrameA.classList.add("active");
         }
     });
-    document.querySelectorAll("#work-frames-nav").forEach((frm) => {
+    document.querySelectorAll("#work-frames-nav").forEach(frm => {
         frm.querySelector('a').click();
     });
 
