@@ -38,6 +38,21 @@ if (isset($_GET['action'])) {
 
             NFWX::i()->jsonSuccess();
             break;
+        case 'register':
+            $req = json_decode(file_get_contents('php://input'));
+
+            $CUsers->loadAdditionalAttributes();
+            $CUsers->validateRegistration($req->fields, $req->captcha);
+            if (count($CUsers->errors)) {
+                NFWX::i()->jsonError(400, $CUsers->errors, $CUsers->last_msg);
+            }
+
+            if (!$CUsers->actionRegister($req->fields)) {
+                NFWX::i()->jsonError(400, $CUsers->last_msg);
+            }
+
+            NFWX::i()->jsonSuccess(['message' => $CUsers->lang['Registration message']]);
+            break;
         default:
             NFWX::i()->jsonError(400, "Unknown action");
     }
@@ -74,7 +89,8 @@ switch (count($pathParts) == 2 ? $pathParts[1] : false) {
             NFW::i()->stop($CUsers->lang['Errors']['Already registered'], 'error-page');
         }
 
-        $defaultCountry = $defaultCity = '';
+        $defaultCountry = '';
+        $defaultCity = '';
         if (file_exists(VAR_ROOT . '/SxGeoCity.dat')) {
             require_once(NFW_ROOT . 'helpers/SxGeo/SxGeo.php');
             $SxGeo = new SxGeo(VAR_ROOT . '/SxGeoCity.dat');

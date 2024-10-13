@@ -197,8 +197,8 @@ $langLinksXs = array(
                             <li><a href="<?php echo NFW::i()->absolute_path ?>/cabinet/works?action=add"
                                    class="dropdown-item<?php echo page_is('cabinet/works?action=add') ? ' active' : '' ?>"><?php echo $langMain['cabinet add work'] ?></a>
                             </li>
-                            <li><a href="<?php echo NFW::i()->absolute_path ?>/users?action=update_profile"
-                                   class="dropdown-item<?php echo page_is('users?action=update_profile') ? ' active' : '' ?>"><?php echo $langMain['cabinet profile'] ?></a>
+                            <li><a href="<?php echo NFW::i()->absolute_path ?>/users/update_profile"
+                                   class="dropdown-item<?php echo page_is('users/update_profile') ? ' active' : '' ?>"><?php echo $langMain['cabinet profile'] ?></a>
                             </li>
 
                             <?php if (NFW::i()->checkPermissions('admin')): ?>

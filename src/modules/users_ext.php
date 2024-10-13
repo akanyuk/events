@@ -91,6 +91,23 @@ class users_ext extends users {
         return true;
     }
 
+    public function validateRegistration(object $req, string $captcha): bool {
+        $r = []; foreach ($req as $k=>$v) $r[$k] = $v;
+        $record = $this->formatAttributes($r, $this->attributes, true);
+        $record['id'] = 0;
+
+        $this->errors = active_record::validate($record, $this->attributes);
+
+        // Not required on registration
+        unset($this->errors['password']);
+
+        if ($err = base_module::validate($captcha, array('type' => 'captcha'))) {
+            $this->errors['captcha'] = $err;
+        }
+
+        return !count($this->errors);
+    }
+
     public function actionRestorePassword($email): bool {
         // Fetch user matching $email
         if (!$result = NFW::i()->db->query_build(array('SELECT' => '*', 'FROM' => $this->db_table, 'WHERE' => 'email=\'' . NFW::i()->db->escape($email) . '\''))) {
@@ -120,7 +137,7 @@ class users_ext extends users {
         return true;
     }
 
-    function actionActivateAccount(array $account, string $password):bool {
+    function actionActivateAccount(array $account, string $password): bool {
         $salt = self::random_key(12, true);
         $query = array(
             'UPDATE' => $this->db_table,
@@ -140,19 +157,15 @@ class users_ext extends users {
         return true;
     }
 
-    function actionRegister() {
+    function actionRegister(object $req):bool {
         // Cleaning old unverified registration attempts - delete older than 72 hours
         NFW::i()->db->query_build([
             'DELETE' => $this->db_table,
             'WHERE' => 'group_id=' . NFW::i()->cfg['users_group_id_unverified'] . ' AND registered < ' . (time() - 259200)
         ]);
 
-        $this->formatAttributes($_POST);
-        $errors = $this->validateRecord('register');
-
-        if (!empty($errors)) {
-            NFW::i()->renderJSON(array('result' => 'error', 'errors' => $errors));
-        }
+        $r = []; foreach ($req as $k=>$v) $r[$k] = $v;
+        $this->formatAttributes($r, $this->attributes);
 
         $this->record['group_id'] = NFW::i()->cfg['users_group_id_unverified'];
         $this->record['password'] = $this->random_key(32);
@@ -173,10 +186,10 @@ class users_ext extends users {
 
         email::sendFromTemplate($this->record['email'], 'register_activate', array(
             'username' => $this->record['username'],
-            'activation_url' => NFW::i()->absolute_path . '/users/?action=activate_account&key=' . $activate_key,
+            'activation_url' => NFW::i()->absolute_path . '/users/activate_account?key=' . $activate_key,
         ));
 
-        NFW::i()->renderJSON(array('result' => 'success', 'message' => $this->lang['Registration message']));
+        return true;
     }
 
     // Просмотр и редактирование своего профиля клиентом
@@ -229,7 +242,7 @@ class users_ext extends users {
             return false;
         }
 
-        // Auto authentificate on change password
+        // Auto authenticate on change password
         if ($account = $this->authentificate($this->record['username'], $this->record['password'])) {
             $this->cookie_update($account);
         }
