@@ -108,6 +108,16 @@ switch (count($pathParts) == 2 ? $pathParts[1] : false) {
             'defaultCity' => $defaultCity,
         ], 'register');
         break;
+    case 'update_profile':
+        if (NFW::i()->user['is_guest']) {
+            NFW::i()->stop($CUsers->lang['Errors']['Not registered'], 'error-page');
+            return false;
+        }
+
+        $content = $CUsers->renderAction([
+            'CUsers' => $CUsers,
+        ],'update_profile');
+        break;
     default:
         NFW::i()->stop(404);
         return; // Not necessary. Linter related

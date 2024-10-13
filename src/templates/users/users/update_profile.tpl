@@ -1,79 +1,117 @@
 <?php
-	NFW::i()->registerResource('jquery.activeForm');
-	NFW::i()->registerResource('bootstrap3.typeahead');
-	NFW::i()->registerResource('jquery.jgrowl');
-	
-	NFW::i()->assign('page_title', $Module->lang['My profile']);
-	NFW::i()->breadcrumb = array(
-		array('desc' => $Module->lang['My profile'])
-	);
+/**
+ * @var users_ext $CUsers
+ */
+
+$langUsers = NFW::i()->getLang('users');
+NFW::i()->assign('page_title', $langUsers['My profile']);
+
+$attrs = $CUsers->attributes;
 ?>
-<script type="text/javascript">
-$(document).ready(function(){
-	$('form[role="update-profile"]').each(function(){
-		$(this).activeForm({
-			'success': function(response){
-				if (response.is_updated) {
-					$.jGrowl(response.message);
-				}
-			}
-		});
-	});
-
-	var aCities = [];
-	<?php foreach ($Module->getCities() as $c) echo 'aCities.push('.json_encode($c).');'."\n";?>
-	$('input[name="city"]').typeahead({ source: aCities }).attr('autocomplete', 'off');
-});
-</script>
-
-<ul class="nav nav-tabs" role="tablist">
-	<li role="presentation" class="active"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab"><?php echo $Module->lang['Profile tab']?></a></li>
-	<li role="presentation"><a href="#password" aria-controls="password" role="tab" data-toggle="tab"><?php echo $Module->lang['Password tab']?></a></li>
+<ul class="nav nav-underline ps-sm-5" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="profile-tab" type="button" role="tab"
+                data-bs-toggle="tab" data-bs-target="#profile"
+                aria-controls="profile" aria-selected="true"><?php echo $langUsers['Profile tab'] ?></button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="password-tab" type="button" role="tab"
+                data-bs-toggle="tab" data-bs-target="#password"
+                aria-controls="password" aria-selected="true"><?php echo $langUsers['Password tab'] ?></button>
+    </li>
 </ul>
 
-<div class="tab-content">
-	<div role="tabpanel" class="tab-pane in active" id="profile">
-		<br />
-		<form role="update-profile">
-			<fieldset>
-				<div class="form-group">
-					<label class="col-md-3 control-label"><?php echo $Module->lang['Username']?></label>
-					<div class="col-md-9"><p class="form-control-static"><?php echo htmlspecialchars($Module->record['username'])?></p></div>
-				</div>
-				
-				<div class="form-group">
-					<label class="col-md-3 control-label">E-mail</label>
-					<div class="col-md-9"><p class="form-control-static"><?php echo $Module->record['email']?></p></div>
-				</div>
+<div class="tab-content pt-4 ps-sm-5 d-grid mx-left col-sm-8 col-md-6 col-lg-4">
+    <div class="tab-pane active" id="profile" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
+        <form>
+            <fieldset>
+                <dl>
+                    <dt><?php echo $langUsers['Username'] ?></dt>
+                    <dd><?php echo htmlspecialchars(NFW::i()->user['username']) ?></dd>
 
-				<?php echo active_field(array('name' => 'realname', 'value' => $Module->record['realname'], 'attributes'=>$Module->attributes['realname']))?>
-				<?php echo  empty($Module->attributes['language']['options']) ? '' : active_field(array('name' => 'language', 'value' => $Module->record['language'], 'attributes'=>$Module->attributes['language'], 'inputCols' => 6))?>
-				<?php echo active_field(array('name' => 'country', 'value' => $Module->record['country'], 'attributes'=>$Module->attributes['country'], 'inputCols' => 6))?>
-				<?php echo active_field(array('name' => 'city', 'value' => $Module->record['city'], 'attributes'=>$Module->attributes['city'], 'inputCols' => 6))?>
-		
-				<div class="form-group">
-					<div class="col-md-9 col-md-offset-3">
-						<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> <?php echo NFW::i()->lang['Save changes']?></button>
-					</div>
-				</div>
-			</fieldset>
-		</form>
-	</div>	
+                    <dt>E-mail</dt>
+                    <dd><?php echo htmlspecialchars(NFW::i()->user['email']) ?></dd>
+                </dl>
 
-	<div role="tabpanel" class="tab-pane" id="password">
-		<br />
-		<form role="update-profile" action="?action=update_password">
-			<fieldset>
-				<?php echo active_field(array('name' => 'old_password', 'type' => 'password', 'desc'=>$Module->lang['Old password'], 'maxlength' => '32', 'inputCols' => 6))?>
-				<?php echo active_field(array('name' => 'password', 'type' => 'password', 'desc'=>$Module->lang['New_password'], 'maxlength' => '32', 'inputCols' => 6))?>
-				<?php echo active_field(array('name' => 'password2', 'type' => 'password', 'desc'=>$Module->lang['Retype_password'], 'maxlength' => '32', 'inputCols' => 6))?>
-		
-				<div class="form-group">
-					<div class="col-md-9 col-md-offset-3">
-						<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> <?php echo $Module->lang['Save password']?></button>
-					</div>
-				</div>
-			</fieldset>
-		</form>
-	</div>
+                <div class="mb-3">
+                    <label for="realname"><?php echo $attrs['realname']['desc'] ?></label>
+                    <input data-role="updateProfileInput" id="realname" class="form-control"
+                           type="text" required="required" maxlength="<?php echo $attrs['realname']['maxlength'] ?>"
+                           value="<?php echo NFW::i()->user['realname'] ?>">
+                    <div data-role="updateProfileFeedback" id="realname" class="invalid-feedback"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="language"><?php echo $attrs['language']['desc'] ?></label>
+                    <select data-role="updateProfileInput" id="language" class="form-select">
+                        <?php foreach ($attrs['language']['options'] as $lang): ?>
+                            <option <?php echo NFW::i()->user['language'] == $lang ? 'selected="selected"' : '' ?>
+                                    value="<?php echo $lang ?>"><?php echo $lang ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <div data-role="updateProfileFeedback" id="language" class="invalid-feedback"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="country"><?php echo $attrs['country']['desc'] ?></label>
+                    <select data-role="updateProfileInput" id="country" class="form-select">
+                        <option value=""></option>
+                        <?php foreach ($attrs['country']['options'] as $country): ?>
+                            <option <?php echo $country['id'] == NFW::i()->user['country'] ? 'selected="selected"' : '' ?>
+                                    value="<?php echo $country['desc'] ?>"><?php echo $country['desc'] ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <div data-role="updateProfileFeedback" id="country" class="invalid-feedback"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="city"><?php echo $attrs['city']['desc'] ?></label>
+                    <input data-role="updateProfileInput" id="city" class="form-control"
+                           type="text" value="<?php echo NFW::i()->user['city'] ?>" maxlength="<?php echo $attrs['city']['maxlength'] ?>">
+                    <div data-role="updateProfileFeedback" id="city" class="invalid-feedback"></div>
+                </div>
+
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary"><?php echo NFW::i()->lang['Save changes'] ?></button>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+
+    <div class="tab-pane" id="password" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+        <form>
+            <fieldset>
+                <div class="mb-3">
+                    <label for="old_password"><?php echo $langUsers['Old password'] ?></label>
+                    <input data-role="activateAccountInput" id="old_password" required="required" maxlength="64"
+                           class="form-control" type="password">
+                    <div data-role="activateAccountFeedback" id="password" class="invalid-feedback"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password"><?php echo $langUsers['New_password'] ?></label>
+                    <input data-role="activateAccountInput" id="password" required="required" maxlength="64"
+                           class="form-control" type="password">
+                    <div data-role="activateAccountFeedback" id="password" class="invalid-feedback"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password2"><?php echo $langUsers['Retype_password'] ?></label>
+                    <input data-role="activateAccountInput" required="required" id="password2" maxlength="64"
+                           class="form-control" type="password">
+                    <div data-role="activateAccountFeedback" id="password2" class="invalid-feedback"></div>
+                </div>
+
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary"><?php echo $langUsers['Save password'] ?></button>
+                </div>
+            </fieldset>
+        </form>
+    </div>
 </div>
+
+<script type="text/javascript">
+    <?php ob_start(); ?>
+
+    <?php NFWX::i()->mainBottomScript .= ob_get_clean(); ?>
+</script>

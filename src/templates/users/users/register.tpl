@@ -8,29 +8,6 @@ $langUsers = NFW::i()->getLang('users');
 NFW::i()->assign('page_title', $langUsers['Registration']);
 
 $attrs = $CUsers->attributes;
-
-/*<script type="text/javascript">
-    $(document).ready(function () {
-        var f = $('form[id="register"]');
-        f.activeForm({
-            'beforeSubmit': function (d, f, o) {
-                // Reload captcha
-                f.find('img[id="captcha"]').attr('src', '<?php echo NFW::i()->base_path?>captcha.png?' + +Math.floor(Math.random() * 10000000));
-            },
-            'error': function (response) {
-                f.find('input[name="captcha"]').val('');
-            },
-            'success': function (response) {
-                $(document).trigger('show-<?php echo $successDialog->getID()?>', [response.message]);
-            }
-        });
-
-        $(document).on('hide-<?php echo $successDialog->getID()?>', function () {
-            window.location.href = '/';
-        });
-    });
-</script>
-*/
 ?>
 <form onsubmit="registerFormSubmit(); return false;" class="d-grid mx-auto col-sm-8 col-md-6 col-lg-4">
     <fieldset>
