@@ -8,7 +8,7 @@ if (isset($_GET['action'])) {
         case 'restore_password':
             $req = json_decode(file_get_contents('php://input'));
 
-            $CUsers->validateEmailAndCaptcha($req->email, $req->captcha);
+            $CUsers->validateEmail($req->email);
             if (count($CUsers->errors)) {
                 NFWX::i()->jsonError(400, $CUsers->errors);
             }
@@ -42,12 +42,12 @@ if (isset($_GET['action'])) {
             $req = json_decode(file_get_contents('php://input'));
 
             $CUsers->loadAdditionalAttributes();
-            $CUsers->validateRegistration($req->fields, $req->captcha);
+            $CUsers->validateRegistration($req);
             if (count($CUsers->errors)) {
                 NFWX::i()->jsonError(400, $CUsers->errors, $CUsers->last_msg);
             }
 
-            if (!$CUsers->actionRegister($req->fields)) {
+            if (!$CUsers->actionRegister($req)) {
                 NFWX::i()->jsonError(400, $CUsers->last_msg);
             }
 

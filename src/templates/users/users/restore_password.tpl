@@ -33,18 +33,6 @@ NFW::i()->assign('page_title', $langUsers['Restore password']);
         </div>
 
         <div class="mb-3">
-            <label for="captcha"><?php echo NFW::i()->lang['Captcha'] ?></label>
-
-            <div class="input-group">
-                <input id="restorePasswordCaptcha" type="text" required="required" maxlength="6"
-                       class="form-control" style="font-family: monospace; font-weight: bold;"/>
-                <img id="restorePasswordCaptchaImg" src="<?php echo NFW::i()->base_path ?>captcha.png" alt=""/>
-            </div>
-
-            <div id="restorePasswordCaptchaFeedback" class="invalid-feedback"></div>
-        </div>
-
-        <div class="mb-3">
             <button type="submit" class="btn btn-primary"><?php echo $langUsers['Restore password send'] ?></button>
         </div>
 
@@ -64,17 +52,11 @@ NFW::i()->assign('page_title', $langUsers['Restore password']);
 
     const restorePasswordEmail = document.getElementById("restorePasswordEmail");
     const restorePasswordEmailFeedback = document.getElementById("restorePasswordEmailFeedback");
-    const restorePasswordCaptcha = document.getElementById("restorePasswordCaptcha");
-    const restorePasswordCaptchaFeedback = document.getElementById("restorePasswordCaptchaFeedback");
-    const restorePasswordCaptchaImg = document.getElementById("restorePasswordCaptchaImg");
     restorePasswordFormSubmit = async function () {
-        restorePasswordCaptchaImg.setAttribute('src', '<?php echo NFW::i()->base_path?>captcha.png?' + +Math.floor(Math.random() * 10000000));
-
         let response = await fetch("?action=restore_password", {
             method: "POST",
             body: JSON.stringify({
                 email: restorePasswordEmail.value,
-                captcha: restorePasswordCaptcha.value
             }),
             headers: {
                 "Content-type": "application/json; charset=UTF-8"
@@ -83,8 +65,6 @@ NFW::i()->assign('page_title', $langUsers['Restore password']);
 
         restorePasswordEmail.classList.remove('is-valid', 'is-invalid');
         restorePasswordEmailFeedback.classList.remove('d-block');
-        restorePasswordCaptcha.classList.remove('is-valid', 'is-invalid');
-        restorePasswordCaptchaFeedback.classList.remove('d-block');
 
         if (!response.ok) {
             const resp = await response.json();
@@ -102,12 +82,6 @@ NFW::i()->assign('page_title', $langUsers['Restore password']);
                 restorePasswordEmailFeedback.classList.add('d-block');
             } else {
                 restorePasswordEmail.classList.add('is-valid');
-            }
-
-            if (errors["captcha"] !== undefined && errors["captcha"] !== "") {
-                restorePasswordCaptcha.classList.add('is-invalid');
-                restorePasswordCaptchaFeedback.innerText = errors["captcha"];
-                restorePasswordCaptchaFeedback.classList.add('d-block');
             }
 
             return;

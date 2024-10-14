@@ -64,13 +64,10 @@ class users_ext extends users {
         return NFW::i()->db->fetch_assoc($result);
     }
 
-    public function validateEmailAndCaptcha(string $email, $captcha): bool {
+    public function validateEmail(string $email): bool {
         $this->errors = active_record::validate(
-            ['email' => $email, 'captcha' => $captcha],
-            [
-                'email' => ['type' => 'email', 'desc' => 'E-mail', 'required' => true],
-                'captcha' => ['type' => 'captcha'],
-            ],
+            ['email' => $email],
+            ['email' => ['type' => 'email', 'desc' => 'E-mail', 'required' => true]],
         );
 
         return !count($this->errors);
@@ -91,8 +88,9 @@ class users_ext extends users {
         return true;
     }
 
-    public function validateRegistration(object $req, string $captcha): bool {
-        $r = []; foreach ($req as $k=>$v) $r[$k] = $v;
+    public function validateRegistration(object $req): bool {
+        $r = [];
+        foreach ($req as $k => $v) $r[$k] = $v;
         $record = $this->formatAttributes($r, $this->attributes, true);
         $record['id'] = 0;
 
@@ -100,10 +98,6 @@ class users_ext extends users {
 
         // Not required on registration
         unset($this->errors['password']);
-
-        if ($err = base_module::validate($captcha, array('type' => 'captcha'))) {
-            $this->errors['captcha'] = $err;
-        }
 
         return !count($this->errors);
     }
@@ -157,14 +151,15 @@ class users_ext extends users {
         return true;
     }
 
-    function actionRegister(object $req):bool {
+    function actionRegister(object $req): bool {
         // Cleaning old unverified registration attempts - delete older than 72 hours
         NFW::i()->db->query_build([
             'DELETE' => $this->db_table,
             'WHERE' => 'group_id=' . NFW::i()->cfg['users_group_id_unverified'] . ' AND registered < ' . (time() - 259200)
         ]);
 
-        $r = []; foreach ($req as $k=>$v) $r[$k] = $v;
+        $r = [];
+        foreach ($req as $k => $v) $r[$k] = $v;
         $this->formatAttributes($r, $this->attributes);
 
         $this->record['group_id'] = NFW::i()->cfg['users_group_id_unverified'];

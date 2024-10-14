@@ -65,16 +65,6 @@ $attrs = $CUsers->attributes;
         </div>
 
         <div class="mb-3">
-            <label for="captcha"><?php echo NFW::i()->lang['Captcha'] ?></label>
-            <div class="input-group">
-                <input id="registerCaptcha" type="text" required="required" maxlength="6"
-                       class="form-control" style="font-family: monospace; font-weight: bold;"/>
-                <img id="registerCaptchaImg" src="<?php echo NFW::i()->base_path ?>captcha.png" alt=""/>
-            </div>
-            <div id="registerCaptchaFeedback" class="invalid-feedback"></div>
-        </div>
-
-        <div class="mb-3">
             <button type="submit" class="btn btn-primary"><?php echo $langUsers['Registration send'] ?></button>
         </div>
     </fieldset>
@@ -105,22 +95,11 @@ $attrs = $CUsers->attributes;
         window.location.href = '/';
     })
 
-    const registerCaptcha = document.getElementById('registerCaptcha');
-    const registerCaptchaFeedback = document.getElementById("registerCaptchaFeedback");
-    const registerCaptchaImg = document.getElementById("registerCaptchaImg");
-
     registerFormSubmit = async function () {
-        registerCaptchaImg.setAttribute('src', '<?php echo NFW::i()->base_path?>captcha.png?' + +Math.floor(Math.random() * 10000000));
-        registerCaptcha.classList.remove('is-valid', 'is-invalid');
-        registerCaptchaFeedback.classList.remove('d-block');
-
-        let post = {
-            captcha: registerCaptcha.value,
-            fields: {}
-        };
+        let post = {};
         document.querySelectorAll('[data-role="registerInput"]').forEach(item => {
             item.classList.remove('is-valid', 'is-invalid');
-            post['fields'][item.id] = item.value;
+            post[item.id] = item.value;
         });
 
         document.querySelectorAll('[data-role="registerFeedback"]').forEach(item => {
@@ -143,13 +122,6 @@ $attrs = $CUsers->attributes;
                 if (key === 'general') {
                     gErrorToastText.innerText = errors["general"];
                     gErrorToast.show();
-                    return;
-                }
-
-                if (key === 'captcha') {
-                    registerCaptcha.classList.add('is-invalid');
-                    registerCaptchaFeedback.innerText = errors["captcha"];
-                    registerCaptchaFeedback.classList.add('d-block');
                     return;
                 }
 
