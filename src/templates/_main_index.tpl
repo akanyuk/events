@@ -2,7 +2,11 @@
 // Index page
 
 $CWorksComments = new works_comments();
-$worksComments = $CWorksComments->displayLatestComments();
+list($comments, $screenshots) = $CWorksComments->latestComments();
+$worksComments = $CWorksComments->renderAction([
+    'comments' => $comments,
+    'screenshots' => $screenshots,
+],'latest');
 
 $langMain = NFW::i()->getLang('main');
 list($upcoming, $current, $past) = lastEvents();
@@ -31,7 +35,7 @@ foreach ($upcoming as $record) {
             </div>
             <div class="d-grid mx-auto col-lg-6">
                 <a class="btn btn-lg btn-primary"
-                   href="<?php echo NFW::i()->base_path . 'comments.html' ?>"><?php echo $langMain['all comments'] ?></a>
+                   href="<?php echo NFW::i()->base_path . 'comments/all' ?>"><?php echo $langMain['all comments'] ?></a>
             </div>
         </div>
     </div>

@@ -23,6 +23,42 @@ h2.index-head {
     margin-bottom: 30px;
 }
 
+/* Comments on index and `all comments` pages */
+.card-comment {
+    border: none !important;
+}
+
+.card-comment .blockquote {
+    font-size: 1rem !important;
+}
+
+@media (min-width: 992px) {
+    .card-comment {
+        flex-direction: row !important;
+    }
+
+    .card-comment IMG {
+        width: 200px !important;
+        margin-bottom: auto !important;
+        padding-bottom: 1em !important;
+        border-radius: 0 !important;
+    }
+
+    IMG.no-screenshot {
+        opacity: 20%;
+    }
+
+    HR.comment-delimiter {
+        display: none;
+    }
+}
+
+@media (max-width: 991px) {
+    IMG.no-screenshot {
+        display: none;
+    }
+}
+
 /* Timetable */
 
 .table-timetable > tbody > tr > td {

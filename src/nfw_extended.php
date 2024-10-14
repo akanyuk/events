@@ -274,13 +274,13 @@ class NFWX extends NFW {
         }
 
         if ($num_pages <= 1)
-            $pages = array('<li class="active"><span>1</span></li>');
+            $pages = array('<li class="page-item active"><a class="page-link">1</a></li>');
         else {
             if ($cur_page > 3) {
-                $pages[] = '<li><a href="' . $link_to . $first_letter . 'p=1">1</a></li>';
+                $pages[] = '<li class="page-item"><a class="page-link" href="' . $link_to . $first_letter . 'p=1">1</a></li>';
 
                 if ($cur_page != 4)
-                    $pages[] = '<li class="disabled"><span>...</span></li>';
+                    $pages[] = '<li class="page-item disabled"><a class="page-link">...</a></li>';
             }
 
             // Don't ask me how the following works. It just does, OK? :-)
@@ -288,20 +288,20 @@ class NFWX extends NFW {
                 if ($current < 1 || $current > $num_pages)
                     continue;
                 else if ($current != $cur_page || $link_to_all)
-                    $pages[] = '<li><a href="' . $link_to . $first_letter . 'p=' . $current . '">' . $current . '</a></li>';
+                    $pages[] = '<li class="page-item"><a class="page-link" href="' . $link_to . $first_letter . 'p=' . $current . '">' . $current . '</a></li>';
                 else
-                    $pages[] = '<li class="active"><span>' . $current . '</span></li>';
+                    $pages[] = '<li class="page-item active"><a class="page-link">' . $current . '</a></li>';
             }
 
             if ($cur_page <= ($num_pages - 3)) {
                 if ($cur_page != ($num_pages - 3))
-                    $pages[] = '<li class="disabled"><span>...</span></li>';
+                    $pages[] = '<li class="page-item disabled"><a class="page-link">...</a></li>';
 
-                $pages[] = '<li><a href="' . $link_to . $first_letter . 'p=' . $num_pages . '">' . $num_pages . '</a></li>';
+                $pages[] = '<li><a class="page-link" href="' . $link_to . $first_letter . 'p=' . $num_pages . '">' . $num_pages . '</a></li>';
             }
         }
 
-        return '<ul class="pagination">' . implode($separator, $pages) . '</ul>';
+        return '<nav><ul class="pagination">' . implode($separator, $pages) . '</ul></nav>';
     }
 
     function safeFilename($filename) {
