@@ -43,46 +43,6 @@ switch ($_GET['action']) {
         $langMain = NFW::i()->getLang('main');
         NFWX::i()->jsonSuccess(['message' => $langMain['votekey-request success note']]);
         break;
-    case 'commentsList':
-        $CWorksComments = new works_comments();
-        $result = $CWorksComments->workComments(intval($_GET['work_id']));
-        if ($result === false) {
-            NFWX::i()->jsonError(400, $CWorksComments->last_msg);
-        }
-        NFWX::i()->jsonSuccess(['comments' => $result]);
-        break;
-    case 'addComment':
-        if (!NFWX::i()->checkPermissions('works_comments', 'add_comment')) {
-            NFWX::i()->jsonError(403, 'No permissions');
-        }
-
-        $req = json_decode(file_get_contents('php://input'));
-        $CWorksComments = new works_comments();
-        if (!$CWorksComments->addComment($req->workID, $req->message)) {
-            NFWX::i()->jsonError(400, $CWorksComments->errors, $CWorksComments->last_msg);
-        }
-        NFWX::i()->jsonSuccess();
-        break;
-    case 'deleteComment':
-        $req = json_decode(file_get_contents('php://input'));
-        $CWorksComments = new works_comments($req->commentID);
-        if (!$CWorksComments->record['id']) {
-            NFWX::i()->jsonError(400, $CWorksComments->last_msg);
-        }
-
-        if (!NFWX::i()->checkPermissions(
-            'works_comments',
-            'delete',
-            ['work_id' => $CWorksComments->record['work_id']],
-        )) {
-            NFWX::i()->jsonError(403, 'No permissions');
-        }
-
-        if (!$CWorksComments->delete()) {
-            NFWX::i()->jsonError(400, $CWorksComments->last_msg);
-        }
-        NFWX::i()->jsonSuccess();
-        break;
     default:
         NFWX::i()->jsonError(400, "Unknown action");
 }
