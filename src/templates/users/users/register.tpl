@@ -51,7 +51,7 @@ $attrs = $CUsers->attributes;
                 <option value=""></option>
                 <?php foreach ($attrs['country']['options'] as $country): ?>
                     <option <?php echo $country['id'] == $defaultCountry ? 'selected="selected"' : '' ?>
-                            value="<?php echo $country['desc'] ?>"><?php echo $country['desc'] ?></option>
+                            value="<?php echo $country['id'] ?>"><?php echo $country['desc'] ?></option>
                 <?php endforeach; ?>
             </select>
             <div data-role="registerFeedback" id="country" class="invalid-feedback"></div>

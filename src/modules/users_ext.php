@@ -10,38 +10,6 @@ class users_ext extends users {
         return parent::__construct($record_id);
     }
 
-    // TODO: разобрать по разным валидациям
-    private function validateRecord($role = 'update', $record = false): bool {
-        switch ($role) {
-            case 'register':
-                $this->errors = parent::validate();
-
-                // Not required on registration
-                unset($this->errors['password']);
-
-                if ($captchaErr = base_module::validate($_POST['captcha'], array('type' => 'captcha'))) {
-                    $this->errors['captcha'] = $captchaErr;
-                }
-
-                return !count($this->errors);
-            case 'update':
-            case 'update_password':
-                $this->errors = parent::validate($role);
-                return !count($this->errors);
-            case 'update_password_main':
-                $this->errors = parent::validate('update_password');
-
-                // check old password
-                if (!$this->authentificate($this->record['username'], $this->record['old_password'])) {
-                    $this->errors['old_password'] = $this->lang['Errors']['Wrong old password'];
-                }
-
-                return !count($this->errors);
-            default:
-                return true;
-        }
-    }
-
     public function loadAdditionalAttributes() {
         $this->loadServicettributes();
     }
@@ -88,7 +56,7 @@ class users_ext extends users {
         return true;
     }
 
-    public function validateRegistration(object $req): bool {
+    public function validateProfile(object $req): bool {
         $r = [];
         foreach ($req as $k => $v) $r[$k] = $v;
         $record = $this->formatAttributes($r, $this->attributes, true);
@@ -187,61 +155,34 @@ class users_ext extends users {
         return true;
     }
 
-    // Просмотр и редактирование своего профиля клиентом
-    function actionUsersUpdateProfile() {
-        $this->error_report_type = empty($_POST) ? 'error-page' : 'active_form';
-        if (NFW::i()->user['is_guest']) {
-            $this->error($this->lang['Errors']['Not registered'], __FILE__, __LINE__);
-            return false;
-        }
-
+    function actionUpdateProfile(object $req): bool {
         if (!$this->load(NFW::i()->user['id'])) {
             return false;
         }
 
-        if (empty($_POST)) {
-            return $this->renderAction();
-        }
+        $r = [];
+        foreach ($req as $k => $v) $r[$k] = $v;
+        $this->formatAttributes($r, $this->attributes);
 
-        $this->error_report_type = 'active_form';
-
-        $this->formatAttributes($_POST);
-        $errors = $this->validateRecord();
-
-        if (!empty($errors)) {
-            NFW::i()->renderJSON(array('result' => 'error', 'errors' => $errors));
-        }
-
-        $is_updated = $this->save();
-
-        NFW::i()->renderJSON(array('result' => 'success', 'message' => $this->lang['Update profile message'], 'is_updated' => $is_updated));
+        $this->save();
+        return true;
     }
 
-    function actionUsersUpdatePassword() {
-        if (empty($_POST)) return false;
-
-        $this->error_report_type = 'active_form';
-        if (!$this->load(NFW::i()->user['id'])) return false;
-
-        $this->record['password'] = $_POST['password'];
-        $this->record['password2'] = $_POST['password2'];
-        $this->record['old_password'] = $_POST['old_password'];
-
-        $errors = $this->validateRecord('update_password_main');
-        if (!empty($errors)) {
-            NFW::i()->renderJSON(array('result' => 'error', 'errors' => $errors));
+    function actionUpdatePassword(string $password): bool {
+        if (!$this->load(NFW::i()->user['id'])) {
+            return false;
         }
 
-        if (!NFW::i()->db->query_build(array('UPDATE' => $this->db_table, 'SET' => 'password=\'' . users::hash($this->record['password'], NFW::i()->user['salt']) . '\'', 'WHERE' => 'id=' . $this->record['id']))) {
+        if (!NFW::i()->db->query_build(array('UPDATE' => $this->db_table, 'SET' => 'password=\'' . users::hash($password, NFW::i()->user['salt']) . '\'', 'WHERE' => 'id=' . $this->record['id']))) {
             $this->error('Unable to update record\'s address', __FILE__, __LINE__, NFW::i()->db->error());
             return false;
         }
 
         // Auto authenticate on change password
-        if ($account = $this->authentificate($this->record['username'], $this->record['password'])) {
-            $this->cookie_update($account);
+        if ($user = $this->authentificate($this->record['username'], $password)) {
+            $this->cookie_update($user);
         }
 
-        NFW::i()->renderJSON(array('result' => 'success', 'is_updated' => true, 'message' => $this->lang['Update password message']));
+        return true;
     }
 }

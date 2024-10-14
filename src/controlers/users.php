@@ -42,7 +42,7 @@ if (isset($_GET['action'])) {
             $req = json_decode(file_get_contents('php://input'));
 
             $CUsers->loadAdditionalAttributes();
-            $CUsers->validateRegistration($req);
+            $CUsers->validateProfile($req);
             if (count($CUsers->errors)) {
                 NFWX::i()->jsonError(400, $CUsers->errors, $CUsers->last_msg);
             }
@@ -52,6 +52,44 @@ if (isset($_GET['action'])) {
             }
 
             NFWX::i()->jsonSuccess(['message' => $CUsers->lang['Registration message']]);
+            break;
+        case 'update_profile':
+            $req = json_decode(file_get_contents('php://input'));
+
+            $CUsers->validateProfile($req);
+            if (count($CUsers->errors)) {
+                NFWX::i()->jsonError(400, $CUsers->errors, $CUsers->last_msg);
+            }
+
+            if (!$CUsers->actionUpdateProfile($req)) {
+                NFWX::i()->jsonError(400, $CUsers->last_msg);
+            }
+
+            NFWX::i()->jsonSuccess(['message' => $CUsers->lang['Update profile message']]);
+            break;
+        case 'update_password':
+            $req = json_decode(file_get_contents('php://input'));
+
+            $errors = [];
+
+            if (!$CUsers->authentificate(NFW::i()->user['username'], $req->old_password)) {
+                $errors['old_password'] = $CUsers->lang['Errors']['Wrong old password'];
+            }
+
+            $CUsers->validatePasswords($req->password, $req->password2);
+            if (count($CUsers->errors)) {
+                $errors = array_merge($errors, $CUsers->errors);
+            }
+
+            if (count($errors)) {
+                NFWX::i()->jsonError(400, $errors);
+            }
+
+            if (!$CUsers->actionUpdatePassword($req->password)) {
+                NFWX::i()->jsonError(400, $CUsers->last_msg);
+            }
+
+            NFWX::i()->jsonSuccess(['message' => $CUsers->lang['Update password message']]);
             break;
         default:
             NFWX::i()->jsonError(400, "Unknown action");
