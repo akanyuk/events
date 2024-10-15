@@ -78,11 +78,6 @@ $langLinksXs = array(
         svg {
             fill: currentColor;
         }
-
-        .input-search {
-            padding-top: 0.2rem;
-            padding-bottom: 0.2rem;
-        }
     </style>
 </head>
 <body>
@@ -140,9 +135,7 @@ $langLinksXs = array(
             <div class="w-100">&nbsp;</div>
             <div class="d-flex py-1 align-items-center">
                 <div class="me-3">
-                    <a href="#" class="text-white"
-                       data-bs-toggle="collapse" data-bs-target="#collapseSearch"
-                       aria-expanded="false" aria-controls="collapseExample">
+                    <a href="<?php echo NFW::i()->base_path ?>works/search" class="text-white">
                         <svg class="fill-white" width="1em" height="1em">
                             <use href="#icon-search"></use>
                         </svg>
@@ -188,7 +181,7 @@ $langLinksXs = array(
                                 <use href="#icon-user"></use>
                             </svg>
                             <span
-                                    class="d-none d-sm-inline ps-2"><?php echo htmlspecialchars(NFW::i()->user['username']) ?></span>
+                                    class="d-none d-sm-inline ps-1"><?php echo htmlspecialchars(NFW::i()->user['username']) ?></span>
                         </a>
                         <ul class="dropdown-menu text-small shadow">
                             <li><a href="<?php echo NFW::i()->absolute_path ?>/cabinet/works?action=list"
@@ -216,12 +209,6 @@ $langLinksXs = array(
                 <?php endif; ?>
             </div>
         </div>
-    </header>
-    <header class="collapse m-3" id="collapseSearch">
-        <form role="search" class="mx-auto col-md-8 col-lg-6">
-            <input type="search" class="form-control input-search" aria-label="Search"
-                   placeholder="<?php echo $langMain['search hint'] ?>">
-        </form>
     </header>
 </main>
 

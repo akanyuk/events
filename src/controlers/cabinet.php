@@ -1,8 +1,7 @@
 <?php
 if (NFW::i()->user['is_guest']) {
 	header('Location: '.NFW::i()->absolute_path);
-}
-elseif (NFW::i()->user['is_blocked']) {
+} elseif (NFW::i()->user['is_blocked']) {
 	NFW::i()->stop('User\'s profile disabled by administration.', 'error-page');
 }
 	

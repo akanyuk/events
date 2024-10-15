@@ -456,24 +456,6 @@ class works extends active_record {
         return $errors;
     }
 
-    function actionMainSearch() {
-        $search_string = isset($_GET['q']) ? trim($_GET['q']) : false;
-        if (!$search_string) {
-            NFW::i()->stop('[]');
-        }
-
-        $response = array();
-        foreach ($this->getRecords(array('filter' => array('search_main' => $search_string), 'limit' => 12, 'skip_pagination' => true)) as $record) {
-            $response[] = array(
-                'id' => $record['id'],
-                'title' => $record['display_title'],
-                'link' => $record['main_link']
-            );
-        }
-
-        NFW::i()->stop(json_encode($response));
-    }
-
     // Просмотр автором работ из ЛК
     function actionCabinetList() {
         $records = $this->getRecords(array(

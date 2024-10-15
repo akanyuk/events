@@ -173,7 +173,7 @@ list($worksBlock, $votingBlock) = renderWorksBlock($CEvents->record, $CCompetiti
 $CCompetitionsGroups = new competitions_groups();
 $competitionsGroups = $CCompetitionsGroups->getRecords($CEvents->record['id']);
 
-$worksComments = NFW::i()->fetch(NFW::i()->findTemplatePath('works_comments/main/work_comments.tpl'),[
+$worksComments = NFW::i()->fetch(NFW::i()->findTemplatePath('works_comments/_work_comments.tpl'),[
     'workID' => $CWorks->record['id'],
 ]);
 

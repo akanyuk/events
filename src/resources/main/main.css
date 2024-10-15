@@ -17,6 +17,14 @@ html[lang="ru"] .hidden-lang-ru {
     background-color: inherit;
 }
 
+.badge-platform {
+    background-color: #6e3731;
+}
+
+.badge-format {
+    background-color: #31606e;
+}
+
 /* index page */
 h2.index-head {
     border-bottom: 1px solid #bbb;
@@ -90,14 +98,6 @@ h2.index-head {
 .w-640 {
     width: 640px;
     max-width: 100%;
-}
-
-.work-container .badge-platform {
-    background-color: #6e3731;
-}
-
-.work-container .badge-format {
-    background-color: #31606e;
 }
 
 .work-container .badge-place {

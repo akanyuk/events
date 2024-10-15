@@ -9,9 +9,6 @@ $lang_main = array(
     'today' => 'Today',
     'yesterday' => 'Yesterday',
 
-    'news' => 'News',
-    'latest news' => 'Latest news',
-    'all news' => 'Show all news',
     'comments' => 'Comments',
     'latest comments' => 'Latest comments',
     'all comments' => 'Show all comments',
@@ -22,6 +19,8 @@ $lang_main = array(
     'choose button' => 'Choose',
     'download' => 'download',
     'search hint' => 'Search by title or author',
+    'Search' => 'Search',
+    'Search nothing found' => 'Nothing was found for your query',
 
     'cabinet prods' => 'My Prods',
     'cabinet profile' => 'Profile',

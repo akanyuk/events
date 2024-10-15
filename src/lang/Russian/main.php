@@ -9,9 +9,6 @@ $lang_main = array(
     'today' => 'Сегодня',
     'yesterday' => 'Вчера',
 
-    'news' => 'Новости',
-    'latest news' => 'Новости',
-    'all news' => 'Все новости',
     'comments' => 'Комментарии',
     'latest comments' => 'Комментарии',
     'all comments' => 'Все комментарии',
@@ -20,7 +17,9 @@ $lang_main = array(
     'reception closed' => 'завершено',
     'voting closed' => 'закончено',
     'choose button' => 'Выбрать',
+    'Search' => 'Поиск',
     'search hint' => 'Поиск по названию или автору',
+    'Search nothing found' => 'По вашему запросу ничего не найдено',
 
     'download' => 'скачать',
 

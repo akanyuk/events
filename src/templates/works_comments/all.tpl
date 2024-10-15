@@ -20,9 +20,9 @@ $noImage = NFW::i()->assets('main/current-event-large.png');
                         class="card-img-top px-3 <?php echo isset($screenshots[$workID]) ? '' : 'no-screenshot' ?>"
                         alt=""></a>
             <div class="card-body pt-md-0">
-                <h5 class="card-title"><a
+                <p class="lead"><a
                             href="<?php echo $w['work_url'] ?>"><?php echo htmlspecialchars($w['title']) ?></a>
-                </h5>
+                </p>
 
                 <?php foreach ($w['items'] as $comment): ?>
                     <figure>
