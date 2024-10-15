@@ -35,7 +35,7 @@ $langLinksXs = array(
 <!DOCTYPE html>
 <html lang="<?php echo NFW::i()->lang['lang'] ?>" data-bs-theme="<?php echo $theme ?>">
 <head><title><?php echo $page_title ?? $page['title'] ?></title>
-    <link href="<?php echo NFW::i()->base_path ?>vendor/bootstrap5/theme/bootstrap.min.css" rel="stylesheet">
+    <link href="<?php echo NFW::i()->base_path ?>vendor/bootstrap5/theme/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta http-equiv="Content-Language" content="<?php echo NFW::i()->lang['lang'] ?>"/>

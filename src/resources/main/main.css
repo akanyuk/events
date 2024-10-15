@@ -53,7 +53,11 @@ h2.index-head {
     }
 
     IMG.no-screenshot {
-        opacity: 20%;
+        opacity: 25%;
+    }
+
+    [data-bs-theme="dark"] IMG.no-screenshot {
+        opacity: 5%;
     }
 
     HR.comment-delimiter {
