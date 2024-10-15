@@ -24,7 +24,7 @@ foreach ($comments as $workID => $w): ?>
                         <?php echo nl2br(htmlspecialchars($comment['message'])) ?>
                     </blockquote>
                     <figcaption class="blockquote-footer">
-                        <?php echo friendly_date($comment['posted'], $langMain) . ' latest.tpl' . date('H:i', $comment['posted']) . ' ' . htmlspecialchars($comment['posted_username']) ?>
+                        <?php echo friendly_date($comment['posted'], $langMain) . ' by ' . date('H:i', $comment['posted']) . ' ' . htmlspecialchars($comment['posted_username']) ?>
                     </figcaption>
                 </figure>
             <?php endforeach; ?>
