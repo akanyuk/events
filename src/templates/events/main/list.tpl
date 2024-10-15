@@ -3,11 +3,10 @@
  * @var array $events
  */
 ?>
-
 <div class="d-grid mx-auto col-lg-8">
     <?php foreach ($events as $record): ?>
         <div class="table-row">
-            <div class="align-middle text-left" style="display: table-cell; width: 80px;"><a
+            <div class="align-top text-left" style="display: table-cell; width: 80px;"><a
                     href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><img class="media-object"
                                                                                      src="<?php echo $record['preview_img'] ?>"
                                                                                      alt=""/></a>
