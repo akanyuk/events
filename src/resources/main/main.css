@@ -97,6 +97,12 @@ h2.index-head {
     display: block;
 }
 
+/* Competitions list short */
+
+.competitions-list-short .badge-cnt {
+    height: fit-content;
+}
+
 /* Work */
 
 .w-640 {

@@ -130,9 +130,8 @@ $langLinksXs = array(
 
 <main class="fixed-top navbar-events">
     <header>
-        <div class="container-fluid d-grid gap-3 align-items-center" style="grid-template-columns: 0fr 1fr 0fr 0fr;">
+        <div class="container-fluid ps-1 ps-sm-3 d-flex justify-content-between align-items-center">
             <a href="/"><img src="<?php echo NFW::i()->assets('main/logo.gif') ?>" alt=""/></a>
-            <div class="w-100">&nbsp;</div>
             <div class="d-flex py-1 align-items-center">
                 <div class="me-3">
                     <a href="<?php echo NFW::i()->base_path ?>works/search" class="text-white">
