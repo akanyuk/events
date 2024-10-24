@@ -16,7 +16,7 @@ $currentYear = 0;
 <div class="d-grid mx-auto col-lg-8">
     <div class="mb-3">
         <?php foreach ($years as $y): $dis = $y == date('Y', $events[0]['date_from']) ? 'disabled' : '' ?>
-            <a class="btn btn-info <?php echo $dis ?>" href="#<?php echo $y ?>"><?php echo $y ?></a>
+            <a class="mb-1 btn btn-info <?php echo $dis ?>" href="#<?php echo $y ?>"><?php echo $y ?></a>
         <?php endforeach; ?>
     </div>
 
