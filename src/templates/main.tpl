@@ -127,24 +127,32 @@ $langLinksXs = array(
         <path
             d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
     </symbol>
+
+    <symbol id="icon-gear-fill" viewBox="0 0 16 16">
+        <path
+            d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/>
+    </symbol>
 </svg>
 
 <main class="fixed-top navbar-events">
     <header>
-        <div class="container-fluid px-1 px-sm-3 ps-md-5 pe-md-4 d-flex justify-content-between align-items-center">
+        <div class="container-fluid px-1 px-sm-3 px-md-5 d-flex justify-content-between align-items-center" style="padding-bottom: 2px;">
             <a href="/"><img src="<?php echo NFW::i()->assets('main/logo.gif') ?>" alt=""/></a>
-            <div class="d-flex py-1 align-items-center">
+
+            <div class="d-flex align-items-center">
                 <div class="me-2 me-sm-3 me-md-4">
                     <a href="<?php echo NFW::i()->base_path ?>works/search" class="text-white">
-                        <svg class="fill-white" width="1em" height="1em">
+                        <svg class="fill-white" width="1.2em" height="1.2em">
                             <use href="#icon-search"></use>
                         </svg>
                     </a>
                 </div>
 
+                <div class="vr d-none d-sm-block me-2 me-sm-3 me-md-4 text-white"></div>
+
                 <div class="me-2 me-sm-3 me-md-4">
                     <div class="d-none d-sm-block text-nowrap"><?php echo implode(' • ', $langLinks) ?></div>
-                    <div class="d-block d-sm-none text-nowrap"><?php echo implode(' • ', $langLinksXs) ?></div>
+                    <div class="d-block d-sm-none text-nowrap small"><?php echo implode(' • ', $langLinksXs) ?></div>
                 </div>
 
                 <div class="me-2 me-sm-3 me-md-4">
@@ -163,48 +171,62 @@ $langLinksXs = array(
                     <?php endif; ?>
                 </div>
 
-                <?php if (NFW::i()->user['is_guest']): ?>
-                    <a href="#" class="d-block py-2 text-white text-decoration-none"
-                       data-bs-toggle="offcanvas"
-                       data-bs-target="#offcanvasLogin"
-                       aria-controls="offcanvasLogin">
-                        <svg class="fill-white" width="1em" height="1em">
-                            <use href="#icon-user"></use>
-                        </svg>
-                    </a>
-                <?php else: ?>
-                    <div class="dropdown">
-                        <a href="#" class="d-block py-2 text-white text-decoration-none text-nowrap"
-                           style="max-width: 240px;"
-                           data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="vr d-none d-sm-block me-2 me-sm-3 me-md-4 text-white"></div>
+                <div class="me-2 me-sm-3 me-md-4">
+                    <?php if (NFW::i()->user['is_guest']): ?>
+                        <a href="#" class="d-block text-white text-decoration-none"
+                           data-bs-toggle="offcanvas"
+                           data-bs-target="#offcanvasLogin"
+                           aria-controls="offcanvasLogin">
                             <svg class="fill-white" width="1em" height="1em">
                                 <use href="#icon-user"></use>
                             </svg>
-                            <span
-                                class="d-none d-sm-inline ps-1"><?php echo htmlspecialchars(NFW::i()->user['username']) ?></span>
                         </a>
-                        <ul class="dropdown-menu text-small shadow">
-                            <li><a href="<?php echo NFW::i()->absolute_path ?>/cabinet/works?action=list"
-                                   class="dropdown-item<?php echo page_is('cabinet/works?action=list') ? ' active' : '' ?>"><?php echo $langMain['cabinet prods'] ?></a>
-                            </li>
-                            <li><a href="<?php echo NFW::i()->absolute_path ?>/cabinet/works?action=add"
-                                   class="dropdown-item<?php echo page_is('cabinet/works?action=add') ? ' active' : '' ?>"><?php echo $langMain['cabinet add work'] ?></a>
-                            </li>
-                            <li><a href="<?php echo NFW::i()->absolute_path ?>/users/update_profile"
-                                   class="dropdown-item<?php echo page_is('users/update_profile') ? ' active' : '' ?>"><?php echo $langMain['cabinet profile'] ?></a>
-                            </li>
+                    <?php else: ?>
+                        <div class="dropdown">
+                            <a href="#" class="d-block text-white text-decoration-none text-nowrap"
+                               style="max-width: 240px;"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <svg class="fill-white" width="1em" height="1em">
+                                    <use href="#icon-user"></use>
+                                </svg>
+                                <span
+                                    class="d-none d-sm-inline ps-1"><?php echo htmlspecialchars(NFW::i()->user['username']) ?></span>
+                            </a>
+                            <ul class="dropdown-menu text-small shadow">
+                                <li><a href="<?php echo NFW::i()->absolute_path ?>/cabinet/works?action=list"
+                                       class="dropdown-item<?php echo page_is('cabinet/works?action=list') ? ' active' : '' ?>"><?php echo $langMain['cabinet prods'] ?></a>
+                                </li>
+                                <li><a href="<?php echo NFW::i()->absolute_path ?>/cabinet/works?action=add"
+                                       class="dropdown-item<?php echo page_is('cabinet/works?action=add') ? ' active' : '' ?>"><?php echo $langMain['cabinet add work'] ?></a>
+                                </li>
+                                <li><a href="<?php echo NFW::i()->absolute_path ?>/users/update_profile"
+                                       class="dropdown-item<?php echo page_is('users/update_profile') ? ' active' : '' ?>"><?php echo $langMain['cabinet profile'] ?></a>
+                                </li>
 
-                            <?php if (NFW::i()->checkPermissions('admin')): ?>
-                                <li><a href="/admin" class="dropdown-item">Control panel</a></li>
-                            <?php endif; ?>
+                                <?php if (NFW::i()->checkPermissions('admin')): ?>
+                                    <li><a href="/admin" class="dropdown-item">Control panel</a></li>
+                                <?php endif; ?>
 
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
 
-                            <li><a class="dropdown-item"
-                                   href="?action=logout"><?php echo NFW::i()->lang['Logout'] ?></a></li>
-                        </ul>
+                                <li><a class="dropdown-item"
+                                       href="?action=logout"><?php echo NFW::i()->lang['Logout'] ?></a></li>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <?php if (NFW::i()->checkPermissions('admin')): ?>
+                    <div class="vr d-none d-sm-block me-2 me-sm-3 me-md-4 text-white"></div>
+
+                    <div class="d-none d-sm-block">
+                        <a class="text-white" href="/admin" title="Control panel">
+                            <svg width="1em" height="1em">
+                                <use href="#icon-gear-fill"></use>
+                            </svg>
+                        </a>
                     </div>
                 <?php endif; ?>
             </div>

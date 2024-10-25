@@ -33,6 +33,8 @@ NFW::i()->breadcrumb_status = '<div>Posted: ' . date('d.m.Y H:i', $Module->recor
 if ($Module->record['edited']) {
     NFW::i()->breadcrumb_status .= '<div>Updated: ' . date('d.m.Y H:i', $Module->record['edited']) . ' (' . $Module->record['edited_username'] . ')</div>';
 }
+
+echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl')).'</div>';
 ?>
 <style>
     .author-note {
@@ -92,7 +94,10 @@ if ($Module->record['edited']) {
                                             class="<?php echo 'btn btn-default ' . ($Module->record['status'] == $s['id'] ? 'active btn-info' : '') ?>"
                                             title="<?php echo $s['desc'] ?>"
                                             data-description="<?php echo $s['desc_full'] . '<br />Voting: <strong>' . ($s['voting'] ? 'On' : 'Off') . '</strong>. Release: <strong>' . ($s['release'] ? 'On' : 'Off') . '</strong>' ?>">
-                                        <span class="<?php echo $s['icon'] ?>"></span></button>
+                                        <svg width="1em" height="1em">
+                                            <use xlink:href="#<?php echo $s['svg-icon'] ?>"/>
+                                        </svg>
+                                    </button>
                                 <?php } ?>
                             </div>
                         </div>
@@ -161,7 +166,8 @@ if ($Module->record['edited']) {
                     <div class="panel-heading">
                         <h4 class="panel-title">Author's comment</h4>
                     </div>
-                    <div class="panel-body author-note"><?php echo htmlspecialchars($Module->record['description']) ?></div>
+                    <div
+                        class="panel-body author-note"><?php echo htmlspecialchars($Module->record['description']) ?></div>
                 </div>
             </div>
 
@@ -178,7 +184,8 @@ if ($Module->record['edited']) {
                         </div>
                         <div id="collapseOne" class="panel-collapse collapse" role="tabpanel"
                              aria-labelledby="headingOne">
-                            <div class="panel-body author-note"><?php echo htmlspecialchars($Module->record['description']) ?></div>
+                            <div
+                                class="panel-body author-note"><?php echo htmlspecialchars($Module->record['description']) ?></div>
                         </div>
                     </div>
                 </div>
@@ -231,7 +238,7 @@ if ($Module->record['edited']) {
                     <legend>Links</legend>
                     <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseLinksHelp"
                             aria-expanded="false" aria-controls="collapseExample"><span
-                                class="fa fa-question-circle"></span>
+                            class="fa fa-question-circle"></span>
                     </button>
                 </div>
 
@@ -259,10 +266,10 @@ if ($Module->record['edited']) {
                                     <span class="input-group-btn">
 										<button data-action="toggle-title" class="btn btn-default" tabindex="-1"
                                                 title="Show custom tittle"><span
-                                                    class="glyphicon glyphicon-chevron-down"></span></button>
+                                                class="glyphicon glyphicon-chevron-down"></span></button>
 										<button data-action="remove-link" class="btn btn-default" tabindex="-1"
                                                 title="Remove link"><span
-                                                    class="glyphicon glyphicon-remove"></span></button>
+                                                class="glyphicon glyphicon-remove"></span></button>
 									</span>
                                 </div>
                                 <div class="input-group"
@@ -497,9 +504,9 @@ if ($Module->record['edited']) {
                        placeholder="Url"/>
                 <span class="input-group-btn">
 					<button data-action="toggle-title" class="btn btn-default" tabindex="-1" title="Show custom tittle"><span
-                                class="fa fa-chevron-down"></span></button>
+                            class="fa fa-chevron-down"></span></button>
 					<button data-action="remove-link" class="btn btn-default" tabindex="-1" title="Remove link"><span
-                                class="fa fa-times"></span></button>
+                            class="fa fa-times"></span></button>
 				</span>
             </div>
             <div class="input-group" style="width: 100%; display: none;">

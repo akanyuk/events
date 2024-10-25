@@ -13,11 +13,11 @@ function competitions_list_short(
 
     foreach ($competitions as $key => $c) {
         if ($c['voting_status']['available'] && $c['voting_works']) {
-            $competitions[$key]['second_label'] = '<small><div class="badge rounded-pill text-bg-danger" title="Vote now!">!</div></small>';
+            $competitions[$key]['second_label'] = '<div class="badge rounded-pill text-bg-danger small" title="Vote now!">!</div>';
         } else if ($c['reception_status']['now']) {
-            $competitions[$key]['second_label'] = '<small><div class="badge rounded-pill text-bg-info" title="Reception available">+</div></small>';
+            $competitions[$key]['second_label'] = '<div class="badge rounded-pill text-bg-info small" title="Reception available">+</div>';
         } else {
-            $competitions[$key]['second_label'] = '<small><div></div></small>';
+            $competitions[$key]['second_label'] = '<div></div>';
         }
 
         if ($hideWorksCount) {

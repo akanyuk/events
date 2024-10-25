@@ -1,73 +1,128 @@
 <?php
-$lang_main = NFW::i()->getLang('main');
+/**
+ * @var array $records
+ */
 
-NFW::i()->assign('page_title', $lang_main['cabinet prods']);
-
-NFW::i()->breadcrumb = array(
-    array('desc' => $lang_main['cabinet prods']),
-);
+$langMain = NFW::i()->getLang('main');
+NFW::i()->assign('page_title', $langMain['cabinet prods']);
 
 if (empty($records)) {
     ?>
-    <div class="jumbotron">
-        <h1>Hey, <?php echo htmlspecialchars(NFW::i()->user['realname']) ?>!</h1>
-        <p><?php echo $lang_main['works empty'] ?></p>
-        <p><a href="?action=add" class="btn btn-primary btn-lg"
-              role="button"><?php echo $lang_main['cabinet add work'] ?></a></p>
+    <div class="p-5 mb-4 bg-body-tertiary rounded-3">
+        <div class="container-fluid py-5">
+            <h1 class="display-5 fw-bold">Hey, <?php echo htmlspecialchars(NFW::i()->user['realname']) ?>!</h1>
+            <p class="col-md-8 fs-4"><?php echo $langMain['works empty'] ?></p>
+            <a href="?action=add" class="btn btn-primary btn-lg"
+               type="button"><?php echo $langMain['cabinet add work'] ?></a>
+        </div>
     </div>
     <?php
     return;
 }
 
+$noImage = NFW::i()->assets('main/current-event-large.png');
+NFW::i()->registerFunction('cache_media');
+
+$top = '#top';
+
+$years = [];
+foreach ($records as $record) {
+    if (!in_array(date('Y', $record['event_from']), $years)) {
+        $years[] = date('Y', $record['event_from']);
+    }
+}
+$currentYear = 0;
+
+echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
 ?>
-<table class="table table-condensed">
-    <?php foreach ($records as $r): ?>
-        <?php
-        switch ($r['place']) {
+<div class="d-grid mx-auto col-sm-10 col-md-8 col-lg-6 px-3">
+    <?php if (count($years) > 1):?>
+        <div class="mb-3 px-3">
+            <?php foreach ($years as $y): $dis = $y == date('Y', $records[0]['event_from']) ? 'disabled' : '' ?>
+                <a class="mb-1 btn btn-info <?php echo $dis ?>" href="#<?php echo $y ?>"><?php echo $y ?></a>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
+    <?php foreach ($records as $work):
+        $y = date('Y', $work['event_from']);
+        if ($y != $currentYear) {
+            if ($currentYear) {
+                echo '<a class="d-block mb-3 text-info" href="' . $top . '">
+    <svg width="2em" height="2em">
+        <use href="#icon-caret-up"></use>
+    </svg>
+    </a>';
+            }
+            $currentYear = $y;
+            echo '<div id="' . $y . '" style="position: relative; top: -30px;">&nbsp;</div>';
+            echo '<h2 id="' . $y . '" class="index-head px-3">' . $y . '</h2>';
+        }
+
+        $alert = '';
+        if ($work['status_info']['css-class'] !== "success" || $work['status_reason']) {
+            $alertTitle = $work['status_info']['desc'];
+            $alertText = $work['status_reason'] ?: $work['status_info']['desc_full'];
+
+            $alert = '
+<div class="alert alert-' . $work['status_info']['css-class'] . ' d-flex align-items-center" role="alert">
+    <svg class="flex-shrink-0 me-2" width="1em" height="1em" data-bs-toggle="tooltip" data-bs-title="' . $work['status_info']['desc'] . '">
+        <use xlink:href="#'.$work['status_info']['svg-icon'].'"/>
+    </svg>
+    <div>' . $alertText . '</div>
+</div>';
+        }
+
+        $url = NFW::i()->base_path . 'cabinet/works?action=view&record_id=' . $work['id'];
+        $title = $work['title'] . ' by ' . $work['author'];
+
+        $platformFormat = '<div class="badge badge-platform me-1 mb-2" title="' . $langMain['works platform'] . '">' . htmlspecialchars($work['platform']) . '</div>';
+        if ($work['format']) {
+            $platformFormat .= '<div class="badge badge-format" title="' . $langMain['works format'] . '">' . htmlspecialchars($work['format']) . '</div>';
+        }
+
+        switch ($work['place']) {
             case 0:
                 $ePrefix = '';
                 break;
             case 1:
-                $ePrefix = '<span class="label label-place">'.$r['place'] . 'st</span>&nbsp;at ';
+                $ePrefix = '<strong>' . $work['place'] . 'st</strong>&nbsp;at ';
                 break;
             case 2:
-                $ePrefix = '<span class="label label-place">'.$r['place'] . 'nd</span>&nbsp;at ';
+                $ePrefix = '<strong>' . $work['place'] . 'nd</strong>&nbsp;at ';
                 break;
             case 3:
-                $ePrefix = '<span class="label label-place">'.$r['place'] . 'rd</span>&nbsp;at ';
+                $ePrefix = '<strong>' . $work['place'] . 'rd</strong>&nbsp;at ';
                 break;
             default:
-                $ePrefix = '<span class="label label-place">'.$r['place'] . 'th</span>&nbsp;at ';
+                $ePrefix = '<strong>' . $work['place'] . 'th</strong>&nbsp;at ';
                 break;
         }
+
         ?>
-        <tr class="<?php echo $r['status_info']['css-class'] == "success" ? "" : $r['status_info']['css-class'] ?>"
-            title="<?php echo $r['status_info']['desc'] ?>">
-            <td>
-                <a href="<?php echo NFW::i()->base_path . 'cabinet/works?action=view&record_id=' . $r['id'] ?>">
-                    <img src="<?php echo $r['screenshot'] ? $r['screenshot']['tmb_prefix'] . '64' : NFW::i()->assets('main/news-no-image.png') ?>"
-                         alt=""/>
-                </a>
-            </td>
-            <td style="width:100%;">
-                <a href="<?php echo NFW::i()->base_path . 'cabinet/works?action=view&record_id=' . $r['id'] ?>">
-                    <?php echo htmlspecialchars($r['title']) . ' by&nbsp;' . htmlspecialchars($r['author']) ?>
-                </a>
+        <div class="card card-comment mb-3">
+            <a href="<?php echo $url ?>"><img
+                    src="<?php echo $work['screenshot'] ? cache_media($work['screenshot']) : $noImage ?>"
+                    class="card-img-top px-3 <?php echo $work['screenshot'] ? '' : 'no-screenshot' ?>"
+                    alt=""></a>
+            <div class="card-body pt-md-0">
+                <p class="lead"><a
+                        href="<?php echo $url ?>"><?php echo htmlspecialchars($title) ?></a>
+                </p>
+                <?php echo $platformFormat ?>
+                <p><?php echo $ePrefix . $work['event_title'] ?> /
+                    <?php echo $work['competition_title'] ?></p>
 
-                <div>
-                    <?php echo $ePrefix . htmlspecialchars($r['event_title']) . ', ' . htmlspecialchars($r['competition_title']) ?>
-                </div>
+                <?php echo $alert ?>
+            </div>
+        </div>
+        <?php
 
-                <?php if ($r['status_reason']): ?>
-                    <div class="text-warning small"><span class="fa fa-exclamation-triangle"></span> <?php echo $r['status_reason'] ?></div>
-                <?php endif ?>
-            </td>
-            <td style="text-align: center;">
-                <div class="label label-platform"><?php echo htmlspecialchars($r['platform']) ?></div>
-                <?php if ($r['format']): ?>
-                    <div class="label label-format"><?php echo htmlspecialchars($r['format']) ?></div>
-                <?php endif; ?>
-            </td>
-        </tr>
-    <?php endforeach; ?>
-</table>
+        next($works);
+        if (key($works) !== null && !$works[key($works)]['screenshot']) {
+            echo '<hr class="comment-delimiter"/>';
+        }
+    endforeach;
+    ?>
+</div>
+

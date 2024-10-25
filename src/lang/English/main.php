@@ -96,8 +96,8 @@ $lang_main = array(
         1 => 'The prod is accepted',
         2 => 'Work is disqualified',
         3 => 'Awaiting author\'s feedback',
-        4 => 'Prod will not be shown on the demoparty, but will be included in the release pack',
-        5 => 'Prod wait to preselect'
+        4 => 'The prod will not participate in the voting, but will be shown out of competition',
+        5 => 'The prod wait to preselect'
     ),
 
     'works details' => 'Prods',

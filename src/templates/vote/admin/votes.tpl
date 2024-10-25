@@ -135,8 +135,8 @@ NFW::i()->registerFunction('active_field');
                             </label>
                         </div>
                         <div class="col-md-7">
-                            <p class="text-warning"><small>If you set non empty votekey, all already added votes for
-                                    given works will be replaced.</small></p>
+                            <p class="text-warning"><small>If you set non-empty votekey, all already added votes for
+                                    given works will be replaced</small></p>
                         </div>
                     </div>
                     <div class="row">

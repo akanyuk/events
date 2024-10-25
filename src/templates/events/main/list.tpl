@@ -32,7 +32,7 @@ $currentYear = 0;
             }
             $currentYear = $y;
             echo '<div id="' . $y . '" style="position: relative; top: -30px;">&nbsp;</div>';
-            echo '<h2 id="' . $y . '" class="index-head">' . $y . '</h2>';
+            echo '<h2 id="' . $y . '" class="index-head px-3">' . $y . '</h2>';
         }
 
         ?>
