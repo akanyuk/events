@@ -35,7 +35,8 @@ $langLinksXs = array(
 <!DOCTYPE html>
 <html lang="<?php echo NFW::i()->lang['lang'] ?>" data-bs-theme="<?php echo $theme ?>">
 <head><title><?php echo $page_title ?? $page['title'] ?></title>
-    <link href="<?php echo NFW::i()->base_path ?>vendor/bootstrap5/theme/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link href="<?php echo NFW::i()->base_path ?>vendor/bootstrap5/theme/bootstrap.min.css" rel="stylesheet"
+          crossorigin="anonymous">
 
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta http-equiv="Content-Language" content="<?php echo NFW::i()->lang['lang'] ?>"/>
@@ -84,56 +85,56 @@ $langLinksXs = array(
 <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
     <symbol id="theme-icon-light" viewBox="0 0 16 16">
         <path
-                d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
+            d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
     </symbol>
     <symbol id="theme-icon-dark" viewBox="0 0 16 16">
         <path
-                d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
+            d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
         <path
-                d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
+            d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
     </symbol>
     <symbol id="theme-icon-auto" viewBox="0 0 16 16">
         <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"></path>
     </symbol>
     <symbol id="icon-user" viewBox="0 0 448 512">
         <path
-                d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512l388.6 0c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304l-91.4 0z"/>
+            d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512l388.6 0c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304l-91.4 0z"/>
     </symbol>
     <symbol id="icon-search" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
         <path
-                d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/>
+            d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/>
     </symbol>
     <symbol id="icon-caret-up" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
         <path
-                d="M182.6 137.4c-12.5-12.5-32.8-12.5-45.3 0l-128 128c-9.2 9.2-11.9 22.9-6.9 34.9s16.6 19.8 29.6 19.8l256 0c12.9 0 24.6-7.8 29.6-19.8s2.2-25.7-6.9-34.9l-128-128z"/>
+            d="M182.6 137.4c-12.5-12.5-32.8-12.5-45.3 0l-128 128c-9.2 9.2-11.9 22.9-6.9 34.9s16.6 19.8 29.6 19.8l256 0c12.9 0 24.6-7.8 29.6-19.8s2.2-25.7-6.9-34.9l-128-128z"/>
     </symbol>
 
     <symbol id="icon-arrow-repeat" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
         <path
-                d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41m-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9"/>
+            d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41m-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9"/>
         <path fill-rule="evenodd"
               d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5 5 0 0 0 8 3M3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9z"/>
     </symbol>
 
     <symbol id="icon-pencil-square" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
         <path
-                d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+            d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
         <path fill-rule="evenodd"
               d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
     </symbol>
 
     <symbol id="icon-x" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
         <path
-                d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+            d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
     </symbol>
 </svg>
 
 <main class="fixed-top navbar-events">
     <header>
-        <div class="container-fluid ps-1 ps-sm-3 d-flex justify-content-between align-items-center">
+        <div class="container-fluid px-1 px-sm-3 ps-md-5 pe-md-4 d-flex justify-content-between align-items-center">
             <a href="/"><img src="<?php echo NFW::i()->assets('main/logo.gif') ?>" alt=""/></a>
             <div class="d-flex py-1 align-items-center">
-                <div class="me-3">
+                <div class="me-2 me-sm-3 me-md-4">
                     <a href="<?php echo NFW::i()->base_path ?>works/search" class="text-white">
                         <svg class="fill-white" width="1em" height="1em">
                             <use href="#icon-search"></use>
@@ -141,26 +142,26 @@ $langLinksXs = array(
                     </a>
                 </div>
 
-                <div class="d-none d-sm-block">
-                    <div class="text-nowrap me-4"><?php echo implode(' • ', $langLinks) ?></div>
-                </div>
-                <div class="d-block d-sm-none">
-                    <div class="text-nowrap me-3"><?php echo implode(' • ', $langLinksXs) ?></div>
+                <div class="me-2 me-sm-3 me-md-4">
+                    <div class="d-none d-sm-block text-nowrap"><?php echo implode(' • ', $langLinks) ?></div>
+                    <div class="d-block d-sm-none text-nowrap"><?php echo implode(' • ', $langLinksXs) ?></div>
                 </div>
 
-                <?php if ($theme == 'light'): ?>
-                    <a class="text-white" href="<?php echo $themeLinkDark ?>">
-                        <svg class="me-3 me-lg-4" width="1em" height="1em">
-                            <use href="#theme-icon-light"></use>
-                        </svg>
-                    </a>
-                <?php elseif ($theme == 'dark'): ?>
-                    <a class="text-white" href="<?php echo $themeLinkLight ?>">
-                        <svg class="me-3 me-lg-4" width="1em" height="1em">
-                            <use href="#theme-icon-dark"></use>
-                        </svg>
-                    </a>
-                <?php endif; ?>
+                <div class="me-2 me-sm-3 me-md-4">
+                    <?php if ($theme == 'light'): ?>
+                        <a class="text-white" href="<?php echo $themeLinkDark ?>">
+                            <svg width="1em" height="1em">
+                                <use href="#theme-icon-light"></use>
+                            </svg>
+                        </a>
+                    <?php elseif ($theme == 'dark'): ?>
+                        <a class="text-white" href="<?php echo $themeLinkLight ?>">
+                            <svg width="1em" height="1em">
+                                <use href="#theme-icon-dark"></use>
+                            </svg>
+                        </a>
+                    <?php endif; ?>
+                </div>
 
                 <?php if (NFW::i()->user['is_guest']): ?>
                     <a href="#" class="d-block py-2 text-white text-decoration-none"
@@ -180,7 +181,7 @@ $langLinksXs = array(
                                 <use href="#icon-user"></use>
                             </svg>
                             <span
-                                    class="d-none d-sm-inline ps-1"><?php echo htmlspecialchars(NFW::i()->user['username']) ?></span>
+                                class="d-none d-sm-inline ps-1"><?php echo htmlspecialchars(NFW::i()->user['username']) ?></span>
                         </a>
                         <ul class="dropdown-menu text-small shadow">
                             <li><a href="<?php echo NFW::i()->absolute_path ?>/cabinet/works?action=list"
@@ -210,6 +211,43 @@ $langLinksXs = array(
         </div>
     </header>
 </main>
+
+<div id="page-content" class="container">
+    <?php
+    if (isset($page['is_error']) && $page['is_error']) {
+        echo $page['content'];
+    } else if ($page['path'] == '') {
+        echo NFW::i()->fetch(NFW::i()->findTemplatePath('_main_index.tpl'));
+    } else {
+        if (!empty(NFW::i()->breadcrumb)) {
+            echo '<div class="d-flex flex-column flex-md-row justify-content-between mb-3">';
+            echo '<nav aria-label="breadcrumb">';
+            echo '<ol class="breadcrumb mb-1">';
+            foreach (NFW::i()->breadcrumb as $b) {
+                if (isset($b['url']) && $b['url']) {
+                    echo '<li class="breadcrumb-item"><a href="' . NFW::i()->base_path . $b['url'] . '">' . htmlspecialchars($b['desc']) . '</a></li>';
+                } else {
+                    echo '<li class="breadcrumb-item active" aria-current="page">' . htmlspecialchars($b['desc']) . '</li>';
+                }
+            }
+            echo '</ol>';
+            echo '</nav>';
+            echo '<div class="mb-2">' . NFW::i()->breadcrumb_status . '</div>';
+            echo '</div>';
+        }
+
+        if (NFWX::i()->mainLayoutRightContent) {
+            echo '<div class="row">';
+            echo '<div class="col-md-8">' . $page['content'] . '</div>';
+            echo '<div class="col-md-4">' . NFWX::i()->mainLayoutRightContent . '</div>';
+            echo '</div>';
+        } else {
+            echo $page['content'];
+        }
+    } ?>
+</div>
+
+<?php echo NFWX::i()->project_settings['footer'] ?>
 
 <?php if (NFW::i()->user['is_guest']): ?>
     <div id="offcanvasLogin" class="offcanvas offcanvas-top" style="height: fit-content;" tabindex="-1"
@@ -249,49 +287,12 @@ $langLinksXs = array(
 
             <div class="mb-5">
                 <a href="<?php echo NFW::i()->base_path ?>sceneid?action=performAuth"><img
-                            src="<?php echo NFW::i()->assets("main/SceneID_Icon_200x32.png") ?>"
-                            alt="Sign in with SceneID"/></a>
+                        src="<?php echo NFW::i()->assets("main/SceneID_Icon_200x32.png") ?>"
+                        alt="Sign in with SceneID"/></a>
             </div>
         </div>
     </div>
 <?php endif; ?>
-
-<div id="page-content" class="container">
-    <?php
-    if (isset($page['is_error']) && $page['is_error']) {
-        echo $page['content'];
-    } else if ($page['path'] == '') {
-        echo NFW::i()->fetch(NFW::i()->findTemplatePath('_main_index.tpl'));
-    } else {
-        if (!empty(NFW::i()->breadcrumb)) {
-            echo '<div class="d-flex flex-column flex-md-row justify-content-between mb-3">';
-            echo '<nav aria-label="breadcrumb">';
-            echo '<ol class="breadcrumb mb-1">';
-            foreach (NFW::i()->breadcrumb as $b) {
-                if (isset($b['url']) && $b['url']) {
-                    echo '<li class="breadcrumb-item"><a href="' . NFW::i()->base_path . $b['url'] . '">' . htmlspecialchars($b['desc']) . '</a></li>';
-                } else {
-                    echo '<li class="breadcrumb-item active" aria-current="page">' . htmlspecialchars($b['desc']) . '</li>';
-                }
-            }
-            echo '</ol>';
-            echo '</nav>';
-            echo '<div class="mb-2">' . NFW::i()->breadcrumb_status . '</div>';
-            echo '</div>';
-        }
-
-        if (NFWX::i()->mainLayoutRightContent) {
-            echo '<div class="row">';
-            echo '<div class="col-md-8">' . $page['content'] . '</div>';
-            echo '<div class="col-md-4">' . NFWX::i()->mainLayoutRightContent . '</div>';
-            echo '</div>';
-        } else {
-            echo $page['content'];
-        }
-    } ?>
-</div>
-
-<?php echo NFWX::i()->project_settings['footer'] ?>
 
 <script src="<?php echo NFW::i()->base_path ?>vendor/bootstrap5/js/bootstrap.bundle.js"></script>
 <?php echo NFW::i()->fetch(NFW::i()->findTemplatePath('_main_bottom_script.tpl'), ['theme' => $theme]); ?>

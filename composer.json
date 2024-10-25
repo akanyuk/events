@@ -26,7 +26,8 @@
       "rm -rf public_html/vendor/bootstrap5",
       "mkdir -p public_html/vendor/bootstrap5/theme",
       "cp -R vendor/twbs/bootstrap/dist/* public_html/vendor/bootstrap5/",
-      "cp -f vendor/thomaspark/bootswatch/dist/cosmo/bootstrap.min.css public_html/vendor/bootstrap5/theme/"
+      "cp -f vendor/thomaspark/bootswatch/dist/cosmo/bootstrap.min.css public_html/vendor/bootstrap5/theme/",
+      "sed -i -e 's/@import url(https:\\/\\/fonts.googleapis.com\\/css2?family=Source+Sans+Pro:wght@300;400;700&display=swap);//g' public_html/vendor/bootstrap5/theme/bootstrap.min.css\n"
     ]
   }
 }
