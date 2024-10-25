@@ -132,8 +132,11 @@ function display_work_media(array $work = array(), array $options = array()) {
     if ($options['rel'] != 'preview' && !$options['single']) {
         $actionLinks[] = '<a class="btn btn-primary" href="' . $work['main_link'] . '#comments">' . $langMain['works comments count'] . ' ' . ($work['comments_count'] ? '<span class="badge rounded-circle text-bg-secondary">' . $work['comments_count'] . '</span>' : '') . '</a>';
     }
+    if ($work['posted_by'] == NFW::i()->user['id'] && $options['rel'] != 'preview') {
+        $actionLinks[] = '<a class="btn btn-warning" href="' . NFW::i()->absolute_path . '/cabinet/works?action=view&record_id=' . $work['id'] . '" title="Open in &laquo;My Files&raquo;"><svg width="1em" height="1em"><use href="#icon-person-video2"></use></svg></a>';
+    }
     if (in_array($work['event_id'], events::get_managed()) && $options['rel'] != 'preview') {
-        $actionLinks[] = '<a class="btn btn-outline-warning" href="' . NFW::i()->absolute_path . '/admin/works?action=update&record_id=' . $work['id'] . '" title="Edit work"><svg width="1em" height="1em"><use href="#icon-pencil-square"></use></svg></a>';
+        $actionLinks[] = '<a class="btn btn-warning" href="' . NFW::i()->absolute_path . '/admin/works?action=update&record_id=' . $work['id'] . '" title="Edit work"><svg width="1em" height="1em"><use href="#icon-pencil-square"></use></svg></a>';
     }
     if (count($actionLinks) > 0) {
         echo '<div class="mb-3 d-flex gap-1">' . implode('', $actionLinks) . '</div>';

@@ -460,7 +460,7 @@ class works extends active_record {
     function actionCabinetList() {
         $records = $this->getRecords(array(
             'filter' => array('posted_by' => NFW::i()->user['id'], 'allow_hidden' => true),
-            'ORDER BY' => 'e.date_from DESC, c.position, w.position',
+            'ORDER BY' => 'w.posted DESC',
             'load_attachments' => true,
             'load_attachments_icons' => false,
             'skip_pagination' => true

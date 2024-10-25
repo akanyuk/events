@@ -63,7 +63,6 @@ echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
         if ($work['status_info']['css-class'] !== "success" || $work['status_reason']) {
             $alertTitle = $work['status_info']['desc'];
             $alertText = $work['status_reason'] ?: $work['status_info']['desc_full'];
-
             $alert = '
 <div class="alert alert-' . $work['status_info']['css-class'] . ' d-flex align-items-center" role="alert">
     <svg class="flex-shrink-0 me-2" width="1em" height="1em" data-bs-toggle="tooltip" data-bs-title="' . $work['status_info']['desc'] . '">
