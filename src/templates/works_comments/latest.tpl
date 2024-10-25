@@ -12,8 +12,8 @@ $langMain = NFW::i()->getLang('main');
 foreach ($comments as $workID => $w): ?>
     <div class="card card-comment mb-3">
         <a href="<?php echo $w['work_url'] ?>"><img src="<?php echo isset($screenshots[$workID]) ? cache_media($screenshots[$workID]) : $noImage ?>"
-                                                    class="card-img-top px-3 <?php echo isset($screenshots[$workID]) ? '' : 'no-screenshot' ?>" alt=""></a>
-        <div class="card-body pt-md-0">
+                                                    class="card-img-top mt-0 mt-md-2 pe-md-3 <?php echo isset($screenshots[$workID]) ? '' : 'no-screenshot' ?>" alt=""></a>
+        <div class="card-body px-0 pt-md-0">
             <p class="lead"><a
                         href="<?php echo $w['work_url'] ?>"><?php echo htmlspecialchars($w['title']) ?></a>
             </p>

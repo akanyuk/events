@@ -37,7 +37,7 @@ echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
 ?>
 <div class="d-grid mx-auto col-sm-10 col-md-8">
     <?php if (count($years) > 1):?>
-        <div class="mb-3 px-3">
+        <div class="mb-3">
             <?php foreach ($years as $y): $dis = $y == date('Y', $records[0]['event_from']) ? 'disabled' : '' ?>
                 <a class="mb-1 btn btn-info <?php echo $dis ?>" href="#<?php echo $y ?>"><?php echo $y ?></a>
             <?php endforeach; ?>
@@ -56,7 +56,7 @@ echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
             }
             $currentYear = $y;
             echo '<div id="' . $y . '" style="position: relative; top: -30px;">&nbsp;</div>';
-            echo '<h2 id="' . $y . '" class="index-head px-3">' . $y . '</h2>';
+            echo '<h2 id="' . $y . '" class="index-head">' . $y . '</h2>';
         }
 
         $alert = '';
@@ -103,9 +103,9 @@ echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
         <div class="card card-comment mb-3">
             <a href="<?php echo $url ?>"><img
                     src="<?php echo $work['screenshot'] ? cache_media($work['screenshot']) : $noImage ?>"
-                    class="card-img-top px-3 <?php echo $work['screenshot'] ? '' : 'no-screenshot' ?>"
+                    class="card-img-top mt-0 mt-md-2 pe-md-3 <?php echo $work['screenshot'] ? '' : 'no-screenshot' ?>"
                     alt=""></a>
-            <div class="card-body pt-md-0">
+            <div class="card-body px-0 pt-md-0">
                 <p class="lead"><a
                         href="<?php echo $url ?>"><?php echo htmlspecialchars($title) ?></a>
                 </p>

@@ -148,7 +148,7 @@ $langLinksXs = array(
                     </a>
                 </div>
 
-                <div class="vr d-none d-sm-block me-2 me-sm-3 me-md-4 text-white"></div>
+                <div class="vr me-2 me-sm-3 me-md-4 text-white"></div>
 
                 <div class="me-2 me-sm-3 me-md-4">
                     <div class="d-none d-sm-block text-nowrap"><?php echo implode(' • ', $langLinks) ?></div>
@@ -171,7 +171,8 @@ $langLinksXs = array(
                     <?php endif; ?>
                 </div>
 
-                <div class="vr d-none d-sm-block me-2 me-sm-3 me-md-4 text-white"></div>
+                <div class="vr text-white me-2 me-sm-3 me-md-4"></div>
+
                 <div class="me-2 me-sm-3 me-md-4">
                     <?php if (NFW::i()->user['is_guest']): ?>
                         <a href="#" class="d-block text-white text-decoration-none"
@@ -219,7 +220,7 @@ $langLinksXs = array(
                     <?php endif; ?>
                 </div>
                 <?php if (NFW::i()->checkPermissions('admin')): ?>
-                    <div class="vr d-none d-sm-block me-2 me-sm-3 me-md-4 text-white"></div>
+                    <div class="vr text-white d-none d-sm-block me-sm-3 me-md-4"></div>
 
                     <div class="d-none d-sm-block">
                         <a class="text-white" href="/admin" title="Control panel">
