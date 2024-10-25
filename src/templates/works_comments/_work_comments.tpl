@@ -9,7 +9,7 @@ $allowDelete = NFWX::i()->checkPermissions('works_comments', 'delete', array('wo
 ?>
 <div id="comments" style="position: relative; top: -50px;"></div>
 <div class="mb-5">
-    <h2><?php echo $langMain['comments'] ?></h2>
+    <h2 class="index-head"><?php echo $langMain['comments'] ?></h2>
 
     <div id="work-comments"></div>
 

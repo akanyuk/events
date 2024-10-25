@@ -11,8 +11,8 @@ NFW::i()->registerFunction('cache_media');
 NFW::i()->registerFunction('friendly_date');
 $noImage = NFW::i()->assets('main/current-event-large.png');
 ?>
-<div class="d-grid mx-auto col-sm-10 col-md-8 col-lg-6">
-    <h1 class="px-3 mb-3"><?php echo $langMain['comments'] ?></h1>
+<div class="d-grid mx-auto col-sm-10 col-md-8">
+    <h2 class="index-head px-3 mb-5"><?php echo $langMain['comments'] ?></h2>
     <?php foreach ($comments as $workID => $w): ?>
         <div class="card card-comment mb-3">
             <a href="<?php echo $w['work_url'] ?>"><img

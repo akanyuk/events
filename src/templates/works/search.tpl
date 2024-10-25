@@ -11,7 +11,7 @@ $langMain = NFW::i()->getLang('main');
 NFW::i()->assign('page_title', $langMain['Search']);
 $noImage = NFW::i()->assets('main/current-event-large.png');
 ?>
-<div class="d-grid mx-auto col-sm-10 col-md-8 col-lg-6">
+<div class="d-grid mx-auto col-sm-10 col-md-8">
     <form class="mb-3" action="<?php echo NFW::i()->base_path ?>works/search">
         <div class="input-group">
             <input type="search" name="q" value="<?php echo $searchString ?>"

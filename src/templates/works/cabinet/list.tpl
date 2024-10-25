@@ -35,7 +35,7 @@ $currentYear = 0;
 
 echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
 ?>
-<div class="d-grid mx-auto col-sm-10 col-md-8 col-lg-6 px-3">
+<div class="d-grid mx-auto col-sm-10 col-md-8">
     <?php if (count($years) > 1):?>
         <div class="mb-3 px-3">
             <?php foreach ($years as $y): $dis = $y == date('Y', $records[0]['event_from']) ? 'disabled' : '' ?>
