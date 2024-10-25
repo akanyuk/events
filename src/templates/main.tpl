@@ -250,7 +250,7 @@ $langLinksXs = array(
         if (!empty(NFW::i()->breadcrumb)) {
             echo '<div class="d-flex flex-column flex-md-row justify-content-between mb-3">';
             echo '<nav aria-label="breadcrumb">';
-            echo '<ol class="breadcrumb mb-1">';
+            echo '<ol class="breadcrumb  text-nowrap mb-1" style="flex-wrap: unset; overflow: scroll;">';
             foreach (NFW::i()->breadcrumb as $b) {
                 if (isset($b['url']) && $b['url']) {
                     echo '<li class="breadcrumb-item"><a href="' . NFW::i()->base_path . $b['url'] . '">' . htmlspecialchars($b['desc']) . '</a></li>';

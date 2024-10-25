@@ -117,8 +117,8 @@ echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
         </div>
         <?php
 
-        next($works);
-        if (key($works) !== null && !$works[key($works)]['screenshot']) {
+        next($records);
+        if (key($records) !== null && !$records[key($records)]['screenshot']) {
             echo '<hr class="comment-delimiter"/>';
         }
     endforeach;
