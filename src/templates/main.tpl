@@ -28,8 +28,8 @@ $langLinks = array(
     NFW::i()->user['language'] == 'Russian' ? 'русский' : '<a class="text-white" href="' . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . '?' . http_build_query(array_merge($_GET, array('lang' => 'Russian'))) . '">русский</a>'
 );
 $langLinksXs = array(
-    NFW::i()->user['language'] == 'English' ? 'EN' : '<a class="text-white" href="' . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . '?' . http_build_query(array_merge($_GET, array('lang' => 'English'))) . '">EN</a>',
-    NFW::i()->user['language'] == 'Russian' ? 'RU' : '<a class="text-white" href="' . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . '?' . http_build_query(array_merge($_GET, array('lang' => 'Russian'))) . '">RU</a>'
+    NFW::i()->user['language'] == 'English' ? 'en' : '<a class="text-white" href="' . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . '?' . http_build_query(array_merge($_GET, array('lang' => 'English'))) . '">en</a>',
+    NFW::i()->user['language'] == 'Russian' ? 'ru' : '<a class="text-white" href="' . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . '?' . http_build_query(array_merge($_GET, array('lang' => 'Russian'))) . '">ru</a>'
 );
 ?>
 <!DOCTYPE html>
@@ -136,13 +136,13 @@ $langLinksXs = array(
 
 <main class="fixed-top navbar-events">
     <header>
-        <div class="container-fluid px-1 px-sm-3 px-md-5 d-flex justify-content-between align-items-center" style="padding-bottom: 2px;">
+        <div class="container-fluid py-1 px-1 px-sm-3 px-md-5 d-flex justify-content-between align-items-center">
             <a href="/"><img src="<?php echo NFW::i()->assets('main/logo.gif') ?>" alt=""/></a>
 
             <div class="d-flex align-items-center">
                 <div class="me-2 me-sm-3 me-md-4">
                     <a href="<?php echo NFW::i()->base_path ?>works/search" class="text-white">
-                        <svg class="fill-white" width="1.2em" height="1.2em">
+                        <svg class="fill-white" width="1em" height="1em">
                             <use href="#icon-search"></use>
                         </svg>
                     </a>
@@ -152,7 +152,7 @@ $langLinksXs = array(
 
                 <div class="me-2 me-sm-3 me-md-4">
                     <div class="d-none d-sm-block text-nowrap"><?php echo implode(' • ', $langLinks) ?></div>
-                    <div class="d-block d-sm-none text-nowrap small"><?php echo implode(' • ', $langLinksXs) ?></div>
+                    <div class="d-block d-sm-none text-nowrap small"><?php echo implode(' ', $langLinksXs) ?></div>
                 </div>
 
                 <div class="me-2 me-sm-3 me-md-4">
