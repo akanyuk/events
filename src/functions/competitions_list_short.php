@@ -41,7 +41,7 @@ function competitions_list_short(
             }
 
             if ($shortList && $c['id'] == $current) {
-                $title = '<a class="text-bg-primary fw-bold ps-3" href="' . NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] . '">' . htmlspecialchars($c['title']) . '</a>';
+                $title = '<div class="text-bg-primary fw-bold ps-3">' . htmlspecialchars($c['title']) . '</div>';
             } elseif ($c['is_link']) {
                 $title = '<a class="ps-3" href="' . NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] . '">' . htmlspecialchars($c['title']) . '</a>';
             } else {
@@ -72,7 +72,7 @@ function competitions_list_short(
             }
 
             if ($shortList && $c['id'] == $current) {
-                $title = '<a class="text-bg-primary fw-bold ps-3" href="' . NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] . '">' . htmlspecialchars($c['title']) . '</a>';
+                $title = '<div class="text-bg-primary fw-bold ps-3">' . htmlspecialchars($c['title']) . '</div>';
             } elseif ($c['is_link']) {
                 $title = '<a class="ps-3" href="' . NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] . '">' . htmlspecialchars($c['title']) . '</a>';
             } else {
@@ -94,7 +94,7 @@ function competitions_list_short(
         }
 
         if ($shortList && $c['id'] == $current) {
-            $title = '<a class="text-bg-primary fw-bold ps-3" href="' . NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] . '">' . htmlspecialchars($c['title']) . '</a>';
+            $title = '<div class="text-bg-primary fw-bold ps-3">' . htmlspecialchars($c['title']) . '</div>';
         } elseif ($c['is_link']) {
             $title = '<a href="' . NFW::i()->absolute_path . '/' . $c['event_alias'] . '/' . $c['alias'] . '">' . htmlspecialchars($c['title']) . '</a>';
         } else {
