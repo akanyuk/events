@@ -162,7 +162,7 @@ function prepareWorkLinks($langMain, $work, $linksProps, $rel): array {
     $navHTML = [];
 
     foreach ($work['image_files'] as $f) {
-        $iframe = '<div class="img-container"><img src="' . cache_media($f, IMAGE_WIDTH) . '" alt="" /></div>';
+        $iframe = '<div class="img-container mb-3"><img src="' . cache_media($f, IMAGE_WIDTH) . '" alt="" /></div>';
         $navHTML[] = '<li class="nav-item"><a class="nav-link" data-role="work-iframe-toggle" data-iframe="' . htmlspecialchars($iframe) . '" href="' . $f['url'] . '">' . ucfirst($f['filename']) . '</a></li>';
     }
 
