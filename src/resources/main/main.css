@@ -120,10 +120,7 @@ h2.index-head {
 }
 
 .work-container .author-note {
-    display: block;
-    margin-bottom: 10px;
     padding: 10px;
-    border: 1px solid #ddd;
     border-radius: 4px;
     width: 640px;
     max-width: 100%;

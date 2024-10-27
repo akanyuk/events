@@ -62,7 +62,7 @@ function competitions_list_short(
         if ($shortList) {
             $groupContent = '<b>' . htmlspecialchars($group['title']) . '</b><div></div><div></div>';
         } else {
-            $groupContent = '<a href="#' . str_replace(" ", "_", htmlspecialchars($group['title'])) . '"><b>' . htmlspecialchars($group['title']) . '</b></a><div></div><div></div>';
+            $groupContent = '<a class="text-muted" href="#' . str_replace(" ", "_", htmlspecialchars($group['title'])) . '"><b>' . htmlspecialchars($group['title']) . '</b></a><div></div><div></div>';
         }
 
         $composContent = [];
