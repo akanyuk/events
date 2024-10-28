@@ -43,7 +43,7 @@ echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
     <?php if ($isYears): ?>
         <div class="mb-3">
             <?php foreach ($years as $y): $dis = $y == date('Y', $records[0]['event_from']) ? 'disabled' : '' ?>
-                <a class="mb-1 btn btn-info <?php echo $dis ?>" href="#<?php echo $y ?>"><?php echo $y ?></a>
+                <a class="mb-1 btn btn-secondary <?php echo $dis ?>" href="#<?php echo $y ?>"><?php echo $y ?></a>
             <?php endforeach; ?>
         </div>
     <?php endif; ?>
@@ -53,7 +53,7 @@ echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
             $y = date('Y', $work['event_from']);
             if ($y != $currentYear) {
                 if ($currentYear) {
-                    echo '<a class="d-block mb-3 text-info" href="' . $top . '">
+                    echo '<a class="d-block mb-3 text-secondary" href="' . $top . '">
     <svg width="2em" height="2em">
         <use href="#icon-caret-up"></use>
     </svg>
@@ -116,7 +116,7 @@ echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
         </div>
     <?php endforeach; ?>
     <?php if ($isYears): ?>
-        <a class="d-block mb-3 text-info" href="<?php echo $top ?>">
+        <a class="d-block mb-3 text-secondary" href="<?php echo $top ?>">
             <svg width="2em" height="2em">
                 <use href="#icon-caret-up"></use>
             </svg>

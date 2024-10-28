@@ -6,18 +6,18 @@ function competitions_list_short(
     bool  $shortList = false,
     int   $current = 0): string {
     if (count($competitions) < 2) {
-        return '<div class="competitions-list-short"></div>';
+        return '';
     }
 
     $langMain = NFW::i()->getLang('main');
 
     foreach ($competitions as $key => $c) {
         if ($c['voting_status']['available'] && $c['voting_works']) {
-            $competitions[$key]['second_label'] = '<small><div class="badge rounded-pill text-bg-danger" title="Vote now!">!</div></small>';
+            $competitions[$key]['second_label'] = '<div title="Vote now!"><svg class="text-danger" width="0.7em" height="0.7em"><use href="#icon-bar-chart-line-fill"></use></svg></div>';
         } else if ($c['reception_status']['now']) {
-            $competitions[$key]['second_label'] = '<small><div class="badge rounded-pill text-bg-info" title="Reception available">+</div></small>';
+            $competitions[$key]['second_label'] = '<div title="Reception available"><svg class="text-info" width="0.7em" height="0.7em"><use href="#icon-plus-circle-fill"></use></svg></div>';
         } else {
-            $competitions[$key]['second_label'] = '<small><div></div></small>';
+            $competitions[$key]['second_label'] = '<div></div>';
         }
 
         if ($hideWorksCount) {
@@ -30,8 +30,6 @@ function competitions_list_short(
             $competitions[$key]['count_label'] = '<div class="badge badge-cnt text-bg-success" title="' . $langMain['competitions received works'] . '">' . $competitions[$key]['counter'] . '</div>';
         }
     }
-
-    $result = '';
 
     if (empty($competitionsGroups)) {
         $composContent = [];
@@ -52,12 +50,14 @@ function competitions_list_short(
         }
 
         if (empty($composContent) || ($shortList && count($composContent) == 1)) {
-            return '<div class="competitions-list-short"></div>';
+            return '';
         }
 
-        return '<div class="competitions-list-short d-grid gap-1" style="grid-template-columns: 12fr 1fr 1fr;">' . implode('', $composContent) . '</div>';
+        return '<div class="competitions-list-short d-grid gap-1 align-items-center" style="grid-template-columns: 12fr 1fr 1fr;">' . implode('', $composContent) . '</div>';
     }
 
+    $result = '';
+    $totalCompoCnt = 0;
     foreach ($competitionsGroups as $group) {
         if ($shortList) {
             $groupContent = '<b>' . htmlspecialchars($group['title']) . '</b><div></div><div></div>';
@@ -80,6 +80,7 @@ function competitions_list_short(
             }
 
             $composContent[] = $title . $c['second_label'] . $c['count_label'];
+            $totalCompoCnt++;
         }
 
         if (count($composContent) > 0) {
@@ -102,7 +103,12 @@ function competitions_list_short(
         }
 
         $result .= $title . $c['second_label'] . $c['count_label'];
+        $totalCompoCnt++;
     }
 
-    return '<div class="competitions-list-short d-grid gap-1" style="grid-template-columns: 12fr 1fr 1fr;">' . $result . '</div>';
+    if ($totalCompoCnt < 2) {
+        return '';
+    }
+
+    return '<div class="competitions-list-short d-grid gap-1 align-items-center" style="grid-template-columns: 12fr 1fr 1fr;">' . $result . '</div>';
 }

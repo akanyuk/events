@@ -86,7 +86,7 @@ if (stristr($event['content'], '%COMPETITIONS-LIST%')) {
     $competitionsList = competitionsList($competitionsGroups, $competitions, $event['hide_works_count']);
 }
 
-// Left column begin
+// Right column begin
 
 ob_start();
 ?>
@@ -97,10 +97,10 @@ ob_start();
         <?php endif; ?>
         <p class="text-muted"><?php echo $event['dates_desc'] ?></p>
         <?php
-        echo '<p>' . $event['announcement'] . '</p>';
+        echo '<div class="mb-3">' . $event['announcement'] . '</div>';
         echo eventsGroup($eventsGroup);
-        echo '<p>' . $event['content_column'] . '</p>';
-        echo $uploadButton . ' ' . $liveVotingButton;
+        echo '<div class="mb-3">' . $event['content_column'] . '</div>';
+        echo '<div class="mb-3">' . $uploadButton . ' ' . $liveVotingButton . '</div>';
         echo $competitionsListShort;
         ?>
     </div>
@@ -145,7 +145,7 @@ function eventsGroup(array $eventsGroup): string {
     <ul class="nav nav-pills mb-3">
         <?php foreach ($eventsGroup as $g): ?>
             <li class="nav-item nav-item-sm"><a class="nav-link <?php echo $g['is_current'] ? 'active disabled' : '' ?>"
-                                                href="<?php echo NFW::i()->absolute_path.'/'.$g['alias'] ?>"
+                                                href="<?php echo NFW::i()->absolute_path . '/' . $g['alias'] ?>"
                                                 title="<?php echo htmlspecialchars($g['title']) ?>"><?php echo $g['year'] ?></a>
             </li>
         <?php endforeach; ?>
@@ -240,7 +240,7 @@ function _compo(array $compo, bool $hideWorksCount) {
         </ul>
     <?php endif; ?>
 
-    <a class="d-block mb-3 text-info" href="<?php echo '#top' ?>">
+    <a class="d-block mb-3 text-secondary" href="<?php echo '#top' ?>">
         <svg width="2em" height="2em">
             <use href="#icon-caret-up"></use>
         </svg>

@@ -16,7 +16,7 @@ $currentYear = 0;
 <div class="d-grid mx-auto col-lg-8">
     <div class="mb-3">
         <?php foreach ($years as $y): $dis = $y == date('Y', $events[0]['date_from']) ? 'disabled' : '' ?>
-            <a class="mb-1 btn btn-info <?php echo $dis ?>" href="#<?php echo $y ?>"><?php echo $y ?></a>
+            <a class="mb-1 btn btn-secondary <?php echo $dis ?>" href="#<?php echo $y ?>"><?php echo $y ?></a>
         <?php endforeach; ?>
     </div>
 
@@ -24,7 +24,7 @@ $currentYear = 0;
         $y = date('Y', $record['date_from']);
         if ($y != $currentYear) {
             if ($currentYear) {
-                echo '<a class="d-block mb-3 text-info" href="' . $top . '">
+                echo '<a class="d-block mb-3 text-secondary" href="' . $top . '">
     <svg width="2em" height="2em">
         <use href="#icon-caret-up"></use>
     </svg>
@@ -50,7 +50,7 @@ $currentYear = 0;
         </div>
         <div class="mb-5"><?php echo nl2br($record['announcement']) ?></div>
     <?php endforeach;
-    echo '<a class="d-block mb-3 text-info" href="' . $top . '">
+    echo '<a class="d-block mb-3 text-secondary" href="' . $top . '">
     <svg width="2em" height="2em">
         <use href="#icon-caret-up"></use>
     </svg>
