@@ -160,7 +160,7 @@ $langLinksXs = array(
             <a href="/"><img src="<?php echo NFW::i()->assets('main/logo.gif') ?>" alt=""/></a>
 
             <div class="d-flex align-items-center">
-                <div class="me-2 me-sm-3 me-md-4">
+                <div class="me-3 me-md-4">
                     <a href="<?php echo NFW::i()->base_path ?>works/search" class="text-white">
                         <svg class="fill-white" width="1em" height="1em">
                             <use href="#icon-search"></use>
@@ -168,14 +168,14 @@ $langLinksXs = array(
                     </a>
                 </div>
 
-                <div class="vr me-2 me-sm-3 me-md-4 text-white"></div>
+                <div class="vr me-3 me-md-4 text-white"></div>
 
-                <div class="me-2 me-sm-3 me-md-4">
+                <div class="me-3 me-md-4">
                     <div class="d-none d-sm-block text-nowrap"><?php echo implode(' • ', $langLinks) ?></div>
                     <div class="d-block d-sm-none text-nowrap small"><?php echo implode(' ', $langLinksXs) ?></div>
                 </div>
 
-                <div class="me-2 me-sm-3 me-md-4">
+                <div class="me-3 me-md-4">
                     <?php if ($theme == 'light'): ?>
                         <a class="text-white" href="<?php echo $themeLinkDark ?>">
                             <svg width="1em" height="1em">
@@ -191,9 +191,9 @@ $langLinksXs = array(
                     <?php endif; ?>
                 </div>
 
-                <div class="vr text-white me-2 me-sm-3 me-md-4"></div>
+                <div class="vr text-white me-3 me-md-4"></div>
 
-                <div class="me-2 me-sm-3 me-md-4">
+                <div class="me-3 me-md-4">
                     <?php if (NFW::i()->user['is_guest']): ?>
                         <a href="#" class="d-block text-white text-decoration-none"
                            data-bs-toggle="offcanvas"
@@ -240,7 +240,7 @@ $langLinksXs = array(
                     <?php endif; ?>
                 </div>
                 <?php if (NFW::i()->checkPermissions('admin')): ?>
-                    <div class="vr text-white d-none d-sm-block me-sm-3 me-md-4"></div>
+                    <div class="vr text-white d-none d-sm-block me-3 me-md-4"></div>
 
                     <div class="d-none d-sm-block">
                         <a class="text-white" href="/admin" title="Control panel">

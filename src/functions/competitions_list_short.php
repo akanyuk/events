@@ -53,7 +53,7 @@ function competitions_list_short(
             return '';
         }
 
-        return '<div class="competitions-list-short d-grid gap-1 align-items-center" style="grid-template-columns: 12fr 1fr 1fr;">' . implode('', $composContent) . '</div>';
+        return '<div class="competitions-list-short d-grid gap-2 align-items-center" style="grid-template-columns: 12fr 1fr 1fr;">' . implode('', $composContent) . '</div>';
     }
 
     $result = '';
@@ -110,5 +110,5 @@ function competitions_list_short(
         return '';
     }
 
-    return '<div class="competitions-list-short d-grid gap-1 align-items-center" style="grid-template-columns: 12fr 1fr 1fr;">' . $result . '</div>';
+    return '<div class="competitions-list-short d-grid gap-2 align-items-center" style="grid-template-columns: 12fr 1fr 1fr;">' . $result . '</div>';
 }
