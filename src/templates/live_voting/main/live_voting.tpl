@@ -4,6 +4,8 @@
  * @var string $title
  */
 
+$langMain = NFW::i()->getLang('main');
+
 // linter related
 ob_start();
 echo '<div class="live-voting"><div class="btn-group"></div></div>';
@@ -25,6 +27,9 @@ ob_end_flush()
 <div class="mx-auto w-640">
     <h1 class="fs-3 mb-4"><?php echo $title ?></h1>
 
+    <div id="live-voting-not-running-announce" class="alert alert-info"
+         style="display: none;"><?php echo $langMain['live voting not running'] ?></div>
+
     <div id="coming-announce" class="alert alert-info mb-4" style="display: none;">
         <h4 id="title"></h4>
         <p id="description"></p>
@@ -45,6 +50,8 @@ ob_end_flush()
     const worksContainer = document.getElementById("live-voting-works");
     let lastState = "";
     let isSendingVote = false;
+
+    const notRunningAnnounce = document.getElementById("live-voting-not-running-announce");
 
     const currentContainer = document.getElementById("current-announce");
     const currentTitle = currentContainer.querySelector("#title")
@@ -95,13 +102,16 @@ ob_end_flush()
     }
 
     function updateLiveVoting(state) {
-        if (state === null) {
+        if (!isLiveVotingStarted(state)) {
             comingContainer.style.display = "none";
             endContainer.style.display = "none";
             worksContainer.style.display = "none";
             currentContainer.style.display = "none";
+            notRunningAnnounce.style.display = "block";
             return;
         }
+
+        notRunningAnnounce.style.display = "none";
 
         if (state['comingAnnounce']) {
             comingTitle.innerText = state['comingAnnounce']["title"];
@@ -146,7 +156,6 @@ ob_end_flush()
                 screenshot.className = "mb-3 w-100";
                 liveVoting.appendChild(screenshot);
             }
-
 
             if (work['voting_options']) {
                 let btnGroup = document.createElement('div');
@@ -202,5 +211,17 @@ ob_end_flush()
         });
 
         worksContainer.style.display = "block";
+    }
+
+    function isLiveVotingStarted(state) {
+        if (state === null) {
+            return false;
+        }
+
+        if (state['comingAnnounce'] || state['currentAnnounce'] || state['endAnnounce']) {
+            return true;
+        }
+
+        return state['works'] !== undefined && state['works'].length > 0;
     }
 </script>

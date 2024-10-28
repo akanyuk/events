@@ -17,11 +17,10 @@ $lang_main = array(
     'reception closed' => 'завершено',
     'voting closed' => 'закончено',
     'choose button' => 'Выбрать',
+    'download' => 'скачать',
     'Search' => 'Поиск',
     'search hint' => 'Поиск по названию или автору',
     'Search nothing found' => 'По вашему запросу ничего не найдено',
-
-    'download' => 'скачать',
 
     'cabinet prods' => 'Мои работы',
     'cabinet profile' => 'Мой профиль',
@@ -153,4 +152,5 @@ $lang_main = array(
 
     // Live voting related
     'live voting info' => 'Для использования живого голосования Вам необходимо авторизоваться или пройти <a href="/users/register">регистрацию</a>.',
+    'live voting not running' => 'В настоящее время живое голосование не запущено. Следите за обновлениями новостных каналов',
 );

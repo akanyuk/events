@@ -18,8 +18,8 @@ $lang_main = array(
     'voting closed' => 'closed',
     'choose button' => 'Choose',
     'download' => 'download',
-    'search hint' => 'Search by title or author',
     'Search' => 'Search',
+    'search hint' => 'Search by title or author',
     'Search nothing found' => 'Nothing was found for your query',
 
     'cabinet prods' => 'My Prods',
@@ -147,12 +147,10 @@ $lang_main = array(
     'votelist nickname' => 'Your nickname / realname',
     'votelist note' => '',
 
-    '53c reception form' => 'Prod submission begins at',
-
     // `/upload/%alias%` link
     'upload info' => 'To upload the prod, you need to log in or <a href="/users/register">register</a>.',
 
     // Live voting related
     'live voting info' => 'To use live voting, you need to log in or <a href="/users/register">register</a>.',
-
+    'live voting not running' => 'В настоящее время живое голосование не запущено. Следите за обновлениями новостных каналов',
 );
