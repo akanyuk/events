@@ -169,8 +169,7 @@ function competitionsList($competitionsGroups, $competitions, bool $hideWorksCou
 
     foreach ($competitionsGroups as $group) {
         ?>
-        <div id="<?php echo str_replace(" ", "_", htmlspecialchars($group['title'])) ?>"
-             style="position: relative; top: -60px;"></div>
+        <section id="<?php echo str_replace(" ", "_", htmlspecialchars($group['title'])) ?>"></section>
         <h2><?php echo htmlspecialchars($group['title']) ?></h2>
         <p><?php echo $group['announcement'] ?></p>
         <?php
@@ -198,7 +197,7 @@ function _compo(array $compo, bool $hideWorksCount) {
 
     ob_start();
     ?>
-    <div id="<?php echo $compo['alias'] ?>" style="position: relative; top: -60px;"></div>
+    <section id="<?php echo $compo['alias'] ?>"></section>
     <h3>
         <?php if ($compo['is_link']): ?>
             <a href="<?php echo NFW::i()->absolute_path . '/' . $compo['event_alias'] . '/' . $compo['alias'] ?>"><?php echo htmlspecialchars($compo['title']) . ($hideWorksCount ? '' : ' (' . $compo['counter'] . ')') ?></a>
@@ -240,7 +239,7 @@ function _compo(array $compo, bool $hideWorksCount) {
         </ul>
     <?php endif; ?>
 
-    <a class="d-block mb-3 text-secondary" href="<?php echo '#top' ?>">
+    <a class="d-block mb-3 text-secondary-emphasis" href="<?php echo '#top' ?>">
         <svg width="2em" height="2em">
             <use href="#icon-caret-up"></use>
         </svg>

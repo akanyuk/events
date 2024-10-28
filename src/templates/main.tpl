@@ -69,7 +69,12 @@ $langLinksXs = array(
             background-color: #303030;
             color: #fff;
             padding-top: 0;
-            padding-bottom: 0;
+            height: 3em;
+            position: sticky;
+        }
+
+        section {
+            scroll-margin-top: 4em;
         }
 
         .fill-white {
@@ -250,7 +255,7 @@ $langLinksXs = array(
     </header>
 </main>
 
-<div id="page-content" class="container">
+<div class="container mt-3 mb-2">
     <?php
     if (isset($page['is_error']) && $page['is_error']) {
         echo $page['content'];

@@ -7,16 +7,6 @@ html[lang="ru"] .hidden-lang-ru {
     display: none;
 }
 
-#page-content {
-    padding-top: 70px;
-    padding-bottom: 1em;
-}
-
-#page-content .breadcrumb {
-    padding: 0;
-    background-color: inherit;
-}
-
 .badge-platform {
     background-color: #6e3731;
 }

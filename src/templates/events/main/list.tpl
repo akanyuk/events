@@ -24,15 +24,15 @@ $currentYear = 0;
         $y = date('Y', $record['date_from']);
         if ($y != $currentYear) {
             if ($currentYear) {
-                echo '<a class="d-block mb-3 text-secondary" href="' . $top . '">
+                echo '<a class="d-block mb-3 text-secondary-emphasis" href="' . $top . '">
     <svg width="2em" height="2em">
         <use href="#icon-caret-up"></use>
     </svg>
     </a>';
             }
             $currentYear = $y;
-            echo '<div id="' . $y . '" style="position: relative; top: -30px;">&nbsp;</div>';
-            echo '<h2 id="' . $y . '" class="index-head">' . $y . '</h2>';
+
+            echo '<section id="' . $y . '"></section><h2 class="index-head">' . $y . '</h2>';
         }
 
         ?>
@@ -50,7 +50,7 @@ $currentYear = 0;
         </div>
         <div class="mb-5"><?php echo nl2br($record['announcement']) ?></div>
     <?php endforeach;
-    echo '<a class="d-block mb-3 text-secondary" href="' . $top . '">
+    echo '<a class="d-block mb-3 text-secondary-emphasis" href="' . $top . '">
     <svg width="2em" height="2em">
         <use href="#icon-caret-up"></use>
     </svg>

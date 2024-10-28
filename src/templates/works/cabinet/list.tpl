@@ -53,15 +53,14 @@ echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
             $y = date('Y', $work['event_from']);
             if ($y != $currentYear) {
                 if ($currentYear) {
-                    echo '<a class="d-block mb-3 text-secondary" href="' . $top . '">
+                    echo '<a class="d-block mb-3 text-secondary-emphasis" href="' . $top . '">
     <svg width="2em" height="2em">
         <use href="#icon-caret-up"></use>
     </svg>
     </a>';
                 }
                 $currentYear = $y;
-                echo '<div id="' . $y . '" style="position: relative; top: -30px;">&nbsp;</div>';
-                echo '<h2 id="' . $y . '" class="index-head">' . $y . '</h2>';
+                echo '<section id="' . $y . '"></section><h2 class="index-head">' . $y . '</h2>';
             }
         }
 
@@ -116,7 +115,7 @@ echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
         </div>
     <?php endforeach; ?>
     <?php if ($isYears): ?>
-        <a class="d-block mb-3 text-secondary" href="<?php echo $top ?>">
+        <a class="d-block mb-3 text-secondary-emphasis" href="<?php echo $top ?>">
             <svg width="2em" height="2em">
                 <use href="#icon-caret-up"></use>
             </svg>
