@@ -45,11 +45,15 @@ $currentYear = 0;
             <div class="align-middle text-left" style="display: table-cell;"><h4><a
                             href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><?php echo htmlspecialchars($record['title']) ?></a>
                 </h4>
-                <div class="text-muted"><?php echo $record['dates_desc'] ?></div>
+                <div class="d-none d-sm-block me-1 text-muted"><?php echo $record['dates_desc'] ?></div>
             </div>
         </div>
-        <div class="mb-5"><?php echo nl2br($record['announcement']) ?></div>
+        <div class="mb-4">
+            <div class="d-block d-sm-none my-1 text-muted"><?php echo $record['dates_desc'] ?></div>
+            <?php echo nl2br($record['announcement']) ?>
+        </div>
     <?php endforeach;
+
     echo '<a class="d-block mb-3 text-secondary-emphasis" href="' . $top . '">
     <svg width="2em" height="2em">
         <use href="#icon-caret-up"></use>

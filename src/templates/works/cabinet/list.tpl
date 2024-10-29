@@ -100,16 +100,18 @@ echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
         ?>
         <div class="table-row mb-3">
             <div class="align-top text-left pt-2" style="display: table-cell; width: 80px;"><a
-                        href="<?php echo $url ?>"><img class="media-object" alt=""
-                                                       src="<?php echo $work['screenshot'] ? $work['screenshot']['tmb_prefix'] . '64' : NFW::i()->assets('main/news-no-image.png') ?>"/></a>
+                    href="<?php echo $url ?>"><img class="media-object" alt=""
+                                                   src="<?php echo $work['screenshot'] ? $work['screenshot']['tmb_prefix'] . '64' : NFW::i()->assets('main/news-no-image.png') ?>"/></a>
             </div>
             <div class="align-middle text-left" style="display: table-cell;"><h4><a
-                            href="<?php echo $url ?>"><?php echo htmlspecialchars($work['title']) ?></a>
+                        href="<?php echo $url ?>"><?php echo htmlspecialchars($work['title']) ?></a>
                 </h4>
-                <div class="text-muted">
-                    <?php echo $ePrefix . $work['event_title'] ?> /
-                    <?php echo $work['competition_title'] ?>
+                <div class="d-none d-sm-block me-1 text-muted text-muted">
+                    <?php echo $ePrefix . $work['event_title'] . ' / ' . $work['competition_title'] ?>
                 </div>
+            </div>
+            <div class="d-block d-sm-none my-1 text-muted">
+                <?php echo $ePrefix . $work['event_title'] . ' / ' . $work['competition_title'] ?>
             </div>
             <?php echo $alert ?>
         </div>
