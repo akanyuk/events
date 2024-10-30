@@ -50,7 +50,7 @@ class works extends active_record {
     );
 
     // TODO: remove this
-    public $current_event = false;
+    public array $current_event = [];
 
     function __construct($record_id = false) {
         $lang_main = NFW::i()->getLang('main');
@@ -219,7 +219,7 @@ class works extends active_record {
     public function loadCounters(&$competitions) {
         $ids = $compo_by_id = array();
         if (is_array($competitions)) {
-            foreach ($competitions as &$c) {
+            foreach ($competitions as $c) {
                 $ids[] = $c['id'];
                 $compo_by_id[$c['id']] = array('voting_works' => 0, 'release_works' => 0);
             }
@@ -251,6 +251,8 @@ class works extends active_record {
         } else {
             return $compo_by_id[$competitions];
         }
+
+        return true;
     }
 
     public function getRecords($options = array()) {
@@ -438,7 +440,7 @@ class works extends active_record {
             $record['links'] = $links[$record['id']];
 
             $records[$key] = $this->formatRecord($record);
-        };
+        }
 
         // Load comments count
         $CWorksComments = new works_comments();
@@ -503,7 +505,7 @@ class works extends active_record {
         // Reset `checked` status for all managers
         NFW::i()->db->query_build(array('UPDATE' => 'works_managers_notes', 'SET' => 'is_checked=0', 'WHERE' => 'work_id=' . $this->record['id']));
 
-        NFWX::i()->sendNotify('works_add_files', $this->record['event_id'], array('work' => $this->record, 'media_added' => count($files_added)), $files_added);
+        NFWX::i()->sendNotify(' ', $this->record['event_id'], array('work' => $this->record, 'media_added' => count($files_added)), $files_added);
 
         $lang_main = NFW::i()->getLang('main');
         NFWX::i()->jsonSuccess(array('result' => 'success', 'message' => $lang_main['works added files success message']));
@@ -588,6 +590,7 @@ class works extends active_record {
 
         NFWX::i()->sendNotify('works_add', $this->current_event['id'], array('work' => $this->record), $this->record['media_info']);
         NFW::i()->renderJSON(array('result' => 'success', 'message' => $lang_main['works upload success message']));
+        return true;
     }
 
     function actionAdminAdmin() {

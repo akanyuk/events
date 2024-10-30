@@ -72,6 +72,58 @@ class works_media extends media {
         return $description;
     }
 
+    function actionCabinetList() {
+        $CWorks = new works($_GET['work_id']);
+        if (!$CWorks->record['id']) {
+            $this->error($CWorks->last_msg, __FILE__, __LINE__);
+            NFWX::i()->jsonError(400, $this->last_msg);
+        }
+
+        if ($CWorks->record['posted_by'] != NFW::i()->user['id']) {
+            NFWX::i()->jsonError(400, NFW::i()->lang['Errors']['Bad_request']);
+        }
+
+        $files = [];
+        foreach ($CWorks->record['media_info'] as $a) {
+            $file = [
+                'url' => $a['url'],
+                'basename' => $a['basename'],
+                'postedBy' => date('d.m.Y H:i', $a['posted']) . ' by ' . $a['posted_username'],
+                'isScreenshot' => $a['is_screenshot'],
+                'isImage' => $a['is_image'],
+                'isAudio' => $a['is_audio'],
+                'isVoting' => $a['is_voting'],
+                'isRelease' => $a['is_release'],
+            ];
+            if ($a['type'] == 'image') {
+                list($width, $height) = getimagesize($a['fullpath']);
+                $file['icon'] = $a['tmb_prefix'] . '96';
+                $file['filesize'] = $a['filesize_str'] . ' ' . '[' . $width . 'x' . $height . ']';
+            } else {
+                $file['icon'] = $a['icons']['64x64'];
+                $file['filesize'] = $a['filesize_str'];
+            }
+
+            $files[] = $file;
+        }
+
+        NFWX::i()->jsonSuccess(['files' => $files]);
+    }
+
+    function actionCabinetAdd() {
+        $CWorks = new works($_GET['work_id']);
+        if (!$CWorks->record['id']) {
+            $this->error($CWorks->last_msg, __FILE__, __LINE__);
+            NFWX::i()->jsonError(400, $this->last_msg);
+        }
+
+        if ($CWorks->record['posted_by'] != NFW::i()->user['id']) {
+            NFWX::i()->jsonError(400, NFW::i()->lang['Errors']['Bad_request']);
+        }
+
+        NFWX::i()->jsonSuccess('scs');
+    }
+
     function actionAdminUpdateProperties() {
         $this->error_report_type = 'plain';
 

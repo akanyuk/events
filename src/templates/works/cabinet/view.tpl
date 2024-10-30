@@ -2,6 +2,7 @@
 /** @var works $Module */
 
 $langMain = NFW::i()->getLang('main');
+$langMedia = NFW::i()->getLang('media');
 
 NFW::i()->assign('page_title', $Module->record['title'] . ' / ' . $langMain['cabinet prods']);
 NFW::i()->breadcrumb = array(
@@ -49,87 +50,15 @@ echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
     </dl>
 
     <h2 class="index-head mb-3"><?php echo $langMain['works files'] ?></h2>
-<?php foreach ($Module->record['media_info'] as $a):
-    if ($a['type'] == 'image') {
-        list($width, $height) = getimagesize($a['fullpath']);
-        $a['image_size'] = '[' . $width . 'x' . $height . ']';
-        $icon = $a['tmb_prefix'] . '96';
-    } else {
-        $a['image_size'] = false;
-        $icon = $a['icons']['64x64'];
-    }
-    ?>
-
-    <div class="d-flex gap-3 mb-3">
-        <div class="text-center"><a href="<?php echo $a['url'] ?>"><img alt="" src="<?php echo $icon ?>"/></a>
-            <div class="d-flex justify-content-center gap-1">
-                <div title="<?php echo $langMain['filestatus screenshot'] ?>">
-                    <svg class="<?php echo $a['is_screenshot'] ? 'text-success' : 'text-muted' ?>"
-                         width="1em" height="1em">
-                        <use xlink:href="#media-screenshot"/>
-                    </svg>
-                </div>
-
-                <div title="<?php echo $langMain['filestatus image'] ?>">
-                    <svg class="<?php echo $a['is_image'] ? 'text-success' : 'text-muted' ?>"
-                         width="1em" height="1em">
-                        <use xlink:href="#media-image"/>
-                    </svg>
-                </div>
-
-                <div title="<?php echo $langMain['filestatus audio'] ?>">
-                    <svg class="<?php echo $a['is_audio'] ? 'text-success' : 'text-muted' ?>"
-                         width="1em" height="1em">
-                        <use xlink:href="#media-audio"/>
-                    </svg>
-                </div>
-
-                <div title="<?php echo $langMain['filestatus voting'] ?>">
-                    <svg class="<?php echo $a['is_voting'] ? 'text-success' : 'text-muted' ?>"
-                         width="1em" height="1em">
-                        <use xlink:href="#media-voting"/>
-                    </svg>
-                </div>
-
-                <div title="<?php echo $langMain['filestatus release'] ?>">
-                    <svg class="<?php echo $a['is_release'] ? 'text-success' : 'text-muted' ?>"
-                         width="1em" height="1em">
-                        <use xlink:href="#media-release"/>
-                    </svg>
-                </div>
-            </div>
-        </div>
-        <div class="w-100">
-            <a class="fs-5" href="<?php echo $a['url'] ?>"><?php echo htmlspecialchars($a['basename']) ?></a>
-            <div class="text-muted small">
-                <div><?php echo $langMain['works uploaded'] . ': ' . date('d.m.Y H:i', $a['posted']) . ' by ' . $a['posted_username'] ?></div>
-                <div><?php echo $langMain['works filesize'] . ': ' . $a['filesize_str'] . ' ' . $a['image_size'] ?></div>
-            </div>
-        </div>
-    </div>
-<?php endforeach; ?>
 <?php
+$CMedia = new media();
+echo $CMedia->openSession(array(
+    'owner_id' => $Module->record['id'],
+    'owner_class' => get_class($Module),
+    'secure_storage' => true,
+    'template' => '_cabinet_add_work_media',
+));
 NFWX::i()->mainLayoutRightContent = ob_get_clean();
-
-/* ?>
-    <div id="on-complete-removable-aria" style="padding-top: 10px;">
-        <?php
-        $CMedia = new media();
-        echo $CMedia->openSession(array(
-            'owner_class' => get_class($Module),
-            'secure_storage' => true,
-            'template' => '_cabinet_add_work_media',
-        ));
-        ?>
-        <form id="works-add-files" class="active-form">
-            <input type="hidden" name="formSent" value="1"/>
-            <div class="form-group">
-                <button id="add-work-files"
-                        class="btn btn-primary"><?php echo $langMain['works add files submit'] ?></button>
-            </div>
-        </form>
-    </div>
-*/
 
 function startBlock(array $record, bool $isPublished): string {
     $langMain = NFW::i()->getLang('main');
