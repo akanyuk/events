@@ -118,27 +118,4 @@
     }
 
     <?php echo NFWX::i()->mainBottomScript?>
-
-    <?php /* ?>
-     $('input[id="works-search"]').typeahead({
-        source: function (query, process) {
-            return $.get('/works?action=search&q=' + query, function (response) {
-                return process(response);
-            }, 'json');
-        },
-        displayText: function (item) {
-            return item.title;
-        },
-        afterSelect: function (sResult) {
-            $('input[id="works-search"]').val('');
-
-            if (sResult.link) {
-                window.location.href = sResult.link;
-            }
-        },
-        fitToElement: true,
-        items: 'all',
-        minLength: 1
-    }).attr('autocomplete', 'off');
-<?php */ ?>
 </script>

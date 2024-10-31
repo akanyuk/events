@@ -458,7 +458,7 @@ class works extends active_record {
         return $errors;
     }
 
-    // Просмотр автором работ из ЛК
+    // Works list in author's cabinet
     function actionCabinetList() {
         $records = $this->getRecords(array(
             'filter' => array('posted_by' => NFW::i()->user['id'], 'allow_hidden' => true),
@@ -471,6 +471,7 @@ class works extends active_record {
         return $this->renderAction(array('records' => $records));
     }
 
+    // Work profile in author's cabinet
     function actionCabinetView() {
         if (!$this->load($_GET['record_id'])) {
             return false;
@@ -484,6 +485,7 @@ class works extends active_record {
         return $this->renderAction();
     }
 
+    // Uploading work
     function actionCabinetAdd() {
         $lang_main = NFW::i()->getLang('main');
 

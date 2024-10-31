@@ -123,12 +123,11 @@ $langMain = NFW::i()->getLang('main');
                 if (result.result === 'error') {
                     gErrorToastText.innerText = result.errors["local_file"];
                     gErrorToast.show();
-                    return;
                 }
-
-                loadWorkMedia();
             });
         }
+
+        loadWorkMedia();
     });
 
     <?php NFWX::i()->mainBottomScript .= ob_get_clean(); ?>
