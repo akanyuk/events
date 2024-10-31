@@ -110,20 +110,6 @@ class works_media extends media {
         NFWX::i()->jsonSuccess(['files' => $files]);
     }
 
-    function actionCabinetAdd() {
-        $CWorks = new works($_GET['work_id']);
-        if (!$CWorks->record['id']) {
-            $this->error($CWorks->last_msg, __FILE__, __LINE__);
-            NFWX::i()->jsonError(400, $this->last_msg);
-        }
-
-        if ($CWorks->record['posted_by'] != NFW::i()->user['id']) {
-            NFWX::i()->jsonError(400, NFW::i()->lang['Errors']['Bad_request']);
-        }
-
-        NFWX::i()->jsonSuccess('scs');
-    }
-
     function actionAdminUpdateProperties() {
         $this->error_report_type = 'plain';
 

@@ -484,33 +484,6 @@ class works extends active_record {
         return $this->renderAction();
     }
 
-    function actionCabinetAddMedia() {
-        if (!$this->load($_GET['record_id'])) {
-            NFWX::i()->jsonError(400, $this->last_msg);
-        }
-
-        if ($this->record['posted_by'] != NFW::i()->user['id']) {
-            NFWX::i()->jsonError(400, NFW::i()->lang['Errors']['Bad_request']);
-        }
-
-        // Add files to work
-        $CMedia = new media();
-        $files_added = $CMedia->getSessionFiles(get_class($this));
-        if (empty($files_added)) {
-            $this->error('System error: no files. Please try again.', __FILE__, __LINE__);
-            NFWX::i()->jsonError(400, $this->last_msg);
-        }
-        $CMedia->closeSession(get_class($this), $this->record['id']);
-
-        // Reset `checked` status for all managers
-        NFW::i()->db->query_build(array('UPDATE' => 'works_managers_notes', 'SET' => 'is_checked=0', 'WHERE' => 'work_id=' . $this->record['id']));
-
-        NFWX::i()->sendNotify(' ', $this->record['event_id'], array('work' => $this->record, 'media_added' => count($files_added)), $files_added);
-
-        $lang_main = NFW::i()->getLang('main');
-        NFWX::i()->jsonSuccess(array('result' => 'success', 'message' => $lang_main['works added files success message']));
-    }
-
     function actionCabinetAdd() {
         $lang_main = NFW::i()->getLang('main');
 

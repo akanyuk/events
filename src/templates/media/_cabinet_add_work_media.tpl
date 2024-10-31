@@ -67,18 +67,18 @@ $langMain = NFW::i()->getLang('main');
 
                 let descA = document.createElement('a');
                 descA.setAttribute("href", f.url);
-                descA.innerText = f.basename;
+                descA.innerHTML = f.basename;
                 desc.appendChild(descA);
 
                 let descSm = document.createElement('div');
                 descSm.className = "text-muted small";
 
                 let descSm1 = document.createElement('div');
-                descSm1.innerText = "<?php echo $langMain['works uploaded'] . ': '?>" + f['postedBy'];
+                descSm1.innerHTML = "<?php echo $langMain['works uploaded'] . ': '?>" + f['postedBy'];
                 descSm.appendChild(descSm1);
 
                 let descSm2 = document.createElement('div');
-                descSm2.innerText = "<?php echo $langMain['works filesize'] . ': '?>" + f['filesize'];
+                descSm2.innerHTML = "<?php echo $langMain['works filesize'] . ': '?>" + f['filesize'];
                 descSm.appendChild(descSm2);
 
                 desc.appendChild(descSm);
@@ -110,13 +110,23 @@ $langMain = NFW::i()->getLang('main');
     document.getElementById("add-files-file").addEventListener('change', function () {
         for (const file of this.files) {
             let formData = new FormData();
-            formData.append("file", file);
+            formData.append("local_file", file);
 
-            fetch('<?php echo NFW::i()->base_path . 'cabinet/works_media?action=add&work_id=' . $owner_id?>', {
+            fetch('<?php echo NFW::i()->base_path.'media.php?action=upload&session_id='.$session_id?>', {
                 method: "POST",
                 body: formData
-            }).then(response => response.json()).then(response => {
-                console.log('response', response);
+            }).then(async response => {
+                // legacy media support
+                const resp = await response.text();
+                const result = JSON.parse(resp.replace(/<textarea>/g, '').replace(/<\/textarea>/g, ''));
+
+                if (result.result === 'error') {
+                    gErrorToastText.innerText = result.errors["local_file"];
+                    gErrorToast.show();
+                    return;
+                }
+
+                loadWorkMedia();
             });
         }
     });

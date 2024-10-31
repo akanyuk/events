@@ -57,6 +57,7 @@ echo $CMedia->openSession(array(
     'owner_class' => get_class($Module),
     'secure_storage' => true,
     'template' => '_cabinet_add_work_media',
+    'after_upload' => 'cabinet_work_media_add',
 ));
 NFWX::i()->mainLayoutRightContent = ob_get_clean();
 
