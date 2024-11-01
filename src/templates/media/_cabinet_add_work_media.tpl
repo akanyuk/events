@@ -84,7 +84,7 @@ $langMain = NFW::i()->getLang('main');
     }
 
     function loadWorkMedia() {
-        fetch('<?php echo NFW::i()->base_path . 'cabinet/works_media?action=list&work_id=' . $owner_id?>').then(response => response.json()).then(response => {
+        fetch('<?php echo NFW::i()->base_path . 'cabinet?action=work_files&work_id=' . $owner_id?>').then(response => response.json()).then(response => {
             workFilesContainer.innerHTML = "";
 
             response['files'].forEach(f => {

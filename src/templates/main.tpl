@@ -34,7 +34,8 @@ $langLinksXs = array(
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo NFW::i()->lang['lang'] ?>" data-bs-theme="<?php echo $theme ?>">
-<head><title><?php echo $page_title ?? $page['title'] ?></title>
+<head>
+    <title><?php echo $page_title ?? $page['title'] ?></title>
     <link href="<?php echo NFW::i()->base_path ?>vendor/bootstrap5/theme/bootstrap.min.css" rel="stylesheet"
           crossorigin="anonymous">
 
@@ -194,11 +195,11 @@ $langLinksXs = array(
                                         class="d-none d-sm-inline ps-1"><?php echo htmlspecialchars(NFW::i()->user['username']) ?></span>
                             </a>
                             <ul class="dropdown-menu text-small shadow">
-                                <li><a href="<?php echo NFW::i()->absolute_path ?>/cabinet/works?action=list"
-                                       class="dropdown-item<?php echo page_is('cabinet/works?action=list') ? ' active' : '' ?>"><?php echo $langMain['cabinet prods'] ?></a>
+                                <li><a href="<?php echo NFW::i()->absolute_path ?>/cabinet/works_list"
+                                       class="dropdown-item<?php echo page_is('cabinet/works_list') ? ' active' : '' ?>"><?php echo $langMain['cabinet prods'] ?></a>
                                 </li>
-                                <li><a href="<?php echo NFW::i()->absolute_path ?>/cabinet/works?action=add"
-                                       class="dropdown-item<?php echo page_is('cabinet/works?action=add') ? ' active' : '' ?>"><?php echo $langMain['cabinet add work'] ?></a>
+                                <li><a href="<?php echo NFW::i()->absolute_path ?>/cabinet/works_add"
+                                       class="dropdown-item<?php echo page_is('cabinet/works_add') ? ' active' : '' ?>"><?php echo $langMain['cabinet add work'] ?></a>
                                 </li>
                                 <li><a href="<?php echo NFW::i()->absolute_path ?>/users/update_profile"
                                        class="dropdown-item<?php echo page_is('users/update_profile') ? ' active' : '' ?>"><?php echo $langMain['cabinet profile'] ?></a>

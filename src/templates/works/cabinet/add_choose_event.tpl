@@ -1,25 +1,26 @@
 <?php
-	$lang_main = NFW::i()->getLang('main');
-	NFW::i()->assign('page_title', $lang_main['cabinet add choose event']);
-	
-	NFW::i()->breadcrumb = array(
-		array('url' => 'cabinet/works?action=list', 'desc' => $lang_main['cabinet prods']),
-		array('desc' => $lang_main['cabinet add choose event'])
-	);
-	
+/**
+ * @var array $events
+ */
+
+$langMain = NFW::i()->getLang('main');
+NFW::i()->assign('page_title', $langMain['cabinet add choose event']);
 ?>
-<div class="row"><?php foreach ($events as $record) { ?>
-	<div class="col-md-6 col-sm-12 col-xs-12">
-		<div class="thumbnail text-center">
-			<br />
-			<a href="?action=add&event_id=<?php echo $record['id']?>">
-				<img class="media-object" src="<?php echo $record['preview_img']?>" />
-			</a>
-			<div class="caption">
-				<h3><a href="?action=add&event_id=<?php echo $record['id']?>"><?php echo htmlspecialchars($record['title'])?></a></h3>
-				<p><?php echo $record['dates_desc']?></p>
-			</div>
-		</div>
-	</div>
-<?php } ?></div>
-	
+<div class="d-grid mx-auto col-sm-10 col-md-8">
+    <h2 class="index-head mb-5"><?php echo $langMain['cabinet add choose event'] ?></h2>
+
+    <div class="row"><?php foreach ($events as $record): ?>
+            <div class="col-md-6 col-sm-12 col-xs-12 gap-3">
+                <div class="text-center">
+                    <a href="<?php echo NFW::i()->base_path?>cabinet/works_add?event_id=<?php echo $record['id'] ?>">
+                        <img alt="" src="<?php echo $record['preview_img'] ?>"/>
+                    </a>
+                    <h3>
+                        <a href="<?php echo NFW::i()->base_path?>cabinet/works_add?event_id=<?php echo $record['id'] ?>"><?php echo htmlspecialchars($record['title']) ?></a>
+                    </h3>
+                    <p><?php echo $record['dates_desc'] ?></p>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+</div>

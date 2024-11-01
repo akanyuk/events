@@ -12,7 +12,7 @@ if (empty($records)) {
         <div class="container-fluid py-5">
             <h1 class="display-5 fw-bold">Hey, <?php echo htmlspecialchars(NFW::i()->user['realname']) ?>!</h1>
             <p class="col-md-8 fs-4"><?php echo $langMain['works empty'] ?></p>
-            <a href="?action=add" class="btn btn-primary btn-lg"
+            <a href="<?php echo NFW::i()->base_path?>cabinet/works_add" class="btn btn-primary btn-lg"
                type="button"><?php echo $langMain['cabinet add work'] ?></a>
         </div>
     </div>
@@ -77,7 +77,7 @@ echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
 </div>';
         }
 
-        $url = NFW::i()->base_path . 'cabinet/works?action=view&record_id=' . $work['id'];
+        $url = NFW::i()->base_path . 'cabinet/works_view?record_id=' . $work['id'];
 
         switch ($work['place']) {
             case 0:

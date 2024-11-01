@@ -32,7 +32,7 @@ class works extends active_record {
         'title' => array('type' => 'str', 'desc' => 'Title', 'required' => true, 'maxlength' => 200),
         'author' => array('type' => 'str', 'desc' => 'Author', 'required' => true, 'maxlength' => 200),
         'description' => array('type' => 'textarea', 'desc' => 'Description', 'maxlength' => 2048),
-        'platform' => array('type' => 'str', 'desc' => 'Platform', 'required' => true, 'options' => array()),
+        'platform' => array('type' => 'str', 'desc' => 'Platform', 'required' => true, 'maxlength' => 128, 'options' => array()),
         'format' => array('type' => 'str', 'desc' => 'Format', 'maxlength' => 128),
         'external_html' => array('type' => 'textarea', 'desc' => 'Additional text (HTML)', 'maxlength' => 2048),
 
@@ -40,7 +40,7 @@ class works extends active_record {
             ['id' => 0, 'voting' => false, 'release' => false, 'css-class' => 'warning', 'svg-icon' => 'status-unchecked'],      // Unchecked
             ['id' => 1, 'voting' => true, 'release' => true, 'css-class' => 'success', 'svg-icon' => 'status-checked'],          // Checked
             ['id' => 2, 'voting' => false, 'release' => false, 'css-class' => 'danger', 'svg-icon' => 'status-disqualified'],    // Disqualified
-            ['id' => 3, 'voting' => false, 'release' => false, 'css-class' => 'warning','svg-icon' => 'status-feedback-needed'], // Feedback needed
+            ['id' => 3, 'voting' => false, 'release' => false, 'css-class' => 'warning', 'svg-icon' => 'status-feedback-needed'], // Feedback needed
             ['id' => 4, 'voting' => false, 'release' => true, 'css-class' => 'info', 'svg-icon' => 'status-out-of-compo'],       // Out of competition
             ['id' => 5, 'voting' => false, 'release' => true, 'css-class' => 'info', 'svg-icon' => 'status-wait-preselection'],  // Wait preselect
         )),
@@ -48,9 +48,6 @@ class works extends active_record {
 
         'author_note' => array('type' => 'textarea', 'desc' => 'Author note', 'maxlength' => 512),
     );
-
-    // TODO: remove this
-    public array $current_event = [];
 
     function __construct($record_id = false) {
         $lang_main = NFW::i()->getLang('main');
@@ -61,37 +58,6 @@ class works extends active_record {
         }
 
         return parent::__construct($record_id);
-    }
-
-    private function loadEditorOptions($event_id, $options = array()): bool {
-        $CEvents = new events($event_id);
-        if (!$CEvents->record['id']) {
-            $this->error($CEvents->last_msg, __FILE__, __LINE__);
-            return false;
-        }
-
-        $this->current_event = $CEvents->record;
-
-        // Collect available platforms
-        if (!$result = NFW::i()->db->query_build(array('SELECT' => 'DISTINCT platform', 'FROM' => 'works', 'ORDER BY' => 'platform'))) {
-            $this->error('Unable to fetch platforms', __FILE__, __LINE__, NFW::i()->db->error());
-            return false;
-        }
-        while ($record = NFW::i()->db->fetch_assoc($result)) {
-            $this->attributes['platform']['options'][] = $record['platform'];
-        }
-
-        // Load competitions
-        $filters = array(
-            'event_id' => $CEvents->record['id'],
-            'open_reception' => $options['open_reception'] ?? false
-        );
-        $Competitions = new competitions();
-        foreach ($Competitions->getRecords(array('filter' => $filters)) as $c) {
-            $this->attributes['competition_id']['options'][] = array('id' => $c['id'], 'desc' => $c['title']);
-        }
-
-        return true;
     }
 
     private function formatRecord($record) {
@@ -131,7 +97,6 @@ class works extends active_record {
             $record['media_info'][] = $a;
         }
         unset($record['attachments']);
-
 
         $fs_basename = iconv("UTF-8", NFW::i()->cfg['media']['fs_encoding'], $record['release_basename']);
         if ($record['release_basename'] && file_exists(PUBLIC_HTML . '/files/' . $record['event_alias'] . '/' . $record['competition_alias'] . '/' . $fs_basename)) {
@@ -458,36 +423,32 @@ class works extends active_record {
         return $errors;
     }
 
-    // Works list in author's cabinet
-    function actionCabinetList() {
-        $records = $this->getRecords(array(
-            'filter' => array('posted_by' => NFW::i()->user['id'], 'allow_hidden' => true),
-            'ORDER BY' => 'w.posted DESC',
-            'load_attachments' => true,
-            'load_attachments_icons' => false,
-            'skip_pagination' => true
-        ));
-
-        return $this->renderAction(array('records' => $records));
-    }
-
-    // Work profile in author's cabinet
-    function actionCabinetView() {
-        if (!$this->load($_GET['record_id'])) {
+    public function loadEditorOptions($event_id, $options = array()): bool {
+        // Collect available platforms
+        if (!$result = NFW::i()->db->query_build(array('SELECT' => 'DISTINCT platform', 'FROM' => 'works', 'ORDER BY' => 'platform'))) {
+            $this->error('Unable to fetch platforms', __FILE__, __LINE__, NFW::i()->db->error());
             return false;
         }
-
-        if ($this->record['posted_by'] != NFW::i()->user['id']) {
-            $this->error(NFW::i()->lang['Errors']['Bad_request'], __FILE__, __LINE__);
-            return false;
+        while ($record = NFW::i()->db->fetch_assoc($result)) {
+            $this->attributes['platform']['options'][] = $record['platform'];
         }
 
-        return $this->renderAction();
+        // Load competitions
+        $filters = array(
+            'event_id' => $event_id,
+            'open_reception' => $options['open_reception'] ?? false
+        );
+        $Competitions = new competitions();
+        foreach ($Competitions->getRecords(array('filter' => $filters)) as $c) {
+            $this->attributes['competition_id']['options'][] = array('id' => $c['id'], 'desc' => $c['title']);
+        }
+
+        return true;
     }
 
     // Uploading work
     function actionCabinetAdd() {
-        $lang_main = NFW::i()->getLang('main');
+        $langMain = NFW::i()->getLang('main');
 
         // Collect events with reception opened
         $events = array();
@@ -498,7 +459,7 @@ class works extends active_record {
         $events = array_unique($events);
 
         if (empty($events)) {
-            $this->error($lang_main['events no open'], __FILE__, __LINE__);
+            $this->error($langMain['events no open'], __FILE__, __LINE__);
             return false;
         }
 
@@ -510,22 +471,30 @@ class works extends active_record {
             ), 'add_choose_event');
         }
 
-        $event_id = $_GET['event_id'] ?? reset($events);
+        $eventID = $_GET['event_id'] ?? reset($events);
 
-        if (!in_array($event_id, $events)) {
-            $this->error($lang_main['events not found'], __FILE__, __LINE__);
+        if (!in_array($eventID, $events)) {
+            $this->error($langMain['events not found'], __FILE__, __LINE__);
             return false;
         }
 
-        if (!$this->loadEditorOptions($event_id, array('open_reception' => true))) {
+        $CEvents = new events($eventID);
+        if (!$CEvents->record['id']) {
+            $this->error($CEvents->last_msg, __FILE__, __LINE__);
+            return false;
+        }
+
+        if (!$this->loadEditorOptions($CEvents->record['id'], array('open_reception' => true))) {
             return false;
         }
 
         if (empty($_POST)) {
-            return $this->renderAction();
+            return $this->renderAction([
+                'event' => $CEvents->record,
+            ]);
         }
 
-        $lang_main = NFW::i()->getLang('main');
+        $langMain = NFW::i()->getLang('main');
 
         $this->formatAttributes($_POST);
         // Collect description from several fields
@@ -545,7 +514,7 @@ class works extends active_record {
 
         $CMedia = new media();
         if (!$CMedia->countSessionFiles(get_class($this))) {
-            $errors['general'] = $lang_main['works upload no file error'];
+            $errors['general'] = $langMain['works upload no file error'];
         }
 
         if (!empty($errors)) {
@@ -557,25 +526,31 @@ class works extends active_record {
             NFW::i()->renderJSON(array('result' => 'error', 'errors' => array('general' => $this->last_msg)));
         }
 
-        NFWX::i()->hook("works_add_save_success", $this->current_event['alias'], array('record' => $this->record, 'post' => $_POST));
+        NFWX::i()->hook("works_add_save_success", $CEvents->record['alias'], array('record' => $this->record, 'post' => $_POST));
 
         // Add media
         $CMedia->closeSession(get_class($this), $this->record['id']);
         $this->reload();    // Load $this->record['attachments']
 
-        NFWX::i()->sendNotify('works_add', $this->current_event['id'], array('work' => $this->record), $this->record['media_info']);
-        NFW::i()->renderJSON(array('result' => 'success', 'message' => $lang_main['works upload success message']));
+        NFWX::i()->sendNotify('works_add', $CEvents->record['id'], array('work' => $this->record), $this->record['media_info']);
+        NFW::i()->renderJSON(array('result' => 'success', 'message' => $langMain['works upload success message']));
         return true;
     }
 
     function actionAdminAdmin() {
-        if (!$this->loadEditorOptions($_GET['event_id'])) {
+        $CEvents = new events($_GET['event_id']);
+        if (!$CEvents->record['id']) {
+            $this->error($CEvents->last_msg, __FILE__, __LINE__);
+            return false;
+        }
+
+        if (!$this->loadEditorOptions($CEvents->record['id'])) {
             return false;
         }
 
         $records = $this->getRecords(array(
             'filter' => array(
-                'event_id' => $this->current_event['id'],
+                'event_id' => $CEvents->record['id'],
                 'allow_hidden' => true,
             ),
             'ORDER BY' => 'c.position, w.posted',
@@ -584,6 +559,7 @@ class works extends active_record {
         ));
 
         return $this->renderAction([
+            'event' => $CEvents->record,
             'records' => $records,
             'defaultCompetition' => intval(reset($this->attributes['competition_id']['options'])['id']),
         ]);

@@ -6,7 +6,7 @@ $langMedia = NFW::i()->getLang('media');
 
 NFW::i()->assign('page_title', $Module->record['title'] . ' / ' . $langMain['cabinet prods']);
 NFW::i()->breadcrumb = array(
-    array('url' => 'cabinet/works?action=list', 'desc' => $langMain['cabinet prods']),
+    array('url' => 'cabinet/works_list', 'desc' => $langMain['cabinet prods']),
     array('desc' => $Module->record['title'] . ' by ' . $Module->record['author'])
 );
 NFW::i()->breadcrumb_status = $Module->record['event_title'] . '&nbsp;/ ' . $Module->record['competition_title'];
