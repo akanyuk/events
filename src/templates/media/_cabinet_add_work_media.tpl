@@ -25,10 +25,63 @@ $langMain = NFW::i()->getLang('main');
 </div>
 
 <script type="text/javascript"><?php ob_start();?>
-
     const workFilesContainer = document.getElementById("work-files-container");
+    const addFilesBtn = document.getElementById("add-files-file");
 
     loadWorkMedia();
+
+    addFilesBtn.addEventListener('change', function () {
+        if (this.files.length === 0) {
+            return;
+        }
+
+        addFilesBtn.setAttribute("disabled", "disabled");
+
+        let waitResponses = this.files.length;
+        let needReload = false;
+        for (const file of this.files) {
+            uploadFile(file).then(function () {
+                needReload = true;
+
+                waitResponses--;
+                if (waitResponses === 0) {
+                    afterUpload(true);
+                }
+            }).catch(err => {
+                gErrorToastText.innerText = err;
+                gErrorToast.show();
+
+                waitResponses--;
+                if (waitResponses === 0) {
+                    afterUpload(needReload);
+                }
+            });
+        }
+
+        const afterUpload = function (needReload) {
+            if (needReload) {
+                loadWorkMedia();
+            }
+            addFilesBtn.value = "";
+            addFilesBtn.removeAttribute("disabled");
+        };
+    });
+
+    async function uploadFile(file) {
+        let formData = new FormData();
+        formData.append("local_file", file);
+
+        const response = await fetch('<?php echo NFW::i()->base_path . 'media.php?action=upload&session_id=' . $session_id?>', {
+            method: "POST",
+            body: formData
+        });
+        const resp = await response.text()
+        const result = JSON.parse(resp.replace(/<textarea>/g, '').replace(/<\/textarea>/g, ''));
+
+        if (result.result === 'error') {
+            throw new Error(result.errors["local_file"]);
+        }
+    }
 
     function loadWorkMedia() {
         fetch('<?php echo NFW::i()->base_path . 'cabinet/works_media?action=list&work_id=' . $owner_id?>').then(response => response.json()).then(response => {
@@ -106,29 +159,6 @@ $langMain = NFW::i()->getLang('main');
         st.appendChild(svg);
         return st;
     }
-
-    document.getElementById("add-files-file").addEventListener('change', function () {
-        for (const file of this.files) {
-            let formData = new FormData();
-            formData.append("local_file", file);
-
-            fetch('<?php echo NFW::i()->base_path.'media.php?action=upload&session_id='.$session_id?>', {
-                method: "POST",
-                body: formData
-            }).then(async response => {
-                // legacy media support
-                const resp = await response.text();
-                const result = JSON.parse(resp.replace(/<textarea>/g, '').replace(/<\/textarea>/g, ''));
-
-                if (result.result === 'error') {
-                    gErrorToastText.innerText = result.errors["local_file"];
-                    gErrorToast.show();
-                }
-            });
-        }
-
-        loadWorkMedia();
-    });
 
     <?php NFWX::i()->mainBottomScript .= ob_get_clean(); ?>
 </script>

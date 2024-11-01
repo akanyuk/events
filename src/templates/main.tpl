@@ -64,27 +64,6 @@ $langLinksXs = array(
         echo '<meta property="og:' . $type . '" content="' . htmlspecialchars($value) . '">' . "\n";
     }
     ?>
-    <style>
-        .navbar-events {
-            background-color: #303030;
-            color: #fff;
-            padding-top: 0;
-            height: 3em;
-            position: sticky;
-        }
-
-        section {
-            scroll-margin-top: 4em;
-        }
-
-        .fill-white {
-            fill: #fff;
-        }
-
-        svg {
-            fill: currentColor;
-        }
-    </style>
 </head>
 <body>
 <svg xmlns="http://www.w3.org/2000/svg" class="d-none">

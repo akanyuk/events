@@ -7,6 +7,26 @@ html[lang="ru"] .hidden-lang-ru {
     display: none;
 }
 
+section {
+    scroll-margin-top: 4em;
+}
+
+svg {
+    fill: currentColor;
+}
+
+.fill-white {
+    fill: #fff;
+}
+
+.navbar-events {
+    background-color: #303030;
+    color: #fff;
+    padding-top: 0;
+    height: 3em;
+    position: sticky !important;
+}
+
 .badge-platform {
     background-color: #6e3731;
 }
