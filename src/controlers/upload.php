@@ -35,7 +35,7 @@ if (NFW::i()->user['is_guest']) {
     login_required($pageTitle, $lang_main['upload info']);
 }
 
-header("Location:/cabinet/works_add".($event === false ? "" : "?event_id=".$event['id']));
+header("Location:/cabinet/works_add".($event === false ? "" : "?event=".$event['alias']));
 
 /**
  * @param string $path

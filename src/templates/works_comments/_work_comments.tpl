@@ -99,9 +99,7 @@ $allowDelete = NFWX::i()->checkPermissions('works_comments', 'delete', array('wo
                 const deleteLink = document.createElement('a');
                 deleteLink.className = "text-danger";
                 deleteLink.setAttribute("href", "javascript:void(0)");
-                deleteLink.setAttribute("data-role", "delete-comment");
                 deleteLink.setAttribute("title", "Delete comment");
-                deleteLink.setAttribute("id", comment['id']);
                 deleteLink.innerHTML = '<svg width="1em" height="1em"><use href="#icon-x"></use></svg>';
                 deleteLink.onclick = async function () {
                     if (!confirm('Delete this comment?')) {

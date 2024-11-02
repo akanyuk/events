@@ -152,7 +152,7 @@ $langLinksXs = array(
 
                 <div class="me-3 me-md-4">
                     <div class="d-none d-sm-block text-nowrap"><?php echo implode(' • ', $langLinks) ?></div>
-                    <div class="d-block d-sm-none text-nowrap small"><?php echo implode(' ', $langLinksXs) ?></div>
+                    <div class="d-block d-sm-none text-nowrap"><?php echo implode(' • ', $langLinksXs) ?></div>
                 </div>
 
                 <div class="me-3 me-md-4">

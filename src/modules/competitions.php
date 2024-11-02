@@ -181,7 +181,7 @@ class competitions extends active_record {
         $where = count($where) ? join(' AND ', $where) : null;
 
         $query = array(
-            'SELECT' => 'c.id, c.event_id, e.title AS event_title, c.competitions_groups_id, c.title, e.alias AS event_alias, c.alias, c.works_type, c.position, c.announcement, c.reception_from, c.reception_to, c.voting_from, c.voting_to',
+            'SELECT' => 'c.id, c.event_id, e.title AS event_title, e.alias AS event_alias, c.competitions_groups_id, c.title, e.alias AS event_alias, c.alias, c.works_type, c.position, c.announcement, c.reception_from, c.reception_to, c.voting_from, c.voting_to',
             'FROM' => $this->db_table . ' AS c',
             'JOINS' => array(
                 array(

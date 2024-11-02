@@ -149,7 +149,6 @@ class works53c extends works {
 			return false;
 		}
 		
-		NFWX::i()->sendNotify('works_add', $CCompetitions->record['event_id'], array('work' => $this->record));
 		return true;
 	}
 }

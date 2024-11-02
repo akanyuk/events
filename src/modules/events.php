@@ -229,6 +229,14 @@ class events extends active_record {
             $where[] = 'e.date_to > ' . time();
         }
 
+        if (!empty($filter['aliases'])) {
+            $aliases = [];
+            foreach ($filter['aliases'] as $alias) {
+                $aliases[] = '"' . NFW::i()->db->escape($alias) . '"';
+            }
+            $where[] = 'e.alias IN (' . implode(', ', $aliases) . ')';
+        }
+
         if (isset($filter['alias_group']) && $filter['alias_group']) {
             $where[] = 'e.alias_group = "' . NFW::i()->db->escape($filter['alias_group']) . '"';
         }

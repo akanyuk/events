@@ -9,8 +9,8 @@ $langMain = NFW::i()->getLang('main');
 NFW::i()->assign('page_title', $langMain['cabinet add work']);
 
 NFW::i()->breadcrumb = array(
-    array('url' => 'cabinet/works_add', 'desc' => $langMain['cabinet add work']),
-    array('desc' => $event['title'])
+    array('desc' => $event['title'], 'url' => $event['alias']),
+    array('desc' => $langMain['cabinet add work']),
 );
 ?>
 <div class="d-grid mx-auto col-sm-10 col-md-8">
@@ -88,124 +88,117 @@ NFW::i()->breadcrumb = array(
 
             <?php echo NFWX::i()->hook("works_add_form_append", $event['alias']) ?>
 
-            <button type="submit" id="add-work-form-submit" class="d-none"></button>
+            <div class="mb-3">
+                <?php
+                $CMedia = new media();
+                echo $CMedia->openSession(array(
+                    'owner_class' => get_class($Module),
+                    'secure_storage' => true,
+                    'template' => '_cabinet_add_work',
+                ));
+                ?>
+            </div>
+
+            <div class="alert alert-info mb-3"><?php echo $langMain['works upload info'] ?></div>
+
+            <div class="mb-3">
+                <button type="submit" class="btn btn-success"><?php echo $langMain['works send'] ?></button>
+            </div>
         </fieldset>
     </form>
 
-    <div class="mb-3">
-        <?php
-        $CMedia = new media();
-        echo $CMedia->openSession(array(
-        	'owner_class' => get_class($Module),
-        	'secure_storage' => true,
-        	'template' => '_cabinet_add_work',
-        ));
-        ?>
-    </div>
-
-    <div class="alert alert-info mb-3"><?php echo $langMain['works upload info'] ?></div>
-
-    <div class="mb-3">
-        <button id="add-work-submit" class="btn btn-primary"><?php echo $langMain['works send'] ?></button>
-    </div>
-</div>
-
-<div id="add-work-success-modal" class="modal fade"
-     data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><?php echo $langMain['works upload success title'] ?></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div id="add-work-success-modal-body" class="modal-body"></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary"
-                        data-bs-dismiss="modal"><?php echo NFW::i()->lang['Close'] ?></button>
+    <div id="add-work-success-modal" class="modal fade"
+         data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><?php echo $langMain['works upload success title'] ?></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div id="add-work-success-modal-body" class="modal-body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                            data-bs-dismiss="modal"><?php echo NFW::i()->lang['Close'] ?></button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<script type="module">
-    const platforms = [];
-    <?php foreach ($Module->attributes['platform']['options'] as $platform): ?>
-    platforms.push({title: '<?php echo $platform?>'});
-    <?php endforeach; ?>
-    Autocomplete.init("input#platform", {
-        items: platforms,
-        valueField: "title",
-        labelField: "title",
-        highlightTyped: true
-    });
-</script>
-
-<script type="text/javascript">
-    <?php ob_start(); ?>
-
-    const addWorkSuccessModalBody = document.getElementById("add-work-success-modal-body");
-    const addWorkSuccessModal = new bootstrap.Modal('#add-work-success-modal');
-    document.getElementById("add-work-success-modal").addEventListener('hidden.bs.modal', function () {
-        window.location.href = '<?php echo NFW::i()->base_path?>cabinet/works_list';
-    })
-
-    document.getElementById("add-work-submit").addEventListener('click', function () {
-        document.getElementById("add-work-form-submit").click();
-    })
-
-    const addWorkFormSubmit = async function () {
-        let post = {};
-        document.querySelectorAll('[data-role="addWorkInput"]').forEach(item => {
-            item.classList.remove('is-valid', 'is-invalid');
-            post[item.id] = item.value;
+    <script type="module">
+        const platforms = [];
+        <?php foreach ($Module->attributes['platform']['options'] as $platform): ?>
+        platforms.push({title: '<?php echo $platform?>'});
+        <?php endforeach; ?>
+        Autocomplete.init("input#platform", {
+            items: platforms,
+            valueField: "title",
+            labelField: "title",
+            highlightTyped: true
         });
+    </script>
 
-        document.querySelectorAll('[data-role="addWorkInput"]:checked').forEach(item => {
-            item.classList.remove('is-valid', 'is-invalid');
-            post[item.id] = item.value;
-        });
+    <script type="text/javascript">
+        <?php ob_start(); ?>
 
-        document.querySelectorAll('[data-role="addWorkFeedback"]').forEach(item => {
-            item.classList.remove('d-block');
-        });
+        const addWorkSuccessModalBody = document.getElementById("add-work-success-modal-body");
+        const addWorkSuccessModal = new bootstrap.Modal('#add-work-success-modal');
+        document.getElementById("add-work-success-modal").addEventListener('hidden.bs.modal', function () {
+            window.location.href = '<?php echo NFW::i()->base_path?>cabinet/works_list';
+        })
 
-        let response = await fetch("?action=upload_work", {
-            method: "POST",
-            body: JSON.stringify(post),
-            headers: {
-                "Content-type": "application/json; charset=UTF-8"
-            }
-        });
-
-        if (!response.ok) {
-            const resp = await response.json();
-            const errors = resp.errors;
-
-            Object.keys(errors).forEach(function (key) {
-                if (key === 'general') {
-                    gErrorToastText.innerText = errors["general"];
-                    gErrorToast.show();
-                    return;
-                }
-
-                document.querySelector('[data-role="addWorkInput"][id=' + key + ']').classList.add('is-invalid');
-                document.querySelector('[data-role="addWorkFeedback"][id=' + key + ']').innerText = errors[key];
-                document.querySelector('[data-role="addWorkFeedback"][id=' + key + ']').classList.add('d-block');
-            });
-
+        const addWorkFormSubmit = async function () {
+            let post = {};
             document.querySelectorAll('[data-role="addWorkInput"]').forEach(item => {
-                if (!item.classList.contains('is-invalid')) {
-                    item.classList.add('is-valid');
+                item.classList.remove('is-valid', 'is-invalid');
+                post[item.id] = item.value;
+            });
+
+            document.querySelectorAll('[data-role="addWorkInput"]:checked').forEach(item => {
+                item.classList.remove('is-valid', 'is-invalid');
+                post[item.id] = item.value;
+            });
+
+            document.querySelectorAll('[data-role="addWorkFeedback"]').forEach(item => {
+                item.classList.remove('d-block');
+            });
+
+            let response = await fetch("?action=upload_work", {
+                method: "POST",
+                body: JSON.stringify(post),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
                 }
             });
 
-            return;
+            if (!response.ok) {
+                const resp = await response.json();
+                const errors = resp.errors;
+
+                Object.keys(errors).forEach(function (key) {
+                    if (key === 'general') {
+                        gErrorToastText.innerText = errors["general"];
+                        gErrorToast.show();
+                        return;
+                    }
+
+                    document.querySelector('[data-role="addWorkInput"][id=' + key + ']').classList.add('is-invalid');
+                    document.querySelector('[data-role="addWorkFeedback"][id=' + key + ']').innerText = errors[key];
+                    document.querySelector('[data-role="addWorkFeedback"][id=' + key + ']').classList.add('d-block');
+                });
+
+                document.querySelectorAll('[data-role="addWorkInput"]').forEach(item => {
+                    if (!item.classList.contains('is-invalid')) {
+                        item.classList.add('is-valid');
+                    }
+                });
+
+                return;
+            }
+
+            const resp = await response.json();
+            addWorkSuccessModalBody.textContent = resp["message"];
+            addWorkSuccessModal.show();
         }
 
-        const resp = await response.json();
-        addWorkSuccessModalBody.textContent = resp["message"];
-        addWorkSuccessModal.show();
-    }
-
-    <?php NFWX::i()->mainBottomScript .= ob_get_clean(); ?>
-</script>
+        <?php NFWX::i()->mainBottomScript .= ob_get_clean(); ?>
+    </script>

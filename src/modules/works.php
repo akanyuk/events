@@ -423,6 +423,10 @@ class works extends active_record {
         return $errors;
     }
 
+    public function saveWork(): bool {
+        return $this->save();
+    }
+
     public function loadEditorOptions($event_id, $options = array()): bool {
         // Collect available platforms
         if (!$result = NFW::i()->db->query_build(array('SELECT' => 'DISTINCT platform', 'FROM' => 'works', 'ORDER BY' => 'platform'))) {
@@ -443,97 +447,6 @@ class works extends active_record {
             $this->attributes['competition_id']['options'][] = array('id' => $c['id'], 'desc' => $c['title']);
         }
 
-        return true;
-    }
-
-    // Uploading work
-    function actionCabinetAdd() {
-        $langMain = NFW::i()->getLang('main');
-
-        // Collect events with reception opened
-        $events = array();
-        $CCompetitions = new competitions();
-        foreach ($CCompetitions->getRecords(array('filter' => array('open_reception' => true))) as $c) {
-            $events[] = $c['event_id'];
-        }
-        $events = array_unique($events);
-
-        if (empty($events)) {
-            $this->error($langMain['events no open'], __FILE__, __LINE__);
-            return false;
-        }
-
-        // Choose event
-        if (count($events) > 1 && !isset($_GET['event_id'])) {
-            $CEvents = new events();
-            return $this->renderAction(array(
-                'events' => $CEvents->getRecords(array('load_media' => true, 'filter' => array('ids' => $events)))
-            ), 'add_choose_event');
-        }
-
-        $eventID = $_GET['event_id'] ?? reset($events);
-
-        if (!in_array($eventID, $events)) {
-            $this->error($langMain['events not found'], __FILE__, __LINE__);
-            return false;
-        }
-
-        $CEvents = new events($eventID);
-        if (!$CEvents->record['id']) {
-            $this->error($CEvents->last_msg, __FILE__, __LINE__);
-            return false;
-        }
-
-        if (!$this->loadEditorOptions($CEvents->record['id'], array('open_reception' => true))) {
-            return false;
-        }
-
-        if (empty($_POST)) {
-            return $this->renderAction([
-                'event' => $CEvents->record,
-            ]);
-        }
-
-        $langMain = NFW::i()->getLang('main');
-
-        $this->formatAttributes($_POST);
-        // Collect description from several fields
-        $desc = array();
-        if ($_POST['description_public']) {
-            $desc[] = 'Comment for visitors:' . "\n" . $_POST['description_public'];
-        }
-        if ($_POST['description_refs']) {
-            $desc[] = 'Display additional: ' . $_POST['description_refs'];
-        }
-        if ($_POST['description']) {
-            $desc[] = 'Comment for organizers:' . "\n" . $_POST['description'];
-        }
-        $this->record['description'] = implode("\n\n", $desc);
-
-        $errors = $this->validate();
-
-        $CMedia = new media();
-        if (!$CMedia->countSessionFiles(get_class($this))) {
-            $errors['general'] = $langMain['works upload no file error'];
-        }
-
-        if (!empty($errors)) {
-            NFW::i()->renderJSON(array('result' => 'error', 'errors' => $errors));
-        }
-
-        $this->save();
-        if ($this->error) {
-            NFW::i()->renderJSON(array('result' => 'error', 'errors' => array('general' => $this->last_msg)));
-        }
-
-        NFWX::i()->hook("works_add_save_success", $CEvents->record['alias'], array('record' => $this->record, 'post' => $_POST));
-
-        // Add media
-        $CMedia->closeSession(get_class($this), $this->record['id']);
-        $this->reload();    // Load $this->record['attachments']
-
-        NFWX::i()->sendNotify('works_add', $CEvents->record['id'], array('work' => $this->record), $this->record['media_info']);
-        NFW::i()->renderJSON(array('result' => 'success', 'message' => $langMain['works upload success message']));
         return true;
     }
 

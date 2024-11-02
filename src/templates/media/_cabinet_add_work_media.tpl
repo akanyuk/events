@@ -16,12 +16,9 @@ $langMain = NFW::i()->getLang('main');
     <input type="file" id="add-files-file" multiple/>
 </div>
 
-<div class="mb-3">
-    <div class="alert alert-warning">
-        <div><?php echo $langMedia['MaxFileSize'] ?>:
-            <strong><?php echo number_format(NFW::i()->cfg['media']['MAX_FILE_SIZE'] / 1048576, 2, '.', ' ') ?>
-                Mb</strong></div>
-    </div>
+<div class="mb-3 alert alert-warning">
+    <?php echo $langMedia['MaxFileSize'] ?>:
+    <strong><?php echo number_format(NFW::i()->cfg['media']['MAX_FILE_SIZE'] / 1048576, 2, '.', ' ') . 'Mb' ?></strong>
 </div>
 
 <script type="text/javascript"><?php ob_start();?>

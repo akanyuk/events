@@ -1,9 +1,4 @@
 <?php
-if (NFW::i()->user['is_guest']) {
-    header('Location: ' . NFW::i()->absolute_path);
-} elseif (NFW::i()->user['is_blocked']) {
-    NFW::i()->stop('User\'s profile disabled by administration.', 'error-page');
-}
 
 $langMain = NFW::i()->getLang('main');
 
@@ -55,23 +50,61 @@ if (isset($_GET['action'])) {
 
             $req = json_decode(file_get_contents('php://input'));
 
-            ChromePhp::log($req);
+            $CCompetitions = new competitions($req->competition_id);
+            if (!$CCompetitions->record['id']) {
+                NFWX::i()->jsonError(400, 'System error: competition not found');
+            }
+
+            $CEvents = new events($CCompetitions->record['event_id']);
+            if (!$CEvents->record['id']) {
+                NFWX::i()->jsonError(400, 'System error: event not found');
+            }
 
             $CWorks = new works();
-//            $CUsers->validateProfile($req);
-//            if (count($CUsers->errors)) {
-//                NFWX::i()->jsonError(400, $CUsers->errors, $CUsers->last_msg);
-//            }
-//
-//            if (!$CUsers->actionRegister($req)) {
-//                NFWX::i()->jsonError(400, $CUsers->last_msg);
-//            }
+            if (!$CWorks->loadEditorOptions($CEvents->record['id'], array('open_reception' => true))) {
+                NFWX::i()->jsonError(400, $CWorks->last_msg);
+            }
 
+            $r = []; foreach ($req as $k => $v) $r[$k] = $v;
+            $CWorks->formatAttributes($r);
+
+            $desc = array();
+            if ($req->description_public) {
+                $desc[] = 'Comment for visitors:' . "\n" . $req->description_public;
+            }
+            if ($req->description_refs) {
+                $desc[] = 'Display additional: ' . $req->description_refs;
+            }
+            if ($req->description) {
+                $desc[] = 'Comment for organizers:' . "\n" . $req->description;
+            }
+            $CWorks->record['description'] = implode("\n\n", $desc);
+
+            $errors = $CWorks->validate();
+            if (!empty($errors)) {
+                NFWX::i()->jsonError(400, $errors, $CWorks->last_msg);
+            }
+
+            $CWorks->saveWork();
+            if ($CWorks->error) {
+                NFWX::i()->jsonError(400, $CWorks->last_msg);
+            }
+
+            NFWX::i()->hook("works_add_save_success", $CEvents->record['alias'], array('record' => $CWorks->record, 'req' => $req));
+
+            // Adding media files
+            $CMedia->closeSession('works', $CWorks->record['id']);
             NFWX::i()->jsonSuccess(['message' => $langMain['works upload success message']]);
             break;
         default:
             NFWX::i()->jsonError(400, "Unknown action");
     }
+}
+
+if (NFW::i()->user['is_guest']) {
+    header('Location: ' . NFW::i()->absolute_path);
+} elseif (NFW::i()->user['is_blocked']) {
+    NFW::i()->stop('User\'s profile disabled by administration.', 'error-page');
 }
 
 // Determine page, disable subdirectories
@@ -101,7 +134,7 @@ switch (count($pathParts) == 2 ? $pathParts[1] : false) {
         $events = array();
         $CCompetitions = new competitions();
         foreach ($CCompetitions->getRecords(array('filter' => array('open_reception' => true))) as $c) {
-            $events[] = $c['event_id'];
+            $events[] = $c['event_alias'];
         }
         $events = array_unique($events);
 
@@ -112,26 +145,25 @@ switch (count($pathParts) == 2 ? $pathParts[1] : false) {
         $CWorks = new works();
 
         // Choose event
-        if (count($events) > 1 && !isset($_GET['event_id'])) {
+        if (count($events) > 1 && !isset($_GET['event'])) {
             $CEvents = new events();
             $content = $CWorks->renderAction(array(
-                'events' => $CEvents->getRecords(array('load_media' => true, 'filter' => array('ids' => $events)))
+                'events' => $CEvents->getRecords(array('load_media' => true, 'filter' => array('aliases' => $events)))
             ), 'cabinet/add_choose_event');
         } else {
+            $eventAlias = $_GET['event'] ?? reset($events);
 
-            $eventID = $_GET['event_id'] ?? reset($events);
-
-            if (!in_array($eventID, $events)) {
-                NFW::i()->stop($langMain['events not found'], 'error-page');
+            if (!in_array($eventAlias, $events)) {
+                NFW::i()->stop(404);
             }
 
-            $CEvents = new events($eventID);
-            if (!$CEvents->record['id']) {
-                NFW::i()->stop($CEvents->last_msg, 'error-page');
+            $CEvents = new events();
+            if (!$CEvents->loadByAlias($eventAlias)) {
+                NFW::i()->stop(404);
             }
 
             if (!$CWorks->loadEditorOptions($CEvents->record['id'], array('open_reception' => true))) {
-                NFW::i()->stop($CEvents->last_msg, 'error-page');
+                NFW::i()->stop(404);
             }
 
             $content = $CWorks->renderAction(['event' => $CEvents->record], 'cabinet/add');
