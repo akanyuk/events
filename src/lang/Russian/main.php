@@ -21,6 +21,7 @@ $lang_main = array(
     'Search' => 'Поиск',
     'search hint' => 'Поиск по названию или автору',
     'Search nothing found' => 'По вашему запросу ничего не найдено',
+    'Reception opened' => 'Прием работ открыт',
 
     'cabinet prods' => 'Мои работы',
     'cabinet profile' => 'Мой профиль',
@@ -32,7 +33,7 @@ $lang_main = array(
     'all events' => 'Все события',
     'events' => 'События',
     'event' => 'Событие',
-    'events no open' => 'В настоящее время нет событий с открытым приемом работ.',
+    'events no open' => 'В настоящее время нет событий с открытым приемом работ',
     'events not found' => 'Событие не найдено.',
 
     'competition' => 'Номинация',
@@ -133,7 +134,7 @@ $lang_main = array(
     'voting error wrong username' => 'Пожалуйста укажите имя.',
     'voting error wrong votekey' => 'Ключ голосования не найден.',
     'voting success note' => 'Ваш голос принят.',
-    'Voting is open' => 'Голосование открыто',
+    'Voting opened' => 'Голосование открыто',
 
     'votekey-request note' => 'Ключ для голосования будет выслан на указанный e-mail адрес. <br />Адрес опубликован не будет.',
     'votekey-request email label' => 'E-mail адрес',

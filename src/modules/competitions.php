@@ -39,64 +39,46 @@ class competitions extends active_record {
         $lang_main = NFW::i()->getLang('main');
 
         $record['reception_status'] = array(
-            'informable' => false,
             'future' => false,
             'now' => false,
             'past' => false,
             'newer' => false,
-            'text-class' => '',
-            'label-class' => 'text-bg-secondary',
         );
         $record['voting_status'] = array(
-            'informable' => false,
             'available' => false,
             'future' => false,
             'now' => false,
             'past' => false,
             'newer' => false,
-            'text-class' => '',
-            'label-class' => 'text-bg-secondary',
         );
         $record['release_status'] = array('available' => false);
 
         if (!$record['reception_from'] && !$record['reception_to']) {
             $record['reception_status']['desc'] = '-';
-            $record['reception_status']['text-class'] = 'text-muted';
             $record['reception_status']['newer'] = true;
         } elseif ($record['reception_from'] > NFWX::i()->actual_date) {
             $record['reception_status']['desc'] = '+' . NFWX::i()->formatTimeDelta($record['reception_from']);
-            $record['reception_status']['informable'] = true;
             $record['reception_status']['future'] = true;
         } elseif ($record['reception_from'] < NFWX::i()->actual_date && $record['reception_to'] > NFWX::i()->actual_date) {
             $record['reception_status']['desc'] = 'NOW! +' . NFWX::i()->formatTimeDelta($record['reception_to']);
-            $record['reception_status']['text-class'] = 'text-danger';
-            $record['reception_status']['label-class'] = 'text-bg-info';
-            $record['reception_status']['informable'] = true;
             $record['reception_status']['now'] = true;
         } else {
             $record['reception_status']['desc'] = $lang_main['reception closed'];
-            $record['reception_status']['text-class'] = 'text-muted';
             $record['reception_status']['past'] = true;
         }
 
         if (!$record['voting_from'] && !$record['voting_to']) {
             $record['voting_status']['desc'] = '-';
-            $record['voting_status']['text-class'] = 'text-muted';
             $record['voting_status']['newer'] = true;
         } elseif ($record['voting_from'] > NFWX::i()->actual_date) {
             $record['voting_status']['desc'] = '+' . NFWX::i()->formatTimeDelta($record['voting_from']);
-            $record['voting_status']['informable'] = true;
             $record['voting_status']['future'] = true;
         } elseif ($record['voting_from'] <= NFWX::i()->actual_date && $record['voting_to'] >= NFWX::i()->actual_date) {
             $record['voting_status']['desc'] = 'NOW! +' . NFWX::i()->formatTimeDelta($record['voting_to']);
-            $record['voting_status']['text-class'] = 'text-danger';
-            $record['voting_status']['label-class'] = 'text-bg-danger';
             $record['voting_status']['available'] = true;
-            $record['voting_status']['informable'] = true;
             $record['voting_status']['now'] = true;
         } else {
             $record['voting_status']['desc'] = $lang_main['voting closed'];
-            $record['voting_status']['text-class'] = 'text-muted';
             $record['voting_status']['past'] = true;
         }
 
@@ -156,8 +138,8 @@ class competitions extends active_record {
         return $this->record;
     }
 
-    public function loadByAlias($alias, $event_id = 0) {
-        return $this->load(false, array('alias' => urldecode($alias), 'event_id' => $event_id));
+    public function loadByAlias($alias, $eventID) {
+        return $this->load(false, array('alias' => urldecode($alias), 'event_id' => $eventID));
     }
 
     public function getRecords($options = array()) {

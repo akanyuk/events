@@ -65,7 +65,8 @@ if (isset($_GET['action'])) {
                 NFWX::i()->jsonError(400, $CWorks->last_msg);
             }
 
-            $r = []; foreach ($req as $k => $v) $r[$k] = $v;
+            $r = [];
+            foreach ($req as $k => $v) $r[$k] = $v;
             $CWorks->formatAttributes($r);
 
             $desc = array();
@@ -162,11 +163,23 @@ switch (count($pathParts) == 2 ? $pathParts[1] : false) {
                 NFW::i()->stop(404);
             }
 
+            $competition = [];
+            if (isset($_GET['competition'])) {
+                $CCompetitions = new competitions();
+                if (!$CCompetitions->loadByAlias($_GET['competition'], $CEvents->record['id'])) {
+                    NFW::i()->stop(404);
+                }
+                $competition = $CCompetitions->record;
+            }
+
             if (!$CWorks->loadEditorOptions($CEvents->record['id'], array('open_reception' => true))) {
                 NFW::i()->stop(404);
             }
 
-            $content = $CWorks->renderAction(['event' => $CEvents->record], 'cabinet/add');
+            $content = $CWorks->renderAction([
+                'event' => $CEvents->record,
+                'competition' => $competition,
+            ], 'cabinet/add');
         }
         break;
     default:

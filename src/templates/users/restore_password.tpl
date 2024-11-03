@@ -1,8 +1,4 @@
 <?php
-if (!NFW::i()->user['is_guest']) {
-    header('Location: ' . NFW::i()->absolute_path);
-}
-
 $langUsers = NFW::i()->getLang('users');
 NFW::i()->assign('page_title', $langUsers['Restore password']);
 ?>

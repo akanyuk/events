@@ -46,9 +46,9 @@ class apiV2 {
                     $options['filter']['event_id'] = $CEvents->record['id'];
                 }
 
-                if (isset($_REQUEST['competition']) && $_REQUEST['competition']) {
+                if (isset($_REQUEST['competition']) && $_REQUEST['competition'] && $options['filter']['event_id']) {
                     $CCompetitions = new competitions();
-                    if (!$CCompetitions->loadByAlias($_REQUEST['competition'])) {
+                    if (!$CCompetitions->loadByAlias($_REQUEST['competition'], $options['filter']['event_id'])) {
                         $this->error(400, 'competition not found');
                     }
                     $options['filter']['competition_id'] = $CCompetitions->record['id'];

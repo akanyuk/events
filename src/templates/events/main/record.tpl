@@ -192,52 +192,65 @@ function competitionsList($competitionsGroups, $competitions, bool $hideWorksCou
 
 function _compo(array $compo, bool $hideWorksCount) {
     $langMain = NFW::i()->getLang('main');
-    $receptionAvailable = $compo['reception_status']['now'] || $compo['reception_status']['future'];
-    $votingAvailable = $compo['voting_status']['now'] || $compo['voting_status']['future'];
-
     ob_start();
     ?>
     <section id="<?php echo $compo['alias'] ?>"></section>
-    <h3>
-        <?php if ($compo['is_link']): ?>
+
+    <?php if ($compo['is_link']): ?>
+        <h3>
             <a href="<?php echo NFW::i()->absolute_path . '/' . $compo['event_alias'] . '/' . $compo['alias'] ?>"><?php echo htmlspecialchars($compo['title']) . ($hideWorksCount ? '' : ' (' . $compo['counter'] . ')') ?></a>
-        <?php else: ?>
-            <?php echo htmlspecialchars($compo['title']) . ($hideWorksCount ? '' : ' (' . $compo['counter'] . ')') ?>
-        <?php endif; ?>
-    </h3>
-
-    <p><?php echo $compo['announcement'] ?></p>
-
-    <?php if (!$compo['reception_status']['newer'] || !$compo['voting_status']['newer']): ?>
-        <ul>
-            <?php if (!$compo['reception_status']['newer']): ?>
-                <li>
-                    <?php echo $langMain['competitions reception'] ?>
-                    <?php if ($compo['reception_from']): ?>
-                        <span
-                            style="white-space: nowrap; <?php echo $compo['reception_status']['past'] ? 'color: #777;' : 'font-weight: bold;' ?>"><?php echo date('d.m H:i', $compo['reception_from']) . ' - ' . date('d.m H:i', $compo['reception_to']) ?></span>
-                    <?php endif; ?>
-                    <?php if ($receptionAvailable): ?>
-                        <span
-                            class="badge <?php echo $compo['reception_status']['label-class'] ?>"><?php echo $compo['reception_status']['desc'] ?></span>
-                    <?php endif; ?>
-                </li>
-            <?php endif; ?>
-            <?php if (!$compo['voting_status']['newer']): ?>
-                <li>
-                    <?php echo $langMain['competitions voting'] ?>
-                    <?php if ($compo['voting_from']): ?>
-                        <span
-                            style="white-space: nowrap; <?php echo $compo['voting_status']['past'] ? 'color: #777;' : 'font-weight: bold;' ?>"><?php echo date('d.m H:i', $compo['voting_from']) . ' - ' . date('d.m H:i', $compo['voting_to']) ?></span>
-                    <?php endif; ?>
-                    <?php if ($votingAvailable): ?>
-                        <span
-                            class="badge <?php echo $compo['voting_status']['label-class'] ?>"><?php echo $compo['voting_status']['desc'] ?></span>
-                    <?php endif; ?>
-                </li>
-            <?php endif; ?>
-        </ul>
+        </h3>
+    <?php else: ?>
+        <h3><?php echo htmlspecialchars($compo['title']) . ($hideWorksCount ? '' : ' (' . $compo['counter'] . ')') ?></h3>
     <?php endif; ?>
+
+    <div class="event-compo-rules">
+        <?php echo $compo['announcement'] ?>
+    </div>
+
+    <ul>
+        <?php if ($compo['reception_status']['now']): ?>
+            <li>
+                <?php echo $langMain['competitions reception'] ?>
+                <a href="<?php echo NFW::i()->absolute_path . '/upload/' . $compo['event_alias'] . '/' . $compo['alias'] ?>"
+                   title="Upload prod"><span
+                            class="fw-bold text-nowrap"><?php echo date('d.m H:i', $compo['reception_from']) . ' - ' . date('d.m H:i', $compo['reception_to']) ?></span></a>
+                <span class="badge text-bg-info"><?php echo $compo['reception_status']['desc'] ?></span>
+            </li>
+        <?php elseif ($compo['reception_status']['future']): ?>
+            <li>
+                <?php echo $langMain['competitions reception'] ?>
+                <span class="fw-bold text-nowrap"><?php echo date('d.m H:i', $compo['reception_from']) . ' - ' . date('d.m H:i', $compo['reception_to']) ?></span>
+                <span class="badge text-bg-secondary"><?php echo $compo['reception_status']['desc'] ?></span>
+            </li>
+        <?php elseif ($compo['reception_status']['past']): ?>
+            <li>
+                <?php echo $langMain['competitions reception'] ?>
+                <span class="text-muted text-nowrap"><?php echo date('d.m H:i', $compo['reception_from']) . ' - ' . date('d.m H:i', $compo['reception_to']) ?></span>
+            </li>
+        <?php endif; ?>
+
+        <?php if ($compo['voting_status']['now']): ?>
+            <li>
+                <?php echo $langMain['competitions voting'] ?>
+                <a href="<?php echo NFW::i()->absolute_path . '/' . $compo['event_alias'] . '/' . $compo['alias'] ?>"
+                   title="Vote now!"><span
+                            class="fw-bold text-nowrap"><?php echo date('d.m H:i', $compo['voting_from']) . ' - ' . date('d.m H:i', $compo['voting_to']) ?></span></a>
+                <span class="badge text-bg-danger"><?php echo $compo['voting_status']['desc'] ?></span>
+            </li>
+        <?php elseif ($compo['voting_status']['future']): ?>
+            <li>
+                <?php echo $langMain['competitions voting'] ?>
+                <span class="fw-bold text-nowrap"><?php echo date('d.m H:i', $compo['voting_from']) . ' - ' . date('d.m H:i', $compo['voting_to']) ?></span>
+                <span class="badge text-bg-secondary"><?php echo $compo['voting_status']['desc'] ?></span>
+            </li>
+        <?php elseif ($compo['voting_status']['past']): ?>
+        <li>
+            <?php echo $langMain['competitions voting'] ?>
+            <span class="text-muted text-nowrap"><?php echo date('d.m H:i', $compo['voting_from']) . ' - ' . date('d.m H:i', $compo['voting_to']) ?></span>
+            <?php endif; ?>
+        </li>
+    </ul>
 
     <a class="d-block mb-3 text-secondary-emphasis" href="<?php echo '#top' ?>">
         <svg width="2em" height="2em">

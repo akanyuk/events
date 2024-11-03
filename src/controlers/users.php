@@ -100,11 +100,15 @@ if (isset($_GET['action'])) {
 $pathParts = explode(DIRECTORY_SEPARATOR, parse_url(trim($_SERVER['REQUEST_URI'], DIRECTORY_SEPARATOR), PHP_URL_PATH));
 switch (count($pathParts) == 2 ? $pathParts[1] : false) {
     case 'restore_password':
+        if (!NFW::i()->user['is_guest']) {
+            header('Location: ' . NFW::i()->absolute_path);
+        }
+
         $content = $CUsers->renderAction('restore_password');
         break;
     case 'activate_account':
         if (!NFW::i()->user['is_guest']) {
-            NFW::i()->stop($CUsers->lang['Errors']['Already registered'], 'error-page');
+            header('Location: ' . NFW::i()->absolute_path);
         }
 
         if (!isset($_GET['key']) || $_GET['key'] === "") {
@@ -124,7 +128,7 @@ switch (count($pathParts) == 2 ? $pathParts[1] : false) {
         break;
     case 'register':
         if (!NFW::i()->user['is_guest']) {
-            NFW::i()->stop($CUsers->lang['Errors']['Already registered'], 'error-page');
+            header('Location: ' . NFW::i()->absolute_path);
         }
 
         $defaultCountry = '';

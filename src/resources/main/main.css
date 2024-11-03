@@ -107,6 +107,12 @@ h2.index-head {
     display: block;
 }
 
+/* Competitions list */
+
+.event-compo-rules UL {
+    margin-bottom: 0 !important;
+}
+
 /* Competitions list short */
 
 .competitions-list-short .badge-cnt {

@@ -6,11 +6,11 @@ class NFWX extends NFW {
 
     // Come from `settings` DB table
     var $project_settings = array();
-    var array $notify_emails = array();
 
     var $actual_date = false;
 
     var array $main_og = array();             # Open Graph meta tags
+    var string $mainContainerAdditionalClasses = "";
     var string $mainLayoutRightContent = "";   # The content of the right block of the page. If not specified, the right block is not displayed
     var string $mainBottomScript = "";
 
@@ -244,24 +244,6 @@ class NFWX extends NFW {
         $this->jsonSuccess();
     }
 
-    function renderNews($options = array()) {
-        $CNews = new news();
-        if (!$records = $CNews->getRecords($options)) {
-            return false;
-        }
-
-        // Generate paging links
-        $baseURL = $options['pagination_baseurl'] ?? NFW::i()->absolute_path . '/news.html';
-        $paging_links = $CNews->num_pages > 1 ? $this->paginate($CNews->num_pages, $CNews->cur_page, $baseURL, ' ') : '';
-
-        // Render page content
-        return $CNews->renderAction(array(
-            'category' => $options['category'] ?? null,
-            'records' => $records,
-            'paging_links' => $paging_links,
-        ), $options['template']);
-    }
-
     function paginate($num_pages, $cur_page, $link_to, $separator = ", "): string {
         $pages = array();
         $link_to_all = false;
@@ -325,30 +307,6 @@ class NFWX extends NFW {
         } else {
             return intval($left / 60) . ' ' . word_suffix(intval($left / 60), $lang_main['minutes suffix']);
         }
-    }
-
-    function sendNotify($tp, $event_id, $data = array(), $attachments = array()): bool {
-        foreach ($this->notify_emails as $email) {
-            email::sendFromTemplate($email, $tp, array('data' => $data));
-        }
-
-        $query = array(
-            'SELECT' => 'u.email',
-            'FROM' => 'events_managers AS e',
-            'JOINS' => array(
-                array(
-                    'INNER JOIN' => 'users AS u',
-                    'ON' => 'e.user_id=u.id'
-                ),
-            ),
-            'WHERE' => 'e.event_id=' . $event_id
-        );
-        if (!$result = NFW::i()->db->query_build($query)) return false;
-        while ($u = NFW::i()->db->fetch_assoc($result)) {
-            email::sendFromTemplate($u['email'], $tp, array('data' => $data), $attachments);
-        }
-
-        return true;
     }
 
     function jsonError(int $errorCode, $req = array(), $generalMsg = "") {

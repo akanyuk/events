@@ -235,7 +235,7 @@ $langLinksXs = array(
     </header>
 </main>
 
-<div class="container mt-3 mb-2">
+<div class="container mt-3 mb-2 <?php echo NFWX::i()->mainContainerAdditionalClasses?>">
     <?php
     if (isset($page['is_error']) && $page['is_error']) {
         echo $page['content'];

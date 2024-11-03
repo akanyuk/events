@@ -6,6 +6,8 @@
 $langUsers = NFW::i()->getLang('users');
 NFW::i()->assign('page_title', $langUsers['My profile']);
 
+NFWX::i()->mainContainerAdditionalClasses = 'd-grid mx-auto col-sm-10 col-md-8';
+
 $attrs = $CUsers->attributes;
 ?>
 <ul class="nav nav-underline ps-sm-5" role="tablist">
@@ -21,7 +23,7 @@ $attrs = $CUsers->attributes;
     </li>
 </ul>
 
-<div class="tab-content pt-4 ps-sm-5 d-grid mx-left col-sm-8 col-md-6 col-lg-4">
+<div class="tab-content pt-4 ps-sm-5">
     <div class="tab-pane active" id="profile" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
         <form id="update-profile-form">
             <fieldset>

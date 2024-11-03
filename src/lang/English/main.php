@@ -21,6 +21,7 @@ $lang_main = array(
     'Search' => 'Search',
     'search hint' => 'Search by title or author',
     'Search nothing found' => 'Nothing was found for your query',
+    'Reception opened' => 'Reception opened',
 
     'cabinet prods' => 'My Prods',
     'cabinet profile' => 'Profile',
@@ -133,7 +134,7 @@ $lang_main = array(
     'voting error wrong username' => 'Please fill your name.',
     'voting error wrong votekey' => 'Wrong votekey.',
     'voting success note' => 'Your vote accepted.',
-    'Voting is open' => 'Voting is open',
+    'Voting opened' => 'Voting opened',
 
     'votekey-request note' => 'Votekey will be sent to given e-mail address. <br />E-mail address never be published by demoparty organizers.',
     'votekey-request email label' => 'E-mail address',
