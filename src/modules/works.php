@@ -37,12 +37,12 @@ class works extends active_record {
         'external_html' => array('type' => 'textarea', 'desc' => 'Additional text (HTML)', 'maxlength' => 2048),
 
         'status' => array('type' => 'select', 'desc' => 'Status', 'options' => array(
-            ['id' => 0, 'voting' => false, 'release' => false, 'css-class' => 'warning', 'svg-icon' => 'status-unchecked'],      // Unchecked
-            ['id' => 1, 'voting' => true, 'release' => true, 'css-class' => 'success', 'svg-icon' => 'status-checked'],          // Checked
-            ['id' => 2, 'voting' => false, 'release' => false, 'css-class' => 'danger', 'svg-icon' => 'status-disqualified'],    // Disqualified
-            ['id' => 3, 'voting' => false, 'release' => false, 'css-class' => 'warning', 'svg-icon' => 'status-feedback-needed'], // Feedback needed
-            ['id' => 4, 'voting' => false, 'release' => true, 'css-class' => 'info', 'svg-icon' => 'status-out-of-compo'],       // Out of competition
-            ['id' => 5, 'voting' => false, 'release' => true, 'css-class' => 'info', 'svg-icon' => 'status-wait-preselection'],  // Wait preselect
+            ['id' => 0, 'cnt' => false, 'voting' => false, 'release' => false, 'css-class' => 'warning', 'svg-icon' => 'status-unchecked'],      // Unchecked
+            ['id' => 1, 'cnt' => true, 'voting' => true, 'release' => true, 'css-class' => 'success', 'svg-icon' => 'status-checked'],           // Checked
+            ['id' => 2, 'cnt' => false, 'voting' => false, 'release' => false, 'css-class' => 'danger', 'svg-icon' => 'status-disqualified'],    // Disqualified
+            ['id' => 3, 'cnt' => false, 'voting' => false, 'release' => false, 'css-class' => 'warning', 'svg-icon' => 'status-feedback-needed'],// Feedback needed
+            ['id' => 4, 'cnt' => false, 'voting' => false, 'release' => true, 'css-class' => 'info', 'svg-icon' => 'status-out-of-compo'],       // Out of competition
+            ['id' => 5, 'cnt' => true, 'voting' => false, 'release' => false, 'css-class' => 'info', 'svg-icon' => 'status-wait-preselection'],  // Wait preselect
         )),
         'status_reason' => array('type' => 'textarea', 'maxlength' => 512),
 
@@ -186,12 +186,12 @@ class works extends active_record {
         if (is_array($competitions)) {
             foreach ($competitions as $c) {
                 $ids[] = $c['id'];
-                $compo_by_id[$c['id']] = array('voting_works' => 0, 'release_works' => 0);
+                $compo_by_id[$c['id']] = ['counter_works' => 0, 'voting_works' => 0, 'release_works' => 0];
             }
             unset($c);
         } else {
             $ids[] = $competitions;
-            $compo_by_id[$competitions] = array('voting_works' => 0, 'release_works' => 0);
+            $compo_by_id[$competitions] = ['counter_works' => 0, 'voting_works' => 0, 'release_works' => 0];
         }
 
         if (!$result = NFW::i()->db->query_build(array(
@@ -204,6 +204,7 @@ class works extends active_record {
         }
         while ($record = NFW::i()->db->fetch_assoc($result)) {
             $status = $this->searchArrayAssoc($this->attributes['status']['options'], $record['status']);
+            if ($status['cnt']) $compo_by_id[$record['competition_id']]['counter_works']++;
             if ($status['voting']) $compo_by_id[$record['competition_id']]['voting_works']++;
             if ($status['release']) $compo_by_id[$record['competition_id']]['release_works']++;
         }

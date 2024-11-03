@@ -141,7 +141,7 @@ NFWX::i()->mainContainerAdditionalClasses = 'd-grid mx-auto col-sm-10 col-md-8';
 
         <div class="alert alert-info mb-3"><?php echo $langMain['works upload info'] ?></div>
 
-        <div class="mb-3">
+        <div class="d-grid d-md-block mb-3">
             <button type="submit" class="btn btn-lg btn-success"><?php echo $langMain['works send'] ?></button>
         </div>
     </fieldset>

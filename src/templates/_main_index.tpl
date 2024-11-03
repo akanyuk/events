@@ -131,7 +131,7 @@ function displayCurrenEventUploadingStatus($record): void {
     <div class="mb-3">
         <h3><?php echo $langMain['Reception opened'] ?>:</h3>
         <?php foreach ($compos as $compo): ?>
-            <div class="d-flex flex-row mb-2 justify-content-between">
+            <div class="d-flex flex-row mb-2 justify-content-between gap-2">
                 <a href="<?php echo NFW::i()->absolute_path . '/upload/' . $compo['event_alias'] . '/' . $compo['alias'] ?>"><?php echo htmlspecialchars($compo['title']) ?></a>
                 <div class="text-nowrap text-info"><?php echo $compo['reception_status']['desc'] ?></div>
             </div>
@@ -192,7 +192,7 @@ function displayCurrenEventVotingStatus($record): void {
                 status.className = "text-nowrap text-danger"
 
                 const item = document.createElement('div');
-                item.className = "d-flex flex-row mb-2 justify-content-between";
+                item.className = "d-flex flex-row mb-2 justify-content-between gap-2";
                 item.appendChild(title);
                 item.appendChild(status);
 

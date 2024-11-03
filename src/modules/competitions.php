@@ -86,14 +86,14 @@ class competitions extends active_record {
             $record['release_status']['available'] = true;
         }
 
-        if ($record['release_status']['available'] && isset($record['release_works']) && $record['release_works']) {
+        if ($record['release_status']['available']) {
             $record['counter'] = $record['release_works'];
-            $record['is_link'] = true;
-        } elseif ($record['voting_status']['available'] && isset($record['voting_works']) && $record['voting_works']) {
+            $record['is_link'] = $record['release_works'] ?? 0;
+        } elseif ($record['voting_status']['available']) {
             $record['counter'] = $record['voting_works'];
-            $record['is_link'] = true;
+            $record['is_link'] = $record['voting_works'] ?? 0;
         } else {
-            $record['counter'] = $record['release_works'] ?? 0;
+            $record['counter'] = $record['counter_works'];
             $record['is_link'] = false;
         }
 
@@ -104,7 +104,7 @@ class competitions extends active_record {
         if ($id) {
             $where = ['c.id=' . intval($id)];
         } else {
-            $where = ['c.alias="' . NFW::i()->db->escape($options['alias']).'"'];
+            $where = ['c.alias="' . NFW::i()->db->escape($options['alias']) . '"'];
             if ($options['event_id']) {
                 $where[] = 'c.event_id=' . $options['event_id'];
             }
@@ -190,7 +190,7 @@ class competitions extends active_record {
         $CWorks = new works();
         $CWorks->loadCounters($records);
 
-        foreach ($records as $key=>$record) {
+        foreach ($records as $key => $record) {
             $records[$key] = $this->formatRecord($record);
         }
 

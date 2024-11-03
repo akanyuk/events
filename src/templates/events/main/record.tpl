@@ -234,7 +234,9 @@ function _compo(array $compo, bool $hideWorksCount) {
                 <?php echo $langMain['competitions voting'] ?>
                 <span class="fw-bold text-nowrap"><?php echo date('d.m H:i', $compo['voting_from']) . ' - ' . date('d.m H:i', $compo['voting_to']) ?></span>
                 <span class="badge text-bg-danger"><?php echo $compo['voting_status']['desc'] ?></span>
-                <a href="<?php echo NFW::i()->absolute_path . '/' . $compo['event_alias'] . '/' . $compo['alias'] ?>">Vote!</a>
+                <?php if ($compo['counter']): ?>
+                    <a href="<?php echo NFW::i()->absolute_path . '/' . $compo['event_alias'] . '/' . $compo['alias'] ?>">Vote!</a>
+                <?php endif; ?>
             </li>
         <?php elseif ($compo['voting_status']['future']): ?>
             <li>
