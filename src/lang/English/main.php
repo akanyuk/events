@@ -80,9 +80,9 @@ $lang_main = array(
 
     'works upload no file error' => 'No files for uploading!.',
 
-    'works upload info' => '<p>The uploaded files will be stored on the server only after you press the "Send prod" button.</p><p>You can also include extra files (like screenshots, file for voting and nfo file).</p><p>You will receive an e-mail confirmation of your prod\'s approval after it is verified by the organizers.</p>',
+    'works upload info' => '<div class="mb1">The uploaded files will be stored on the server only after you press the "Send prod" button.</div><div class="mb1">You can also include extra files (like screenshots, file for voting and nfo file).</div>',
     'works upload success title' => 'Prod uploaded',
-    'works upload success message' => 'Prod uploaded successfully. You will receive an e-mail confirmation of your prod`s approval status after it is verified by the organizers.',
+    'works upload success message' => 'Prod uploaded successfully. The status change is displayed in the "My Prods" section',
     'works status desc' => array(
         0 => 'Not checked yet',
         1 => 'Verified',

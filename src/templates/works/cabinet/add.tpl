@@ -20,14 +20,39 @@ if ($competition) {
 
 NFWX::i()->mainContainerAdditionalClasses = 'd-grid mx-auto col-sm-10 col-md-8';
 ?>
-<?php if ($competition): ?>
-    <h3><?php echo htmlspecialchars($competition['title']) ?></h3>
-    <div class="mb3"><?php echo $competition['announcement'] ?></div>
-<?php endif; ?>
-
 <form onsubmit="addWorkFormSubmit(); return false;">
     <fieldset>
         <?php if ($competition): ?>
+            <h3><?php echo htmlspecialchars($competition['title']) ?></h3>
+            <div class="event-compo-rules"><?php echo $competition['announcement'] ?></div>
+            <ul>
+                <li>
+                    <?php echo $langMain['competitions reception'] ?>
+                    <span
+                            class="fw-bold text-nowrap"><?php echo date('d.m H:i', $competition['reception_from']) . ' - ' . date('d.m H:i', $competition['reception_to']) ?></span>
+                </li>
+
+                <?php if ($competition['voting_status']['now']): ?>
+                    <li>
+                        <?php echo $langMain['competitions voting'] ?>
+                        <span class="fw-bold text-nowrap"><?php echo date('d.m H:i', $competition['voting_from']) . ' - ' . date('d.m H:i', $competition['voting_to']) ?></span>
+                        <span class="badge text-bg-danger"><?php echo $competition['voting_status']['desc'] ?></span>
+                        <a href="<?php echo NFW::i()->absolute_path . '/' . $competition['event_alias'] . '/' . $competition['alias'] ?>">Vote!</a>
+                    </li>
+                <?php elseif ($competition['voting_status']['future']): ?>
+                    <li>
+                        <?php echo $langMain['competitions voting'] ?>
+                        <span class="fw-bold text-nowrap"><?php echo date('d.m H:i', $competition['voting_from']) . ' - ' . date('d.m H:i', $competition['voting_to']) ?></span>
+                        <span class="badge text-bg-secondary"><?php echo $competition['voting_status']['desc'] ?></span>
+                    </li>
+                <?php elseif ($competition['voting_status']['past']): ?>
+                <li>
+                    <?php echo $langMain['competitions voting'] ?>
+                    <span class="text-muted text-nowrap"><?php echo date('d.m H:i', $competition['voting_from']) . ' - ' . date('d.m H:i', $competition['voting_to']) ?></span>
+                    <?php endif; ?>
+                </li>
+            </ul>
+
             <input data-role="addWorkInput" id="competition_id" type="hidden"
                    value="<?php echo $competition['id'] ?>"/>
         <?php else: ?>

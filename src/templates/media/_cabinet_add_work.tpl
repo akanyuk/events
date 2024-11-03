@@ -16,11 +16,11 @@ $langMain = NFW::i()->getLang('main');
 </div>
 
 <div class="mb-3 alert alert-warning">
-    <div class="mb-2"><?php echo $langMedia['MaxFileSize'] ?>:
+    <div class="mb-1"><?php echo $langMedia['MaxFileSize'] ?>:
         <strong><?php echo number_format($MAX_FILE_SIZE / 1048576, 2, '.', ' ') ?>Mb</strong></div>
-    <div class="mb-2"><?php echo $langMedia['MaxSessionSize'] ?>:
+    <div class="mb-1"><?php echo $langMedia['MaxSessionSize'] ?>:
         <strong><?php echo number_format($MAX_SESSION_SIZE / 1048576, 2, '.', ' ') ?>Mb</strong></div>
-    <div class="mb-2"><?php echo $langMedia['CurrentSessionSize'] ?>: <strong><span
+    <div class="mb-1"><?php echo $langMedia['CurrentSessionSize'] ?>: <strong><span
                     id="add-work-session-size">0</span>Mb</strong></div>
 </div>
 

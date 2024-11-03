@@ -212,10 +212,9 @@ function _compo(array $compo, bool $hideWorksCount) {
         <?php if ($compo['reception_status']['now']): ?>
             <li>
                 <?php echo $langMain['competitions reception'] ?>
-                <a href="<?php echo NFW::i()->absolute_path . '/upload/' . $compo['event_alias'] . '/' . $compo['alias'] ?>"
-                   title="Upload prod"><span
-                            class="fw-bold text-nowrap"><?php echo date('d.m H:i', $compo['reception_from']) . ' - ' . date('d.m H:i', $compo['reception_to']) ?></span></a>
+                <span class="fw-bold text-nowrap"><?php echo date('d.m H:i', $compo['reception_from']) . ' - ' . date('d.m H:i', $compo['reception_to']) ?></span>
                 <span class="badge text-bg-info"><?php echo $compo['reception_status']['desc'] ?></span>
+                <a href="<?php echo NFW::i()->absolute_path . '/upload/' . $compo['event_alias'] . '/' . $compo['alias'] ?>"><?php echo $langMain['cabinet add work'] ?></a>
             </li>
         <?php elseif ($compo['reception_status']['future']): ?>
             <li>
@@ -233,10 +232,9 @@ function _compo(array $compo, bool $hideWorksCount) {
         <?php if ($compo['voting_status']['now']): ?>
             <li>
                 <?php echo $langMain['competitions voting'] ?>
-                <a href="<?php echo NFW::i()->absolute_path . '/' . $compo['event_alias'] . '/' . $compo['alias'] ?>"
-                   title="Vote now!"><span
-                            class="fw-bold text-nowrap"><?php echo date('d.m H:i', $compo['voting_from']) . ' - ' . date('d.m H:i', $compo['voting_to']) ?></span></a>
+                <span class="fw-bold text-nowrap"><?php echo date('d.m H:i', $compo['voting_from']) . ' - ' . date('d.m H:i', $compo['voting_to']) ?></span>
                 <span class="badge text-bg-danger"><?php echo $compo['voting_status']['desc'] ?></span>
+                <a href="<?php echo NFW::i()->absolute_path . '/' . $compo['event_alias'] . '/' . $compo['alias'] ?>">Vote!</a>
             </li>
         <?php elseif ($compo['voting_status']['future']): ?>
             <li>
