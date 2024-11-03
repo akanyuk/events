@@ -128,20 +128,23 @@ function displayCurrenEventUploadingStatus($record): void {
 
     $langMain = NFW::i()->getLang("main");
     ?>
-    <h3 class="mb-2"><?php echo $langMain['Reception opened'] ?>:</h3>
-    <?php foreach ($compos as $compo): ?>
-        <div class="d-flex flex-row mb-2 justify-content-between">
-            <a href="<?php echo NFW::i()->absolute_path . '/upload/' . $compo['event_alias'] . '/' . $compo['alias'] ?>"><?php echo htmlspecialchars($compo['title']) ?></a>
-            <div class="text-nowrap text-info"><?php echo $compo['reception_status']['desc'] ?></div>
-        </div>
-    <?php endforeach;
+    <div class="mb-3">
+        <h3><?php echo $langMain['Reception opened'] ?>:</h3>
+        <?php foreach ($compos as $compo): ?>
+            <div class="d-flex flex-row mb-2 justify-content-between">
+                <a href="<?php echo NFW::i()->absolute_path . '/upload/' . $compo['event_alias'] . '/' . $compo['alias'] ?>"><?php echo htmlspecialchars($compo['title']) ?></a>
+                <div class="text-nowrap text-info"><?php echo $compo['reception_status']['desc'] ?></div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+    <?php
 }
 
 function displayCurrenEventVotingStatus($record): void {
     $langMain = NFW::i()->getLang("main");
     ?>
-    <div id="vote-now-container-<?php echo $record['id'] ?>" style="display: none;">
-        <h3 class="mb-2"><?php echo $langMain['Voting opened'] ?>:</h3>
+    <div id="vote-now-container-<?php echo $record['id'] ?>" class="mb-3" style="display: none;">
+        <h3><?php echo $langMain['Voting opened'] ?>:</h3>
         <div id="vote-now-body-<?php echo $record['id'] ?>"></div>
     </div>
 

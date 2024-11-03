@@ -37,7 +37,6 @@ NFWX::i()->mainContainerAdditionalClasses = 'd-grid mx-auto col-sm-10 col-md-8';
                         <?php echo $langMain['competitions voting'] ?>
                         <span class="fw-bold text-nowrap"><?php echo date('d.m H:i', $competition['voting_from']) . ' - ' . date('d.m H:i', $competition['voting_to']) ?></span>
                         <span class="badge text-bg-danger"><?php echo $competition['voting_status']['desc'] ?></span>
-                        <a href="<?php echo NFW::i()->absolute_path . '/' . $competition['event_alias'] . '/' . $competition['alias'] ?>">Vote!</a>
                     </li>
                 <?php elseif ($competition['voting_status']['future']): ?>
                     <li>
