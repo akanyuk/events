@@ -29,6 +29,7 @@ foreach ($upcoming as $record) {
             </div>
         </div>
         <div class="col-md-6">
+            <section id="latest-comments"></section>
             <h2 class="index-head"><?php echo $langMain['latest comments'] ?></h2>
             <div class="mb-4">
                 <?php echo $worksComments ?>
@@ -66,7 +67,7 @@ function displayIndexEvent($record, $layout = ""): void {
         case 'upcoming':
         case 'current':
             ?>
-            <div class="d-grid mx-auto col-lg-8 mb-5">
+            <div class="d-grid mx-auto col-lg-8 mb-4">
                 <div class="row mb-4 gy-4">
                     <div class="col-md-6">
                         <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>">

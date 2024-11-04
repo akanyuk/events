@@ -88,6 +88,15 @@ $langLinksXs = array(
                 d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/>
     </symbol>
 
+    <symbol id="icon-chat-text" viewBox="0 0 16 16">
+        <path d="M2.678 11.894a1 1 0 0 1 .287.801 11 11 0 0 1-.398 2c1.395-.323 2.247-.697 2.634-.893a1 1 0 0 1 .71-.074A8 8 0 0 0 8 14c3.996 0 7-2.807 7-6s-3.004-6-7-6-7 2.808-7 6c0 1.468.617 2.83 1.678 3.894m-.493 3.905a22 22 0 0 1-.713.129c-.2.032-.352-.176-.273-.362a10 10 0 0 0 .244-.637l.003-.01c.248-.72.45-1.548.524-2.319C.743 11.37 0 9.76 0 8c0-3.866 3.582-7 8-7s8 3.134 8 7-3.582 7-8 7a9 9 0 0 1-2.347-.306c-.52.263-1.639.742-3.468 1.105"/>
+        <path d="M4 5.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8m0 2.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5"/>
+    </symbol>
+
+    <symbol id="icon-chat-text-fill" viewBox="0 0 16 16">
+        <path d="M16 8c0 3.866-3.582 7-8 7a9 9 0 0 1-2.347-.306c-.584.296-1.925.864-4.181 1.234-.2.032-.352-.176-.273-.362.354-.836.674-1.95.77-2.966C.744 11.37 0 9.76 0 8c0-3.866 3.582-7 8-7s8 3.134 8 7M4.5 5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1zm0 2.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1zm0 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1z"/>
+    </symbol>
+
     <symbol id="icon-caret-up" viewBox="0 0 320 512">
         <path
                 d="M182.6 137.4c-12.5-12.5-32.8-12.5-45.3 0l-128 128c-9.2 9.2-11.9 22.9-6.9 34.9s16.6 19.8 29.6 19.8l256 0c12.9 0 24.6-7.8 29.6-19.8s2.2-25.7-6.9-34.9l-128-128z"/>
@@ -140,9 +149,21 @@ $langLinksXs = array(
             <a href="/"><img src="<?php echo NFW::i()->assets('main/logo.gif') ?>" alt=""/></a>
 
             <div class="d-flex align-items-center">
+                <?php if (works_comments::hasNew()): ?>
+                    <div class="me-3 me-md-4">
+                        <a title="<?php echo $langMain['latest comments'] ?>"
+                           onclick="this.remove()"
+                           href="<?php echo NFW::i()->absolute_path . '#latest-comments' ?>" class="text-warning">
+                            <svg width="1em" height="1em">
+                                <use href="#icon-chat-text-fill"></use>
+                            </svg>
+                        </a>
+                    </div>
+                <?php endif; ?>
+
                 <div class="me-3 me-md-4">
                     <a href="<?php echo NFW::i()->base_path ?>works/search" class="text-white">
-                        <svg class="fill-white" width="1em" height="1em">
+                        <svg width="1em" height="1em">
                             <use href="#icon-search"></use>
                         </svg>
                     </a>
@@ -179,7 +200,7 @@ $langLinksXs = array(
                            data-bs-toggle="offcanvas"
                            data-bs-target="#offcanvasLogin"
                            aria-controls="offcanvasLogin">
-                            <svg class="fill-white" width="1em" height="1em">
+                            <svg width="1em" height="1em">
                                 <use href="#icon-user"></use>
                             </svg>
                         </a>
@@ -188,7 +209,7 @@ $langLinksXs = array(
                             <a href="#" class="d-block text-white text-decoration-none text-nowrap"
                                style="max-width: 240px;"
                                data-bs-toggle="dropdown" aria-expanded="false">
-                                <svg class="fill-white" width="1em" height="1em">
+                                <svg width="1em" height="1em">
                                     <use href="#icon-user"></use>
                                 </svg>
                                 <span
@@ -235,7 +256,7 @@ $langLinksXs = array(
     </header>
 </main>
 
-<div class="container mt-3 mb-2 <?php echo NFWX::i()->mainContainerAdditionalClasses?>">
+<div class="container mt-3 mb-2 <?php echo NFWX::i()->mainContainerAdditionalClasses ?>">
     <?php
     if (isset($page['is_error']) && $page['is_error']) {
         echo $page['content'];

@@ -9,6 +9,38 @@ class works_comments extends active_record {
         'message' => array('type' => 'textarea', 'desc' => 'Message', 'desc_ru' => 'Текст', 'required' => true, 'maxlength' => 2048),
     );
 
+    private static function setLastViewedID(int $id) {
+        NFW::i()->db->query('INSERT INTO last_comments_view (comment_id, user_id)
+            VALUES (' . $id . ', ' . NFW::i()->user['id'] . ')
+            ON DUPLICATE KEY UPDATE
+            comment_id = ' . $id);
+    }
+
+    static function hasNew(): bool {
+        if (NFW::i()->user['is_guest']) {
+            return false;
+        }
+
+        if (!$result = NFW::i()->db->query_build([
+            'SELECT' => 'user_id',
+            'FROM' => 'all_comments_viewed',
+            'WHERE' => 'user_id=' . NFW::i()->user['id'],
+        ])) {
+            return false;
+        }
+        if (NFW::i()->db->num_rows($result)) {
+            return false;
+        }
+
+        NFW::i()->db->query_build([
+            'INSERT' => 'user_id',
+            'INTO' => 'all_comments_viewed',
+            'VALUES' => NFW::i()->user['id'],
+        ]);
+
+        return true;
+    }
+
     private function countRecords() {
         $query = array(
             'SELECT' => 'COUNT(*)',
@@ -82,7 +114,6 @@ class works_comments extends active_record {
 
         return $records;
     }
-
 
     private function groupComments(array $comments): array {
         // grouping comments by work ID
@@ -183,6 +214,10 @@ class works_comments extends active_record {
         return true;
     }
 
+    function latestComments(): array {
+        return $this->groupComments($this->getRecords([], '0,10'));
+    }
+
     function allComments(int $limit, $page) {
         $cnt = $this->countRecords();
         if ($this->error) {
@@ -193,10 +228,6 @@ class works_comments extends active_record {
         $curPage = ($page <= 1 || $page > $numPages) ? 1 : $page;
         $comments = $this->getRecords([], $limit * ($curPage - 1) . ',' . $limit);
         return array_merge($this->groupComments($comments), [$numPages, $curPage]);
-    }
-
-    function latestComments(): array {
-        return $this->groupComments($this->getRecords([], '0,10'));
     }
 
     function workComments(int $workID) {
@@ -238,6 +269,15 @@ class works_comments extends active_record {
             return false;
         }
 
-        return $this->save();
+        if (!$this->save()) {
+            return false;
+        }
+
+        NFW::i()->db->query_build([
+            'DELETE' => 'all_comments_viewed',
+            'WHERE' => 'user_id != ' . NFW::i()->user['id'],
+        ]);
+
+        return true;
     }
 }

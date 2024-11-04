@@ -15,10 +15,6 @@ svg {
     fill: currentColor;
 }
 
-.fill-white {
-    fill: #fff;
-}
-
 .navbar-events {
     background-color: #303030;
     color: #fff;

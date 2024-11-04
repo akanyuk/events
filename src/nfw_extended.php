@@ -9,9 +9,9 @@ class NFWX extends NFW {
 
     var $actual_date = false;
 
-    var array $main_og = array();             # Open Graph meta tags
+    var array $main_og = array();             // Open Graph meta tags
     var string $mainContainerAdditionalClasses = "";
-    var string $mainLayoutRightContent = "";   # The content of the right block of the page. If not specified, the right block is not displayed
+    var string $mainLayoutRightContent = "";   // The content of the right block of the page. If not specified, the right block is not displayed
     var string $mainBottomScript = "";
 
     function __construct($init_cfg = null) {
