@@ -25,7 +25,7 @@ $lang_main = array(
 
     'cabinet prods' => 'My Prods',
     'cabinet profile' => 'Profile',
-    'cabinet add work' => 'Upload prod',
+    'cabinet add work' => 'Upload prod',
     'cabinet add choose event' => 'Choose event',
     'cabinet add choose event desc' => 'Choose event for prod uploading',
 

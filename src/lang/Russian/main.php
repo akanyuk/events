@@ -25,7 +25,7 @@ $lang_main = array(
 
     'cabinet prods' => 'Мои работы',
     'cabinet profile' => 'Мой профиль',
-    'cabinet add work' => 'Загрузить работу',
+    'cabinet add work' => 'Загрузить работу',
     'cabinet add choose event' => 'Выберите событие',
     'cabinet add choose event desc' => 'Выберите событие для загрузки работы',
 
