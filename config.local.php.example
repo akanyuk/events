@@ -1,7 +1,7 @@
 <?php
 return array(
     'cookie' => array(
-        'name' => 'e1703',
+        'name' => 'e2410',
         'domain' => '.' . $_SERVER['HTTP_HOST'],
         'path' => '/',
         'secure' => false,
@@ -19,11 +19,11 @@ return array(
     'PHPMailer' => array(
         'Mailer' => 'smtp',
         'Host' => 'maildev:25',
-        'From' => 'robot@ie35.local',
+        'From' => 'robot@events.local',
     ),
     'set_language_by_geoip' => false,
     'dbg' => array(
         'actualDate' => '2022/05/10 11:00', // Emulate date. Format: Y/m/d H:i
-        'userId' => 1,
+        'userId' => -1,
     ),
 );
