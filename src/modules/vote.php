@@ -487,7 +487,7 @@ class vote extends active_record {
             $calcBy = $_GET['calc_by'] ?? false;
             NFW::i()->stop($this->renderAction(array(
                 'records' => $this->getResults($CEvents->record['id'], $calcBy),
-                'calcBy' => $this->getResults($CEvents->record['id'], $calcBy),
+                'calcBy' => $calcBy,
             ), '_results_list'));
         }
 

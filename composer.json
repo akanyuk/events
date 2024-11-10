@@ -24,7 +24,8 @@
   "scripts": {
     "post-update-cmd": [
       "rm -rf public_html/vendor/bootstrap5 && mkdir -p public_html/vendor/bootstrap5/theme && cp -R vendor/twbs/bootstrap/dist/* public_html/vendor/bootstrap5/ && cp -f vendor/thomaspark/bootswatch/dist/cosmo/bootstrap.min.css public_html/vendor/bootstrap5/theme/ && sed -i -e 's/@import url(https:\\/\\/fonts.googleapis.com\\/css2?family=Source+Sans+Pro:wght@300;400;700&display=swap);//g' public_html/vendor/bootstrap5/theme/bootstrap.min.css",
-      "cd var && rm -f SxGeo*.* && wget https://sypexgeo.net/files/SxGeoCountry.zip && unzip SxGeoCountry.zip && rm SxGeoCountry.zip && wget https://sypexgeo.net/files/SxGeoCity_utf8.zip && unzip SxGeoCity_utf8.zip && rm SxGeoCity_utf8.zip"
+      "cd var && rm -f SxGeo*.* && wget https://sypexgeo.net/files/SxGeoCountry.zip && unzip SxGeoCountry.zip && rm SxGeoCountry.zip && wget https://sypexgeo.net/files/SxGeoCity_utf8.zip && unzip SxGeoCity_utf8.zip && rm SxGeoCity_utf8.zip",
+      "cp -R src/resources/icons public_html/assets && cp -R vendor/akanyuk/nfw/resources/icons public_html/assets"
     ]
   }
 }

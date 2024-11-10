@@ -408,6 +408,9 @@ $successDialog->render();
                     <li role="presentation"><a
                             href="<?php echo NFW::i()->base_path . 'admin/vote?event_id=' . $Module->record['id'] ?>"
                             title="Manage voting of this events">Manage voting</a></li>
+                    <li role="presentation"><a
+                                href="<?php echo NFW::i()->base_path . 'admin/timeline?event_id=' . $Module->record['id'] ?>"
+                                title="Manage voting of this events">Timeline</a></li>
                 </ul>
 
                 <?php if (!empty($competitions)): ?>

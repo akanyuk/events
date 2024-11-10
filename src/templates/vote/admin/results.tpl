@@ -45,7 +45,7 @@
                 <option <?php echo $event['voting_system'] == "iqm" ? 'selected="selected"' : '' ?> value="iqm">Preview
                     with IQM
                 </option>
-                <option <?php echo $event['voting_system'] == "pts" ? 'selected="selected"' : '' ?> value="pts">Preview
+                <option <?php echo $event['voting_system'] == "sum" ? 'selected="selected"' : '' ?> value="sum">Preview
                     with Sum
                 </option>
             </select>

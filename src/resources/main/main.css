@@ -1,9 +1,10 @@
 /* Lang */
-html[lang="en"] .hidden-lang-en {
+
+html[lang="en"] .hidden-lang-en, html[lang="en"] .d-en-none {
     display: none;
 }
 
-html[lang="ru"] .hidden-lang-ru {
+html[lang="ru"] .hidden-lang-ru, html[lang="ru"] .d-ru-none {
     display: none;
 }
 
