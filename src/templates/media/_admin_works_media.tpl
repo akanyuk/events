@@ -107,7 +107,7 @@ echo '<style>' . $css . '</style>';
             <div class="cell cell-i">
                 <a role="<?php echo $session_id ?>-file-properties" href="%url%" data-type="%type%"
                    data-basename="%basename%" data-posted="%posted%" data-filesize="%filesize%">
-                    <img <?php echo '%iconsrc%' ?> alt=""/>
+                    <img <?php echo '%iconsrc%' ?> alt="">
                 </a>
             </div>
             <div class="cell cell-f">
@@ -180,7 +180,7 @@ echo '<style>' . $css . '</style>';
                                    data-basename="<?php echo $record['basename'] ?>"
                                    data-posted="<?php echo $record['posted'] ?>"
                                    data-filesize="<?php echo $record['filesize_str'] ?>">
-                                    <img src="<?php echo $record['icon'] ?>" alt=""/>
+                                    <img src="<?php echo $record['icon'] ?>" alt="">
                                 </a>
                             </div>
                             <div class="cell cell-f">

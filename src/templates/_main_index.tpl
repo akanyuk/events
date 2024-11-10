@@ -99,7 +99,7 @@ function displayIndexEvent($record, $layout = ""): void {
                 <div class="align-top text-left" style="display: table-cell; width: 80px;"><a
                             href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><img class="media-object"
                                                                                              src="<?php echo $record['preview_img'] ?>"
-                                                                                             alt=""/></a>
+                                                                                             alt=""></a>
                 </div>
                 <div class="align-middle text-left" style="display: table-cell;"><h4><a
                                 href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><?php echo htmlspecialchars($record['title']) ?></a>

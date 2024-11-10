@@ -65,18 +65,18 @@ if ($isVotingCan) {
     $event['content_column'] = str_replace('%LIVE-VOTING-BUTTON%', '', $event['content_column']);
 }
 
-if (stristr($event['content_column'], '%COMPETITIONS-LIST-SHORT%')) {
-    $event['content_column'] = str_replace('%COMPETITIONS-LIST-SHORT%', competitions_list_short($competitionsGroups, $competitions, $event['hide_works_count']), $event['content_column']);
-    $competitionsListShort = '';
-} else {
-    $competitionsListShort = competitions_list_short($competitionsGroups, $competitions, $event['hide_works_count']);
-}
-
 if (stristr($event['content'], '%TIMETABLE%')) {
     $event['content'] = str_replace('%TIMETABLE%', timetable($event['id']), $event['content']);
     $timetable = '';
 } else {
     $timetable = timetable($event['id']);
+}
+
+if (stristr($event['content_column'], '%COMPETITIONS-LIST-SHORT%')) {
+    $event['content_column'] = str_replace('%COMPETITIONS-LIST-SHORT%', competitions_list_short($competitionsGroups, $competitions, $event['hide_works_count']), $event['content_column']);
+    $competitionsListShort = '';
+} else {
+    $competitionsListShort = competitions_list_short($competitionsGroups, $competitions, $event['hide_works_count']);
 }
 
 if (stristr($event['content'], '%COMPETITIONS-LIST%')) {
@@ -93,7 +93,7 @@ ob_start();
     <div class="d-none d-md-block">
         <?php if ($event['preview_img_large']): ?>
             <img class="w-100 mb-3" src="<?php echo $event['preview_img_large'] ?>"
-                 alt="<?php echo htmlspecialchars($event['title']) ?>"/>
+                 alt="<?php echo htmlspecialchars($event['title']) ?>">
         <?php endif; ?>
         <p class="text-muted"><?php echo $event['dates_desc'] ?></p>
         <?php
@@ -114,7 +114,7 @@ NFWX::i()->mainLayoutRightContent = ob_get_clean();
             <?php if ($event['is_preview_img']): ?>
                 <div class="me-3">
                     <img src="<?php echo $event['preview_img'] ?>"
-                         alt="<?php echo htmlspecialchars($event['title']) ?>"/>
+                         alt="<?php echo htmlspecialchars($event['title']) ?>">
                 </div>
             <?php endif; ?>
             <div>
@@ -125,7 +125,7 @@ NFWX::i()->mainLayoutRightContent = ob_get_clean();
         <?php
         echo '<p>' . $event['announcement'] . '</p>';
         echo eventsGroup($eventsGroup);
-        echo '<p>' . $event['content_column'] . '</p>';
+        echo '<div class="mb-3">' . $event['content_column'] . '</div>';
         echo $uploadButton . ' ' . $liveVotingButton;
         echo $competitionsListShort;
         ?>
@@ -223,15 +223,13 @@ function _compo(array $compo, bool $hideWorksCount) {
                 <span class="badge text-bg-secondary"><?php echo $compo['reception_status']['desc'] ?></span>
             </li>
         <?php elseif ($compo['reception_status']['past']): ?>
-            <li>
-                <?php echo $langMain['competitions reception'] ?>
+            <li><?php echo $langMain['competitions reception'] ?>
                 <span class="text-muted text-nowrap"><?php echo date('d.m H:i', $compo['reception_from']) . ' - ' . date('d.m H:i', $compo['reception_to']) ?></span>
             </li>
         <?php endif; ?>
 
         <?php if ($compo['voting_status']['now']): ?>
-            <li>
-                <?php echo $langMain['competitions voting'] ?>
+            <li><?php echo $langMain['competitions voting'] ?>
                 <span class="fw-bold text-nowrap"><?php echo date('d.m H:i', $compo['voting_from']) . ' - ' . date('d.m H:i', $compo['voting_to']) ?></span>
                 <span class="badge text-bg-danger"><?php echo $compo['voting_status']['desc'] ?></span>
                 <?php if ($compo['counter']): ?>
@@ -239,17 +237,15 @@ function _compo(array $compo, bool $hideWorksCount) {
                 <?php endif; ?>
             </li>
         <?php elseif ($compo['voting_status']['future']): ?>
-            <li>
-                <?php echo $langMain['competitions voting'] ?>
+            <li><?php echo $langMain['competitions voting'] ?>
                 <span class="fw-bold text-nowrap"><?php echo date('d.m H:i', $compo['voting_from']) . ' - ' . date('d.m H:i', $compo['voting_to']) ?></span>
                 <span class="badge text-bg-secondary"><?php echo $compo['voting_status']['desc'] ?></span>
             </li>
         <?php elseif ($compo['voting_status']['past']): ?>
-        <li>
-            <?php echo $langMain['competitions voting'] ?>
+        <li><?php echo $langMain['competitions voting'] ?>
             <span class="text-muted text-nowrap"><?php echo date('d.m H:i', $compo['voting_from']) . ' - ' . date('d.m H:i', $compo['voting_to']) ?></span>
-            <?php endif; ?>
         </li>
+        <?php endif; ?>
     </ul>
 
     <a class="d-block mb-3 text-secondary-emphasis" href="<?php echo '#top' ?>">

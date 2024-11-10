@@ -39,26 +39,25 @@ $langLinksXs = array(
     <link href="<?php echo NFW::i()->base_path ?>vendor/bootstrap5/theme/bootstrap.min.css" rel="stylesheet"
           crossorigin="anonymous">
 
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <meta http-equiv="Content-Language" content="<?php echo NFW::i()->lang['lang'] ?>"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="description" content="<?php echo NFWX::i()->project_settings['meta_description'] ?>"/>
-    <meta name="keywords" content="<?php echo NFWX::i()->project_settings['meta_keywords'] ?>"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="<?php echo NFWX::i()->project_settings['meta_description'] ?>">
+    <meta name="keywords" content="<?php echo NFWX::i()->project_settings['meta_keywords'] ?>">
 
     <link rel="icon" type="image/png" sizes="16x16"
-          href="<?php echo NFW::i()->assets('main/favicon/favicon-16x16.png') ?>"/>
+          href="<?php echo NFW::i()->assets('main/favicon/favicon-16x16.png') ?>">
     <link rel="icon" type="image/png" sizes="32x32"
-          href="<?php echo NFW::i()->assets('main/favicon/favicon-32x32.png') ?>"/>
+          href="<?php echo NFW::i()->assets('main/favicon/favicon-32x32.png') ?>">
     <link rel="apple-touch-icon" sizes="144x144"
-          href="<?php echo NFW::i()->assets('main/favicon/apple-touch-icon-144x144.png') ?>"/>
+          href="<?php echo NFW::i()->assets('main/favicon/apple-touch-icon-144x144.png') ?>">
     <link rel="apple-touch-icon" sizes="180x180"
-          href="<?php echo NFW::i()->assets('main/favicon/apple-touch-icon-180x180.png') ?>"/>
-    <link rel="image_src" href="<?php echo NFW::i()->assets('main/favicon/image_src.png') ?>"/>
+          href="<?php echo NFW::i()->assets('main/favicon/apple-touch-icon-180x180.png') ?>">
+    <link rel="image_src" href="<?php echo NFW::i()->assets('main/favicon/image_src.png') ?>">
     <link rel="mask-icon"
-          href="<?php echo NFW::i()->assets('main/favicon/safari-pinned-tab.svg') ?>" <?php echo 'color="#707070"' ?> />
+          href="<?php echo NFW::i()->assets('main/favicon/safari-pinned-tab.svg') ?>" <?php echo 'color="#707070"' ?>>
     <link rel="manifest" href="<?php echo '/manifest.json' ?>">
     <meta name="theme-color" content="#707070">
-    <meta name="msapplication-config" content="/browserconfig.xml"/>
+    <meta name="msapplication-config" content="/browserconfig.xml">
 
     <?php
     foreach (NFWX::i()->main_og as $type => $value) {
@@ -146,7 +145,7 @@ $langLinksXs = array(
 <main class="fixed-top navbar-events">
     <header>
         <div class="container-fluid py-1 px-1 px-sm-3 px-md-5 d-flex justify-content-between align-items-center">
-            <a href="/"><img src="<?php echo NFW::i()->assets('main/logo.gif') ?>" alt=""/></a>
+            <a href="/"><img src="<?php echo NFW::i()->assets('main/logo.gif') ?>" alt=""></a>
 
             <div class="d-flex align-items-center">
                 <?php if (works_comments::hasNew()): ?>
