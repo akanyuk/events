@@ -21,19 +21,18 @@ class competitions extends active_record {
         'position' => array('desc' => 'Position', 'type' => 'int', 'required' => true),
         'title' => array('desc' => 'Title', 'type' => 'str', 'required' => true, 'minlength' => 4, 'maxlength' => 255),
         'alias' => array('desc' => 'alias', 'type' => 'str', 'required' => true, 'minlength' => 2, 'maxlength' => 32),
-        'works_type' => array('desc' => 'Works type', 'type' => 'select', 'options' => array()),
         'announcement' => array('desc' => 'Announce (multilanguage HTML)', 'type' => 'textarea', 'maxlength' => 4096),
+        'works_type' => array('desc' => 'Works type', 'type' => 'select', 'options' => [
+            ['id' => 'demo', 'desc' => 'Demo'],
+            ['id' => 'picture', 'desc' => 'Picture'],
+            ['id' => 'music', 'desc' => 'Music'],
+            ['id' => 'other', 'desc' => 'Other'],
+        ]),
         'reception_from' => array('desc' => 'Works accepting start', 'type' => 'date', 'withTime' => true, 'startDate' => 1, 'endDate' => -365),
         'reception_to' => array('desc' => 'Works accepting end', 'type' => 'date', 'withTime' => true, 'startDate' => 1, 'endDate' => -365),
         'voting_from' => array('desc' => 'Voting start', 'type' => 'date', 'withTime' => true, 'startDate' => 1, 'endDate' => -365),
         'voting_to' => array('desc' => 'Voting end', 'type' => 'date', 'withTime' => true, 'startDate' => 1, 'endDate' => -365),
     );
-
-    private function loadEditorOptions() {
-        foreach (NFW::i()->works_type as $t) {
-            $this->attributes['works_type']['options'][] = array('id' => $t['alias'], 'desc' => $t['desc']);
-        }
-    }
 
     private function formatRecord($record) {
         $lang_main = NFW::i()->getLang('main');
@@ -130,11 +129,11 @@ class competitions extends active_record {
         }
         $this->db_record = $this->record = NFW::i()->db->fetch_assoc($result);
 
-        $this->record = $this->formatRecord($this->record);
-
         // Get approved works
         $CWorks = new works();
         $this->record = array_merge($this->record, $CWorks->loadCounters($this->record['id']));
+
+        $this->record = $this->formatRecord($this->record);
         return $this->record;
     }
 
@@ -210,7 +209,6 @@ class competitions extends active_record {
         }
 
         if (!isset($_GET['part']) || $_GET['part'] != 'list') {
-            $this->loadEditorOptions();
             return $this->renderAction(array('event' => $CEvents->record));
         }
 
@@ -281,8 +279,6 @@ class competitions extends active_record {
     }
 
     function actionAdminInsert() {
-        $this->loadEditorOptions();
-
         $this->error_report_type = 'active_form';
         $this->formatAttributes($_POST);
 
@@ -323,8 +319,6 @@ class competitions extends active_record {
         $this->error_report_type = (empty($_POST)) ? 'default' : 'active_form';
 
         if (!$this->load($_GET['record_id'])) return false;
-
-        $this->loadEditorOptions();
 
         if (empty($_POST)) {
             return $this->renderAction();

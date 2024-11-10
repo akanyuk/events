@@ -256,6 +256,10 @@ class works extends active_record {
         }
 
         if (isset($filter['work_id']) && is_array($filter['work_id'])) {
+            if (empty($filter['work_id'])) {
+                return $skip_pagination ? array() : array(array(), 0, 0);
+            }
+
             $where[] = 'w.id IN (' . implode(',', $filter['work_id']) . ')';
         }
 
