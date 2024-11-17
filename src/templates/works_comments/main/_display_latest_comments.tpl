@@ -29,7 +29,7 @@ $lang_main = NFW::i()->getLang('main');
 
     .latest-comments .message {
         padding-top: 5px;
-        text-wrap: balance !important;
+        text-wrap: wrap !important;
     }
 
     .latest-comments HR {
