@@ -307,6 +307,8 @@ echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('
             'secure_storage' => true,
             'MAX_SESSION_SIZE' => 1024 * 1024 * 256,
             'template' => '_admin_works_media',
+            'after_upload' => 'admin_work_media_added',
+            'after_delete' => 'admin_work_media_deleted',
         ),
         array('owner' => $Module->record)
     );

@@ -7,4 +7,6 @@ function cabinet_work_media_added(media $CMedia) {
         'SET' => 'is_checked=0',
         'WHERE' => 'work_id=' . $CMedia->record['owner_id'],
     ]);
+
+    works_interaction::authorAddFile($CMedia->record['owner_id'], $CMedia->record['basename']);
 }

@@ -35,7 +35,7 @@ $(function () {
             data.context.find('.status').remove();	// remove spinner
 
             if (response.result === 'error') {
-                data.context.append('<div class="text-danger error">' + response.last_message + '</div>');
+                data.context.append('<div class="text-danger error">' + response['last_message'] + '</div>');
                 return;
             }
 
@@ -43,7 +43,7 @@ $(function () {
 
             mediaContainer.appendRow(response);
 
-            form.find('*[id="session-size"]').text(number_format(response.iSessionSize / 1048576, 2, '.', ' '));
+            form.find('*[id="session-size"]').text(number_format(response['iSessionSize'] / 1048576, 2, '.', ' '));
         }
     });
 

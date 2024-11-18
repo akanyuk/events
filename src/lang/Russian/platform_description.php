@@ -1,7 +1,5 @@
 <?php
-/**
- * @var $lang_platform_description array
- */
+
 $lang_platform_description = array(
     'ZX Spectrum' => array(
         'default' => array(
@@ -144,7 +142,7 @@ $lang_platform_description = array(
             'default' => array(
                 'Разрешение: 256х240. Палитра: 54 цвета. Не более 25 цветов одновременно на экране.',
                 '256 уникальных тайлов 8x8, 64 аппаратных спрайта 8х8 или 8х16',
-                '<a href="http://chipwiki.ru/wiki/Famicom/Pixel_Art">Подробнее об ограничениях платформы</a>.',
+                '<a href="https://chipwiki.ru/wiki/Famicom/Pixel_Art">Подробнее об ограничениях платформы</a>.',
             ),
         )
     ),
@@ -153,7 +151,7 @@ $lang_platform_description = array(
         'picture' => array(
             'default' => array(
                 'Разрешение: 160х144. Палитра: RGB 15-bit. Не более 56 цветов одновременно на экране.',
-                '<a href="http://chipwiki.ru/wiki/Game_Boy_Color/Pixel_Art">Подробнее об ограничениях платформы</a>.',
+                '<a href="https://chipwiki.ru/wiki/Game_Boy_Color/Pixel_Art">Подробнее об ограничениях платформы</a>.',
             ),
         )
     ),
@@ -164,7 +162,7 @@ $lang_platform_description = array(
                 'Текстовый режим 40х25 символов размером 8x8.',
                 'Палитра 8 цветов, 2 цвета на символ.',
                 'Фиксированный набор символов.',
-                '<a href="http://chipwiki.ru/wiki/MZ-700/Pixel_Art">Подробнее об ограничениях платформы</a>.',
+                '<a href="https://chipwiki.ru/wiki/MZ-700/Pixel_Art">Подробнее об ограничениях платформы</a>.',
             ),
         )
     ),
@@ -174,7 +172,7 @@ $lang_platform_description = array(
             'default' => array(
                 'Разрешение: 160х96, 16 цветов.',
                 'Атрибуты 8x8, 2 цвета на атрибут.',
-                '<a href="http://chipwiki.ru/wiki/Intellivision/Pixel_Art">Подробнее об ограничениях платформы</a>.',
+                '<a href="https://chipwiki.ru/wiki/Intellivision/Pixel_Art">Подробнее об ограничениях платформы</a>.',
             ),
         )
     ),
@@ -184,7 +182,7 @@ $lang_platform_description = array(
             'default' => array(
                 'Разрешение: 256х192, 256х224 или 256х240.',
                 'Цвет на точку. Палитра 64 цвета. Не более 31 цвета одновременно на экране.',
-                '<a href="http://chipwiki.ru/wiki/Master_System/Pixel_Art">Подробнее об ограничениях платформы</a>.',
+                '<a href="https://chipwiki.ru/wiki/Master_System/Pixel_Art">Подробнее об ограничениях платформы</a>.',
             ),
         )
     ),

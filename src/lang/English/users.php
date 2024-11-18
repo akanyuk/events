@@ -1,6 +1,5 @@
 <?php
 /**
- * @var $lang_users array
  * @desc English language file for users class
  */
 $lang_users = array(
