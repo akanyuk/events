@@ -9,13 +9,6 @@ class works_comments extends active_record {
         'message' => array('type' => 'textarea', 'desc' => 'Message', 'desc_ru' => 'Текст', 'required' => true, 'maxlength' => 2048),
     );
 
-    private static function setLastViewedID(int $id) {
-        NFW::i()->db->query('INSERT INTO last_comments_view (comment_id, user_id)
-            VALUES (' . $id . ', ' . NFW::i()->user['id'] . ')
-            ON DUPLICATE KEY UPDATE
-            comment_id = ' . $id);
-    }
-
     static function hasNew(): bool {
         if (NFW::i()->user['is_guest']) {
             return false;
