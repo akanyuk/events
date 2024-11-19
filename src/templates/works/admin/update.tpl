@@ -4,7 +4,12 @@
  * @var competitions $CCompetitions
  * @var array $personalNote
  * @var array $linkTitles
+ * @var array $interaction
  */
+
+foreach ($interaction as $item) {
+    ChromePhp::log($item);
+}
 
 $isPublic = true;
 if ($CCompetitions->record['voting_status']['available'] && !$Module->record['status_info']['voting']) {

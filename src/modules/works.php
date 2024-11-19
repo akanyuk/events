@@ -595,9 +595,10 @@ class works extends active_record {
         }
 
         return $this->renderAction([
-            "CCompetitions" => $CCompetitions,
-            "personalNote" => $personalNote,
-            "linkTitles" => $linkTitles,
+            'CCompetitions' => $CCompetitions,
+            'personalNote' => $personalNote,
+            'linkTitles' => $linkTitles,
+            'interaction' => works_interaction::workInteraction($this->record['id']),
         ]);
     }
 
