@@ -13,8 +13,7 @@
     "ext-libxml": "*",
     "ext-apcu": "*",
     "twbs/bootstrap": "5.3.3",
-    "thomaspark/bootswatch": "5.3.3",
-    "": ""
+    "thomaspark/bootswatch": "5.3.3"
   },
   "repositories": [
     {
