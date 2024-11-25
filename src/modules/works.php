@@ -598,7 +598,6 @@ class works extends active_record {
             'CCompetitions' => $CCompetitions,
             'personalNote' => $personalNote,
             'linkTitles' => $linkTitles,
-            'interaction' => works_interaction::workInteraction($this->record['id']),
         ]);
     }
 

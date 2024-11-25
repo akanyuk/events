@@ -50,13 +50,19 @@ class NFWX extends NFW {
     }
 
     function checkPermissions($module = 1, $action = '', $additional = false): bool {
-        if (parent::checkPermissions($module, $action, $additional)) return true;
+        if (parent::checkPermissions($module, $action, $additional)) {
+            return true;
+        }
 
         // Search
-        if ($module == 'works' && $action == 'search') return true;
+        if ($module == 'works' && $action == 'search') {
+            return true;
+        }
 
         // Voting actions
-        if ($module == 'vote' && in_array($action, array('request_votekey', 'add_vote'))) return true;
+        if ($module == 'vote' && in_array($action, array('request_votekey', 'add_vote'))) {
+            return true;
+        }
 
         // Adding works comments - all registered
         if ($module == 'works_comments' && $action == 'add_comment') {
@@ -139,7 +145,7 @@ class NFWX extends NFW {
             return isset($_GET['event_id']) && in_array($_GET['event_id'], $managed_events);
         }
 
-        if ($module == 'works' && in_array($action, array('update', 'delete', 'preview', 'update_work', 'update_status', 'update_links', 'my_status'))) {
+        if ($module == 'works' && in_array($action, ['update', 'delete', 'preview', 'update_work', 'update_status', 'update_links', 'my_status'])) {
             if (!isset($_GET['record_id'])) {
                 return false;
             }
@@ -148,7 +154,7 @@ class NFWX extends NFW {
             return in_array($CWorks->record['event_id'], $managed_events);
         }
 
-        if ($module == 'works_media' && in_array($action, array('update_properties', 'file_id_diz', 'make_release', 'remove_release'))) {
+        if ($module == 'works_media' && in_array($action, ['update_properties', 'file_id_diz', 'make_release', 'remove_release'])) {
             if (!isset($_GET['record_id'])) {
                 return false;
             }
@@ -157,13 +163,22 @@ class NFWX extends NFW {
             return in_array($CWorks->record['event_id'], $managed_events);
         }
 
-        if ($module == 'works_media' && in_array($action, array('rename_file', 'preview_zx', 'convert_zx'))) {
+        if ($module == 'works_media' && in_array($action, ['rename_file', 'preview_zx', 'convert_zx'])) {
             $CMedia = new media($_POST['file_id']);
             if ($CMedia->record['owner_class'] != "works") {
                 return false;
             }
 
             $CWorks = new works($CMedia->record['owner_id']);
+            return in_array($CWorks->record['event_id'], $managed_events);
+        }
+
+        if ($module == 'works_interaction' && $action == 'list') {
+            if (!isset($_GET['record_id'])) {
+                return false;
+            }
+
+            $CWorks = new works($_GET['record_id']);
             return in_array($CWorks->record['event_id'], $managed_events);
         }
 

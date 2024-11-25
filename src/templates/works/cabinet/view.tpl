@@ -42,10 +42,10 @@ echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
 
     <dl class="mb-5">
         <dt><?php echo NFW::i()->lang['Posted'] ?>:</dt>
-        <dd><?php echo date('d.m.Y H:i:s', $Module->record['posted']) . ' (' . $Module->record['posted_username'] . ')' ?></dd>
+        <dd><?php echo date('d.m.Y H:i', $Module->record['posted']) . ' (' . $Module->record['posted_username'] . ')' ?></dd>
         <?php if ($Module->record['edited']): ?>
             <dt><?php echo NFW::i()->lang['Updated'] ?>:</dt>
-            <dd><?php echo date('d.m.Y H:i:s', $Module->record['edited']) . ' (' . $Module->record['edited_username'] . ')' ?></dd>
+            <dd><?php echo date('d.m.Y H:i', $Module->record['edited']) . ' (' . $Module->record['edited_username'] . ')' ?></dd>
         <?php endif; ?>
     </dl>
 

@@ -7,9 +7,6 @@ $CVote->actionAdminAddVote();
 $CVote->actionAdminResults();
 
 $CWorks = new works();
-$CWorks->actionCabinetList();
-$CWorks->actionCabinetView();
-$CWorks->actionCabinetAdd();
 $CWorks->actionAdminAdmin();
 $CWorks->actionAdminGetPos();
 $CWorks->actionAdminSetPos();
@@ -21,3 +18,6 @@ $CWorks->actionAdminUpdateWork();
 $CWorks->actionAdminUpdateStatus();
 $CWorks->actionAdminUpdateLinks();
 $CWorks->actionAdminMyStatus();
+
+$CWorkInteraction = new works_interaction();
+$CWorkInteraction->actionAdminList();

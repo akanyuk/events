@@ -44,6 +44,8 @@ $(function () {
             mediaContainer.appendRow(response);
 
             form.find('*[id="session-size"]').text(number_format(response['iSessionSize'] / 1048576, 2, '.', ' '));
+
+            loadInteractions();
         }
     });
 
@@ -293,6 +295,7 @@ $(function () {
             }
 
             recordRow.remove();
+            loadInteractions();
         });
     });
 

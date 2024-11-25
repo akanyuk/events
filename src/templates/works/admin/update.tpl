@@ -4,12 +4,7 @@
  * @var competitions $CCompetitions
  * @var array $personalNote
  * @var array $linkTitles
- * @var array $interaction
  */
-
-foreach ($interaction as $item) {
-    ChromePhp::log($item);
-}
 
 $isPublic = true;
 if ($CCompetitions->record['voting_status']['available'] && !$Module->record['status_info']['voting']) {
@@ -33,19 +28,48 @@ NFW::i()->breadcrumb = array(
     array('desc' => $Module->record['title']),
 );
 
-ob_start();
-NFW::i()->breadcrumb_status = '<div>Posted: ' . date('d.m.Y H:i', $Module->record['posted']) . ' (' . $Module->record['posted_username'] . ')</div>';
-if ($Module->record['edited']) {
-    NFW::i()->breadcrumb_status .= '<div>Updated: ' . date('d.m.Y H:i', $Module->record['edited']) . ' (' . $Module->record['edited_username'] . ')</div>';
-}
-
 echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl')).'</div>';
 ?>
 <style>
-    .author-note {
+    .interactions .item {
+        padding: 8px 10px;
+    }
+
+    .interactions .item:nth-child(2n+1) {
+        background-color: #f4f4f4;
+    }
+
+    .interactions .item .author {
+        font-size: 90%;
+        color: #642c2c;
+        white-space: nowrap;
+    }
+
+    .interactions .item .message {
+    }
+
+    .interactions .item .message .note {
         white-space: pre;
-        font-family: monospace;
         overflow: auto;
+        padding-top: 5px;
+        font-style: italic;
+    }
+
+    @media (min-width: 769px) {
+        .interactions .item {
+            display: table-row;
+        }
+
+        .interactions .item .author {
+            padding: 5px 10px;
+            display: table-cell;
+        }
+
+        .interactions .item .message {
+            padding: 5px 10px;
+            display: table-cell;
+            width: 100%;
+        }
     }
 
     .modal-backdrop.in {
@@ -162,41 +186,73 @@ echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('
                 </div>
             </div>
         </form>
+
+        <br />
+
+        <form id="works-update-links"
+              action="<?php echo $Module->formatURL('update_links') . '&record_id=' . $Module->record['id'] ?>">
+            <fieldset>
+                <div style="display: flex; justify-content: space-between;">
+                    <legend>Links</legend>
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseLinksHelp"
+                            aria-expanded="false" aria-controls="collapseExample"><span
+                                class="fa fa-question-circle"></span>
+                    </button>
+                </div>
+
+                <div class="collapse" id="collapseLinksHelp">
+                    <div class="well">
+                        <p>YouTube links will be automatically converted to an iframe</p>
+
+                        <p>VK Video links will be automatically converted to an iframe only with manually hash added.
+                            Example: <code>&hash=5df22c4cff63dc92</code></p>
+
+                        <p>You can also use embedded VK Video instead of a direct link to the video</p>
+                    </div>
+                </div>
+
+                <div id="work-links" class="settings" style="padding-bottom: 10px;">
+                    <?php foreach ($Module->record['links'] as $v) { ?>
+                        <div id="record" class="record" data-rel="update">
+                            <div class="cell"><span class="icon fa fa-sort" title="Sort"></span></div>
+                            <div class="cell" style="width: 100%;">
+                                <div class="input-group" style="margin-bottom: 3px;">
+                                    <input type="text" class="form-control" data-type="links-url"
+                                           autocomplete="off"
+                                           name="links[url][]" value="<?php echo htmlspecialchars($v['url']) ?>"
+                                           placeholder="Url"/>
+                                    <span class="input-group-btn">
+										<button data-action="toggle-title" class="btn btn-default" tabindex="-1"
+                                                title="Show custom tittle"><span
+                                                    class="glyphicon glyphicon-chevron-down"></span></button>
+										<button data-action="remove-link" class="btn btn-default" tabindex="-1"
+                                                title="Remove link"><span
+                                                    class="glyphicon glyphicon-remove"></span></button>
+									</span>
+                                </div>
+                                <div class="input-group"
+                                     style="width: 100%; display: <?php echo $v['title'] ? 'block' : 'none' ?>;">
+                                    <input type="text" class="form-control" data-type="links-title"
+                                           autocomplete="off"
+                                           name="links[title][]" value="<?php echo $v['title'] ?>"
+                                           placeholder="Custom title (not required)"/>
+                                </div>
+                            </div>
+                        </div>
+                    <?php } ?>
+                </div>
+
+                <div style="display: flex; justify-content: space-between;">
+                    <div>
+                        <button id="save-links" type="submit" class="btn btn-primary">Save links</button>
+                    </div>
+                    <button id="add-link" class="btn btn-default"><span class="fa fa-plus"></span></button>
+                </div>
+            </fieldset>
+        </form>
     </div>
 
     <div class="col-md-6">
-        <?php if ($Module->record['description']): ?>
-            <div class="hidden-xs">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h4 class="panel-title">Author's comment</h4>
-                    </div>
-                    <div
-                        class="panel-body author-note"><?php echo htmlspecialchars($Module->record['description']) ?></div>
-                </div>
-            </div>
-
-            <div class="hidden-sm hidden-md hidden-lg">
-                <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-                    <div class="panel panel-default">
-                        <div class="panel-heading" role="tab" id="headingOne">
-                            <h4 class="panel-title">
-                                <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"
-                                   aria-expanded="true" aria-controls="collapseOne">
-                                    Author's comment
-                                </a>
-                            </h4>
-                        </div>
-                        <div id="collapseOne" class="panel-collapse collapse" role="tabpanel"
-                             aria-labelledby="headingOne">
-                            <div
-                                class="panel-body author-note"><?php echo htmlspecialchars($Module->record['description']) ?></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        <?php endif; ?>
-
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h4 class="panel-title">Personal note (only for you)</h4>
@@ -236,68 +292,8 @@ echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('
             </div>
         </div>
 
-        <form id="works-update-links"
-              action="<?php echo $Module->formatURL('update_links') . '&record_id=' . $Module->record['id'] ?>">
-            <fieldset>
-                <div style="display: flex; justify-content: space-between;">
-                    <legend>Links</legend>
-                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseLinksHelp"
-                            aria-expanded="false" aria-controls="collapseExample"><span
-                            class="fa fa-question-circle"></span>
-                    </button>
-                </div>
-
-                <div class="collapse" id="collapseLinksHelp">
-                    <div class="well">
-                        <p>YouTube links will be automatically converted to an iframe</p>
-
-                        <p>VK Video links will be automatically converted to an iframe only with manually hash added.
-                            Example: <code>&hash=5df22c4cff63dc92</code></p>
-
-                        <p>You can also use embedded VK Video instead of a direct link to the video</p>
-                    </div>
-                </div>
-
-                <div id="work-links" class="settings" style="padding-bottom: 10px;">
-                    <?php foreach ($Module->record['links'] as $v) { ?>
-                        <div id="record" class="record" data-rel="update">
-                            <div class="cell"><span class="icon fa fa-sort" title="Sort"></span></div>
-                            <div class="cell" style="width: 100%;">
-                                <div class="input-group" style="margin-bottom: 3px;">
-                                    <input type="text" class="form-control" data-type="links-url"
-                                           autocomplete="off"
-                                           name="links[url][]" value="<?php echo htmlspecialchars($v['url']) ?>"
-                                           placeholder="Url"/>
-                                    <span class="input-group-btn">
-										<button data-action="toggle-title" class="btn btn-default" tabindex="-1"
-                                                title="Show custom tittle"><span
-                                                class="glyphicon glyphicon-chevron-down"></span></button>
-										<button data-action="remove-link" class="btn btn-default" tabindex="-1"
-                                                title="Remove link"><span
-                                                class="glyphicon glyphicon-remove"></span></button>
-									</span>
-                                </div>
-                                <div class="input-group"
-                                     style="width: 100%; display: <?php echo $v['title'] ? 'block' : 'none' ?>;">
-                                    <input type="text" class="form-control" data-type="links-title"
-                                           autocomplete="off"
-                                           name="links[title][]" value="<?php echo $v['title'] ?>"
-                                           placeholder="Custom title (not required)"/>
-                                </div>
-                            </div>
-                        </div>
-                    <?php } ?>
-                </div>
-
-                <div style="display: flex; justify-content: space-between;">
-                    <div>
-                        <button id="save-links" type="submit" class="btn btn-primary">Save links</button>
-                    </div>
-                    <button id="add-link" class="btn btn-default"><span class="fa fa-plus"></span></button>
-                </div>
-            </fieldset>
-        </form>
-
+        <h3>Interactions</h3>
+        <div class="interactions" id="work-interactions"></div>
     </div>
 </div>
 
@@ -412,14 +408,7 @@ echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('
             return false;
         });
 
-        $(document).on('click', '[data-action="remove-link"]', function (event) {
-            if ($(this).closest('div[id="record"]').attr('data-rel') === 'update') {
-                if (!confirm('Remove link?')) {
-                    event.preventDefault();
-                    return false;
-                }
-            }
-
+        $(document).on('click', '[data-action="remove-link"]', function () {
             $(this).closest('div[id="record"]').remove();
             updateSaveLinksButtonVisibility();
             return false;
@@ -456,6 +445,10 @@ echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('
             }
         });
 
+        // Interactions
+
+        loadInteractions();
+
         $('[data-role="works-delete"]').click(function () {
             if (!confirm("Remove work?\nCAN NOT BE UNDONE!")) {
                 return false;
@@ -483,11 +476,44 @@ echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('
     });
 
     function updateSaveLinksButtonVisibility() {
+        const btn = $('button[id="save-links"]');
+        <?php if (!empty($Module->record['links'])):?>
+        btn.show();
+        <?php else: ?>
         if ($('#work-links').find('div[id="record"]').length) {
-            $('button[id="save-links"]').show();
+            btn.show();
         } else {
-            $('button[id="save-links"]').hide();
+            btn.hide();
         }
+        <?php endif; ?>
+    }
+
+    function loadInteractions() {
+        const container = $('[id="work-interactions"]');
+        $.ajax(
+            '<?php echo NFW::i()->base_path.'admin/works_interaction?action=list&record_id='.$Module->record['id']?>',
+            {
+                method: "get",
+                success: function (response) {
+                    container.empty();
+
+                    let tpl = $('#work-interaction-record-template').html();
+                    tpl = tpl.replace(/%author%/g, "<?php echo date('d.m.Y H:i', $Module->record['posted']).' by '.htmlspecialchars($Module->record['posted_username'])?>");
+                    tpl = tpl.replace(/%message%/g, "Prod uploaded<?php echo $Module->record['description'] ? '<div class=\"note\">'.htmlspecialchars($Module->record['description']).'</div>' : ''?>");
+                    container.append(tpl);
+
+                    response['records'].forEach(function (item) {
+                        let tpl = $('#work-interaction-record-template').html();
+                        tpl = tpl.replace(/%message%/g, item['message']);
+                        tpl = tpl.replace(/%author%/g, formatDateTime(item['posted'], true, true) + ' by ' + item['poster_username']);
+                        container.append(tpl);
+                    });
+                },
+                error: function () {
+                    alert("Load work interactions unexpected error");
+                }
+            }
+        );
     }
 </script>
 
@@ -521,5 +547,12 @@ echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('
                        placeholder="Custom title (not required)"/>
             </div>
         </div>
+    </div>
+</div>
+
+<div id="work-interaction-record-template" class="interactions" style="display: none;">
+    <div class="item" id="item">
+        <div class="author">%author%:</div>
+        <div class="message">%message%</div>
     </div>
 </div>
