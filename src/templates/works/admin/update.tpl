@@ -7,6 +7,9 @@
  */
 
 $isPublic = true;
+if (!$CCompetitions->record['voting_status']['available'] && !$CCompetitions->record['release_status']['available']) {
+    $isPublic = false;
+}
 if ($CCompetitions->record['voting_status']['available'] && !$Module->record['status_info']['voting']) {
     $isPublic = false;
 }
