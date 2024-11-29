@@ -141,6 +141,10 @@ if (!$CWorks->record['id'] || $CWorks->record['competition_id'] != $CCompetition
     NFW::i()->stop(404);
 }
 
+if (!$CCompetitions->record['voting_status']['available'] && !$CCompetitions->record['release_status']['available']) {
+    NFW::i()->stop(404);
+}
+
 if ($CCompetitions->record['voting_status']['available'] && !$CWorks->record['status_info']['voting']) {
     NFW::i()->stop(404);
 }
@@ -173,7 +177,7 @@ list($worksBlock, $votingBlock) = renderWorksBlock($CEvents->record, $CCompetiti
 $CCompetitionsGroups = new competitions_groups();
 $competitionsGroups = $CCompetitionsGroups->getRecords($CEvents->record['id']);
 
-$worksComments = NFW::i()->fetch(NFW::i()->findTemplatePath('works_comments/_work_comments.tpl'),[
+$worksComments = NFW::i()->fetch(NFW::i()->findTemplatePath('works_comments/_work_comments.tpl'), [
     'workID' => $CWorks->record['id'],
 ]);
 
