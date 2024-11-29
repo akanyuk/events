@@ -158,6 +158,9 @@ $(function () {
                     }
 
                     $.jGrowl(response, {theme: 'error'});
+                },
+                success: function() {
+                    loadInteractions();
                 }
             },
         );
@@ -185,6 +188,7 @@ $(function () {
         success: function (response) {
             mediaContainer.find('[id="record"][data-id="' + response['id'] + '"]').find('[id="basename"]').text(response['basename']);
             renameDialog.modal('hide');
+            loadInteractions();
         }
     });
 

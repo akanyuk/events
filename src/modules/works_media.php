@@ -91,6 +91,9 @@ class works_media extends media {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
+        $oldProps = $CWorks->record['media_info'];
+        $CWorks->reload();
+        works_interaction::adminUpdateFileProps($CWorks->record['id'], $oldProps, $CWorks->record['media_info']);
         NFWX::i()->jsonSuccess();
     }
 
@@ -99,6 +102,14 @@ class works_media extends media {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
+        if ($this->record['basename'] == $_POST['basename']) {
+            NFWX::i()->jsonSuccess([
+                'id' => $this->record['id'],
+                'basename' => $this->record['basename'],
+            ]);
+        }
+
+        $oldName = $this->record['basename'];
         $this->record['basename'] = $_POST['basename'] ?? '';
         $errors = $this->validate();
         if (!empty($errors)) {
@@ -109,6 +120,8 @@ class works_media extends media {
         if ($this->error) {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
+
+        works_interaction::adminRenameFile($this->record['owner_id'], $oldName, $this->record['basename']);
 
         NFWX::i()->jsonSuccess([
             'id' => $this->record['id'],

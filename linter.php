@@ -19,5 +19,14 @@ $CWorks->actionAdminUpdateStatus();
 $CWorks->actionAdminUpdateLinks();
 $CWorks->actionAdminMyStatus();
 
-$CWorkInteraction = new works_interaction();
-$CWorkInteraction->actionAdminList();
+$CWorksMedia = new works_media();
+$CWorksMedia->actionAdminRenameFile();
+$CWorksMedia->actionAdminPreviewZx();
+$CWorksMedia->actionAdminConvertZx();
+$CWorksMedia->actionAdminFileIdDiz();
+$CWorksMedia->actionAdminMakeRelease();
+$CWorksMedia->actionAdminRemoveRelease();
+$CWorksMedia->actionAdminUpdateProperties();
+
+$CWorksInteraction = new works_interaction();
+$CWorksInteraction->actionAdminList();

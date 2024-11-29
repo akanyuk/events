@@ -1,6 +1,8 @@
 <?php
 $lang_interaction = array(
-    works_interaction::AUTHOR_ADD_FILE => 'The file was uploaded by the author: ',
-    works_interaction::ADMIN_ADD_FILE => 'The file was uploaded by the organizer: ',
-    works_interaction::ADMIN_DELETE_FILE => 'The file was deleted by the organizer: ',
+    works_interaction::AUTHOR_ADD_FILE => 'The file "%s" was uploaded by the author',
+    works_interaction::ADMIN_ADD_FILE => 'The file "%s" was uploaded by the organizer',
+    works_interaction::ADMIN_DELETE_FILE => 'The file "%s" was deleted',
+    works_interaction::ADMIN_UPDATE_FILE_PROPS => 'The file "%s" has the following properties: %s',
+    works_interaction::ADMIN_RENAME_FILE => 'The file "%s" has been renamed to "%s"',
 );

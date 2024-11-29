@@ -84,6 +84,8 @@ if (!empty($managed_events)) {
         $marked_prods[] = $r;
     }
 }
+
+echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl')).'</div>';
 ?>
     <script type="text/javascript">
         $(document).ready(function () {
@@ -141,8 +143,9 @@ if (!empty($managed_events)) {
                                 <td>
                                     <div data-toggle="tooltip" data-html="true"
                                          title="<?php echo '<strong>' . $record['status_info']['desc'] . '</strong><br />Voting: ' . ($record['status_info']['voting'] ? 'On' : 'Off') . '<br />Release: ' . ($record['status_info']['release'] ? 'On' : 'Off') ?>"
-                                         class="text text-<?php echo $record['status_info']['css-class'] ?>"><span
-                                                class="<?php echo $record['status_info']['icon'] ?>"></span></div>
+                                         class="text text-<?php echo $record['status_info']['css-class'] ?>"><svg width="1em" height="1em">
+                                            <use xlink:href="#<?php echo $record['status_info']['svg-icon'] ?>"/>
+                                        </svg></div>
                                 </td>
                                 <td>
                                     <strong>
@@ -179,8 +182,9 @@ if (!empty($managed_events)) {
                                     <div class="pull-right">
                                         <div data-toggle="tooltip" data-html="true"
                                              title="<?php echo '<strong>' . $record['status_info']['desc'] . '</strong><br />Voting: ' . ($record['status_info']['voting'] ? 'On' : 'Off') . '<br />Release: ' . ($record['status_info']['release'] ? 'On' : 'Off') ?>"
-                                             class="text text-<?php echo $record['status_info']['css-class'] ?>"><span
-                                                    class="<?php echo $record['status_info']['icon'] ?>"></span></div>
+                                             class="text text-<?php echo $record['status_info']['css-class'] ?>"><svg width="1em" height="1em">
+                                                <use xlink:href="#<?php echo $record['status_info']['svg-icon'] ?>"/>
+                                            </svg></div>
                                     </div>
                                     <strong>
                                         <a href="<?php echo NFW::i()->absolute_path . '/admin/works?action=update&record_id=' . $record['id'] ?>"><?php echo htmlspecialchars($record['title'] . ' by ' . $record['author']) ?></a>
@@ -236,8 +240,9 @@ if (!empty($managed_events)) {
                                 <td>
                                     <div data-toggle="tooltip" data-html="true"
                                          title="<?php echo '<strong>' . $record['status_info']['desc'] . '</strong><br />Voting: ' . ($record['status_info']['voting'] ? 'On' : 'Off') . '<br />Release: ' . ($record['status_info']['release'] ? 'On' : 'Off') ?>"
-                                         class="text text-<?php echo $record['status_info']['css-class'] ?>"><span
-                                                class="<?php echo $record['status_info']['icon'] ?>"></span></div>
+                                         class="text text-<?php echo $record['status_info']['css-class'] ?>"><svg width="1em" height="1em">
+                                            <use xlink:href="#<?php echo $record['status_info']['svg-icon'] ?>"/>
+                                        </svg></div>
                                 </td>
                                 <td>
                                     <strong>
@@ -266,8 +271,9 @@ if (!empty($managed_events)) {
                                     <div class="pull-right" style="margin-left: 10px;">
                                         <div data-toggle="tooltip" data-html="true"
                                              title="<?php echo '<strong>' . $record['status_info']['desc'] . '</strong><br />Voting: ' . ($record['status_info']['voting'] ? 'On' : 'Off') . '<br />Release: ' . ($record['status_info']['release'] ? 'On' : 'Off') ?>"
-                                             class="text text-<?php echo $record['status_info']['css-class'] ?>"><span
-                                                    class="<?php echo $record['status_info']['icon'] ?>"></span></div>
+                                             class="text text-<?php echo $record['status_info']['css-class'] ?>"><svg width="1em" height="1em">
+                                                <use xlink:href="#<?php echo $record['status_info']['svg-icon'] ?>"/>
+                                            </svg></div>
                                     </div>
                                     <strong>
                                         <a href="<?php echo NFW::i()->absolute_path . '/admin/works?action=update&record_id=' . $record['id'] ?>"><?php echo htmlspecialchars($record['title'] . ' by ' . $record['author']) ?></a>

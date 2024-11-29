@@ -64,12 +64,12 @@ echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('
         }
 
         .interactions .item .author {
-            padding: 5px 10px;
+            padding: 5px;
             display: table-cell;
         }
 
         .interactions .item .message {
-            padding: 5px 10px;
+            padding: 5px;
             display: table-cell;
             width: 100%;
         }
@@ -555,7 +555,7 @@ echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('
 
 <div id="work-interaction-record-template" class="interactions" style="display: none;">
     <div class="item" id="item">
-        <div class="author">%author%:</div>
+        <div class="author">%author%</div>
         <div class="message">%message%</div>
     </div>
 </div>
