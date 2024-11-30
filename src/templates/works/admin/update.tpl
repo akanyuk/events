@@ -6,6 +6,8 @@
  * @var array $linkTitles
  */
 
+$langMain = NFW::i()->getLang('main');
+
 $isPublic = true;
 if (!$CCompetitions->record['voting_status']['available'] && !$CCompetitions->record['release_status']['available']) {
     $isPublic = false;
@@ -502,7 +504,7 @@ echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('
 
                     let tpl = $('#work-interaction-record-template').html();
                     tpl = tpl.replace(/%author%/g, "<?php echo date('d.m.Y H:i', $Module->record['posted']).' by '.htmlspecialchars($Module->record['posted_username'])?>");
-                    tpl = tpl.replace(/%message%/g, "Prod uploaded<?php echo $Module->record['description'] ? '<div class=\"note\">'.htmlspecialchars($Module->record['description']).'</div>' : ''?>");
+                    tpl = tpl.replace(/%message%/g, "<?php echo $langMain['work uploaded']?><?php echo $Module->record['description'] ? '<div class=\"note\">'.htmlspecialchars($Module->record['description']).'</div>' : ''?>");
                     container.append(tpl);
 
                     response['records'].forEach(function (item) {

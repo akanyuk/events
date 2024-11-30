@@ -2,17 +2,16 @@
 /**
  * @desc Interactions between work author and organizers
  */
-
 class works_interaction extends base_module {
     const AUTHOR_ADD_FILE = 100;
     const ADMIN_ADD_FILE = 101;
     const ADMIN_DELETE_FILE = 102;
     const ADMIN_UPDATE_FILE_PROPS = 103;
     const ADMIN_RENAME_FILE = 104;
-
-    function __construct() {
-        parent::__construct();
-    }
+    const ADMIN_CONVERT_ZX = 105;
+    const ADMIN_FILE_ID_DIZ = 106;
+    const ADMIN_MAKE_RELEASE = 107;
+    const ADMIN_REMOVE_RELEASE = 108;
 
     public static function authorAddFile(int $workID, string $basename) {
         self::saveNoMessage(self::AUTHOR_ADD_FILE, $workID, json_encode([
@@ -32,39 +31,17 @@ class works_interaction extends base_module {
         ]));
     }
 
-    public static function adminUpdateFileProps(int $workID, array $oldProps, array $newProps) {
-        // Extracting props changes
-        $oldPropsMap = [];
-        foreach ($oldProps as $p) {
-            $oldPropsMap[$p['id']] = $p;
-        }
-        $changes = [];
-        foreach ($newProps as $p) {
-            if (isset($oldPropsMap[$p['id']])) {
-                if ($p['is_screenshot'] == $oldPropsMap[$p['id']]['is_screenshot'] &&
-                    $p['is_audio'] == $oldPropsMap[$p['id']]['is_audio'] &&
-                    $p['is_image'] == $oldPropsMap[$p['id']]['is_image'] &&
-                    $p['is_voting'] == $oldPropsMap[$p['id']]['is_voting'] &&
-                    $p['is_release'] == $oldPropsMap[$p['id']]['is_release']) {
-                    continue;
-                }
-            }
-
-            $changes[] = [
-                'basename' => $p['basename'],
-                'props' => array_filter([
-                    $p['is_screenshot'] ? 'screenshot' : null,
-                    $p['is_audio'] ? 'audio' : null,
-                    $p['is_image'] ? 'image' : null,
-                    $p['is_voting'] ? 'voting' : null,
-                    $p['is_release'] ? 'release' : null,
-                ]),
-            ];
-        }
-
-        foreach ($changes as $c) {
-            self::saveNoMessage(self::ADMIN_UPDATE_FILE_PROPS, $workID, json_encode($c));
-        }
+    public static function adminUpdateFileProps(int $workID, string $basename, array $props) {
+        self::saveNoMessage(self::ADMIN_UPDATE_FILE_PROPS, $workID, json_encode([
+            'basename' => $basename,
+            'props' => array_filter([
+                isset($props['screenshot']) &&  $props['screenshot'] ? 'screenshot' : null,
+                isset($props['audio']) &&  $props['audio'] ? 'audio' : null,
+                isset($props['image']) &&  $props['image'] ? 'image' : null,
+                isset($props['voting']) &&  $props['voting'] ? 'voting' : null,
+                isset($props['release']) &&  $props['release'] ? 'release' : null,
+            ]),
+        ]));
     }
 
     public static function adminRenameFile(int $workID, string $oldName, string $basename) {
@@ -74,7 +51,29 @@ class works_interaction extends base_module {
         ]));
     }
 
-    private static function saveNoMessage(int $type, int $workID, string $metadata) {
+    public static function adminConvertZX(int $workID, string $basename1, string $basename2, string $origName) {
+        self::saveNoMessage(self::ADMIN_CONVERT_ZX, $workID, json_encode([
+            'basename1' => $basename1,
+            'basename2' => $basename2,
+            'origName' => $origName,
+        ]));
+    }
+
+    public static function adminFileIdDiz(int $workID) {
+        self::saveNoMessage(self::ADMIN_FILE_ID_DIZ, $workID);
+    }
+
+    public static function adminMakeRelease(int $workID, string $basename) {
+        self::saveNoMessage(self::ADMIN_MAKE_RELEASE, $workID, json_encode([
+            'basename' => $basename,
+        ]));
+    }
+
+    public static function adminRemoveRelease(int $workID) {
+        self::saveNoMessage(self::ADMIN_REMOVE_RELEASE, $workID);
+    }
+
+    private static function saveNoMessage(int $type, int $workID, string $metadata = "") {
         $query = array(
             'INSERT' => '`type`, work_id, metadata, posted, posted_by',
             'INTO' => 'works_interaction',
@@ -88,20 +87,30 @@ class works_interaction extends base_module {
     private function format(array $lang, $record): array {
         $dupeCheck = '';
         switch ($record['type']) {
+            case self::ADMIN_FILE_ID_DIZ:
+            case self::ADMIN_REMOVE_RELEASE:
+                $message = $lang[$record['type']];
+                break;
             case self::AUTHOR_ADD_FILE;
             case self::ADMIN_ADD_FILE;
             case self::ADMIN_DELETE_FILE:
+            case self::ADMIN_MAKE_RELEASE:
                 $metadata = json_decode($record['metadata'], true);
                 $message = sprintf($lang[$record['type']], $metadata['basename']);
                 break;
             case self::ADMIN_UPDATE_FILE_PROPS:
                 $metadata = json_decode($record['metadata'], true);
-                $message = sprintf($lang[$record['type']], $metadata['basename'], implode(", ", $metadata['props']));
+                $props = empty($metadata['props']) ? '-' : implode(", ", $metadata['props']);
+                $message = sprintf($lang[$record['type']], $metadata['basename'], $props);
                 $dupeCheck = sprintf($lang[$record['type']], $metadata['basename'], '');
                 break;
             case self::ADMIN_RENAME_FILE:
                 $metadata = json_decode($record['metadata'], true);
                 $message = sprintf($lang[$record['type']], $metadata['oldName'], $metadata['basename']);
+                break;
+            case self::ADMIN_CONVERT_ZX:
+                $metadata = json_decode($record['metadata'], true);
+                $message = sprintf($lang[$record['type']], $metadata['basename1'], $metadata['basename2'], $metadata['origName']);
                 break;
             default:
                 $message = $record['message'];

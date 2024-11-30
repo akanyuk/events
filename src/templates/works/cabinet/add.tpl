@@ -152,7 +152,7 @@ NFWX::i()->mainContainerAdditionalClasses = 'd-grid mx-auto col-sm-10 col-md-8';
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><?php echo $langMain['works upload success title'] ?></h5>
+                <h5 class="modal-title"><?php echo $langMain['work uploaded'] ?></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div id="add-work-success-modal-body" class="modal-body"></div>
