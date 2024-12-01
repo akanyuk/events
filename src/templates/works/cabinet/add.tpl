@@ -67,7 +67,7 @@ NFWX::i()->mainContainerAdditionalClasses = 'd-grid mx-auto col-sm-10 col-md-8';
         <?php endif; ?>
 
         <div class="mb-3">
-            <label for="title"><?php echo $langMain['works title'] ?></label>
+            <label for="title"><?php echo $langMain['works attributes']['title'] ?></label>
             <input data-role="addWorkInput" id="title" class="form-control"
                    type="text" required="required"
                    maxlength="<?php echo $Module->attributes['title']['maxlength'] ?>">
@@ -75,7 +75,7 @@ NFWX::i()->mainContainerAdditionalClasses = 'd-grid mx-auto col-sm-10 col-md-8';
         </div>
 
         <div class="mb-3">
-            <label for="title"><?php echo $langMain['works author'] ?></label>
+            <label for="title"><?php echo $langMain['works attributes']['author'] ?></label>
             <input data-role="addWorkInput" id="author" class="form-control"
                    type="text" required="required"
                    maxlength="<?php echo $Module->attributes['author']['maxlength'] ?>">
@@ -83,7 +83,7 @@ NFWX::i()->mainContainerAdditionalClasses = 'd-grid mx-auto col-sm-10 col-md-8';
         </div>
 
         <div class="mb-3">
-            <label for="title"><?php echo $langMain['works platform'] ?></label>
+            <label for="title"><?php echo $langMain['works attributes']['platform'] ?></label>
             <input data-role="addWorkInput" id="platform" class="form-control"
                    type="text" required="required"
                    maxlength="<?php echo $Module->attributes['platform']['maxlength'] ?>">
@@ -91,7 +91,7 @@ NFWX::i()->mainContainerAdditionalClasses = 'd-grid mx-auto col-sm-10 col-md-8';
         </div>
 
         <div class="mb-3">
-            <label for="format"><?php echo $langMain['works format'] ?></label>
+            <label for="format"><?php echo $langMain['works attributes']['format'] ?></label>
             <input data-role="addWorkInput" id="format" class="form-control"
                    type="text" maxlength="<?php echo $Module->attributes['format']['maxlength'] ?>">
             <div data-role="addWorkFeedback" id="format" class="invalid-feedback"></div>

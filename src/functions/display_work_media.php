@@ -40,9 +40,9 @@ function display_work_media(array $work = array(), array $options = array()) {
 
     $langMain = NFW::i()->getLang('main');
 
-    $platformFormat = '<div class="badge badge-platform me-1 mb-2" title="' . $langMain['works platform'] . '">' . htmlspecialchars($work['platform']) . '</div>';
+    $platformFormat = '<div class="badge badge-platform me-1 mb-2" title="' . $langMain['works attributes']['platform'] . '">' . htmlspecialchars($work['platform']) . '</div>';
     if ($work['format']) {
-        $platformFormat .= '<div class="badge badge-format" title="' . $langMain['works format'] . '">' . htmlspecialchars($work['format']) . '</div>';
+        $platformFormat .= '<div class="badge badge-format" title="' . $langMain['works attributes']['format'] . '">' . htmlspecialchars($work['format']) . '</div>';
     }
 
     ob_start();
@@ -78,7 +78,7 @@ function display_work_media(array $work = array(), array $options = array()) {
     if ($work['author_note']) {
         echo '<div class="alert alert-info d-flex align-items-center">
         <svg class="flex-shrink-0 me-3" width="1.2em" height="1.2em" data-bs-toggle="tooltip"
-             data-bs-title="'.$langMain['works author note'].'">
+             data-bs-title="'.$langMain['works attributes']['author_note'].'">
             <use xlink:href="#icon-circle-fill"/>
         </svg>
         <div>'.nl2br($work['author_note']).'</div>

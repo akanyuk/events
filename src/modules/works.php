@@ -629,6 +629,8 @@ class works extends active_record {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
+        $oldRecord = $this->record;
+
         $this->formatAttributes($_POST, array(
             'title' => $this->attributes['title'],
             'author' => $this->attributes['author'],
@@ -649,6 +651,19 @@ class works extends active_record {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
+        $this->reload();
+
+        foreach (['title', 'author', 'competition_id', 'platform', 'format', 'author_note', 'external_html'] as $field) {
+            if ($oldRecord[$field] != $this->record[$field]) {
+                if ($field == 'competition_id') {
+                    $value = $this->record['competition_title'];
+                } else {
+                    $value = $this->record[$field];
+                }
+                works_interaction::adminUpdate($this->record['id'], $field, $value);
+            }
+        }
+
         NFWX::i()->jsonSuccess();
     }
 
@@ -656,6 +671,9 @@ class works extends active_record {
         if (!$this->load($_GET['record_id']) || !$this->loadEditorOptions($this->record['event_id'])) {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
+
+        $oldStatus = $this->record['status'];
+        $oldStatusReason = $this->record['status_reason'];
 
         $this->formatAttributes($_POST, array(
             'status' => $this->attributes['status'],
@@ -672,6 +690,10 @@ class works extends active_record {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
+        if ($this->record['status'] != $oldStatus || $this->record['status_reason'] != $oldStatusReason) {
+            works_interaction::adminUpdateStatus($this->record['id'], $this->record['status'], $this->record['status_reason']);
+        }
+
         NFWX::i()->jsonSuccess();
     }
 
@@ -680,22 +702,22 @@ class works extends active_record {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
-        $new_links = array();
+        $newLinks = array();
         if (isset($_POST['links'])) foreach ($_POST['links']['url'] as $pos => $url) {
             if (!$url) continue;
 
-            $new_links[] = array('url' => $url, 'title' => $_POST['links']['title'][$pos]);
+            $newLinks[] = array('url' => $url, 'title' => $_POST['links']['title'][$pos]);
         }
-        $is_links_updated = !(NFW::i()->serializeArray($this->record['links']) == NFW::i()->serializeArray($new_links));
+        $isLinksUpdated = !(NFW::i()->serializeArray($this->record['links']) == NFW::i()->serializeArray($newLinks));
 
-        if ($is_links_updated) {
+        if ($isLinksUpdated) {
             // Prune all old links
             if (!NFW::i()->db->query_build(array('DELETE' => 'works_links', 'WHERE' => 'work_id=' . $this->record['id']))) {
                 $this->error('Unable to delete old links', __FILE__, __LINE__, NFW::i()->db->error());
                 NFWX::i()->jsonError(400, $this->last_msg);
             }
 
-            foreach ($new_links as $key => $link) {
+            foreach ($newLinks as $key => $link) {
                 if (!NFW::i()->db->query_build(array(
                     'INSERT' => '`work_id`, `position`, `title`, `url`',
                     'INTO' => 'works_links',
@@ -705,6 +727,15 @@ class works extends active_record {
                     NFWX::i()->jsonError(400, $this->last_msg);
                 }
             }
+        }
+
+        $before = array_map(function($x){ return $x['url']; }, $this->record['links']);
+        $after = array_map(function($x){ return $x['url']; }, $newLinks);
+        foreach (array_diff($before, $after) as $url) {
+            works_interaction::adminLinkRemoved($this->record['id'], $url);
+        }
+        foreach (array_diff($after, $before) as $url) {
+            works_interaction::adminLinkAdded($this->record['id'], $url);
         }
 
         NFWX::i()->jsonSuccess();

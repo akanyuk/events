@@ -44,13 +44,17 @@ $lang_main = array(
     'competitions received works' => 'Prods received',
     'competitions approved works' => 'Prods approved',
 
+    'works attributes' => [
+        'author' => 'Author',
+        'title' => 'Title',
+        'platform' => 'Platform',
+        'format' => 'Format',
+        'competition_id' => 'Competition',
+        'author_note' => 'Author\'s note',
+        'external_html' => 'Additional',
+    ],
     'works empty' => 'You have not uploaded any prods yet',
     'works send' => 'Send prod',
-    'works title' => 'Title',
-    'works author' => 'Author',
-    'works author note' => 'Author\'s note',
-    'works platform' => 'Platform',
-    'works format' => 'Format',
     'works description' => 'Comment for organizers',
     'works description public' => 'Comment for visitors',
     'works description refs' => 'Display additional materials during voting (phases, references, etc)',
@@ -151,5 +155,5 @@ $lang_main = array(
 
     // Live voting related
     'live voting info' => 'To use live voting, you need to log in or <a href="/users/register">register</a>.',
-    'live voting not running' => 'В настоящее время живое голосование не запущено. Следите за обновлениями новостных каналов',
+    'live voting not running' => 'Live voting is not currently running. Follow the updates of the news channels',
 );

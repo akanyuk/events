@@ -338,6 +338,7 @@ echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('
         wuF.activeForm({
             success: function () {
                 $.jGrowl('Work profile updated');
+                loadInteractions();
             }
         });
 
@@ -393,6 +394,7 @@ echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('
         $('form[id="update-status"]').activeForm({
             success: function () {
                 $.jGrowl('Status updated');
+                loadInteractions();
             }
         });
 
@@ -447,6 +449,7 @@ echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('
         $('form[id="works-update-links"]').activeForm({
             success: function () {
                 $.jGrowl('Work links updated');
+                loadInteractions();
             }
         });
 

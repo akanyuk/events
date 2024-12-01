@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @desc Interactions between work author and organizers
  */
@@ -12,6 +13,10 @@ class works_interaction extends base_module {
     const ADMIN_FILE_ID_DIZ = 106;
     const ADMIN_MAKE_RELEASE = 107;
     const ADMIN_REMOVE_RELEASE = 108;
+    const ADMIN_UPDATE_STATUS = 109;
+    const ADMIN_UPDATE = 110;
+    const ADMIN_LINK_ADDED = 111;
+    const ADMIN_LINK_REMOVED = 112;
 
     public static function authorAddFile(int $workID, string $basename) {
         self::saveNoMessage(self::AUTHOR_ADD_FILE, $workID, json_encode([
@@ -35,11 +40,11 @@ class works_interaction extends base_module {
         self::saveNoMessage(self::ADMIN_UPDATE_FILE_PROPS, $workID, json_encode([
             'basename' => $basename,
             'props' => array_filter([
-                isset($props['screenshot']) &&  $props['screenshot'] ? 'screenshot' : null,
-                isset($props['audio']) &&  $props['audio'] ? 'audio' : null,
-                isset($props['image']) &&  $props['image'] ? 'image' : null,
-                isset($props['voting']) &&  $props['voting'] ? 'voting' : null,
-                isset($props['release']) &&  $props['release'] ? 'release' : null,
+                isset($props['screenshot']) && $props['screenshot'] ? 'screenshot' : null,
+                isset($props['audio']) && $props['audio'] ? 'audio' : null,
+                isset($props['image']) && $props['image'] ? 'image' : null,
+                isset($props['voting']) && $props['voting'] ? 'voting' : null,
+                isset($props['release']) && $props['release'] ? 'release' : null,
             ]),
         ]));
     }
@@ -73,6 +78,32 @@ class works_interaction extends base_module {
         self::saveNoMessage(self::ADMIN_REMOVE_RELEASE, $workID);
     }
 
+    public static function adminUpdateStatus(int $workID, int $status, string $reason) {
+        self::saveNoMessage(self::ADMIN_UPDATE_STATUS, $workID, json_encode([
+            'status' => $status,
+            'reason' => $reason,
+        ]));
+    }
+
+    public static function adminUpdate(int $workID, string $field, string $value) {
+        self::saveNoMessage(self::ADMIN_UPDATE, $workID, json_encode([
+            'field' => $field,
+            'value' => $value,
+        ]));
+    }
+
+    public static function adminLinkAdded(int $workID, string $url) {
+        self::saveNoMessage(self::ADMIN_LINK_ADDED, $workID, json_encode([
+            'url' => $url,
+        ]));
+    }
+
+    public static function adminLinkRemoved(int $workID, string $url) {
+        self::saveNoMessage(self::ADMIN_LINK_REMOVED, $workID, json_encode([
+            'url' => $url,
+        ]));
+    }
+
     private static function saveNoMessage(int $type, int $workID, string $metadata = "") {
         $query = array(
             'INSERT' => '`type`, work_id, metadata, posted, posted_by',
@@ -84,7 +115,7 @@ class works_interaction extends base_module {
         }
     }
 
-    private function format(array $lang, $record): array {
+    private function format(array $lang, $langMain, $record): array {
         $dupeCheck = '';
         switch ($record['type']) {
             case self::ADMIN_FILE_ID_DIZ:
@@ -112,6 +143,23 @@ class works_interaction extends base_module {
                 $metadata = json_decode($record['metadata'], true);
                 $message = sprintf($lang[$record['type']], $metadata['basename1'], $metadata['basename2'], $metadata['origName']);
                 break;
+            case self::ADMIN_UPDATE_STATUS:
+                $metadata = json_decode($record['metadata'], true);
+                $status = $langMain['works status desc'][$metadata['status']] ?: 'unknown';
+                $reason = $metadata['reason'] ?: $langMain['works status desc full'][$metadata['status']];
+                $message = sprintf($lang[$record['type']], $status, $reason);
+                break;
+            case self::ADMIN_UPDATE:
+                $metadata = json_decode($record['metadata'], true);
+                $field = $langMain['works attributes'][$metadata['field']] ?: 'unknown';
+                $message = sprintf($lang[$record['type']], $field, $metadata['value']);
+                break;
+            case self::ADMIN_LINK_ADDED:
+            case self::ADMIN_LINK_REMOVED:
+                $metadata = json_decode($record['metadata'], true);
+                $message = sprintf($lang[$record['type']], $metadata['url']);
+                break;
+
             default:
                 $message = $record['message'];
         }
@@ -157,9 +205,10 @@ class works_interaction extends base_module {
         }
 
         $lang = NFW::i()->getLang("interaction");
+        $langMain = NFW::i()->getLang('main');
         $records = [];
         while ($record = NFW::i()->db->fetch_assoc($result)) {
-            $records[] = $this->format($lang, $record);
+            $records[] = $this->format($lang, $langMain, $record);
         }
 
         NFWX::i()->jsonSuccess(['records' => $this->removeDupes($records)]);

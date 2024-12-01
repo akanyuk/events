@@ -31,9 +31,9 @@ $noImage = NFW::i()->assets('main/current-event-large.png');
             $url = NFW::i()->absolute_path . '/' . $work['event_alias'] . '/' . $work['competition_alias'] . '/' . $work['id'];
             $title = $work['title'] . ' by ' . $work['author'];
 
-            $platformFormat = '<div class="badge badge-platform me-1 mb-2" title="' . $langMain['works platform'] . '">' . htmlspecialchars($work['platform']) . '</div>';
+            $platformFormat = '<div class="badge badge-platform me-1 mb-2" title="' . $langMain['works attributes']['platform'] . '">' . htmlspecialchars($work['platform']) . '</div>';
             if ($work['format']) {
-                $platformFormat .= '<div class="badge badge-format" title="' . $langMain['works format'] . '">' . htmlspecialchars($work['format']) . '</div>';
+                $platformFormat .= '<div class="badge badge-format" title="' . $langMain['works attributes']['format'] . '">' . htmlspecialchars($work['format']) . '</div>';
             }
 
             switch ($work['place']) {
