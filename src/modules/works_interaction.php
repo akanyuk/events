@@ -4,6 +4,8 @@
  * @desc Interactions between work author and organizers
  */
 class works_interaction extends base_module {
+    const MESSAGE = 1;
+    
     const AUTHOR_ADD_FILE = 100;
     const ADMIN_ADD_FILE = 101;
     const ADMIN_DELETE_FILE = 102;
@@ -115,9 +117,27 @@ class works_interaction extends base_module {
         }
     }
 
+    private static function saveMessage(int $workID, string $message): bool {
+        $query = array(
+            'INSERT' => '`type`, work_id, message, posted, posted_by',
+            'INTO' => 'works_interaction',
+            'VALUES' => self::MESSAGE . ', ' . $workID . ', \'' . NFW::i()->db->escape($message) . '\', ' . time() . ',' . NFW::i()->user['id']
+        );
+        if (!NFW::i()->db->query_build($query)) {
+            return false;
+        }
+        
+        return true;
+    }
+    
     private function format(array $lang, $langMain, $record): array {
         $dupeCheck = '';
+        $isMessage = false;
         switch ($record['type']) {
+            case self::MESSAGE:
+                $message = $record['message'];
+                $isMessage = true;
+                break;
             case self::ADMIN_FILE_ID_DIZ:
             case self::ADMIN_REMOVE_RELEASE:
                 $message = $lang[$record['type']];
@@ -167,6 +187,7 @@ class works_interaction extends base_module {
         return [
             'dupe_check' => $dupeCheck,
             'message' => $message,
+            'is_message' => $isMessage,
             'posted' => $record['posted'],
             'poster_username' => $record['poster_username'],
         ];
@@ -185,8 +206,32 @@ class works_interaction extends base_module {
     }
 
     function actionAdminList() {
-        $workID = intval($_GET['record_id']);
+        $workID = intval($_GET['work_id']);
 
+        $CWorks = new works($workID);
+        if (!$CWorks->record['id']) {
+            $this->error($CWorks->last_msg, __FILE__, __LINE__);
+            NFWX::i()->jsonError(400, $this->last_msg);
+        }
+
+        $langMain = NFW::i()->getLang('main');
+        $records = [[
+            'dupe_check' => '',
+            'message' => $langMain['work uploaded'],
+            'is_message' => false,
+            'posted' => $CWorks->record['posted'],
+            'poster_username' => $CWorks->record['posted_username'],
+        ]];
+
+        if ($CWorks->record['description']) {
+            $records[] = [
+                'dupe_check' => '',
+                'message' => $CWorks->record['description'],
+                'is_message' => true,
+                'posted' => $CWorks->record['posted'],
+                'poster_username' => $CWorks->record['posted_username'],
+            ];
+        }
         $query = array(
             'SELECT' => 'wi.*, u.username AS poster_username',
             'FROM' => 'works_interaction AS wi',
@@ -205,12 +250,30 @@ class works_interaction extends base_module {
         }
 
         $lang = NFW::i()->getLang("interaction");
-        $langMain = NFW::i()->getLang('main');
-        $records = [];
         while ($record = NFW::i()->db->fetch_assoc($result)) {
             $records[] = $this->format($lang, $langMain, $record);
         }
 
         NFWX::i()->jsonSuccess(['records' => $this->removeDupes($records)]);
+    }
+    
+    function actionAdminMessage() {
+        $workID = intval($_GET['work_id']);
+        $message = $_POST['message'];
+        if ($message == "") {
+            NFWX::i()->jsonError(400, 'Message can not be empty');
+        }
+        
+        if (!self::saveMessage($workID, $message)) {
+            $this->error('Unable to save message', __FILE__, __LINE__, NFW::i()->db->error);
+            NFWX::i()->jsonError(400, $this->last_msg);
+        }
+        
+        NFWX::i()->jsonSuccess([
+            'message' => $message,
+            'is_message' => true,
+            'posted' => time(),
+            'poster_username' => NFW::i()->user['username']
+        ]);
     }
 }

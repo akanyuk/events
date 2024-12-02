@@ -30,3 +30,4 @@ $CWorksMedia->actionAdminUpdateProperties();
 
 $CWorksInteraction = new works_interaction();
 $CWorksInteraction->actionAdminList();
+$CWorksInteraction->actionAdminMessage();

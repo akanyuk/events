@@ -33,7 +33,18 @@ NFW::i()->breadcrumb = array(
     array('desc' => $Module->record['title']),
 );
 
-echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl')).'</div>';
+// Linter related
+ob_start(); ?>
+<div class="interactions">
+    <div class="item">
+        <div class="author"></div>
+        <div class="message is-message"></div>
+    </div>
+</div>
+<div class="modal-backdrop in"></div>
+<?php ob_end_clean();
+
+echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl')) . '</div>';
 ?>
 <style>
     .interactions .item {
@@ -51,13 +62,11 @@ echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('
     }
 
     .interactions .item .message {
+        font-style: italic;
     }
 
-    .interactions .item .message .note {
-        white-space: pre;
-        overflow: auto;
-        padding-top: 5px;
-        font-style: italic;
+    .interactions .item .message.is-message {
+        font-style: normal !important;
     }
 
     @media (min-width: 769px) {
@@ -98,7 +107,6 @@ echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('
 
 <div class="row">
     <div class="col-md-6" style="padding-bottom: 20px;">
-
         <div data-active-container="status" class="form-group">
             <form id="update-status"
                   action="<?php echo $Module->formatURL('update_status') . '&record_id=' . $Module->record['id'] ?>">
@@ -153,7 +161,7 @@ echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('
 
                     <div class="form-group">
                         <div class="col-md-12">
-                            <button type="submit" class="btn btn-primary">Update status</button>
+                            <button type="submit" class="btn btn-primary btn-full-xs">Update status</button>
                         </div>
                     </div>
                 </fieldset>
@@ -192,7 +200,7 @@ echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('
             </div>
         </form>
 
-        <br />
+        <br/>
 
         <form id="works-update-links"
               action="<?php echo $Module->formatURL('update_links') . '&record_id=' . $Module->record['id'] ?>">
@@ -290,7 +298,7 @@ echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('
                     </div>
                     <div class="form-group">
                         <div class="col-md-12">
-                            <button type="submit" class="btn btn-primary">Set your note</button>
+                            <button type="submit" class="btn btn-primary btn-full-xs">Set your note</button>
                         </div>
                     </div>
                 </form>
@@ -299,6 +307,25 @@ echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('
 
         <h3>Interactions</h3>
         <div class="interactions" id="work-interactions"></div>
+
+        <button id="show-all-interactions" class="btn btn-default btn-sm btn-full-xs"
+                style="margin-top: 1em; display:none;">Show all interactions</button>
+
+        <form id="send-message" style="margin-top: 1em;"
+              action="<?php echo NFW::i()->base_path ?>admin/works_interaction?action=message&work_id=<?php echo $Module->record['id'] ?>">
+            <div class="form-group">
+                <div class="col-md-12">
+                    <label>Send a message to the author</label>
+                    <textarea required="required" class="form-control" name="message"></textarea>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary btn-full-xs">Send message</button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -328,7 +355,7 @@ echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('
         <h4 class="panel-title">Danger Zone</h4>
     </div>
     <div class="panel-body">
-        <button class="btn btn-danger" data-role="works-delete">Delete work permanently</button>
+        <button class="btn btn-danger btn-full-xs" data-role="works-delete">Delete work permanently</button>
     </div>
 </div>
 
@@ -453,10 +480,6 @@ echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('
             }
         });
 
-        // Interactions
-
-        loadInteractions();
-
         $('[data-role="works-delete"]').click(function () {
             if (!confirm("Remove work?\nCAN NOT BE UNDONE!")) {
                 return false;
@@ -496,32 +519,81 @@ echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('
         <?php endif; ?>
     }
 
+    // Interactions
+
+    const divWorkInteractions = $('div[id="work-interactions"]');
+    const buttonShowAllInteractions = $('button[id="show-all-interactions"]');
+    const showLastInteractionsCnt = 25; // Showing last N interactions
+
+    $('form[id="send-message"]').activeForm({
+        success: function (resp) {
+            $('form[id="send-message"]').find('textarea').val("");
+            const item = interactionsItem(resp);
+            divWorkInteractions.append(item);
+        }
+    });
+
+    buttonShowAllInteractions.click(function(){
+        divWorkInteractions.find('div[class="item"]').show();
+        buttonShowAllInteractions.hide();
+
+        $([document.documentElement, document.body]).animate({
+            scrollTop: divWorkInteractions.offset().top - 100
+        }, 500);
+    });
+
+    loadInteractions(); // At startup
+
     function loadInteractions() {
-        const container = $('[id="work-interactions"]');
+        buttonShowAllInteractions.hide();
+
         $.ajax(
-            '<?php echo NFW::i()->base_path.'admin/works_interaction?action=list&record_id='.$Module->record['id']?>',
+            '<?php echo NFW::i()->base_path . 'admin/works_interaction?action=list&work_id=' . $Module->record['id']?>',
             {
                 method: "get",
                 success: function (response) {
-                    container.empty();
+                    divWorkInteractions.empty();
 
-                    let tpl = $('#work-interaction-record-template').html();
-                    tpl = tpl.replace(/%author%/g, "<?php echo date('d.m.Y H:i', $Module->record['posted']).' by '.htmlspecialchars($Module->record['posted_username'])?>");
-                    tpl = tpl.replace(/%message%/g, "<?php echo $langMain['work uploaded']?><?php echo $Module->record['description'] ? '<div class=\"note\">'.htmlspecialchars($Module->record['description']).'</div>' : ''?>");
-                    container.append(tpl);
+                    const numRecords = response['records'].length;
+                    response['records'].forEach(function (r, index) {
+                        let item = interactionsItem(r);
+                        if (numRecords - index > showLastInteractionsCnt) {
+                            item["style"].display = 'none';
+                        }
 
-                    response['records'].forEach(function (item) {
-                        let tpl = $('#work-interaction-record-template').html();
-                        tpl = tpl.replace(/%message%/g, item['message']);
-                        tpl = tpl.replace(/%author%/g, formatDateTime(item['posted'], true, true) + ' by ' + item['poster_username']);
-                        container.append(tpl);
+                        divWorkInteractions.append(item);
                     });
+
+                    if (numRecords > showLastInteractionsCnt) {
+                        buttonShowAllInteractions.show();
+                    }
                 },
                 error: function () {
                     alert("Load work interactions unexpected error");
                 }
             }
         );
+    }
+
+    function interactionsItem(r) {
+        let author = document.createElement('div');
+        author.className = "author";
+        author.innerText = formatDateTime(r['posted'], true, true) + ' by ' + r['poster_username'];
+
+        let message = document.createElement('div');
+        message.className = "message";
+        if (r['is_message']) {
+            message.classList.add('is-message');
+        }
+        message.innerText = r['message'];
+
+        let item = document.createElement('div');
+        item.className = "item";
+
+        item.appendChild(author);
+        item.appendChild(message);
+
+        return item;
     }
 </script>
 
@@ -545,9 +617,9 @@ echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('
                        placeholder="Url"/>
                 <span class="input-group-btn">
 					<button data-action="toggle-title" class="btn btn-default" tabindex="-1" title="Show custom tittle"><span
-                            class="fa fa-chevron-down"></span></button>
+                                class="fa fa-chevron-down"></span></button>
 					<button data-action="remove-link" class="btn btn-default" tabindex="-1" title="Remove link"><span
-                            class="fa fa-times"></span></button>
+                                class="fa fa-times"></span></button>
 				</span>
             </div>
             <div class="input-group" style="width: 100%; display: none;">
@@ -555,12 +627,5 @@ echo '<div style="display: none;">'.NFW::i()->fetch(NFW::i()->findTemplatePath('
                        placeholder="Custom title (not required)"/>
             </div>
         </div>
-    </div>
-</div>
-
-<div id="work-interaction-record-template" class="interactions" style="display: none;">
-    <div class="item" id="item">
-        <div class="author">%author%</div>
-        <div class="message">%message%</div>
     </div>
 </div>
