@@ -315,8 +315,7 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
               action="<?php echo NFW::i()->base_path ?>admin/works_interaction?action=message&work_id=<?php echo $Module->record['id'] ?>">
             <div class="form-group">
                 <div class="col-md-12">
-                    <label>Send a message to the author</label>
-                    <textarea required="required" class="form-control" name="message"></textarea>
+                    <textarea required="required" class="form-control" name="message" placeholder="Send a message to the author"></textarea>
                 </div>
             </div>
 

@@ -28,6 +28,9 @@ $lang_main = array(
     'cabinet add work' => 'Загрузить работу',
     'cabinet add choose event' => 'Выберите событие',
     'cabinet add choose event desc' => 'Выберите событие для загрузки работы',
+    'cabinet message send' => 'Написать сообщение организаторам',
+    'cabinet send' => 'Отправить',
+    'cabinet message required' => 'Необходимо написать текст сообщения',
 
     'latest events' => 'Последние события',
     'all events' => 'Все события',
@@ -72,8 +75,6 @@ $lang_main = array(
 
     'works files' => 'Файлы',
     'works add files' => 'Дозагрузить файлы',
-    'works add files submit' => 'Отправить',
-    'works add file comment' => 'Комментарий',
     'works filesize' => 'Размер',
     'works uploaded' => 'Загружен',
     'filestatus screenshot' => 'Скриншот для ссылок в социальных сетях и для показа работы на экране во время фестиваля (пати)',
@@ -111,8 +112,8 @@ $lang_main = array(
 
     'works your comment' => 'Ваш комментарии. Будет виден всем посетителям сайта',
     'works comments count' => 'Обсудить',
-    'works comments write' => 'Написать комментарий',
-    'works comments send' => 'Отправить',
+    'works comments write' => 'Текст сообщения',
+    'works comments send' => 'Отправить комментарий',
     'works comments attention register' => 'Только зарегистрированные пользователи могут оставлять комментарии.',
 
     'voting to' => 'Голосование до',

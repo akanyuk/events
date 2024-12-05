@@ -28,6 +28,9 @@ $lang_main = array(
     'cabinet add work' => 'Upload prod',
     'cabinet add choose event' => 'Choose event',
     'cabinet add choose event desc' => 'Choose event for prod uploading',
+    'cabinet message send' => 'Write a message to the organizers',
+    'cabinet send' => 'Send',
+    'cabinet message required' => 'It is necessary to write the text of the message',
 
     'latest events' => 'Latest events',
     'all events' => 'Show all events',
@@ -72,8 +75,6 @@ $lang_main = array(
 
     'works files' => 'Files',
     'works add files' => 'Add more files',
-    'works add files submit' => 'Send files',
-    'works add file comment' => 'Comment',
     'works filesize' => 'Filesize',
     'works uploaded' => 'Uploaded',
     'filestatus screenshot' => 'Screenshot for social media links and slides',
@@ -111,7 +112,7 @@ $lang_main = array(
 
     'works your comment' => 'Your comments. It will be visible to all site visitors',
     'works comments count' => 'Comments',
-    'works comments write' => 'Write comment',
+    'works comments write' => 'Type your message',
     'works comments send' => 'Send comment',
     'works comments attention register' => 'Only registered users can write comments.',
 
