@@ -25,55 +25,8 @@ if ($CCompetitions->record['voting_status']['available'] && $Module->record['sta
     $isPublished = false;
 }
 
-// Linter related
-ob_start(); ?>
-    <div class="interactions">
-        <div class="item">
-            <div class="author"></div>
-            <div class="message is-message"></div>
-        </div>
-    </div>
-<?php ob_end_clean();
-
 echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
 ?>
-    <style>
-        .interactions .item {
-            padding: 8px 10px;
-        }
-
-        .interactions .item .author {
-            font-size: 90%;
-            color: #c56464;
-            white-space: nowrap;
-        }
-
-        .interactions .item .message {
-            font-style: italic;
-        }
-
-        .interactions .item .message.is-message {
-            font-style: normal !important;
-        }
-
-        @media (min-width: 769px) {
-            .interactions .item {
-                display: table-row;
-            }
-
-            .interactions .item .author {
-                padding: 5px;
-                display: table-cell;
-            }
-
-            .interactions .item .message {
-                padding: 5px;
-                display: table-cell;
-                width: 100%;
-            }
-        }
-    </style>
-
     <div class="d-md-none">
         <?php echo startBlock($Module->record, $isPublished); ?>
     </div>
@@ -83,11 +36,11 @@ echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
 <?php echo display_work_media($Module->record, array('rel' => 'preview')); ?>
     <hr class="d-md-none mt-0"/>
 
-    <div class="w-640 mb-5">
+    <div class="mb-5">
         <section id="work-interactions-top"></section>
 
         <h3>Interactions</h3>
-        <div class="interactions mb-2" id="work-interactions"></div>
+        <div class="interactions mb-3" id="work-interactions"></div>
 
         <div class="d-grid d-sm-block">
             <button id="show-all-interactions" class="btn btn-secondary btn-sm d-none mb-3">Show all interactions
@@ -96,7 +49,7 @@ echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
 
         <div class="mb-2">
             <textarea id="message" class="form-control" placeholder="<?php echo $langMain['cabinet message send'] ?>"
-                      style="height: 200px"></textarea>
+                      style="height: 100px"></textarea>
             <div id="message-feedback" class="invalid-feedback"></div>
         </div>
 
@@ -116,7 +69,7 @@ echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
 $CMedia = new media();
 echo $CMedia->openSession(array(
     'owner_id' => $Module->record['id'],
-    'owner_class' => get_class($Module),
+    'owner_class' => 'works',
     'secure_storage' => true,
     'template' => '_cabinet_add_work_media',
     'after_upload' => 'cabinet_work_media_added',
@@ -221,19 +174,30 @@ NFWX::i()->mainLayoutRightContent = ob_get_clean();
         }
 
         function interactionsItem(r) {
+            const isOutgoing = r['posted_by'] === <?php echo NFW::i()->user['id']?>;
+
             let author = document.createElement('div');
             author.className = "author";
-            author.innerText = formatDateTime(r['posted'], true, true) + ' by ' + r['poster_username'];
+
+            if (isOutgoing) {
+                author.innerText = formatDateTime(r['posted'], true, true);
+            } else {
+                author.innerText = formatDateTime(r['posted'], true, true) + ' | ' + r['poster_username'];
+            }
 
             let message = document.createElement('div');
             message.className = "message";
-            if (r['is_message']) {
-                message.classList.add('is-message');
-            }
             message.innerText = r['message'];
 
             let item = document.createElement('div');
             item.className = "item";
+            if (!r['is_message']) {
+                item.classList.add("action");
+            } else if (isOutgoing) {
+                item.classList.add("outgoing");
+            } else {
+                item.classList.add("incoming");
+            }
 
             item.appendChild(author);
             item.appendChild(message);

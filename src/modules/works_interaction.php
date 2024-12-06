@@ -189,6 +189,7 @@ class works_interaction extends base_module {
             'message' => $message,
             'is_message' => $isMessage,
             'posted' => $record['posted'],
+            'posted_by' => intval($record['posted_by']),
             'poster_username' => $record['poster_username'],
         ];
     }
@@ -229,6 +230,7 @@ class works_interaction extends base_module {
             'message' => $langMain['work uploaded'],
             'is_message' => false,
             'posted' => $work['posted'],
+            'posted_by' => $work['posted_by'],
             'poster_username' => $work['posted_username'],
         ]];
 
@@ -238,6 +240,7 @@ class works_interaction extends base_module {
                 'message' => $work['description'],
                 'is_message' => true,
                 'posted' => $work['posted'],
+                'posted_by' => $work['posted_by'],
                 'poster_username' => $work['posted_username'],
             ];
         }

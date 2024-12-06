@@ -115,7 +115,7 @@ $langMain = NFW::i()->getLang('main');
                 file.appendChild(iconContainer);
 
                 let desc = document.createElement('div');
-                desc.className = "w-100";
+                desc.className = "w-100 overflow-x-hidden";
 
                 let descA = document.createElement('a');
                 descA.setAttribute("href", f.url);

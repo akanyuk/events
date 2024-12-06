@@ -33,78 +33,8 @@ NFW::i()->breadcrumb = array(
     array('desc' => $Module->record['title']),
 );
 
-// Linter related
-ob_start(); ?>
-<div class="interactions">
-    <div class="item">
-        <div class="author"></div>
-        <div class="message is-message"></div>
-    </div>
-</div>
-<div class="modal-backdrop in"></div>
-<?php ob_end_clean();
-
 echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl')) . '</div>';
 ?>
-<style>
-    .interactions .item {
-        padding: 8px 10px;
-    }
-
-    .interactions .item:nth-child(2n+1) {
-        background-color: #f4f4f4;
-    }
-
-    .interactions .item .author {
-        font-size: 90%;
-        color: #642c2c;
-        white-space: nowrap;
-    }
-
-    .interactions .item .message {
-        font-style: italic;
-    }
-
-    .interactions .item .message.is-message {
-        font-style: normal !important;
-    }
-
-    @media (min-width: 769px) {
-        .interactions .item {
-            display: table-row;
-        }
-
-        .interactions .item .author {
-            padding: 5px;
-            display: table-cell;
-        }
-
-        .interactions .item .message {
-            padding: 5px;
-            display: table-cell;
-            width: 100%;
-        }
-    }
-
-    .modal-backdrop.in {
-        opacity: .9;
-    }
-
-    #works-preview-dialog .modal-dialog {
-        height: 100%;
-        margin: 0 auto;
-    }
-
-    #works-preview-dialog .modal-content {
-        border-radius: 0;
-    }
-
-    #works-preview-dialog iframe.preview {
-        width: 100%;
-        border: none;
-    }
-</style>
-
 <div class="row">
     <div class="col-md-6" style="padding-bottom: 20px;">
         <div data-active-container="status" class="form-group">
@@ -533,7 +463,7 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
     });
 
     buttonShowAllInteractions.click(function(){
-        divWorkInteractions.find('div[class="item"]').show();
+        divWorkInteractions.find('.item').show();
         buttonShowAllInteractions.hide();
 
         $([document.documentElement, document.body]).animate({
@@ -575,19 +505,25 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
     }
 
     function interactionsItem(r) {
+        const isOutgoing = r['posted_by'] !== <?php echo $Module->record['posted_by']?>;
+
         let author = document.createElement('div');
         author.className = "author";
         author.innerText = formatDateTime(r['posted'], true, true) + ' by ' + r['poster_username'];
 
         let message = document.createElement('div');
         message.className = "message";
-        if (r['is_message']) {
-            message.classList.add('is-message');
-        }
         message.innerText = r['message'];
 
         let item = document.createElement('div');
         item.className = "item";
+        if (!r['is_message']) {
+            item.classList.add("action");
+        } else if (isOutgoing) {
+            item.classList.add("outgoing");
+        } else {
+            item.classList.add("incoming");
+        }
 
         item.appendChild(author);
         item.appendChild(message);
