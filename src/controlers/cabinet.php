@@ -161,6 +161,7 @@ switch (count($pathParts) == 2 ? $pathParts[1] : false) {
             'skip_pagination' => true
         ));
         $content = $CWorks->renderAction(['records' => $records], 'cabinet/list');
+        NFW::i()->registerResource('cabinet');
         break;
     case 'works_view':
         $CWorks = new works($_GET['record_id']);
@@ -169,6 +170,7 @@ switch (count($pathParts) == 2 ? $pathParts[1] : false) {
         }
 
         $content = $CWorks->renderAction('cabinet/view');
+        NFW::i()->registerResource('cabinet');
         break;
     case 'works_add':
         // Collect events with reception opened

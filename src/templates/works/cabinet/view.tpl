@@ -174,7 +174,7 @@ NFWX::i()->mainLayoutRightContent = ob_get_clean();
         }
 
         function interactionsItem(r) {
-            const isOutgoing = r['posted_by'] === <?php echo NFW::i()->user['id']?>;
+            const isOutgoing = r['posted_by'] === <?php echo $Module->record['posted_by']?>;
 
             let author = document.createElement('div');
             author.className = "author";

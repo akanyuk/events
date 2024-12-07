@@ -325,6 +325,10 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
             previewModal.find('iframe').css("height", previewModal.height() - 40);
         });
 
+        previewModal.on('hide.bs.modal', function () {
+            previewModal.find('iframe').attr("srcdoc",""); // For stopping audio
+        });
+
         $(document).on('click', 'button[id="works-preview"]', function (e) {
             e.preventDefault();
             $.ajax(

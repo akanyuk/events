@@ -230,7 +230,7 @@ class works_interaction extends base_module {
             'message' => $langMain['work uploaded'],
             'is_message' => false,
             'posted' => $work['posted'],
-            'posted_by' => $work['posted_by'],
+            'posted_by' => intval($work['posted_by']),
             'poster_username' => $work['posted_username'],
         ]];
 
@@ -240,7 +240,7 @@ class works_interaction extends base_module {
                 'message' => $work['description'],
                 'is_message' => true,
                 'posted' => $work['posted'],
-                'posted_by' => $work['posted_by'],
+                'posted_by' => intval($work['posted_by']),
                 'poster_username' => $work['posted_username'],
             ];
         }
