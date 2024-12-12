@@ -144,7 +144,7 @@ function display_work_media(array $work = array(), array $options = array()) {
     if ($work['posted_by'] == NFW::i()->user['id'] && $options['rel'] != 'preview') {
         $actionLinks[] = '<a class="btn btn-warning" href="' . NFW::i()->absolute_path . '/cabinet/works_view?record_id=' . $work['id'] . '" title="Open in &laquo;My Files&raquo;"><svg width="1em" height="1em"><use href="#icon-house-gear-fill"></use></svg></a>';
     }
-    if (in_array($work['event_id'], events::get_managed()) && $options['rel'] != 'preview') {
+    if (in_array($work['event_id'], events::getManaged()) && $options['rel'] != 'preview') {
         $actionLinks[] = '<a class="btn btn-warning" href="' . NFW::i()->absolute_path . '/admin/works?action=update&record_id=' . $work['id'] . '" title="Edit work"><svg width="1em" height="1em"><use href="#icon-gear-fill"></use></svg></a>';
     }
     if (count($actionLinks) > 0) {

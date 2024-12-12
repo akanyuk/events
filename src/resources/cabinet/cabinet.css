@@ -81,3 +81,15 @@
 [data-bs-theme="dark"] .interactions .author {
     color: #747474;
 }
+
+.interactions .unread-delimiter {
+    margin: 1em 0;
+}
+
+.interactions .unread-delimiter .message {
+    color: #fff;
+    background-color: #444;
+    border-radius: 15px;
+    text-align: center;
+    padding-bottom: 1px;
+}

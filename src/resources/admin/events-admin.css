@@ -65,6 +65,18 @@
 	white-space: nowrap;
 }
 
+.interactions .unread-delimiter {
+	margin: 0.5em 0;
+}
+
+.interactions .unread-delimiter .message {
+	color: #fff;
+	background-color: #444;
+	border-radius: 15px;
+	text-align: center;
+	padding-bottom: 1px;
+}
+
 /* work preview */
 
 .modal-backdrop.in {

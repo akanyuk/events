@@ -236,16 +236,19 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
         </div>
 
         <h3>Interactions</h3>
-        <div class="interactions" id="work-interactions"></div>
 
         <button id="show-all-interactions" class="btn btn-default btn-sm btn-full-xs"
-                style="margin-top: 1em; display:none;">Show all interactions</button>
+                style="margin-top: 1em; margin-bottom: 1em; display:none;">Show early interactions
+        </button>
+
+        <div class="interactions" id="work-interactions"></div>
 
         <form id="send-message" style="margin-top: 1em;"
               action="<?php echo NFW::i()->base_path ?>admin/works_interaction?action=message&work_id=<?php echo $Module->record['id'] ?>">
             <div class="form-group">
                 <div class="col-md-12">
-                    <textarea required="required" class="form-control" name="message" placeholder="Send a message to the author"></textarea>
+                    <textarea required="required" class="form-control" name="message"
+                              placeholder="Send a message to the author"></textarea>
                 </div>
             </div>
 
@@ -326,7 +329,7 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
         });
 
         previewModal.on('hide.bs.modal', function () {
-            previewModal.find('iframe').attr("srcdoc",""); // For stopping audio
+            previewModal.find('iframe').attr("srcdoc", ""); // For stopping audio
         });
 
         $(document).on('click', 'button[id="works-preview"]', function (e) {
@@ -466,7 +469,7 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
         }
     });
 
-    buttonShowAllInteractions.click(function(){
+    buttonShowAllInteractions.click(function () {
         divWorkInteractions.find('.item').show();
         buttonShowAllInteractions.hide();
 
@@ -486,18 +489,37 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
                 method: "get",
                 success: function (response) {
                     divWorkInteractions.empty();
-
+                    let isButtonShowAllInteractions = false;
+                    let isUnreadDelimiterShown = false;
                     const numRecords = response['records'].length;
                     response['records'].forEach(function (r, index) {
-                        let item = interactionsItem(r);
-                        if (numRecords - index > showLastInteractionsCnt) {
-                            item["style"].display = 'none';
+                        if (index === 0 && r['is_new']) {
+                            isUnreadDelimiterShown = true; // All interactions new
                         }
 
+                        if (!isUnreadDelimiterShown && r['is_new']) {
+                            let delimMsg = document.createElement('div');
+                            delimMsg.innerText = "New interactions";
+                            delimMsg.className = "message";
+
+                            let delim = document.createElement('div');
+                            delim.classList.add("item", "unread-delimiter");
+                            delim.appendChild(delimMsg);
+
+                            divWorkInteractions.append(delim);
+
+                            isUnreadDelimiterShown = true;
+                        }
+
+                        let item = interactionsItem(r);
+                        if (numRecords - index > showLastInteractionsCnt && !r['is_new']) {
+                            item["style"].display = 'none';
+                            isButtonShowAllInteractions = true;
+                        }
                         divWorkInteractions.append(item);
                     });
 
-                    if (numRecords > showLastInteractionsCnt) {
+                    if (numRecords > showLastInteractionsCnt && isButtonShowAllInteractions) {
                         buttonShowAllInteractions.show();
                     }
                 },

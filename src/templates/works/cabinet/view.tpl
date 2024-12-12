@@ -40,12 +40,13 @@ echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
         <section id="work-interactions-top"></section>
 
         <h3>Interactions</h3>
-        <div class="interactions mb-3" id="work-interactions"></div>
 
         <div class="d-grid d-sm-block">
-            <button id="show-all-interactions" class="btn btn-secondary btn-sm d-none mb-3">Show all interactions
+            <button id="show-all-interactions" class="btn btn-secondary btn-sm d-none mb-3">Show early interactions
             </button>
         </div>
+
+        <div class="interactions mb-3" id="work-interactions"></div>
 
         <div class="mb-2">
             <textarea id="message" class="form-control" placeholder="<?php echo $langMain['cabinet message send'] ?>"
@@ -157,18 +158,38 @@ NFWX::i()->mainLayoutRightContent = ob_get_clean();
             }
 
             divWorkInteractions.innerHTML = "";
-
+            let isButtonShowAllInteractions = false;
+            let isUnreadDelimiterShown = false;
             const numRecords = resp['records'].length;
             resp['records'].forEach(function (r, index) {
+                if (index === 0 && r['is_new']) {
+                    isUnreadDelimiterShown = true; // All interactions new
+                }
+
+                if (!isUnreadDelimiterShown && r['is_new']) {
+                    let delimMsg = document.createElement('div');
+                    delimMsg.innerText = "New interactions";
+                    delimMsg.className = "message";
+
+                    let delim = document.createElement('div');
+                    delim.classList.add("item", "unread-delimiter");
+                    delim.appendChild(delimMsg);
+
+                    divWorkInteractions.appendChild(delim);
+
+                    isUnreadDelimiterShown = true;
+                }
+
                 let item = interactionsItem(r);
-                if (numRecords - index > showLastInteractionsCnt) {
+                if (numRecords - index > showLastInteractionsCnt && !r['is_new']) {
                     item.classList.add("d-none");
+                    isButtonShowAllInteractions = true;
                 }
 
                 divWorkInteractions.appendChild(item);
             });
 
-            if (numRecords > showLastInteractionsCnt) {
+            if (numRecords > showLastInteractionsCnt && isButtonShowAllInteractions) {
                 buttonShowAllInteractions.classList.remove("d-none");
             }
         }

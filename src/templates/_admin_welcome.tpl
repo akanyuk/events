@@ -1,6 +1,6 @@
 <?php
 
-$managed_events = events::get_managed();
+$managed_events = events::getManaged();
 
 // local actions
 

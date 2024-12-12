@@ -47,7 +47,7 @@ class events extends active_record {
         'value' => array('desc' => 'Value', 'type' => 'str', 'style' => 'width: 100px;', 'required' => 1)
     );
 
-    static function get_managed() {
+    static function getManaged(): array {
         static $managed_records = false;
 
         if ($managed_records === false) {
@@ -70,7 +70,7 @@ class events extends active_record {
             }
 
             if (!$result = NFW::i()->db->query_build($query)) {
-                return array();
+                return [];
             }
 
             while ($cur_record = NFW::i()->db->fetch_assoc($result)) {
@@ -79,6 +79,22 @@ class events extends active_record {
         }
 
         return $managed_records;
+    }
+
+    static function getManagers(int $eventID): array {
+        if (!$result = NFW::i()->db->query_build([
+            'SELECT' => 'user_id',
+            'FROM' => 'events_managers',
+            'WHERE' => 'event_id=' . $eventID,
+        ])) {
+            return [];
+        }
+
+        $managers = [];
+        while ($record = NFW::i()->db->fetch_assoc($result)) {
+            $managers[] = $record['user_id'];
+        }
+        return $managers;
     }
 
     private function formatRecord($record) {
@@ -213,7 +229,7 @@ class events extends active_record {
         $filter = $options['filter'] ?? array();
 
         if (isset($filter['managed_events']) && $filter['managed_events']) {
-            $managed_events = events::get_managed();
+            $managed_events = events::getManaged();
             if (empty($managed_events)) return array();
 
             $where[] = 'e.id IN(' . implode(',', $managed_events) . ')';

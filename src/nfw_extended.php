@@ -82,7 +82,7 @@ class NFWX extends NFW {
 
         // --- special permissions for works authors and event's managers ---
 
-        $managed_events = events::get_managed();
+        $managed_events = events::getManaged();
 
         // Any operations with works files for authors and managers
         if ($module == 'works' && in_array($action, array('media_get', 'media_upload'))) {
@@ -105,7 +105,9 @@ class NFWX extends NFW {
             'competitions' => array('set_pos', 'set_dates'),
             'works' => array('get_pos', 'set_pos'),
         );
-        if (isset($bypass_module[$module]) && in_array($action, $bypass_module[$module])) return true;
+        if (isset($bypass_module[$module]) && in_array($action, $bypass_module[$module])) {
+            return true;
+        }
 
         // Access rights to the control panel for all managers
         $allow_cp = array(
@@ -157,6 +159,15 @@ class NFWX extends NFW {
             }
 
             $CWorks = new works($_GET['record_id']);
+            return in_array($CWorks->record['event_id'], $managed_events);
+        }
+
+        if ($module == 'works' && in_array($action, array('media_get', 'media_upload', 'media_modify')) && $additional) {
+            $CWorks = new works($additional);
+            if (!$CWorks->record['id']) {
+                return false;
+            }
+
             return in_array($CWorks->record['event_id'], $managed_events);
         }
 
