@@ -6,19 +6,28 @@
 class works_interaction extends base_module {
     const MESSAGE = 1;
 
-    const AUTHOR_ADD_FILE = 100;
-    const ADMIN_ADD_FILE = 101;
-    const ADMIN_DELETE_FILE = 102;
-    const ADMIN_UPDATE_FILE_PROPS = 103;
-    const ADMIN_RENAME_FILE = 104;
-    const ADMIN_CONVERT_ZX = 105;
-    const ADMIN_FILE_ID_DIZ = 106;
-    const ADMIN_MAKE_RELEASE = 107;
-    const ADMIN_REMOVE_RELEASE = 108;
-    const ADMIN_UPDATE_STATUS = 109;
-    const ADMIN_UPDATE = 110;
-    const ADMIN_LINK_ADDED = 111;
-    const ADMIN_LINK_REMOVED = 112;
+    const AUTHOR_ADD_WORK = 100;
+    const AUTHOR_ADD_FILE = 101;
+
+    const ADMIN_ADD_FILE = 200;
+    const ADMIN_DELETE_FILE = 201;
+    const ADMIN_UPDATE_FILE_PROPS = 202;
+    const ADMIN_RENAME_FILE = 203;
+    const ADMIN_CONVERT_ZX = 204;
+    const ADMIN_FILE_ID_DIZ = 205;
+    const ADMIN_MAKE_RELEASE = 206;
+    const ADMIN_REMOVE_RELEASE = 207;
+    const ADMIN_UPDATE_STATUS = 208;
+    const ADMIN_UPDATE = 209;
+    const ADMIN_LINK_ADDED = 210;
+    const ADMIN_LINK_REMOVED = 211;
+
+    public static function authorAddWork(array $work) {
+        self::saveNoMessage(self::AUTHOR_ADD_WORK, $work['id']);
+        if ($work['description']) {
+            self::addMessage($work['id'], $work['description']);
+        }
+    }
 
     public static function authorAddFile(int $workID, string $basename) {
         self::saveNoMessage(self::AUTHOR_ADD_FILE, $workID, json_encode([
@@ -39,6 +48,8 @@ class works_interaction extends base_module {
     }
 
     public static function adminUpdateFileProps(int $workID, string $basename, array $props) {
+        removeLastPropsChangeSameFile($workID, $basename);
+
         self::saveNoMessage(self::ADMIN_UPDATE_FILE_PROPS, $workID, json_encode([
             'basename' => $basename,
             'props' => array_filter([
@@ -123,6 +134,96 @@ class works_interaction extends base_module {
         return true;
     }
 
+    public static function authorUnread(): int {
+        if (!$result = NFW::i()->db->query_build([
+            'SELECT' => 'COUNT(*)',
+            'FROM' => 'works_interaction_unread AS wi',
+            'JOINS' => array(
+                array(
+                    'INNER JOIN' => 'works AS w',
+                    'ON' => 'w.id=wi.work_id'
+                ),
+            ),
+            'WHERE' => 'wi.user_id=' . NFW::i()->user['id'] . ' AND w.posted_by=' . NFW::i()->user['id'],
+        ])) {
+            NFW::i()->errorHandler(null, 'Unable to load work interaction last read', __FILE__, __LINE__, NFW::i()->db->error());
+            return 0;
+        }
+        if (!NFW::i()->db->num_rows($result)) {
+            return 0;
+        }
+        list($cnt) = NFW::i()->db->fetch_row($result);
+
+        return $cnt;
+    }
+
+    public static function adminUnread(): int {
+        if (!$result = NFW::i()->db->query_build([
+            'SELECT' => 'COUNT(*)',
+            'FROM' => 'works_interaction_unread AS wi',
+            'JOINS' => array(
+                array(
+                    'INNER JOIN' => 'works AS w',
+                    'ON' => 'w.id=wi.work_id'
+                ),
+            ),
+            'WHERE' => 'wi.user_id=' . NFW::i()->user['id'] . ' AND w.posted_by!=' . NFW::i()->user['id'],
+        ])) {
+            NFW::i()->errorHandler(null, 'Unable to load work interaction last read', __FILE__, __LINE__, NFW::i()->db->error());
+            return 0;
+        }
+        if (!NFW::i()->db->num_rows($result)) {
+            return 0;
+        }
+        list($cnt) = NFW::i()->db->fetch_row($result);
+
+        return $cnt;
+    }
+
+    public static function unreadExplained($worksID = []): array {
+        $subSql = '(
+SELECT COUNT(*) FROM works_interaction AS i2
+LEFT JOIN works_interaction_last_read AS l ON l.work_id=i2.work_id AND l.user_id=' . NFW::i()->user['id'] . '
+WHERE i2.work_id = i.work_id AND (i2.id > l.interaction_id OR l.interaction_id IS NULL)
+) AS unread';
+        $query = [
+            'SELECT' => 'i.work_id, ' . $subSql,
+            'FROM' => 'works_interaction AS i',
+            'GROUP BY' => 'i.work_id',
+        ];
+        if (!empty($worksID)) {
+            $query['WHERE'] = 'i.work_id IN (' . implode(',', $worksID) . ')';
+        }
+
+        if (!$result = NFW::i()->db->query_build($query)) {
+            NFW::i()->errorHandler(null, 'Unable to load work interaction last read', __FILE__, __LINE__, NFW::i()->db->error());
+            return [];
+        }
+        if (!NFW::i()->db->num_rows($result)) {
+            return [];
+        }
+        $response = [];
+        while ($record = NFW::i()->db->fetch_assoc($result)) {
+            $response[$record['work_id']] = $record['unread'];
+        }
+
+        return $response;
+    }
+
+    public static function workDeleted(int $workID) {
+        if (!NFW::i()->db->query_build(array('DELETE' => 'works_interaction_unread', 'WHERE' => 'work_id=' . $workID))) {
+            NFW::i()->errorHandler(null, 'Unable to delete interaction unread states', __FILE__, __LINE__, NFW::i()->db->error());
+        }
+
+        if (!NFW::i()->db->query_build(array('DELETE' => 'works_interaction_last_read', 'WHERE' => 'work_id=' . $workID))) {
+            NFW::i()->errorHandler(null, 'Unable to delete old interaction last read state', __FILE__, __LINE__, NFW::i()->db->error());
+        }
+
+        if (!NFW::i()->db->query_build(array('DELETE' => 'works_interaction', 'WHERE' => 'work_id=' . $workID))) {
+            NFW::i()->errorHandler(null, 'Unable to delete interactions', __FILE__, __LINE__, NFW::i()->db->error());
+        }
+    }
+
     private static function saveNoMessage(int $type, int $workID, string $metadata = "") {
         $query = array(
             'INSERT' => '`type`, work_id, metadata, posted, posted_by',
@@ -188,7 +289,6 @@ class works_interaction extends base_module {
     }
 
     private function format(array $lang, $langMain, int $lastReadID, array $record): array {
-        $dupeCheck = '';
         $isMessage = false;
         switch ($record['type']) {
             case self::MESSAGE:
@@ -210,7 +310,6 @@ class works_interaction extends base_module {
                 $metadata = json_decode($record['metadata'], true);
                 $props = empty($metadata['props']) ? '-' : implode(", ", $metadata['props']);
                 $message = sprintf($lang[$record['type']], $metadata['basename'], $props);
-                $dupeCheck = sprintf($lang[$record['type']], $metadata['basename'], '');
                 break;
             case self::ADMIN_RENAME_FILE:
                 $metadata = json_decode($record['metadata'], true);
@@ -242,7 +341,6 @@ class works_interaction extends base_module {
         }
 
         return [
-            'dupe_check' => $dupeCheck,
             'message' => $message,
             'is_message' => $isMessage,
             'posted' => $record['posted'],
@@ -252,26 +350,13 @@ class works_interaction extends base_module {
         ];
     }
 
-    private function removeDupes(array $records): array {
-        $result = [];
-        $lastDupe = '';
-        foreach (array_reverse($records) as $record) {
-            if ($record['dupe_check'] == '' || $record['dupe_check'] != $lastDupe) {
-                $result[] = $record;
-                unset($result[array_key_last($result)]['dupe_check']);
-            }
-            $lastDupe = $record['dupe_check'];
-        }
-        return array_reverse($result);
-    }
-
     public function records(array $work) {
         if (!$result = NFW::i()->db->query_build([
             'SELECT' => 'interaction_id',
             'FROM' => 'works_interaction_last_read',
             'WHERE' => 'work_id=' . $work['id'] . ' AND user_id=' . NFW::i()->user['id'],
         ])) {
-            $this->error('Unable to load work interaction last read', __FILE__, __LINE__, NFW::i()->db->error);
+            $this->error('Unable to load work interaction last read', __FILE__, __LINE__, NFW::i()->db->error());
             return false;
         }
         $lastReadID = 0;
@@ -292,48 +377,55 @@ class works_interaction extends base_module {
             'ORDER BY' => 'posted',
         );
         if (!$result = NFW::i()->db->query_build($query)) {
-            $this->error('Unable to load work interaction', __FILE__, __LINE__, NFW::i()->db->error);
+            $this->error('Unable to load work interaction', __FILE__, __LINE__, NFW::i()->db->error());
             return false;
         }
 
         $langMain = NFW::i()->getLang('main');
-        $records = [[
-            'dupe_check' => '',
-            'message' => $langMain['work uploaded'],
-            'is_message' => false,
-            'posted' => $work['posted'],
-            'posted_by' => intval($work['posted_by']),
-            'poster_username' => $work['posted_username'],
-            'is_new' => $lastReadID == 0,
-        ]];
-
-        if ($work['description']) {
-            $records[] = [
-                'dupe_check' => '',
-                'message' => $work['description'],
-                'is_message' => true,
-                'posted' => $work['posted'],
-                'posted_by' => intval($work['posted_by']),
-                'poster_username' => $work['posted_username'],
-                'is_new' => $lastReadID == 0,
-            ];
-        }
-
         $lastID = 0;
+        $isLegacy = true;
         $lang = NFW::i()->getLang("interaction");
+        $records = [];
         while ($record = NFW::i()->db->fetch_assoc($result)) {
             $lastID = $record['id'];
+            if ($record['type'] == self::AUTHOR_ADD_WORK) {
+                $isLegacy = false;
+            }
             $records[] = $this->format($lang, $langMain, $lastReadID, $record);
         }
 
         self::updateLastReadState($lastID, $work['id']);
 
         // Resetting unread state for current user
-        if (!NFW::i()->db->query_build(array('DELETE' => 'works_interaction_unread', 'WHERE' => 'work_id=' . $work['id'].' AND user_id='.NFW::i()->user['id']))) {
+        if (!NFW::i()->db->query_build(array('DELETE' => 'works_interaction_unread', 'WHERE' => 'work_id=' . $work['id'] . ' AND user_id=' . NFW::i()->user['id']))) {
             NFW::i()->errorHandler(null, 'Unable to reset unread states', __FILE__, __LINE__, NFW::i()->db->error());
         }
 
-        return $this->removeDupes($records);
+        if (!$isLegacy) {
+            return $records;
+        }
+
+        if ($work['description']) {
+            array_unshift($records, [
+                'message' => $work['description'],
+                'is_message' => true,
+                'posted' => $work['posted'],
+                'posted_by' => intval($work['posted_by']),
+                'poster_username' => $work['posted_username'],
+                'is_new' => $lastReadID == 0,
+            ]);
+        }
+
+        array_unshift($records, [
+            'message' => $langMain['work uploaded'],
+            'is_message' => false,
+            'posted' => $work['posted'],
+            'posted_by' => intval($work['posted_by']),
+            'poster_username' => $work['posted_username'],
+            'is_new' => $lastReadID == 0,
+        ]);
+
+        return $records;
     }
 
     function actionAdminList() {
@@ -361,7 +453,7 @@ class works_interaction extends base_module {
         }
 
         if (!self::addMessage($workID, $message)) {
-            $this->error('Unable to save message', __FILE__, __LINE__, NFW::i()->db->error);
+            $this->error('Unable to save message', __FILE__, __LINE__, NFW::i()->db->error());
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
@@ -371,5 +463,25 @@ class works_interaction extends base_module {
             'posted' => time(),
             'poster_username' => NFW::i()->user['username']
         ]);
+    }
+}
+
+function removeLastPropsChangeSameFile(int $workID, string $basename) {
+    if (!$result = NFW::i()->db->query('SELECT id, type, metadata FROM works_interaction WHERE work_id=' . $workID . ' ORDER BY id DESC LIMIT 0, 1')) {
+        NFW::i()->errorHandler(null, 'Unable to get interaction of work', __FILE__, __LINE__, NFW::i()->db->error());
+        return;
+    }
+    if (!NFW::i()->db->num_rows($result)) {
+        return;
+    }
+
+    list($id, $type, $meta) = NFW::i()->db->fetch_row($result);
+    $metadata = json_decode($meta, true);
+    if ($type != works_interaction::ADMIN_UPDATE_FILE_PROPS || $metadata['basename'] != $basename) {
+        return;
+    }
+
+    if (!NFW::i()->db->query('DELETE FROM works_interaction WHERE id=' . $id)) {
+        NFW::i()->errorHandler(null, 'Unable to delete last interaction of work', __FILE__, __LINE__, NFW::i()->db->error());
     }
 }

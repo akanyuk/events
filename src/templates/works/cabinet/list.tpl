@@ -1,6 +1,7 @@
 <?php
 /**
  * @var array $records
+ * @var array $unread
  */
 
 $langMain = NFW::i()->getLang('main');
@@ -97,6 +98,11 @@ echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
                 break;
         }
 
+        $spanUnread = '';
+        if (isset($unread[$work['id']]) && $unread[$work['id']] > 0) {
+            $spanUnread = '<span class="ms-2 badge rounded-pill bg-warning">'.$unread[$work['id']].'</span>';
+        }
+
         ?>
         <div class="table-row mb-3">
             <div class="align-top text-left pt-2" style="display: table-cell; width: 80px;"><a
@@ -104,7 +110,7 @@ echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
                                                    src="<?php echo $work['screenshot'] ? $work['screenshot']['tmb_prefix'] . '64' : NFW::i()->assets('main/news-no-image.png') ?>"/></a>
             </div>
             <div class="align-middle text-left" style="display: table-cell;"><h4><a
-                        href="<?php echo $url ?>"><?php echo htmlspecialchars($work['title']) ?></a>
+                        href="<?php echo $url ?>"><?php echo htmlspecialchars($work['title']).$spanUnread ?></a>
                 </h4>
                 <div class="d-none d-sm-block me-1 text-muted text-muted">
                     <?php echo $ePrefix . $work['event_title'] . ' / ' . $work['competition_title'] ?>

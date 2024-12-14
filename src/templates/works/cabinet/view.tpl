@@ -192,6 +192,18 @@ NFWX::i()->mainLayoutRightContent = ob_get_clean();
             if (numRecords > showLastInteractionsCnt && isButtonShowAllInteractions) {
                 buttonShowAllInteractions.classList.remove("d-none");
             }
+
+            // Modifying header
+            if (resp['unread'] > 0) {
+                const cnt = resp['unread'] > 99 ? '99+' : resp['unread'];
+                document.getElementById('header-xs-icon-user').classList.add('text-warning');
+                document.getElementById('header-sm-username-badge').innerText = cnt;
+                document.getElementById('header-sm-menu-prods-badge').innerText = cnt;
+            } else {
+                document.getElementById('header-xs-icon-user').classList.remove('text-warning');
+                document.getElementById('header-sm-username-badge').innerText = '';
+                document.getElementById('header-sm-menu-prods-badge').innerText = '';
+            }
         }
 
         function interactionsItem(r) {

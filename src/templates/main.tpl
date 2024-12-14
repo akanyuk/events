@@ -31,6 +31,10 @@ $langLinksXs = array(
     NFW::i()->user['language'] == 'English' ? 'en' : '<a class="text-white" href="' . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . '?' . http_build_query(array_merge($_GET, array('lang' => 'English'))) . '">en</a>',
     NFW::i()->user['language'] == 'Russian' ? 'ru' : '<a class="text-white" href="' . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . '?' . http_build_query(array_merge($_GET, array('lang' => 'Russian'))) . '">ru</a>'
 );
+
+// Interaction state
+$authorInteractionsCnt = NFW::i()->user['is_guest'] ? 0 : works_interaction::authorUnread();
+$adminInteractionsCnt = NFW::i()->checkPermissions('admin') ? works_interaction::adminUnread() : 0;
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo NFW::i()->lang['lang'] ?>" data-bs-theme="<?php echo $theme ?>">
@@ -208,15 +212,27 @@ $langLinksXs = array(
                             <a href="#" class="d-block text-white text-decoration-none text-nowrap"
                                style="max-width: 240px;"
                                data-bs-toggle="dropdown" aria-expanded="false">
-                                <svg width="1em" height="1em">
-                                    <use href="#icon-user"></use>
-                                </svg>
-                                <span
-                                        class="d-none d-sm-inline ps-1"><?php echo htmlspecialchars(NFW::i()->user['username']) ?></span>
+                                <div class="d-block d-sm-none">
+                                    <svg id="header-xs-icon-user" width="1em"
+                                         height="1em"<?php echo $authorInteractionsCnt || $adminInteractionsCnt ? ' class="text-warning"' : '' ?>>
+                                        <use href="#icon-user"></use>
+                                    </svg>
+                                </div>
+                                <div class="d-none d-sm-inline-block">
+                                    <svg width="1em" height="1em">
+                                        <use href="#icon-user"></use>
+                                    </svg>
+                                </div>
+                                <span class="d-none d-sm-inline ps-1"><?php echo htmlspecialchars(NFW::i()->user['username']) ?><span
+                                            id="header-sm-username-badge"
+                                            class="ms-2 badge rounded-pill bg-warning"><?php echo $authorInteractionsCnt > 0 ? ($authorInteractionsCnt > 99 ? "99+" : $authorInteractionsCnt) : '' ?></span></span>
                             </a>
                             <ul class="dropdown-menu text-small shadow">
                                 <li><a href="<?php echo NFW::i()->absolute_path ?>/cabinet/works_list"
-                                       class="dropdown-item<?php echo page_is('cabinet/works_list') ? ' active' : '' ?>"><?php echo $langMain['cabinet prods'] ?></a>
+                                       class="dropdown-item<?php echo page_is('cabinet/works_list') ? ' active' : '' ?>"><?php echo $langMain['cabinet prods'] ?>
+                                        <span id="header-sm-menu-prods-badge"
+                                              class="ms-2 badge rounded-pill bg-warning"><?php echo $authorInteractionsCnt > 0 ? ($authorInteractionsCnt > 99 ? "99+" : $authorInteractionsCnt) : '' ?></span>
+                                    </a>
                                 </li>
                                 <li><a href="<?php echo NFW::i()->absolute_path ?>/cabinet/works_add"
                                        class="dropdown-item<?php echo page_is('cabinet/works_add') ? ' active' : '' ?>"><?php echo $langMain['cabinet add work'] ?></a>
@@ -226,7 +242,10 @@ $langLinksXs = array(
                                 </li>
 
                                 <?php if (NFW::i()->checkPermissions('admin')): ?>
-                                    <li><a href="/admin" class="dropdown-item">Control panel</a></li>
+                                    <li><a href="/admin" class="dropdown-item">Control
+                                            panel<?php if ($adminInteractionsCnt > 0): ?><span
+                                                    class="ms-2 badge rounded-pill bg-warning"><?php echo $adminInteractionsCnt > 99 ? "99+" : $adminInteractionsCnt ?></span><?php endif; ?>
+                                        </a></li>
                                 <?php endif; ?>
 
                                 <li>
@@ -243,7 +262,8 @@ $langLinksXs = array(
                     <div class="vr text-white d-none d-sm-block me-3 me-md-4"></div>
 
                     <div class="d-none d-sm-block">
-                        <a class="text-white" href="/admin" title="Control panel">
+                        <a class="<?php echo $authorInteractionsCnt || $adminInteractionsCnt ? 'text-warning' : 'text-white' ?>"
+                           href="/admin" title="Control panel">
                             <svg width="1em" height="1em">
                                 <use href="#icon-gear-fill"></use>
                             </svg>

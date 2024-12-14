@@ -1,5 +1,6 @@
 <?php
 $lang_interaction = array(
+    works_interaction::AUTHOR_ADD_WORK => 'Prod uploaded',
     works_interaction::AUTHOR_ADD_FILE => 'The file "%s" was uploaded by the author',
     works_interaction::ADMIN_ADD_FILE => 'The file "%s" was uploaded by the organizer',
     works_interaction::ADMIN_DELETE_FILE => 'The file "%s" was deleted',

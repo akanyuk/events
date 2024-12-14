@@ -55,7 +55,10 @@ if (isset($_GET['action'])) {
                 NFWX::i()->jsonError(400, $CWorksInteraction->last_msg);
             }
 
-            NFWX::i()->jsonSuccess(['records' => $records]);
+            NFWX::i()->jsonSuccess([
+                'records' => $records,
+                'unread' => works_interaction::authorUnread()
+            ]);
             break;
         case 'interaction_message':
             $req = json_decode(file_get_contents('php://input'));
@@ -71,7 +74,7 @@ if (isset($_GET['action'])) {
             }
 
             if (!works_interaction::addMessage($CWorks->record['id'], $req->message)) {
-                $this->error('Unable to save message', __FILE__, __LINE__, NFW::i()->db->error);
+                $this->error('Unable to save message', __FILE__, __LINE__, NFW::i()->db->error());
                 NFWX::i()->jsonError(500, ['debug' => NFW::i()->db->error], 'Save message failed');
             }
 
@@ -135,6 +138,9 @@ if (isset($_GET['action'])) {
 
             // Adding media files
             $CMedia->closeSession('works', $CWorks->record['id']);
+
+            works_interaction::authorAddWork($CWorks->record);
+
             NFWX::i()->jsonSuccess(['message' => $langMain['works upload success message']]);
             break;
         default:
@@ -160,7 +166,20 @@ switch (count($pathParts) == 2 ? $pathParts[1] : false) {
             'load_attachments_icons' => false,
             'skip_pagination' => true
         ));
-        $content = $CWorks->renderAction(['records' => $records], 'cabinet/list');
+
+        $unread = [];
+        if (!empty($records)) {
+            $ids = [];
+            foreach ($records as $record) {
+                $ids[] = $record['id'];
+            }
+            $unread = works_interaction::unreadExplained($ids);
+        }
+
+        $content = $CWorks->renderAction([
+            'records' => $records,
+            'unread' => $unread,
+        ], 'cabinet/list');
         NFW::i()->registerResource('cabinet');
         break;
     case 'works_view':

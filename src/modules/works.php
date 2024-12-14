@@ -778,6 +778,8 @@ class works extends active_record {
             $CMedia->delete();
         }
 
+        works_interaction::workDeleted($this->record['id']);
+
         $logMsg = 'Work `' . $this->record['title'] . '` (ID=' . $this->record['id'] . ') deleted';
 
         if (!$this->delete()) {
