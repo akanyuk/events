@@ -9,6 +9,7 @@ $lang_main = array(
     'today' => 'Сегодня',
     'yesterday' => 'Вчера',
 
+    'Menu' => 'Меню',
     'comments' => 'Комментарии',
     'latest comments' => 'Комментарии',
     'all comments' => 'Все комментарии',

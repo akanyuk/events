@@ -24,6 +24,12 @@ svg {
     position: sticky !important;
 }
 
+@media (max-width: 576px) {
+    .offcanvas {
+        width: 100% !important;
+    }
+}
+
 .badge-platform {
     background-color: #6e3731;
 }
