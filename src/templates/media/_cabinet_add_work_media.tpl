@@ -10,10 +10,12 @@ $langMedia = NFW::i()->getLang('media');
 $langMain = NFW::i()->getLang('main');
 ?>
 <div id="work-files-container"></div>
-<h3><?php echo $langMain['works add files'] ?></h3>
 
 <div class="mb-3">
-    <input type="file" id="add-files-file" multiple/>
+    <label for="add-files-file" class="d-block">
+        <span class="d-grid btn btn-success"><?php echo $langMain['works add files'] ?></span>
+        <input type="file" id="add-files-file" style="display:none" multiple/>
+    </label>
 </div>
 
 <div class="mb-3 alert alert-warning">
