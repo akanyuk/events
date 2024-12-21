@@ -152,7 +152,6 @@ NFWX::i()->mainLayoutRightContent = ob_get_clean();
             const resp = await response.json();
 
             if (!response.ok) {
-                const resp = await response.json();
                 alert(resp['errors']['general']);
                 return;
             }

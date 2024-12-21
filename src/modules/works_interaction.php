@@ -189,6 +189,12 @@ WHERE i2.work_id = i.work_id AND (i2.id > l.interaction_id OR l.interaction_id I
         $query = [
             'SELECT' => 'i.work_id, ' . $subSql,
             'FROM' => 'works_interaction AS i',
+            'JOINS' => [
+                [
+                    'INNER JOIN' => 'works_interaction_unread AS u',
+                    'ON' => 'u.work_id=i.work_id AND u.user_id=i.posted_by',
+                ],
+            ],
             'GROUP BY' => 'i.work_id',
         ];
         if (!empty($worksID)) {
@@ -204,10 +210,24 @@ WHERE i2.work_id = i.work_id AND (i2.id > l.interaction_id OR l.interaction_id I
         }
         $response = [];
         while ($record = NFW::i()->db->fetch_assoc($result)) {
-            $response[$record['work_id']] = $record['unread'];
+            if ($record['unread'] > 0) {
+                $response[$record['work_id']] = $record['unread'];
+            }
         }
 
         return $response;
+    }
+
+    public static function markRead(int $workID): bool {
+        if (!NFW::i()->db->query_build([
+            'DELETE' => 'works_interaction_unread',
+            'WHERE' => 'work_id=' . $workID . ' AND user_id=' . NFW::i()->user['id'],
+        ])) {
+            NFW::i()->errorHandler(null, 'Unable to mark work read', __FILE__, __LINE__, NFW::i()->db->error());
+            return false;
+        }
+
+        return true;
     }
 
     public static function workDeleted(int $workID) {

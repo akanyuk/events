@@ -99,7 +99,7 @@ echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
         }
 
         $spanUnread = '';
-        if (isset($unread[$work['id']]) && $unread[$work['id']] > 0) {
+        if (isset($unread[$work['id']])) {
             $spanUnread = '<span class="ms-2 badge rounded-pill bg-warning">'.$unread[$work['id']].'</span>';
         }
 
