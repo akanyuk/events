@@ -11,10 +11,6 @@ CREATE TABLE `all_comments_viewed` (
   UNIQUE KEY `user_id` (`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
 
-INSERT INTO `all_comments_viewed` (`user_id`) VALUES
-(2),
-(5),
-(1843);
 
 DROP TABLE IF EXISTS `competitions`;
 CREATE TABLE `competitions` (
@@ -114,7 +110,8 @@ CREATE TABLE `logs` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
 
 INSERT INTO `logs` (`id`, `posted`, `poster`, `poster_username`, `ip`, `url`, `message`, `additional`, `kind`, `user_agent`, `browser`) VALUES
-(1,	1731228096,	5,	'admin',	'172.19.0.1',	'http://events.local/?action=login',	'',	NULL,	10,	'Mozilla/5.0 (X11; Linux x86_64; rv:132.0) Gecko/20100101 Firefox/132.0',	NULL);
+(1,	1731228096,	5,	'admin',	'172.19.0.1',	'http://events.local/?action=login',	'',	NULL,	10,	'Mozilla/5.0 (X11; Linux x86_64; rv:132.0) Gecko/20100101 Firefox/132.0',	NULL),
+(2,	1734942882,	5,	'admin',	'172.19.0.1',	'http://events.local/admin',	'',	NULL,	10,	'Mozilla/5.0 (X11; Linux x86_64; rv:133.0) Gecko/20100101 Firefox/133.0',	NULL);
 
 DROP TABLE IF EXISTS `media`;
 CREATE TABLE `media` (
@@ -360,6 +357,36 @@ CREATE TABLE `works_comments` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
 
 
+DROP TABLE IF EXISTS `works_interaction`;
+CREATE TABLE `works_interaction` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `type` int unsigned NOT NULL DEFAULT '0',
+  `work_id` int unsigned NOT NULL DEFAULT '0',
+  `message` text,
+  `metadata` text,
+  `posted` int unsigned NOT NULL DEFAULT '0',
+  `posted_by` int unsigned NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
+
+
+DROP TABLE IF EXISTS `works_interaction_last_read`;
+CREATE TABLE `works_interaction_last_read` (
+  `interaction_id` int unsigned NOT NULL DEFAULT '0',
+  `work_id` int unsigned NOT NULL DEFAULT '0',
+  `user_id` int unsigned NOT NULL DEFAULT '0',
+  UNIQUE KEY `interaction_id_work_id_user_id` (`interaction_id`,`work_id`,`user_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
+
+
+DROP TABLE IF EXISTS `works_interaction_unread`;
+CREATE TABLE `works_interaction_unread` (
+  `work_id` int unsigned NOT NULL DEFAULT '0',
+  `user_id` int unsigned NOT NULL DEFAULT '0',
+  UNIQUE KEY `work_id_user_id` (`work_id`,`user_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
+
+
 DROP TABLE IF EXISTS `works_links`;
 CREATE TABLE `works_links` (
   `work_id` int unsigned NOT NULL DEFAULT '0',
@@ -374,11 +401,9 @@ DROP TABLE IF EXISTS `works_managers_notes`;
 CREATE TABLE `works_managers_notes` (
   `work_id` int unsigned NOT NULL DEFAULT '0',
   `user_id` int unsigned NOT NULL DEFAULT '0',
-  `is_checked` int unsigned NOT NULL DEFAULT '0',
-  `is_marked` int unsigned NOT NULL DEFAULT '0',
-  `comment` text,
+  `comment` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`work_id`,`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
 
 
--- 2024-11-10 09:13:18
+-- 2024-12-23 08:35:00
