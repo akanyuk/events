@@ -180,7 +180,7 @@ class works_interaction extends base_module {
         return $cnt;
     }
 
-    public static function unreadExplained($worksID = []): array {
+    public static function unreadExplained(): array {
         $subSql = '(
 SELECT COUNT(*) FROM works_interaction AS i2
 LEFT JOIN works_interaction_last_read AS l ON l.work_id=i2.work_id AND l.user_id=' . NFW::i()->user['id'] . '
@@ -192,15 +192,11 @@ WHERE i2.work_id = i.work_id AND (i2.id > l.interaction_id OR l.interaction_id I
             'JOINS' => [
                 [
                     'INNER JOIN' => 'works_interaction_unread AS u',
-                    'ON' => 'u.work_id=i.work_id AND u.user_id=i.posted_by',
+                    'ON' => 'u.work_id=i.work_id AND u.user_id=' . NFW::i()->user['id'],
                 ],
             ],
             'GROUP BY' => 'i.work_id',
         ];
-        if (!empty($worksID)) {
-            $query['WHERE'] = 'i.work_id IN (' . implode(',', $worksID) . ')';
-        }
-
         if (!$result = NFW::i()->db->query_build($query)) {
             NFW::i()->errorHandler(null, 'Unable to load work interaction last read', __FILE__, __LINE__, NFW::i()->db->error());
             return [];
@@ -462,7 +458,10 @@ WHERE i2.work_id = i.work_id AND (i2.id > l.interaction_id OR l.interaction_id I
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
-        NFWX::i()->jsonSuccess(['records' => $records]);
+        NFWX::i()->jsonSuccess([
+            'records' => $records,
+            'unread' => self::adminUnread(),
+        ]);
     }
 
     function actionAdminMessage() {

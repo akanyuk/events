@@ -57,7 +57,7 @@ if (isset($_GET['action'])) {
 
             NFWX::i()->jsonSuccess([
                 'records' => $records,
-                'unread' => works_interaction::authorUnread()
+                'unread' => works_interaction::authorUnread(),
             ]);
             break;
         case 'interaction_message':
@@ -169,11 +169,7 @@ switch (count($pathParts) == 2 ? $pathParts[1] : false) {
 
         $unread = [];
         if (!empty($records)) {
-            $ids = [];
-            foreach ($records as $record) {
-                $ids[] = $record['id'];
-            }
-            $unread = works_interaction::unreadExplained($ids);
+            $unread = works_interaction::unreadExplained();
         }
 
         $content = $CWorks->renderAction([

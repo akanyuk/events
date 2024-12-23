@@ -522,6 +522,8 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
                     if (numRecords > showLastInteractionsCnt && isButtonShowAllInteractions) {
                         buttonShowAllInteractions.show();
                     }
+
+                    UpdateHeaderUnread(response['unread']);
                 },
                 error: function () {
                     alert("Load work interactions unexpected error");

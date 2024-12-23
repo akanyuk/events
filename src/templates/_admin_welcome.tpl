@@ -93,8 +93,9 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
         </div>
         <div id="unread-works">
             <?php foreach ($unreadProds as $record): ?>
-                <div class="alert alert-unread alert-dismissible alert-<?php echo $record['status_info']['css-class'] ?>"
-                     role="alert">
+                <div
+                    class="alert alert-unread alert-dismissible alert-<?php echo $record['status_info']['css-class'] ?>"
+                    role="alert">
                     <button id="mark-work-read" data-id="<?php echo $record['id'] ?>"
                             type="button" class="close"
                             data-dismiss="alert" aria-label="Close"><span aria-hidden="true"
@@ -150,7 +151,8 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
                                 <small><?php echo htmlspecialchars($record['event_title'] . ' / ' . $record['competition_title']) ?></small>
                             </div>
                             <?php if ($record['managers_notes_comment']): ?>
-                                <div class="lead"><?php echo htmlspecialchars(nl2br($record['managers_notes_comment'])) ?></div>
+                                <div
+                                    class="lead"><?php echo htmlspecialchars(nl2br($record['managers_notes_comment'])) ?></div>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -186,18 +188,10 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
             $.jGrowl(resp['errors']['general'], {theme: 'error'});
         }
 
-        document.querySelectorAll("#head-interactions-badge").forEach(badge => {
-            switch (resp['unread']) {
-                case 0:
-                    badge.remove();
-                    break;
-                default:
-                    badge.innerText = resp['unread'] > 99 ? '99+' : resp['unread'];
-            }
-        });
-
         if (divUnreadWorks.childElementCount === 0) {
             divAllWorksRead['style']['display'] = 'block';
         }
+
+        UpdateHeaderUnread(resp['unread']);
     }
 </script>
