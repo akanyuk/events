@@ -1,4 +1,4 @@
-/* Lang */
+/* lang */
 
 html[lang="en"] .hidden-lang-en, html[lang="en"] .d-en-none {
     display: none;
@@ -24,6 +24,12 @@ svg {
     position: sticky !important;
 }
 
+@media (max-width: 576px) {
+    .offcanvas {
+        width: 100% !important;
+    }
+}
+
 .badge-platform {
     background-color: #6e3731;
 }
@@ -38,7 +44,7 @@ h2.index-head {
     margin-bottom: 30px;
 }
 
-/* Comments on index and `all comments` pages */
+/* comments on index and `all comments` pages */
 .card-comment {
     border: none !important;
 }
@@ -78,7 +84,7 @@ h2.index-head {
     }
 }
 
-/* Timetable */
+/* timetable */
 
 .table-timetable > tbody > tr > td {
     padding: 5px;
@@ -104,19 +110,19 @@ h2.index-head {
     display: block;
 }
 
-/* Competitions list */
+/* competitions list */
 
 .event-compo-rules UL {
     margin-bottom: 0 !important;
 }
 
-/* Competitions list short */
+/* competitions list short */
 
 .competitions-list-short .badge-cnt {
     height: fit-content;
 }
 
-/* Work */
+/* work */
 
 .w-640 {
     width: 640px;
@@ -199,5 +205,3 @@ audio {
     border-color: #8cd575 !important;
     background-color: #40752f !important;
 }
-
-

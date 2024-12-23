@@ -6,7 +6,6 @@
 reset($page);
 
 NFW::i()->registerResource('main');
-NFW::i()->registerFunction('page_is');
 
 $langMain = NFW::i()->getLang('main');
 $langUsers = NFW::i()->getLang('users');
@@ -31,6 +30,17 @@ $langLinksXs = array(
     NFW::i()->user['language'] == 'English' ? 'en' : '<a class="text-white" href="' . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . '?' . http_build_query(array_merge($_GET, array('lang' => 'English'))) . '">en</a>',
     NFW::i()->user['language'] == 'Russian' ? 'ru' : '<a class="text-white" href="' . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . '?' . http_build_query(array_merge($_GET, array('lang' => 'Russian'))) . '">ru</a>'
 );
+
+// Interaction state
+$authorInteractionsCnt = NFW::i()->user['is_guest'] ? 0 : works_interaction::authorUnread();
+$adminInteractionsCnt = NFW::i()->checkPermissions('admin') ? works_interaction::adminUnread() : 0;
+if ($authorInteractionsCnt + $adminInteractionsCnt > 99) {
+    $userBadge = '99+';
+} else if ($authorInteractionsCnt + $adminInteractionsCnt > 0) {
+    $userBadge = $authorInteractionsCnt + $adminInteractionsCnt;
+} else {
+    $userBadge = '';
+}
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo NFW::i()->lang['lang'] ?>" data-bs-theme="<?php echo $theme ?>">
@@ -204,41 +214,28 @@ $langLinksXs = array(
                             </svg>
                         </a>
                     <?php else: ?>
-                        <div class="dropdown">
-                            <a href="#" class="d-block text-white text-decoration-none text-nowrap"
-                               style="max-width: 240px;"
-                               data-bs-toggle="dropdown" aria-expanded="false">
+                        <a href="#" class="d-block text-white text-decoration-none text-nowrap"
+                           style="max-width: 240px;"
+                           data-bs-toggle="offcanvas"
+                           data-bs-target="#offcanvasUser"
+                           aria-controls="offcanvasUser">
+                            <div class="d-block d-sm-none">
+                                <svg id="header-xs-icon-user" width="1em"
+                                     height="1em"<?php echo $userBadge ? ' class="text-warning"' : '' ?>>
+                                    <use href="#icon-user"></use>
+                                </svg>
+                            </div>
+                            <div class="d-none d-sm-inline-block">
                                 <svg width="1em" height="1em">
                                     <use href="#icon-user"></use>
                                 </svg>
-                                <span
-                                        class="d-none d-sm-inline ps-1"><?php echo htmlspecialchars(NFW::i()->user['username']) ?></span>
-                            </a>
-                            <ul class="dropdown-menu text-small shadow">
-                                <li><a href="<?php echo NFW::i()->absolute_path ?>/cabinet/works_list"
-                                       class="dropdown-item<?php echo page_is('cabinet/works_list') ? ' active' : '' ?>"><?php echo $langMain['cabinet prods'] ?></a>
-                                </li>
-                                <li><a href="<?php echo NFW::i()->absolute_path ?>/cabinet/works_add"
-                                       class="dropdown-item<?php echo page_is('cabinet/works_add') ? ' active' : '' ?>"><?php echo $langMain['cabinet add work'] ?></a>
-                                </li>
-                                <li><a href="<?php echo NFW::i()->absolute_path ?>/users/update_profile"
-                                       class="dropdown-item<?php echo page_is('users/update_profile') ? ' active' : '' ?>"><?php echo $langMain['cabinet profile'] ?></a>
-                                </li>
-
-                                <?php if (NFW::i()->checkPermissions('admin')): ?>
-                                    <li><a href="/admin" class="dropdown-item">Control panel</a></li>
-                                <?php endif; ?>
-
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-
-                                <li><a class="dropdown-item"
-                                       href="?action=logout"><?php echo NFW::i()->lang['Logout'] ?></a></li>
-                            </ul>
-                        </div>
+                            </div>
+                            <span class="d-none d-sm-inline ps-1"><?php echo htmlspecialchars(NFW::i()->user['username']) ?><span
+                                        id="header-sm-username-badge"
+                                        class="ms-2 badge rounded-pill bg-warning"><?php echo $userBadge?></span></span>
+                        </a>
                     <?php endif; ?>
-                </div>
+                 </div>
                 <?php if (NFW::i()->checkPermissions('admin')): ?>
                     <div class="vr text-white d-none d-sm-block me-3 me-md-4"></div>
 
@@ -293,21 +290,21 @@ $langLinksXs = array(
 <?php echo NFWX::i()->project_settings['footer'] ?>
 
 <?php if (NFW::i()->user['is_guest']): ?>
-    <div id="offcanvasLogin" class="offcanvas offcanvas-top" style="height: fit-content;" tabindex="-1"
-         aria-labelledby="offcanvasLoginLabel">
+    <div id="offcanvasLogin" class="offcanvas offcanvas-end"
+         tabindex="-1" aria-labelledby="offcanvasLoginLabel">
         <div class="offcanvas-header">
             <h5 class="offcanvas-title" id="offcanvasLoginLabel"><?php echo NFW::i()->lang['Authorization'] ?></h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
             <form onsubmit="loginFormSubmit(); return false;">
-                <div class="mx-left col-sm-6 col-md-4 col-lg-3 mb-3">
+                <div class="mb-3">
                     <label for="login-username"><?php echo NFW::i()->lang['Login'] ?></label>
                     <input type="text" name="username" id="login-username" required="required" maxlength="64"
                            class="form-control">
                 </div>
 
-                <div class="mx-left col-sm-6 col-md-4 col-lg-3 mb-3">
+                <div class="mb-3">
                     <label for="login-password"><?php echo NFW::i()->lang['Password'] ?></label>
                     <input type="password" name="password" id="login-password" required="required" maxlength="64"
                            class="form-control">
@@ -332,6 +329,42 @@ $langLinksXs = array(
                 <a href="<?php echo NFW::i()->base_path ?>sceneid?action=performAuth"><img
                             src="<?php echo NFW::i()->assets("main/SceneID_Icon_200x32.png") ?>"
                             alt="Sign in with SceneID"/></a>
+            </div>
+        </div>
+    </div>
+<?php else: ?>
+    <div id="offcanvasUser" class="offcanvas offcanvas-end"
+         tabindex="-1" aria-labelledby="offcanvasUserLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="offcanvasUserLabel"><?php echo $langMain['Menu'] ?></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="mb-3">
+                <a href="<?php echo NFW::i()->absolute_path ?>/cabinet/works_list"><?php echo $langMain['cabinet prods'] ?>
+                    <span id="header-sm-menu-prods-badge"
+                          class="ms-2 badge rounded-pill bg-warning"><?php echo $authorInteractionsCnt > 0 ? ($authorInteractionsCnt > 99 ? "99+" : $authorInteractionsCnt) : '' ?></span>
+                </a>
+            </div>
+
+            <div class="mb-3">
+                <a href="<?php echo NFW::i()->absolute_path ?>/cabinet/works_add"><?php echo $langMain['cabinet add work'] ?></a>
+            </div>
+
+            <div class="mb-3">
+                <a href="<?php echo NFW::i()->absolute_path ?>/users/update_profile"><?php echo $langMain['cabinet profile'] ?></a>
+            </div>
+
+            <?php if (NFW::i()->checkPermissions('admin')): ?>
+                <div class="mb-3">
+                    <a href="/admin">Control panel<?php if ($adminInteractionsCnt > 0): ?><span
+                                class="ms-2 badge rounded-pill bg-warning"><?php echo $adminInteractionsCnt > 99 ? "99+" : $adminInteractionsCnt ?></span><?php endif; ?>
+                    </a>
+                </div>
+            <?php endif; ?>
+
+            <div class="mb-5">
+                <a href="?action=logout"><?php echo NFW::i()->lang['Logout'] ?></a>
             </div>
         </div>
     </div>

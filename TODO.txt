@@ -1,0 +1,3 @@
+* Removing `Preview` button from preview work (not repeat)
+
+* Drag'n'drop in author upload form

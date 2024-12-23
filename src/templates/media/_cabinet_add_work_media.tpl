@@ -10,10 +10,12 @@ $langMedia = NFW::i()->getLang('media');
 $langMain = NFW::i()->getLang('main');
 ?>
 <div id="work-files-container"></div>
-<h3><?php echo $langMain['works add files'] ?></h3>
 
 <div class="mb-3">
-    <input type="file" id="add-files-file" multiple/>
+    <label for="add-files-file" class="d-block">
+        <span class="d-grid btn btn-success"><?php echo $langMain['works add files'] ?></span>
+        <input type="file" id="add-files-file" style="display:none" multiple/>
+    </label>
 </div>
 
 <div class="mb-3 alert alert-warning">
@@ -78,6 +80,8 @@ $langMain = NFW::i()->getLang('main');
         if (result.result === 'error') {
             throw new Error(result.errors["local_file"]);
         }
+
+        loadInteractions();
     }
 
     function loadWorkMedia() {
@@ -113,7 +117,7 @@ $langMain = NFW::i()->getLang('main');
                 file.appendChild(iconContainer);
 
                 let desc = document.createElement('div');
-                desc.className = "w-100";
+                desc.className = "w-100 overflow-x-hidden";
 
                 let descA = document.createElement('a');
                 descA.setAttribute("href", f.url);

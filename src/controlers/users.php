@@ -156,6 +156,7 @@ switch (count($pathParts) == 2 ? $pathParts[1] : false) {
             return false;
         }
 
+        NFW::i()->registerResource('cabinet');
         $content = $CUsers->renderAction([
             'CUsers' => $CUsers,
         ],'update_profile');

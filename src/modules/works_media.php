@@ -81,16 +81,19 @@ class works_media extends media {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
-        // Update media properties
-        $mediaInfo = array();
-        foreach ($_POST['media'] as $m) {
-            $mediaInfo[$m['id']] = $m;
-        }
-
-        if (!$this->updateMediaProperties($CWorks->record['id'], $mediaInfo)) {
+        $req = json_decode(file_get_contents('php://input'));
+        if (!$this->load($req->id)) {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
+        $props = $CWorks->record['media_props'];
+        $props[$req->id][$req->prop] = $req->value;
+
+        if (!$this->updateMediaProperties($CWorks->record['id'], $props)) {
+            NFWX::i()->jsonError(400, $this->last_msg);
+        }
+
+        works_interaction::adminUpdateFileProps($CWorks->record['id'], $this->record['basename'], $props[$req->id]);
         NFWX::i()->jsonSuccess();
     }
 
@@ -99,6 +102,14 @@ class works_media extends media {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
+        if ($this->record['basename'] == $_POST['basename']) {
+            NFWX::i()->jsonSuccess([
+                'id' => $this->record['id'],
+                'basename' => $this->record['basename'],
+            ]);
+        }
+
+        $oldName = $this->record['basename'];
         $this->record['basename'] = $_POST['basename'] ?? '';
         $errors = $this->validate();
         if (!empty($errors)) {
@@ -109,6 +120,8 @@ class works_media extends media {
         if ($this->error) {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
+
+        works_interaction::adminRenameFile($this->record['owner_id'], $oldName, $this->record['basename']);
 
         NFWX::i()->jsonSuccess([
             'id' => $this->record['id'],
@@ -152,8 +165,10 @@ class works_media extends media {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
+        $origBasename = $this->record['basename'];
+
         $data = $this->record['data'];
-        $mediaInfo = $CWorks->record['media_info_db'];
+        $mediaProps = $CWorks->record['media_props'];
 
         $ZXGFX = new ZXGFX();
         $ZXGFX->setOutputScale(3);
@@ -165,17 +180,19 @@ class works_media extends media {
             $this->error('Unable to load selected file for conversion.', __FILE__, __LINE__);
             NFWX::i()->jsonError(400, $this->last_msg);
         }
-        $this->insertFromString($ZXGFX->generate(), array('owner_class' => 'works', 'owner_id' => $CWorks->record['id'], 'secure_storage' => true, 'basename' => $this->record['filename'] . '.' . $ZXGFX->getOutputType()));
+        $basename1 = $this->record['filename'] . '.' . $ZXGFX->getOutputType();
+        $this->insertFromString($ZXGFX->generate(), array('owner_class' => 'works', 'owner_id' => $CWorks->record['id'], 'secure_storage' => true, 'basename' => $basename1));
 
-        $mediaInfo[$this->record['id']] = [
+        $props1 =  [
             'screenshot' => 1,
             'image' => 0,
             'audio' => 0,
             'voting' => 0,
             'release' => 0,
         ];
+        $mediaProps[$this->record['id']] =$props1;
 
-        $responseRecord = $this->jsonResponseRecord($mediaInfo[$this->record['id']]);
+        $responseRecord = $this->jsonResponseRecord($mediaProps[$this->record['id']]);
 
         $ZXGFX = new ZXGFX();
         $ZXGFX->setOutputScale(NFW::i()->cfg['zxgfx']['output_scale']);
@@ -187,21 +204,27 @@ class works_media extends media {
             $this->error('Unable to load selected file for conversion.', __FILE__, __LINE__);
             NFWX::i()->jsonError(400, $this->last_msg);
         }
-        $this->insertFromString($ZXGFX->generate(), array('owner_class' => 'works', 'owner_id' => $CWorks->record['id'], 'secure_storage' => true, 'basename' => $this->record['filename'] . '.' . $ZXGFX->getOutputType()));
+        $basename2 = $this->record['filename'] . '.' . $ZXGFX->getOutputType();
+        $this->insertFromString($ZXGFX->generate(), array('owner_class' => 'works', 'owner_id' => $CWorks->record['id'], 'secure_storage' => true, 'basename' => $basename2));
 
-        $mediaInfo[$this->record['id']] = [
+        $props2 = [
             'screenshot' => 0,
             'image' => 1,
             'audio' => 0,
             'voting' => 1,
             'release' => 0,
         ];
+        $mediaProps[$this->record['id']] = $props2;
 
-        if (!$this->updateMediaProperties($CWorks->record['id'], $mediaInfo)) {
+        if (!$this->updateMediaProperties($CWorks->record['id'], $mediaProps)) {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
-        NFWX::i()->jsonSuccess([$responseRecord, $this->jsonResponseRecord($mediaInfo[$this->record['id']])]);
+        works_interaction::adminConvertZX($this->record['owner_id'], $basename1, $basename2, $origBasename);
+        works_interaction::adminUpdateFileProps($this->record['owner_id'], $basename1, $props1);
+        works_interaction::adminUpdateFileProps($this->record['owner_id'], $basename2, $props2);
+
+        NFWX::i()->jsonSuccess([$responseRecord, $this->jsonResponseRecord($mediaProps[$this->record['id']])]);
     }
 
     function actionAdminFileIdDiz() {
@@ -215,19 +238,23 @@ class works_media extends media {
 
         $this->insertFromString($this->generateDescription($CWorks->record), array('owner_class' => 'works', 'owner_id' => $CWorks->record['id'], 'secure_storage' => true, 'basename' => 'file_id.diz'));
 
-        $mediaInfo = $CWorks->record['media_info_db'];
-        $mediaInfo[$this->record['id']] = [
+        $props = [
             'screenshot' => 0,
             'image' => 0,
             'audio' => 0,
             'voting' => 0,
             'release' => 1,
         ];
-        if (!$this->updateMediaProperties($CWorks->record['id'], $mediaInfo)) {
+        $mediaProps = $CWorks->record['media_props'];
+        $mediaProps[$this->record['id']] = $props;
+        if (!$this->updateMediaProperties($CWorks->record['id'], $mediaProps)) {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
-        NFWX::i()->jsonSuccess($this->jsonResponseRecord($mediaInfo[$this->record['id']]));
+        works_interaction::adminFileIdDiz($CWorks->record['id']);
+        works_interaction::adminUpdateFileProps($this->record['owner_id'], 'file_id.diz', $props);
+
+        NFWX::i()->jsonSuccess($this->jsonResponseRecord($mediaProps[$this->record['id']]));
     }
 
     function actionAdminMakeRelease() {
@@ -264,7 +291,6 @@ class works_media extends media {
 
         // Try to generate custom release basename
         if (isset($_POST['release_basename']) && $_POST['release_basename'] && $result = NFWX::i()->safeFilename($_POST['release_basename'])) {
-
             if (file_exists($pack_dir . '/' . $result . '.zip')) {
                 $this->error('File "' . $result . '.zip" already exist!', __FILE__, __LINE__);
                 NFWX::i()->jsonError(400, $this->last_msg);
@@ -324,6 +350,8 @@ class works_media extends media {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
+        works_interaction::adminMakeRelease($CWorks->record['id'], $release_basename);
+
         NFWX::i()->jsonSuccess(['result' => 'success', 'url' => rawurlencode($release_link)]);
     }
 
@@ -340,6 +368,7 @@ class works_media extends media {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
+        works_interaction::adminRemoveRelease($CWorks->record['id']);
         NFWX::i()->jsonSuccess();
     }
 }

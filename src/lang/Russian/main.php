@@ -9,6 +9,7 @@ $lang_main = array(
     'today' => 'Сегодня',
     'yesterday' => 'Вчера',
 
+    'Menu' => 'Меню',
     'comments' => 'Комментарии',
     'latest comments' => 'Комментарии',
     'all comments' => 'Все комментарии',
@@ -28,6 +29,9 @@ $lang_main = array(
     'cabinet add work' => 'Загрузить работу',
     'cabinet add choose event' => 'Выберите событие',
     'cabinet add choose event desc' => 'Выберите событие для загрузки работы',
+    'cabinet message send' => 'Написать сообщение организаторам',
+    'cabinet send' => 'Отправить',
+    'cabinet message required' => 'Необходимо написать текст сообщения',
 
     'latest events' => 'Последние события',
     'all events' => 'Все события',
@@ -44,13 +48,17 @@ $lang_main = array(
     'competitions received works' => 'Прислано работ',
     'competitions approved works' => 'Принято работ',
 
+    'works attributes' => [
+        'author' => 'Автор',
+        'title' => 'Название',
+        'platform' => 'Платформа',
+        'format' => 'Формат',
+        'competition_id' => 'Номинация',
+        'author_note' => 'Комментарий автора',
+        'external_html' => 'Дополнительно',
+    ],
     'works empty' => 'У Вас не загружено ни одной работы',
     'works send' => 'Отправить работу',
-    'works title' => 'Название',
-    'works author' => 'Автор',
-    'works author note' => 'Комментарий автора',
-    'works platform' => 'Платформа',
-    'works format' => 'Формат',
     'works description' => 'Комментарий для организаторов',
     'works description public' => 'Комментарий для зрителей',
     'works description refs' => 'Отображать при голосовании дополнительные материалы (фазы, референсы и т.п.)',
@@ -68,8 +76,6 @@ $lang_main = array(
 
     'works files' => 'Файлы',
     'works add files' => 'Дозагрузить файлы',
-    'works add files submit' => 'Отправить',
-    'works add file comment' => 'Комментарий',
     'works filesize' => 'Размер',
     'works uploaded' => 'Загружен',
     'filestatus screenshot' => 'Скриншот для ссылок в социальных сетях и для показа работы на экране во время фестиваля (пати)',
@@ -78,10 +84,9 @@ $lang_main = array(
     'filestatus audio' => 'Файл будет использоваться в audio-плеере во время голосования и в публичном профиле работы',
     'filestatus release' => 'Файл будет доступен для скачивания в публичном профиле работы',
 
+    'work uploaded' => 'Работа загружена',
     'works upload no file error' => 'Вы не добавили ни одного файла для загрузки.',
-
     'works upload info' => '<div class="mb1">Загруженные файлы будут сохранены на сервере только после нажатия кнопки «Отправить работу».</div><div class="mb1">Вы можете загрузить несколько файлов (скриншот, файл для голосования, архив для релиза).</div>',
-    'works upload success title' => 'Работа загружена',
     'works upload success message' => 'Работа успешно загружена. Изменение статуса отображается в разделе «Мои работы»',
     'works status desc' => array(
         0 => 'Not checked yet',
@@ -108,8 +113,8 @@ $lang_main = array(
 
     'works your comment' => 'Ваш комментарии. Будет виден всем посетителям сайта',
     'works comments count' => 'Обсудить',
-    'works comments write' => 'Написать комментарий',
-    'works comments send' => 'Отправить',
+    'works comments write' => 'Текст сообщения',
+    'works comments send' => 'Отправить комментарий',
     'works comments attention register' => 'Только зарегистрированные пользователи могут оставлять комментарии.',
 
     'voting to' => 'Голосование до',

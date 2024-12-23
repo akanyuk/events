@@ -35,7 +35,7 @@ $(function () {
             data.context.find('.status').remove();	// remove spinner
 
             if (response.result === 'error') {
-                data.context.append('<div class="text-danger error">' + response.last_message + '</div>');
+                data.context.append('<div class="text-danger error">' + response['last_message'] + '</div>');
                 return;
             }
 
@@ -43,7 +43,9 @@ $(function () {
 
             mediaContainer.appendRow(response);
 
-            form.find('*[id="session-size"]').text(number_format(response.iSessionSize / 1048576, 2, '.', ' '));
+            form.find('*[id="session-size"]').text(number_format(response['iSessionSize'] / 1048576, 2, '.', ' '));
+
+            loadInteractions();
         }
     });
 
@@ -122,7 +124,7 @@ $(function () {
     };
 
     // Properties buttons
-    $(document).on('click', '[role="<?php echo $session_id?>-prop"]', function () {
+    $(document).on('click', '[role="<?php echo $session_id?>-prop"]', async function () {
         $(this).hasClass('active') ? $(this).removeClass('active btn-info') : $(this).addClass('active btn-info');
 
         // Only one screenshot allowed
@@ -132,33 +134,28 @@ $(function () {
 
         $(this).blur();
 
-        // Save properties immediately
-        var aPost = [];
-        mediaContainer.find('[id="record"]').each(function () {
-            aPost.push({
-                'id': $(this).data('id'),
-                'screenshot': $(this).find('button[id="screenshot"].active').length,
-                'voting': $(this).find('button[id="voting"].active').length,
-                'image': $(this).find('button[id="image"].active').length,
-                'audio': $(this).find('button[id="audio"].active').length,
-                'release': $(this).find('button[id="release"].active').length
-            });
+        const requestBody = {
+            'id': $(this).closest('[id="record"]').data('id'),
+            'prop': $(this).attr('id'),
+            'value': $(this).hasClass('active')
+        }
+        let response = await fetch('<?php echo NFW::i()->base_path . 'admin/works_media?action=update_properties&record_id=' . $owner_id?>', {
+            method: "POST",
+            body: JSON.stringify(requestBody),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
         });
 
-        $.ajax('<?php echo NFW::i()->base_path . 'admin/works_media?action=update_properties&record_id=' . $owner_id?>',
-            {
-                method: "POST",
-                dataType: "json",
-                data: {'media': aPost},
-                error: function (response) {
-                    if (response['responseJSON']['errors']['general'] === undefined) {
-                        return
-                    }
+        if (!response.ok) {
+            const resp = await response.json();
+            if (resp.errors["general"] !== undefined) {
+                $.jGrowl(resp.errors["general"], {theme: 'error'});
+            }
+            return;
+        }
 
-                    $.jGrowl(response, {theme: 'error'});
-                }
-            },
-        );
+        loadInteractions();
     });
 
     // Rename file
@@ -183,6 +180,7 @@ $(function () {
         success: function (response) {
             mediaContainer.find('[id="record"][data-id="' + response['id'] + '"]').find('[id="basename"]').text(response['basename']);
             renameDialog.modal('hide');
+            loadInteractions();
         }
     });
 
@@ -267,6 +265,7 @@ $(function () {
                 success: function (response) {
                     zxScrDialog.modal("hide");
                     response.forEach((item) => mediaContainer.appendRow(item));
+                    loadInteractions();
                 }
             },
         );
@@ -293,6 +292,7 @@ $(function () {
             }
 
             recordRow.remove();
+            loadInteractions();
         });
     });
 
@@ -305,6 +305,7 @@ $(function () {
             }
 
             mediaContainer.appendRow(response);
+            loadInteractions();
         }, 'json');
 
         return false;
@@ -320,6 +321,7 @@ $(function () {
             const sUrl = decodeURIComponent(response.url);
             $('span[id="permanent-link"]').html('<a href="' + sUrl + '">' + sUrl + '</a>');
             $('button[id="media-remove-release"]').show();
+            loadInteractions();
         }
     });
 
@@ -335,6 +337,7 @@ $(function () {
                     $('span[id="permanent-link"]').html('<em>none</em>');
                     $('button[id="media-remove-release"]').hide();
                     $.jGrowl('File removed');
+                    loadInteractions();
                 },
                 error: function (response) {
                     if (response['responseJSON']['errors']['general'] === undefined) {

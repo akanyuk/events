@@ -42,6 +42,49 @@ if (isset($_GET['action'])) {
 
             NFWX::i()->jsonSuccess(['files' => $files]);
             break;
+        case 'work_interaction':
+            $CWorks = new works($_GET['work_id']);
+            if (!$CWorks->record['id']) {
+                $this->error($CWorks->last_msg, __FILE__, __LINE__);
+                NFWX::i()->jsonError(400, $this->last_msg);
+            }
+
+            $CWorksInteraction = new works_interaction();
+            $records = $CWorksInteraction->records($CWorks->record);
+            if ($CWorksInteraction->error) {
+                NFWX::i()->jsonError(400, $CWorksInteraction->last_msg);
+            }
+
+            NFWX::i()->jsonSuccess([
+                'records' => $records,
+                'unread' => works_interaction::authorUnread(),
+            ]);
+            break;
+        case 'interaction_message':
+            $req = json_decode(file_get_contents('php://input'));
+
+            $CWorks = new works($req->workID);
+            if (!$CWorks->record['id']) {
+                NFWX::i()->jsonError(400, 'Bad request');
+            }
+
+            if (!$req->message) {
+                $langMain = NFW::i()->getLang('main');
+                NFWX::i()->jsonError(400, ['message' => $langMain['cabinet message required']]);
+            }
+
+            if (!works_interaction::addMessage($CWorks->record['id'], $req->message)) {
+                $this->error('Unable to save message', __FILE__, __LINE__, NFW::i()->db->error());
+                NFWX::i()->jsonError(500, ['debug' => NFW::i()->db->error], 'Save message failed');
+            }
+
+            NFWX::i()->jsonSuccess([
+                'message' => $req->message,
+                'is_message' => true,
+                'posted' => time(),
+                'poster_username' => NFW::i()->user['username']
+            ]);
+            break;
         case 'upload_work':
             $CMedia = new media();
             if (!$CMedia->countSessionFiles('works')) {
@@ -95,6 +138,9 @@ if (isset($_GET['action'])) {
 
             // Adding media files
             $CMedia->closeSession('works', $CWorks->record['id']);
+
+            works_interaction::authorAddWork($CWorks->record);
+
             NFWX::i()->jsonSuccess(['message' => $langMain['works upload success message']]);
             break;
         default:
@@ -120,7 +166,17 @@ switch (count($pathParts) == 2 ? $pathParts[1] : false) {
             'load_attachments_icons' => false,
             'skip_pagination' => true
         ));
-        $content = $CWorks->renderAction(['records' => $records], 'cabinet/list');
+
+        $unread = [];
+        if (!empty($records)) {
+            $unread = works_interaction::unreadExplained();
+        }
+
+        $content = $CWorks->renderAction([
+            'records' => $records,
+            'unread' => $unread,
+        ], 'cabinet/list');
+        NFW::i()->registerResource('cabinet');
         break;
     case 'works_view':
         $CWorks = new works($_GET['record_id']);
@@ -129,6 +185,7 @@ switch (count($pathParts) == 2 ? $pathParts[1] : false) {
         }
 
         $content = $CWorks->renderAction('cabinet/view');
+        NFW::i()->registerResource('cabinet');
         break;
     case 'works_add':
         // Collect events with reception opened

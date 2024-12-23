@@ -1,3 +1,98 @@
 @media (max-width: 768px) {
 	.btn-full-xs { display: block; width: 100%; }
-}	
+}
+
+.breadcrumb {
+	padding: 0 !important;
+	background-color: inherit !important;
+}
+
+/* work interactions */
+
+.interactions .item {
+	display: flex;
+	flex-flow: column-reverse;
+	margin: 1em 0;
+}
+
+.interactions .action {
+	margin: 0.1em 0;
+	padding: 0.3em 1em;
+	background-color: #f4f4f4;
+}
+
+@media (min-width: 769px) {
+	.interactions .action {
+		flex-flow: row;
+		gap: 0.5em;
+	}
+}
+
+.interactions .outgoing {
+	align-items: flex-end;
+}
+
+.interactions .incoming .message, .interactions .outgoing .message {
+	width: 70%;
+	border-radius: 3px;
+	padding: 5px 10px;
+}
+
+@media (max-width: 768px) {
+	.interactions .incoming .message, .interactions .outgoing .message {
+		width: 100%;
+	}
+}
+
+.interactions .incoming .message {
+	color: #222;
+	background-color: #cbd0ef;
+}
+
+.interactions .outgoing .message {
+	color: #222;
+	background-color: #d5e4d0;
+}
+
+.interactions .action .message {
+	color: #222222;
+	font-size: 90%;
+}
+
+.interactions .author {
+	color: #444444;
+	font-size: 90%;
+	white-space: nowrap;
+}
+
+.interactions .unread-delimiter {
+	margin: 0.5em 0;
+}
+
+.interactions .unread-delimiter .message {
+	color: #fff;
+	background-color: #444;
+	border-radius: 15px;
+	text-align: center;
+	padding-bottom: 1px;
+}
+
+/* work preview */
+
+.modal-backdrop.in {
+	opacity: .9;
+}
+
+#works-preview-dialog .modal-dialog {
+	height: 100%;
+	margin: 0 auto;
+}
+
+#works-preview-dialog .modal-content {
+	border-radius: 0;
+}
+
+#works-preview-dialog iframe.preview {
+	width: 100%;
+	border: none;
+}

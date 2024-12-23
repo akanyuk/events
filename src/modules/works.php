@@ -4,27 +4,28 @@
  */
 
 class works extends active_record {
-    static $action_aliases = array(
-        'update' => array(
-            array('module' => 'works', 'action' => 'admin'),
-            array('module' => 'works', 'action' => 'get_pos'),
-            array('module' => 'works', 'action' => 'set_pos'),
-            array('module' => 'works', 'action' => 'insert'),
-            array('module' => 'works', 'action' => 'preview'),
-            array('module' => 'works', 'action' => 'update_work'),
-            array('module' => 'works', 'action' => 'update_status'),
-            array('module' => 'works', 'action' => 'update_links'),
-            array('module' => 'works', 'action' => 'my_status'),
-            array('module' => 'works', 'action' => 'delete'),
-            array('module' => 'works_media', 'action' => 'update_properties'),
-            array('module' => 'works_media', 'action' => 'rename_file'),
-            array('module' => 'works_media', 'action' => 'preview_zx'),
-            array('module' => 'works_media', 'action' => 'convert_zx'),
-            array('module' => 'works_media', 'action' => 'file_id_diz'),
-            array('module' => 'works_media', 'action' => 'make_release'),
-            array('module' => 'works_media', 'action' => 'remove_release'),
-        ),
-    );
+    // TODO: remove after checking
+//    static $action_aliases = array(
+//        'update' => array(
+//            array('module' => 'works', 'action' => 'admin'),
+//            array('module' => 'works', 'action' => 'get_pos'),
+//            array('module' => 'works', 'action' => 'set_pos'),
+//            array('module' => 'works', 'action' => 'insert'),
+//            array('module' => 'works', 'action' => 'preview'),
+//            array('module' => 'works', 'action' => 'update_work'),
+//            array('module' => 'works', 'action' => 'update_status'),
+//            array('module' => 'works', 'action' => 'update_links'),
+//            array('module' => 'works', 'action' => 'my_status'),
+//            array('module' => 'works', 'action' => 'delete'),
+//            array('module' => 'works_media', 'action' => 'update_properties'),
+//            array('module' => 'works_media', 'action' => 'rename_file'),
+//            array('module' => 'works_media', 'action' => 'preview_zx'),
+//            array('module' => 'works_media', 'action' => 'convert_zx'),
+//            array('module' => 'works_media', 'action' => 'file_id_diz'),
+//            array('module' => 'works_media', 'action' => 'make_release'),
+//            array('module' => 'works_media', 'action' => 'remove_release'),
+//        ),
+//    );
 
     var $attributes = array(
         'competition_id' => array('type' => 'select', 'desc' => 'Competition', 'required' => true, 'options' => array()),
@@ -68,28 +69,28 @@ class works extends active_record {
         $record['screenshot'] = false;
         $record['voting_files'] = $record['release_files'] = $record['audio_files'] = $record['image_files'] = [];
 
-        $record['media_info_db'] = NFW::i()->unserializeArray($record['media_info']);
+        $record['media_props'] = NFW::i()->unserializeArray($record['media_info']);
         $record['media_info'] = array();
         foreach ($record['attachments'] as $a) {
             $a['is_screenshot'] = $a['is_voting'] = $a['is_image'] = $a['is_audio'] = $a['is_release'] = false;
 
-            if (isset($record['media_info_db'][$a['id']]['screenshot']) && $record['media_info_db'][$a['id']]['screenshot']) {
+            if (isset($record['media_props'][$a['id']]['screenshot']) && $record['media_props'][$a['id']]['screenshot']) {
                 $record['screenshot'] = $a;
                 $a['is_screenshot'] = true;
             }
-            if (isset($record['media_info_db'][$a['id']]['voting']) && $record['media_info_db'][$a['id']]['voting']) {
+            if (isset($record['media_props'][$a['id']]['voting']) && $record['media_props'][$a['id']]['voting']) {
                 $record['voting_files'][] = $a;
                 $a['is_voting'] = true;
             }
-            if (isset($record['media_info_db'][$a['id']]['image']) && $record['media_info_db'][$a['id']]['image']) {
+            if (isset($record['media_props'][$a['id']]['image']) && $record['media_props'][$a['id']]['image']) {
                 $record['image_files'][] = $a;
                 $a['is_image'] = true;
             }
-            if (isset($record['media_info_db'][$a['id']]['audio']) && $record['media_info_db'][$a['id']]['audio']) {
+            if (isset($record['media_props'][$a['id']]['audio']) && $record['media_props'][$a['id']]['audio']) {
                 $record['audio_files'][] = $a;
                 $a['is_audio'] = true;
             }
-            if (isset($record['media_info_db'][$a['id']]['release']) && $record['media_info_db'][$a['id']]['release']) {
+            if (isset($record['media_props'][$a['id']]['release']) && $record['media_props'][$a['id']]['release']) {
                 $record['release_files'][] = $a;
                 $a['is_release'] = true;
             }
@@ -339,9 +340,6 @@ class works extends active_record {
                 'LEFT JOIN' => 'works_managers_notes AS wmi',
                 'ON' => 'wmi.work_id=w.id AND wmi.user_id=' . NFW::i()->user['id']
             );
-
-            $select[] = 'wmi.is_checked AS managers_notes_is_checked';
-            $select[] = 'wmi.is_marked AS managers_notes_is_marked';
             $select[] = 'wmi.comment AS managers_notes_comment';
         }
 
@@ -576,7 +574,7 @@ class works extends active_record {
         }
 
         // Fetch personal info
-        if (!$result = NFW::i()->db->query_build(array('SELECT' => 'is_checked, is_marked, comment', 'FROM' => 'works_managers_notes', 'WHERE' => 'work_id=' . $this->record['id'] . ' AND user_id=' . NFW::i()->user['id']))) {
+        if (!$result = NFW::i()->db->query_build(array('SELECT' => 'comment', 'FROM' => 'works_managers_notes', 'WHERE' => 'work_id=' . $this->record['id'] . ' AND user_id=' . NFW::i()->user['id']))) {
             return false;
         }
         if (NFW::i()->db->num_rows($result)) {
@@ -595,9 +593,9 @@ class works extends active_record {
         }
 
         return $this->renderAction([
-            "CCompetitions" => $CCompetitions,
-            "personalNote" => $personalNote,
-            "linkTitles" => $linkTitles,
+            'CCompetitions' => $CCompetitions,
+            'personalNote' => $personalNote,
+            'linkTitles' => $linkTitles,
         ]);
     }
 
@@ -629,6 +627,8 @@ class works extends active_record {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
+        $oldRecord = $this->record;
+
         $this->formatAttributes($_POST, array(
             'title' => $this->attributes['title'],
             'author' => $this->attributes['author'],
@@ -649,6 +649,19 @@ class works extends active_record {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
+        $this->reload();
+
+        foreach (['title', 'author', 'competition_id', 'platform', 'format', 'author_note', 'external_html'] as $field) {
+            if ($oldRecord[$field] != $this->record[$field]) {
+                if ($field == 'competition_id') {
+                    $value = $this->record['competition_title'];
+                } else {
+                    $value = $this->record[$field];
+                }
+                works_interaction::adminUpdate($this->record['id'], $field, $value);
+            }
+        }
+
         NFWX::i()->jsonSuccess();
     }
 
@@ -656,6 +669,9 @@ class works extends active_record {
         if (!$this->load($_GET['record_id']) || !$this->loadEditorOptions($this->record['event_id'])) {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
+
+        $oldStatus = $this->record['status'];
+        $oldStatusReason = $this->record['status_reason'];
 
         $this->formatAttributes($_POST, array(
             'status' => $this->attributes['status'],
@@ -672,6 +688,10 @@ class works extends active_record {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
+        if ($this->record['status'] != $oldStatus || $this->record['status_reason'] != $oldStatusReason) {
+            works_interaction::adminUpdateStatus($this->record['id'], $this->record['status'], $this->record['status_reason']);
+        }
+
         NFWX::i()->jsonSuccess();
     }
 
@@ -680,22 +700,22 @@ class works extends active_record {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
-        $new_links = array();
+        $newLinks = array();
         if (isset($_POST['links'])) foreach ($_POST['links']['url'] as $pos => $url) {
             if (!$url) continue;
 
-            $new_links[] = array('url' => $url, 'title' => $_POST['links']['title'][$pos]);
+            $newLinks[] = array('url' => $url, 'title' => $_POST['links']['title'][$pos]);
         }
-        $is_links_updated = !(NFW::i()->serializeArray($this->record['links']) == NFW::i()->serializeArray($new_links));
+        $isLinksUpdated = !(NFW::i()->serializeArray($this->record['links']) == NFW::i()->serializeArray($newLinks));
 
-        if ($is_links_updated) {
+        if ($isLinksUpdated) {
             // Prune all old links
             if (!NFW::i()->db->query_build(array('DELETE' => 'works_links', 'WHERE' => 'work_id=' . $this->record['id']))) {
                 $this->error('Unable to delete old links', __FILE__, __LINE__, NFW::i()->db->error());
                 NFWX::i()->jsonError(400, $this->last_msg);
             }
 
-            foreach ($new_links as $key => $link) {
+            foreach ($newLinks as $key => $link) {
                 if (!NFW::i()->db->query_build(array(
                     'INSERT' => '`work_id`, `position`, `title`, `url`',
                     'INTO' => 'works_links',
@@ -707,6 +727,19 @@ class works extends active_record {
             }
         }
 
+        $before = array_map(function ($x) {
+            return $x['url'];
+        }, $this->record['links']);
+        $after = array_map(function ($x) {
+            return $x['url'];
+        }, $newLinks);
+        foreach (array_diff($before, $after) as $url) {
+            works_interaction::adminLinkRemoved($this->record['id'], $url);
+        }
+        foreach (array_diff($after, $before) as $url) {
+            works_interaction::adminLinkAdded($this->record['id'], $url);
+        }
+
         NFWX::i()->jsonSuccess();
     }
 
@@ -716,22 +749,26 @@ class works extends active_record {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
-        // Update work manager note
         if (!NFW::i()->db->query_build(array('DELETE' => 'works_managers_notes', 'WHERE' => 'work_id=' . $this->record['id'] . ' AND user_id=' . NFW::i()->user['id']))) {
             $this->error('Unable to delete old personal info', __FILE__, __LINE__, NFW::i()->db->error());
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
+        $comment = NFW::i()->db->escape($_POST['comment']);
+        if ($comment == "") {
+            NFWX::i()->jsonSuccess(["message" => "Personal note cleared"]);
+        }
+
         if (!NFW::i()->db->query_build(array(
-            'INSERT' => 'work_id, user_id, comment, is_checked, is_marked',
+            'INSERT' => 'comment, work_id, user_id',
             'INTO' => 'works_managers_notes',
-            'VALUES' => $this->record['id'] . ',' . NFW::i()->user['id'] . ', \'' . NFW::i()->db->escape($_POST['comment']) . '\', ' . intval($_POST['is_checked']) . ', ' . intval($_POST['is_marked'])
+            'VALUES' => '\'' . NFW::i()->db->escape($_POST['comment']) . '\', ' . $this->record['id'] . ',' . NFW::i()->user['id']
         ))) {
             $this->error('Unable to insert personal info', __FILE__, __LINE__, NFW::i()->db->error());
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
-        NFWX::i()->jsonSuccess();
+        NFWX::i()->jsonSuccess(["message" => "Personal note set"]);
     }
 
     function actionAdminDelete() {
@@ -745,6 +782,8 @@ class works extends active_record {
             $CMedia->reload($a['id']);
             $CMedia->delete();
         }
+
+        works_interaction::workDeleted($this->record['id']);
 
         $logMsg = 'Work `' . $this->record['title'] . '` (ID=' . $this->record['id'] . ') deleted';
 

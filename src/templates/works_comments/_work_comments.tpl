@@ -16,8 +16,7 @@ $allowDelete = NFWX::i()->checkPermissions('works_comments', 'delete', array('wo
     <?php if ($allowComment): ?>
         <div class="w-640 mb-3">
             <div class="mb-2">
-                <label for="message"><?php echo $langMain['works comments write'] ?></label>
-                <textarea id="comment-message" class="form-control" style="height: 200px"></textarea>
+                <textarea id="comment-message" class="form-control" placeholder="<?php echo $langMain['works comments write'] ?>" style="height: 200px"></textarea>
                 <div id="comment-message-feedback" class="invalid-feedback"></div>
             </div>
 

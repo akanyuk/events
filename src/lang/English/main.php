@@ -9,6 +9,7 @@ $lang_main = array(
     'today' => 'Today',
     'yesterday' => 'Yesterday',
 
+    'Menu' => 'Menu',
     'comments' => 'Comments',
     'latest comments' => 'Latest comments',
     'all comments' => 'Show all comments',
@@ -28,6 +29,9 @@ $lang_main = array(
     'cabinet add work' => 'Upload prod',
     'cabinet add choose event' => 'Choose event',
     'cabinet add choose event desc' => 'Choose event for prod uploading',
+    'cabinet message send' => 'Write a message to the organizers',
+    'cabinet send' => 'Send',
+    'cabinet message required' => 'It is necessary to write the text of the message',
 
     'latest events' => 'Latest events',
     'all events' => 'Show all events',
@@ -44,13 +48,17 @@ $lang_main = array(
     'competitions received works' => 'Prods received',
     'competitions approved works' => 'Prods approved',
 
+    'works attributes' => [
+        'author' => 'Author',
+        'title' => 'Title',
+        'platform' => 'Platform',
+        'format' => 'Format',
+        'competition_id' => 'Competition',
+        'author_note' => 'Author\'s note',
+        'external_html' => 'Additional',
+    ],
     'works empty' => 'You have not uploaded any prods yet',
     'works send' => 'Send prod',
-    'works title' => 'Title',
-    'works author' => 'Author',
-    'works author note' => 'Author\'s note',
-    'works platform' => 'Platform',
-    'works format' => 'Format',
     'works description' => 'Comment for organizers',
     'works description public' => 'Comment for visitors',
     'works description refs' => 'Display additional materials during voting (phases, references, etc)',
@@ -68,8 +76,6 @@ $lang_main = array(
 
     'works files' => 'Files',
     'works add files' => 'Add more files',
-    'works add files submit' => 'Send files',
-    'works add file comment' => 'Comment',
     'works filesize' => 'Filesize',
     'works uploaded' => 'Uploaded',
     'filestatus screenshot' => 'Screenshot for social media links and slides',
@@ -78,10 +84,9 @@ $lang_main = array(
     'filestatus audio' => 'File used in audio-player at online voting and in public prod profile',
     'filestatus release' => 'File can be downloaded from public prod profile',
 
+    'work uploaded' => 'Prod uploaded',
     'works upload no file error' => 'No files for uploading!.',
-
     'works upload info' => '<div class="mb1">The uploaded files will be stored on the server only after you press the "Send prod" button.</div><div class="mb1">You can also include extra files (like screenshots, file for voting and nfo file).</div>',
-    'works upload success title' => 'Prod uploaded',
     'works upload success message' => 'Prod uploaded successfully. The status change is displayed in the "My Prods" section',
     'works status desc' => array(
         0 => 'Not checked yet',
@@ -108,7 +113,7 @@ $lang_main = array(
 
     'works your comment' => 'Your comments. It will be visible to all site visitors',
     'works comments count' => 'Comments',
-    'works comments write' => 'Write comment',
+    'works comments write' => 'Type your message',
     'works comments send' => 'Send comment',
     'works comments attention register' => 'Only registered users can write comments.',
 
@@ -152,5 +157,5 @@ $lang_main = array(
 
     // Live voting related
     'live voting info' => 'To use live voting, you need to log in or <a href="/users/register">register</a>.',
-    'live voting not running' => 'В настоящее время живое голосование не запущено. Следите за обновлениями новостных каналов',
+    'live voting not running' => 'Live voting is not currently running. Follow the updates of the news channels',
 );

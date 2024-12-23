@@ -50,13 +50,19 @@ class NFWX extends NFW {
     }
 
     function checkPermissions($module = 1, $action = '', $additional = false): bool {
-        if (parent::checkPermissions($module, $action, $additional)) return true;
+        if (parent::checkPermissions($module, $action, $additional)) {
+            return true;
+        }
 
         // Search
-        if ($module == 'works' && $action == 'search') return true;
+        if ($module == 'works' && $action == 'search') {
+            return true;
+        }
 
         // Voting actions
-        if ($module == 'vote' && in_array($action, array('request_votekey', 'add_vote'))) return true;
+        if ($module == 'vote' && in_array($action, array('request_votekey', 'add_vote'))) {
+            return true;
+        }
 
         // Adding works comments - all registered
         if ($module == 'works_comments' && $action == 'add_comment') {
@@ -74,30 +80,34 @@ class NFWX extends NFW {
             return $CCompetitions->record['voting_status']['available'] || $CCompetitions->record['release_status']['available'];
         }
 
-        // --- special permissions for works authors REQUIRED BEFORE event's managers! ---
+        // --- special permissions for works authors and event's managers ---
 
-        // Any operations with `works` session files for authors
-        if ($module == 'works' && in_array($action, array('media_get', 'media_upload', 'media_modify')) && $additional == 0) return true;
+        $managed_events = events::getManaged();
 
-        // Fetching works
-        if ($module == 'works' && $action == 'media_get') {
+        // Any operations with works files for authors and managers
+        if ($module == 'works' && in_array($action, array('media_get', 'media_upload'))) {
+            if ($additional == 0) {
+                return true; // Session upload
+            }
+
             $CWorks = new works($additional);
-            if (!$CWorks->record['id']) return false;
+            if (!$CWorks->record['id']) {
+                return false;
+            }
 
-            // Always return work to author
-            if ($CWorks->record['posted_by'] == NFW::i()->user['id']) return true;
+            return $CWorks->record['posted_by'] == NFW::i()->user['id'] || in_array($CWorks->record['event_id'], $managed_events);
         }
 
-        // --- special permissions for event's managers ---
+        // --- special permissions for event's managers only ---
 
         // The rights are checked later by means of the module
         $bypass_module = array(
             'competitions' => array('set_pos', 'set_dates'),
             'works' => array('get_pos', 'set_pos'),
         );
-        if (isset($bypass_module[$module]) && in_array($action, $bypass_module[$module])) return true;
-
-        $managed_events = events::get_managed();
+        if (isset($bypass_module[$module]) && in_array($action, $bypass_module[$module])) {
+            return true;
+        }
 
         // Access rights to the control panel for all managers
         $allow_cp = array(
@@ -107,10 +117,14 @@ class NFWX extends NFW {
             'users' => array('admin', 'ip2geo'),
             'view_logs' => array('admin', 'export'),
         );
-        if (!empty($managed_events) && isset($allow_cp[$module]) && in_array($action, $allow_cp[$module])) return true;
+        if (!empty($managed_events) && isset($allow_cp[$module]) && in_array($action, $allow_cp[$module])) {
+            return true;
+        }
 
         // Custom calls of checkPermissions
-        if ($module == 'check_manage_event' && in_array($action, $managed_events)) return true;
+        if ($module == 'check_manage_event' && in_array($action, $managed_events)) {
+            return true;
+        }
 
         if ($module == 'events' && $action == 'update') {
             return isset($_GET['record_id']) && in_array($_GET['record_id'], $managed_events);
@@ -139,7 +153,7 @@ class NFWX extends NFW {
             return isset($_GET['event_id']) && in_array($_GET['event_id'], $managed_events);
         }
 
-        if ($module == 'works' && in_array($action, array('update', 'delete', 'preview', 'update_work', 'update_status', 'update_links', 'my_status'))) {
+        if ($module == 'works' && in_array($action, ['update', 'delete', 'preview', 'update_work', 'update_status', 'update_links', 'my_status'])) {
             if (!isset($_GET['record_id'])) {
                 return false;
             }
@@ -148,7 +162,16 @@ class NFWX extends NFW {
             return in_array($CWorks->record['event_id'], $managed_events);
         }
 
-        if ($module == 'works_media' && in_array($action, array('update_properties', 'file_id_diz', 'make_release', 'remove_release'))) {
+        if ($module == 'works' && in_array($action, array('media_get', 'media_upload', 'media_modify')) && $additional) {
+            $CWorks = new works($additional);
+            if (!$CWorks->record['id']) {
+                return false;
+            }
+
+            return in_array($CWorks->record['event_id'], $managed_events);
+        }
+
+        if ($module == 'works_media' && in_array($action, ['update_properties', 'file_id_diz', 'make_release', 'remove_release'])) {
             if (!isset($_GET['record_id'])) {
                 return false;
             }
@@ -157,7 +180,7 @@ class NFWX extends NFW {
             return in_array($CWorks->record['event_id'], $managed_events);
         }
 
-        if ($module == 'works_media' && in_array($action, array('rename_file', 'preview_zx', 'convert_zx'))) {
+        if ($module == 'works_media' && in_array($action, ['rename_file', 'preview_zx', 'convert_zx'])) {
             $CMedia = new media($_POST['file_id']);
             if ($CMedia->record['owner_class'] != "works") {
                 return false;
@@ -167,8 +190,12 @@ class NFWX extends NFW {
             return in_array($CWorks->record['event_id'], $managed_events);
         }
 
-        if ($module == 'works' && ($action == 'media_get' || $action == 'media_upload' || $action == 'media_modify') && $additional) {
-            $CWorks = new works($additional);
+        if ($module == 'works_interaction' && ($action == 'list' || $action == 'message')) {
+            if (!isset($_GET['work_id'])) {
+                return false;
+            }
+
+            $CWorks = new works($_GET['work_id']);
             return in_array($CWorks->record['event_id'], $managed_events);
         }
 

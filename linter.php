@@ -7,9 +7,6 @@ $CVote->actionAdminAddVote();
 $CVote->actionAdminResults();
 
 $CWorks = new works();
-$CWorks->actionCabinetList();
-$CWorks->actionCabinetView();
-$CWorks->actionCabinetAdd();
 $CWorks->actionAdminAdmin();
 $CWorks->actionAdminGetPos();
 $CWorks->actionAdminSetPos();
@@ -21,3 +18,16 @@ $CWorks->actionAdminUpdateWork();
 $CWorks->actionAdminUpdateStatus();
 $CWorks->actionAdminUpdateLinks();
 $CWorks->actionAdminMyStatus();
+
+$CWorksMedia = new works_media();
+$CWorksMedia->actionAdminRenameFile();
+$CWorksMedia->actionAdminPreviewZx();
+$CWorksMedia->actionAdminConvertZx();
+$CWorksMedia->actionAdminFileIdDiz();
+$CWorksMedia->actionAdminMakeRelease();
+$CWorksMedia->actionAdminRemoveRelease();
+$CWorksMedia->actionAdminUpdateProperties();
+
+$CWorksInteraction = new works_interaction();
+$CWorksInteraction->actionAdminList();
+$CWorksInteraction->actionAdminMessage();

@@ -287,7 +287,7 @@ echo '<style>' . $css . '</style>';
 
 <form id="make-release" class="form-inline" style="padding-top: 20px;">
     <fieldset style="overflow: hidden">
-        <legend>Permanent link:</legend>
+        <legend>Release link:</legend>
         <span
             id="permanent-link"><?php echo $owner['release_link'] ? '<a href="' . $owner['release_link']['url'] . '">' . $owner['release_link']['url'] . '</a>' : '<em>none</em>' ?></span>
 
@@ -307,7 +307,7 @@ echo '<style>' . $css . '</style>';
                 <div class="input-group-addon">.zip</div>
             </div>
         </div>
-        <button class="btn btn-primary btn-full-xs"><span class="fa fa-save"></span> Generate new permanent archive
+        <button class="btn btn-primary btn-full-xs"><span class="fa fa-save"></span> Generate release archive
         </button>
     </fieldset>
 </form>
