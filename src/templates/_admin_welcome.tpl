@@ -10,6 +10,15 @@ if (isset($_GET['action']) && $_GET['action'] == 'mark_work_read') {
     NFWX::i()->jsonSuccess(['unread' => works_interaction::adminUnread()]);
 }
 
+if (isset($_GET['action']) && $_GET['action'] == 'clear_work_marked') {
+    $req = json_decode(file_get_contents('php://input'));
+    if (!NFW::i()->db->query_build(array('DELETE' => 'works_managers_notes', 'WHERE' => 'work_id=' . $req->workID . ' AND user_id=' . NFW::i()->user['id']))) {
+        NFWX::i()->jsonError(400, 'Clear work marked failed');
+    }
+
+    NFWX::i()->jsonSuccess();
+}
+
 // New interactions, marked prods
 
 $managedEvents = events::getManaged();
@@ -50,7 +59,7 @@ if (!empty($managedEvents)) {
             array('INNER JOIN' => 'events AS e', 'ON' => 'e.id=c.event_id'),
             array('LEFT JOIN' => 'works_managers_notes AS wmi', 'ON' => 'wmi.work_id=w.id AND wmi.user_id=' . NFW::i()->user['id'])
         ),
-        'WHERE' => 'wmi.is_marked=1 AND e.id IN(' . implode(',', $managedEvents) . ')',
+        'WHERE' => 'wmi.comment != "" AND e.id IN(' . implode(',', $managedEvents) . ')',
         'ORDER BY' => 'w.posted DESC',
     );
     if (!$result = NFW::i()->db->query_build($query)) {
@@ -98,7 +107,7 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
                     role="alert">
                     <button id="mark-work-read" data-id="<?php echo $record['id'] ?>"
                             type="button" class="close"
-                            data-dismiss="alert" aria-label="Close"><span aria-hidden="true"
+                            data-dismiss="alert" aria-label="Mark as read"><span aria-hidden="true"
                                                                           title="Mark as read">&times;</span>
                     </button>
                     <div class="inner">
@@ -126,12 +135,18 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
 
     <div class="col-md-6">
         <h2>Marked prods</h2>
-        <?php if (empty($markedProds)): ?>
-            <div class="alert alert-success">You have no marked prods</div>
-        <?php else: ?>
-            <?php foreach ($markedProds as $record) { ?>
-                <div class="alert alert-unread alert-<?php echo $record['status_info']['css-class'] ?>"
+        <div id="no-marked-works" class="alert alert-success"
+             style="display:<?php echo empty($markedProds) ? 'block' : 'none' ?>">You have no marked prods
+        </div>
+        <div id="marked-works">
+            <?php foreach ($markedProds as $record) :?>
+                <div class="alert alert-unread alert-dismissible alert-<?php echo $record['status_info']['css-class'] ?>"
                      role="alert">
+                    <button id="clear-work-marked" data-id="<?php echo $record['id'] ?>"
+                            type="button" class="close"
+                            data-dismiss="alert" aria-label="Clear marked"><span aria-hidden="true"
+                                                                          title="Clear marked">&times;</span>
+                    </button>
                     <div class="inner">
                         <div style="padding-top: 5px;" data-toggle="tooltip" data-html="true"
                              title="<?php echo '<strong>' . $record['status_info']['desc'] . '</strong><br />Voting: ' . ($record['status_info']['voting'] ? 'On' : 'Off') . '<br />Release: ' . ($record['status_info']['release'] ? 'On' : 'Off') ?>">
@@ -157,8 +172,8 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
                         </div>
                     </div>
                 </div>
-            <?php } ?>
-        <?php endif; ?>
+            <?php endforeach; ?>
+        </div>
     </div>
 </div>
 <script type="text/javascript">
@@ -193,5 +208,36 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
         }
 
         UpdateHeaderUnread(resp['unread']);
+    }
+
+    const divMarkedWorks = document.getElementById("marked-works");
+    const divNoWorksMarked = document.getElementById("no-marked-works");
+
+    document.querySelectorAll("#clear-work-marked").forEach(btn => {
+        btn.onclick = function () {
+            clearWorkMarked(btn)
+        };
+    });
+
+    async function clearWorkMarked(btn) {
+        const response = await fetch("?action=clear_work_marked", {
+            method: "POST",
+            body: JSON.stringify({
+                workID: btn.getAttribute("data-id"),
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        });
+
+        const resp = await response.json();
+
+        if (!response.ok) {
+            $.jGrowl(resp['errors']['general'], {theme: 'error'});
+        }
+
+        if (divMarkedWorks.childElementCount === 0) {
+            divNoWorksMarked['style']['display'] = 'block';
+        }
     }
 </script>

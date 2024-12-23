@@ -311,6 +311,7 @@ WHERE i2.work_id = i.work_id AND (i2.id > l.interaction_id OR l.interaction_id I
                 $message = $record['message'];
                 $isMessage = true;
                 break;
+            case self::AUTHOR_ADD_WORK:
             case self::ADMIN_FILE_ID_DIZ:
             case self::ADMIN_REMOVE_RELEASE:
                 $message = $lang[$record['type']];
@@ -351,7 +352,6 @@ WHERE i2.work_id = i.work_id AND (i2.id > l.interaction_id OR l.interaction_id I
                 $metadata = json_decode($record['metadata'], true);
                 $message = sprintf($lang[$record['type']], $metadata['url']);
                 break;
-
             default:
                 $message = $record['message'];
         }

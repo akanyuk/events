@@ -139,7 +139,7 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
                     <legend>Links</legend>
                     <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseLinksHelp"
                             aria-expanded="false" aria-controls="collapseExample"><span
-                                class="fa fa-question-circle"></span>
+                            class="fa fa-question-circle"></span>
                     </button>
                 </div>
 
@@ -167,10 +167,10 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
                                     <span class="input-group-btn">
 										<button data-action="toggle-title" class="btn btn-default" tabindex="-1"
                                                 title="Show custom tittle"><span
-                                                    class="glyphicon glyphicon-chevron-down"></span></button>
+                                                class="glyphicon glyphicon-chevron-down"></span></button>
 										<button data-action="remove-link" class="btn btn-default" tabindex="-1"
                                                 title="Remove link"><span
-                                                    class="glyphicon glyphicon-remove"></span></button>
+                                                class="glyphicon glyphicon-remove"></span></button>
 									</span>
                                 </div>
                                 <div class="input-group"
@@ -196,51 +196,21 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
     </div>
 
     <div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h4 class="panel-title">Personal note (only for you)</h4>
+        <form id="works-my-status"
+              action="<?php echo $Module->formatURL('my_status') . '&record_id=' . $Module->record['id'] ?>">
+            <div <?php echo $personalNote['comment'] ? 'class="has-warning"' : '' ?> style="padding-bottom: 10px;">
+                <label class="control-label" for="comment">Personal note (only for you)</label>
+                <textarea class="form-control"
+                          name="comment"><?php echo $personalNote['comment'] ?></textarea>
             </div>
-            <div class="panel-body">
-                <form id="works-my-status"
-                      action="<?php echo $Module->formatURL('my_status') . '&record_id=' . $Module->record['id'] ?>">
-                    <div class="form-group">
-                        <div class="col-md-12">
-                                    <textarea class="form-control"
-                                              name="comment"><?php echo $personalNote['comment'] ?></textarea>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-12">
-                            <label class="checkbox-inline">
-                                <input type="hidden" name="is_checked" value="0"/>
-                                <input type="checkbox" name="is_checked"
-                                       value="1" <?php echo $personalNote['is_checked'] ? ' checked="checked"' : '' ?>/>
-                                Checked
-                            </label>
-
-                            <label class="checkbox-inline">
-                                <input type="hidden" name="is_marked" value="0"/>
-                                <input type="checkbox" name="is_marked"
-                                       value="1" <?php echo $personalNote['is_marked'] ? ' checked="checked"' : '' ?>/>
-                                Marked
-                            </label>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-12">
-                            <button type="submit" class="btn btn-primary btn-full-xs">Set your note</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
+            <button id="set-personal-note" class="btn btn-primary">Set</button>
+            <button id="clear-personal-note" class="btn btn-primary">Clear</button>
+        </form>
 
         <h3>Interactions</h3>
-
         <button id="show-all-interactions" class="btn btn-default btn-sm btn-full-xs"
                 style="margin-top: 1em; margin-bottom: 1em; display:none;">Show early interactions
         </button>
-
         <div class="interactions" id="work-interactions"></div>
 
         <form id="send-message" style="margin-top: 1em;"
@@ -362,11 +332,25 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
         });
 
         // Personal note form
-        $('form[id="works-my-status"]').activeForm({
-            success: function () {
-                $.jGrowl('Personal note saved');
+        const formMyStatus = $('form[id="works-my-status"]');
+        const textareaMyStatus = formMyStatus.find('textarea')
+        formMyStatus.activeForm({
+            success: function (response) {
+                $.jGrowl(response['message']);
             }
         });
+        $('button[id="clear-personal-note"]').click(function () {
+            textareaMyStatus.val("");
+            textareaMyStatus.parent().removeClass("has-warning");
+        });
+        $('button[id="set-personal-note"]').click(function () {
+            if (textareaMyStatus.val() === "") {
+                $.jGrowl("Please fill note text", {theme: 'error'});
+                return false;
+            }
+            textareaMyStatus.parent().addClass("has-warning");
+        });
+
 
         // Links
         updateSaveLinksButtonVisibility();
@@ -580,9 +564,9 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
                        placeholder="Url"/>
                 <span class="input-group-btn">
 					<button data-action="toggle-title" class="btn btn-default" tabindex="-1" title="Show custom tittle"><span
-                                class="fa fa-chevron-down"></span></button>
+                            class="fa fa-chevron-down"></span></button>
 					<button data-action="remove-link" class="btn btn-default" tabindex="-1" title="Remove link"><span
-                                class="fa fa-times"></span></button>
+                            class="fa fa-times"></span></button>
 				</span>
             </div>
             <div class="input-group" style="width: 100%; display: none;">

@@ -24,3 +24,9 @@ CREATE TABLE `works_interaction_last_read` (
   `user_id` int unsigned NOT NULL DEFAULT '0',
   UNIQUE KEY `interaction_id_work_id_user_id` (`interaction_id`,`work_id`,`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3;
+
+UPDATE works_managers_notes SET comment = "" WHERE is_marked=0;
+ALTER TABLE `works_managers_notes`
+DROP `is_checked`,
+DROP `is_marked`,
+CHANGE `comment` `comment` text COLLATE 'utf8mb3_general_ci' NOT NULL AFTER `user_id`;

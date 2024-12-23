@@ -340,9 +340,6 @@ class works extends active_record {
                 'LEFT JOIN' => 'works_managers_notes AS wmi',
                 'ON' => 'wmi.work_id=w.id AND wmi.user_id=' . NFW::i()->user['id']
             );
-
-            $select[] = 'wmi.is_checked AS managers_notes_is_checked';
-            $select[] = 'wmi.is_marked AS managers_notes_is_marked';
             $select[] = 'wmi.comment AS managers_notes_comment';
         }
 
@@ -577,7 +574,7 @@ class works extends active_record {
         }
 
         // Fetch personal info
-        if (!$result = NFW::i()->db->query_build(array('SELECT' => 'is_checked, is_marked, comment', 'FROM' => 'works_managers_notes', 'WHERE' => 'work_id=' . $this->record['id'] . ' AND user_id=' . NFW::i()->user['id']))) {
+        if (!$result = NFW::i()->db->query_build(array('SELECT' => 'comment', 'FROM' => 'works_managers_notes', 'WHERE' => 'work_id=' . $this->record['id'] . ' AND user_id=' . NFW::i()->user['id']))) {
             return false;
         }
         if (NFW::i()->db->num_rows($result)) {
@@ -730,8 +727,12 @@ class works extends active_record {
             }
         }
 
-        $before = array_map(function($x){ return $x['url']; }, $this->record['links']);
-        $after = array_map(function($x){ return $x['url']; }, $newLinks);
+        $before = array_map(function ($x) {
+            return $x['url'];
+        }, $this->record['links']);
+        $after = array_map(function ($x) {
+            return $x['url'];
+        }, $newLinks);
         foreach (array_diff($before, $after) as $url) {
             works_interaction::adminLinkRemoved($this->record['id'], $url);
         }
@@ -748,22 +749,26 @@ class works extends active_record {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
-        // Update work manager note
         if (!NFW::i()->db->query_build(array('DELETE' => 'works_managers_notes', 'WHERE' => 'work_id=' . $this->record['id'] . ' AND user_id=' . NFW::i()->user['id']))) {
             $this->error('Unable to delete old personal info', __FILE__, __LINE__, NFW::i()->db->error());
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
+        $comment = NFW::i()->db->escape($_POST['comment']);
+        if ($comment == "") {
+            NFWX::i()->jsonSuccess(["message" => "Personal note cleared"]);
+        }
+
         if (!NFW::i()->db->query_build(array(
-            'INSERT' => 'work_id, user_id, comment, is_checked, is_marked',
+            'INSERT' => 'comment, work_id, user_id',
             'INTO' => 'works_managers_notes',
-            'VALUES' => $this->record['id'] . ',' . NFW::i()->user['id'] . ', \'' . NFW::i()->db->escape($_POST['comment']) . '\', ' . intval($_POST['is_checked']) . ', ' . intval($_POST['is_marked'])
+            'VALUES' => '\'' . NFW::i()->db->escape($_POST['comment']) . '\', ' . $this->record['id'] . ',' . NFW::i()->user['id']
         ))) {
             $this->error('Unable to insert personal info', __FILE__, __LINE__, NFW::i()->db->error());
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
-        NFWX::i()->jsonSuccess();
+        NFWX::i()->jsonSuccess(["message" => "Personal note set"]);
     }
 
     function actionAdminDelete() {
