@@ -336,7 +336,7 @@ if ($authorInteractionsCnt + $adminInteractionsCnt > 99) {
     <div id="offcanvasUser" class="offcanvas offcanvas-end"
          tabindex="-1" aria-labelledby="offcanvasUserLabel">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="offcanvasUserLabel"><?php echo $langMain['Menu'] ?></h5>
+            <h5 class="offcanvas-title" id="offcanvasUserLabel">Welcome, <?php echo htmlspecialchars(NFW::i()->user['realname']) ?></h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">

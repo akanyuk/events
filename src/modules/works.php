@@ -778,7 +778,7 @@ class works extends active_record {
 
         // Remove attachments
         $CMedia = new media();
-        if (isset($this->record['attachments'])) foreach ($this->record['attachments'] as $a) {
+        if (isset($this->record['media_info'])) foreach ($this->record['media_info'] as $a) {
             $CMedia->reload($a['id']);
             $CMedia->delete();
         }

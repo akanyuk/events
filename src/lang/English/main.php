@@ -9,7 +9,6 @@ $lang_main = array(
     'today' => 'Today',
     'yesterday' => 'Yesterday',
 
-    'Menu' => 'Menu',
     'comments' => 'Comments',
     'latest comments' => 'Latest comments',
     'all comments' => 'Show all comments',
@@ -85,7 +84,7 @@ $lang_main = array(
     'filestatus release' => 'File can be downloaded from public prod profile',
 
     'work uploaded' => 'Prod uploaded',
-    'works upload no file error' => 'No files for uploading!.',
+    'works upload no file error' => 'No files for uploading',
     'works upload info' => '<div class="mb1">The uploaded files will be stored on the server only after you press the "Send prod" button.</div><div class="mb1">You can also include extra files (like screenshots, file for voting and nfo file).</div>',
     'works upload success message' => 'Prod uploaded successfully. The status change is displayed in the "My Prods" section',
     'works status desc' => array(
