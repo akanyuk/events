@@ -55,6 +55,13 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
                             <dd><?php echo $publicHref ?></dd>
                         </dl>
                     <?php endif; ?>
+                    <dl>
+                        <dt>Current owner:</dt>
+                        <dd>
+                            <a href="/admin/users?filter=<?php echo urlencode($Module->record['posted_username']) ?>"><?php echo htmlspecialchars($Module->record['posted_username']) ?></a>
+                            (<?php echo htmlspecialchars($Module->record['poster_email']) ?>)
+                        </dd>
+                    </dl>
 
                     <div class="form-group">
                         <div class="col-md-12">
@@ -139,7 +146,7 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
                     <legend>Links</legend>
                     <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseLinksHelp"
                             aria-expanded="false" aria-controls="collapseExample"><span
-                            class="fa fa-question-circle"></span>
+                                class="fa fa-question-circle"></span>
                     </button>
                 </div>
 
@@ -167,10 +174,10 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
                                     <span class="input-group-btn">
 										<button data-action="toggle-title" class="btn btn-default" tabindex="-1"
                                                 title="Show custom tittle"><span
-                                                class="glyphicon glyphicon-chevron-down"></span></button>
+                                                    class="glyphicon glyphicon-chevron-down"></span></button>
 										<button data-action="remove-link" class="btn btn-default" tabindex="-1"
                                                 title="Remove link"><span
-                                                class="glyphicon glyphicon-remove"></span></button>
+                                                    class="glyphicon glyphicon-remove"></span></button>
 									</span>
                                 </div>
                                 <div class="input-group"
@@ -564,9 +571,9 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
                        placeholder="Url"/>
                 <span class="input-group-btn">
 					<button data-action="toggle-title" class="btn btn-default" tabindex="-1" title="Show custom tittle"><span
-                            class="fa fa-chevron-down"></span></button>
+                                class="fa fa-chevron-down"></span></button>
 					<button data-action="remove-link" class="btn btn-default" tabindex="-1" title="Remove link"><span
-                            class="fa fa-times"></span></button>
+                                class="fa fa-times"></span></button>
 				</span>
             </div>
             <div class="input-group" style="width: 100%; display: none;">

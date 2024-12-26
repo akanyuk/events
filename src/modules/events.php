@@ -344,7 +344,9 @@ class events extends active_record {
     }
 
     function actionAdminInsert() {
-        if (empty($_POST)) return false;
+        if (empty($_POST)) {
+            return false;
+        }
 
         $this->loadServicettributes();
 
@@ -358,6 +360,11 @@ class events extends active_record {
         $this->save();
         if ($this->error) {
             NFW::i()->renderJSON(array('result' => 'error', 'errors' => array('general' => $this->last_msg)));
+        }
+
+        if (!NFW::i()->db->query('INSERT INTO ' . NFW::i()->db->prefix . 'events_managers (user_id, event_id) VALUES (' . NFW::i()->user['id'] . ',' . $this->record['id'] . ')')) {
+            $this->error('Unable to insert event managers', __FILE__, __LINE__, NFW::i()->db->error());
+            return false;
         }
 
         NFW::i()->renderJSON(array('result' => 'success', 'record_id' => $this->record['id']));
