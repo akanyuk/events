@@ -1,3 +1,1 @@
 * Removing `Preview` button from preview work (not repeated)
-
-* Displaying work owner in update view
