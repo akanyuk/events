@@ -658,7 +658,7 @@ class works extends active_record {
                 } else {
                     $value = $this->record[$field];
                 }
-                works_interaction::adminUpdate($this->record['id'], $field, $value);
+                works_activity::adminUpdate($this->record['id'], $field, $value);
             }
         }
 
@@ -689,7 +689,7 @@ class works extends active_record {
         }
 
         if ($this->record['status'] != $oldStatus || $this->record['status_reason'] != $oldStatusReason) {
-            works_interaction::adminUpdateStatus($this->record['id'], $this->record['status'], $this->record['status_reason']);
+            works_activity::adminUpdateStatus($this->record['id'], $this->record['status'], $this->record['status_reason']);
         }
 
         NFWX::i()->jsonSuccess();
@@ -734,10 +734,10 @@ class works extends active_record {
             return $x['url'];
         }, $newLinks);
         foreach (array_diff($before, $after) as $url) {
-            works_interaction::adminLinkRemoved($this->record['id'], $url);
+            works_activity::adminLinkRemoved($this->record['id'], $url);
         }
         foreach (array_diff($after, $before) as $url) {
-            works_interaction::adminLinkAdded($this->record['id'], $url);
+            works_activity::adminLinkAdded($this->record['id'], $url);
         }
 
         NFWX::i()->jsonSuccess();
@@ -783,7 +783,7 @@ class works extends active_record {
             $CMedia->delete();
         }
 
-        works_interaction::workDeleted($this->record['id']);
+        works_activity::workDeleted($this->record['id']);
 
         $logMsg = 'Work `' . $this->record['title'] . '` (ID=' . $this->record['id'] . ') deleted';
 

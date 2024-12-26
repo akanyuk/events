@@ -190,7 +190,7 @@ class NFWX extends NFW {
             return in_array($CWorks->record['event_id'], $managed_events);
         }
 
-        if ($module == 'works_interaction' && ($action == 'list' || $action == 'message')) {
+        if ($module == 'works_activity' && ($action == 'list' || $action == 'message')) {
             if (!isset($_GET['work_id'])) {
                 return false;
             }

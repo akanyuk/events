@@ -37,16 +37,16 @@ echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
     <hr class="d-md-none mt-0"/>
 
     <div class="mb-5">
-        <section id="work-interactions-top"></section>
+        <section id="work-activity-top"></section>
 
-        <h3>Interactions</h3>
+        <h3><?php echo $langMain['Activity']?></h3>
 
         <div class="d-grid d-sm-block">
-            <button id="show-all-interactions" class="btn btn-secondary btn-sm d-none mb-3">Show early interactions
+            <button id="show-all-activity" class="btn btn-secondary btn-sm d-none mb-3">Show early activity
             </button>
         </div>
 
-        <div class="interactions mb-3" id="work-interactions"></div>
+        <div class="activity mb-3" id="work-activity"></div>
 
         <div class="mb-2">
             <textarea id="message" class="form-control" placeholder="<?php echo $langMain['cabinet message send'] ?>"
@@ -81,16 +81,16 @@ NFWX::i()->mainLayoutRightContent = ob_get_clean();
     <script type="text/javascript">
         <?php ob_start(); ?>
 
-        const divWorkInteractions = document.getElementById("work-interactions");
-        const buttonShowAllInteractions = document.getElementById("show-all-interactions");
-        const showLastInteractionsCnt = 25; // Showing last N interactions
+        const divWorkActivity = document.getElementById("work-activity");
+        const buttonShowAllActivity = document.getElementById("show-all-activity");
+        const showLastActivityCnt = 25; // Showing last N activity
 
         const buttonMessageSend = document.getElementById("message-send");
         const messageTextarea = document.getElementById("message");
         const messageFeedback = document.getElementById("message-feedback");
 
         buttonMessageSend.onclick = async function () {
-            let response = await fetch("?action=interaction_message", {
+            let response = await fetch("?action=activity_message", {
                 method: "POST",
                 body: JSON.stringify({
                     workID: <?php echo $Module->record['id']; ?>,
@@ -124,31 +124,31 @@ NFWX::i()->mainLayoutRightContent = ob_get_clean();
             messageFeedback.className = 'd-none';
 
             const resp = await response.json();
-            const item = interactionsItem(resp);
-            divWorkInteractions.appendChild(item);
+            const item = activityItem(resp);
+            divWorkActivity.appendChild(item);
         }
 
-        buttonShowAllInteractions.onclick = function () {
-            divWorkInteractions.querySelectorAll(".item").forEach(item => {
+        buttonShowAllActivity.onclick = function () {
+            divWorkActivity.querySelectorAll(".item").forEach(item => {
                 item.classList.remove("d-none");
             });
 
             setTimeout(function () {
-                document.getElementById("work-interactions-top").scrollIntoView({
+                document.getElementById("work-activity-top").scrollIntoView({
                     block: 'start',
                     behavior: 'smooth'
                 });
             }, 100);
 
-            buttonShowAllInteractions.classList.add("d-none");
+            buttonShowAllActivity.classList.add("d-none");
         };
 
-        loadInteractions();
+        loadActivity();
 
-        async function loadInteractions() {
-            buttonShowAllInteractions.classList.add("d-none");
+        async function loadActivity() {
+            buttonShowAllActivity.classList.add("d-none");
 
-            const response = await fetch('?action=work_interaction&work_id=<?php echo $Module->record['id']; ?>');
+            const response = await fetch('?action=work_activity&work_id=<?php echo $Module->record['id']; ?>');
             const resp = await response.json();
 
             if (!response.ok) {
@@ -156,40 +156,40 @@ NFWX::i()->mainLayoutRightContent = ob_get_clean();
                 return;
             }
 
-            divWorkInteractions.innerHTML = "";
-            let isButtonShowAllInteractions = false;
+            divWorkActivity.innerHTML = "";
+            let isButtonShowAllActivity = false;
             let isUnreadDelimiterShown = false;
             const numRecords = resp['records'].length;
             resp['records'].forEach(function (r, index) {
                 if (index === 0 && r['is_new']) {
-                    isUnreadDelimiterShown = true; // All interactions new
+                    isUnreadDelimiterShown = true; // All activities new
                 }
 
                 if (!isUnreadDelimiterShown && r['is_new']) {
                     let delimMsg = document.createElement('div');
-                    delimMsg.innerText = "New interactions";
+                    delimMsg.innerText = "<?php echo $langMain['New activity']?>";
                     delimMsg.className = "message";
 
                     let delim = document.createElement('div');
                     delim.classList.add("item", "unread-delimiter");
                     delim.appendChild(delimMsg);
 
-                    divWorkInteractions.appendChild(delim);
+                    divWorkActivity.appendChild(delim);
 
                     isUnreadDelimiterShown = true;
                 }
 
-                let item = interactionsItem(r);
-                if (numRecords - index > showLastInteractionsCnt && !r['is_new']) {
+                let item = activityItem(r);
+                if (numRecords - index > showLastActivityCnt && !r['is_new']) {
                     item.classList.add("d-none");
-                    isButtonShowAllInteractions = true;
+                    isButtonShowAllActivity = true;
                 }
 
-                divWorkInteractions.appendChild(item);
+                divWorkActivity.appendChild(item);
             });
 
-            if (numRecords > showLastInteractionsCnt && isButtonShowAllInteractions) {
-                buttonShowAllInteractions.classList.remove("d-none");
+            if (numRecords > showLastActivityCnt && isButtonShowAllActivity) {
+                buttonShowAllActivity.classList.remove("d-none");
             }
 
             // Modifying header
@@ -205,7 +205,7 @@ NFWX::i()->mainLayoutRightContent = ob_get_clean();
             }
         }
 
-        function interactionsItem(r) {
+        function activityItem(r) {
             const isOutgoing = r['posted_by'] === <?php echo $Module->record['posted_by']?>;
 
             let author = document.createElement('div');

@@ -31,13 +31,13 @@ $langLinksXs = array(
     NFW::i()->user['language'] == 'Russian' ? 'ru' : '<a class="text-white" href="' . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . '?' . http_build_query(array_merge($_GET, array('lang' => 'Russian'))) . '">ru</a>'
 );
 
-// Interaction state
-$authorInteractionsCnt = NFW::i()->user['is_guest'] ? 0 : works_interaction::authorUnread();
-$adminInteractionsCnt = NFW::i()->checkPermissions('admin') ? works_interaction::adminUnread() : 0;
-if ($authorInteractionsCnt + $adminInteractionsCnt > 99) {
+// Activity state
+$authorActivityCnt = NFW::i()->user['is_guest'] ? 0 : works_activity::authorUnread();
+$adminActivityCnt = NFW::i()->checkPermissions('admin') ? works_activity::adminUnread() : 0;
+if ($authorActivityCnt + $adminActivityCnt > 99) {
     $userBadge = '99+';
-} else if ($authorInteractionsCnt + $adminInteractionsCnt > 0) {
-    $userBadge = $authorInteractionsCnt + $adminInteractionsCnt;
+} else if ($authorActivityCnt + $adminActivityCnt > 0) {
+    $userBadge = $authorActivityCnt + $adminActivityCnt;
 } else {
     $userBadge = '';
 }
@@ -343,7 +343,7 @@ if ($authorInteractionsCnt + $adminInteractionsCnt > 99) {
             <div class="mb-3">
                 <a href="<?php echo NFW::i()->absolute_path ?>/cabinet/works_list"><?php echo $langMain['cabinet prods'] ?>
                     <span id="header-sm-menu-prods-badge"
-                          class="ms-2 badge rounded-pill bg-warning"><?php echo $authorInteractionsCnt > 0 ? ($authorInteractionsCnt > 99 ? "99+" : $authorInteractionsCnt) : '' ?></span>
+                          class="ms-2 badge rounded-pill bg-warning"><?php echo $authorActivityCnt > 0 ? ($authorActivityCnt > 99 ? "99+" : $authorActivityCnt) : '' ?></span>
                 </a>
             </div>
 
@@ -357,8 +357,8 @@ if ($authorInteractionsCnt + $adminInteractionsCnt > 99) {
 
             <?php if (NFW::i()->checkPermissions('admin')): ?>
                 <div class="mb-3">
-                    <a href="/admin">Control panel<?php if ($adminInteractionsCnt > 0): ?><span
-                                class="ms-2 badge rounded-pill bg-warning"><?php echo $adminInteractionsCnt > 99 ? "99+" : $adminInteractionsCnt ?></span><?php endif; ?>
+                    <a href="/admin">Control panel<?php if ($adminActivityCnt > 0): ?><span
+                                class="ms-2 badge rounded-pill bg-warning"><?php echo $adminActivityCnt > 99 ? "99+" : $adminActivityCnt ?></span><?php endif; ?>
                     </a>
                 </div>
             <?php endif; ?>

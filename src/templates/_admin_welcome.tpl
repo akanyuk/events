@@ -4,10 +4,10 @@
 
 if (isset($_GET['action']) && $_GET['action'] == 'mark_work_read') {
     $req = json_decode(file_get_contents('php://input'));
-    if (!works_interaction::markRead($req->workID)) {
+    if (!works_activity::markRead($req->workID)) {
         NFWX::i()->jsonError(400, 'Mark work read failed');
     }
-    NFWX::i()->jsonSuccess(['unread' => works_interaction::adminUnread()]);
+    NFWX::i()->jsonSuccess(['unread' => works_activity::adminUnread()]);
 }
 
 if (isset($_GET['action']) && $_GET['action'] == 'clear_work_marked') {
@@ -19,12 +19,12 @@ if (isset($_GET['action']) && $_GET['action'] == 'clear_work_marked') {
     NFWX::i()->jsonSuccess();
 }
 
-// New interactions, marked prods
+// New activity, marked prods
 
 $managedEvents = events::getManaged();
 $CWorks = new works();
 
-$unread = works_interaction::unreadExplained();
+$unread = works_activity::unreadExplained();
 $unreadID = array_keys($unread);
 
 $unreadProds = array();
@@ -95,7 +95,7 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
 </style>
 <div class="row unread-prods">
     <div class="col-md-6">
-        <h2>New interactions</h2>
+        <h2>New activities</h2>
         <div id="all-works-read" class="alert alert-success"
              style="display:<?php echo empty($unreadProds) ? 'block' : 'none' ?>">You
             checked all prods

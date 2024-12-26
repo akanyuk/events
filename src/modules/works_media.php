@@ -93,7 +93,7 @@ class works_media extends media {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
-        works_interaction::adminUpdateFileProps($CWorks->record['id'], $this->record['basename'], $props[$req->id]);
+        works_activity::adminUpdateFileProps($CWorks->record['id'], $this->record['basename'], $props[$req->id]);
         NFWX::i()->jsonSuccess();
     }
 
@@ -121,7 +121,7 @@ class works_media extends media {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
-        works_interaction::adminRenameFile($this->record['owner_id'], $oldName, $this->record['basename']);
+        works_activity::adminRenameFile($this->record['owner_id'], $oldName, $this->record['basename']);
 
         NFWX::i()->jsonSuccess([
             'id' => $this->record['id'],
@@ -211,7 +211,7 @@ class works_media extends media {
             'screenshot' => 0,
             'image' => 1,
             'audio' => 0,
-            'voting' => 1,
+            'voting' => 0,
             'release' => 0,
         ];
         $mediaProps[$this->record['id']] = $props2;
@@ -220,9 +220,9 @@ class works_media extends media {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
-        works_interaction::adminConvertZX($this->record['owner_id'], $basename1, $basename2, $origBasename);
-        works_interaction::adminUpdateFileProps($this->record['owner_id'], $basename1, $props1);
-        works_interaction::adminUpdateFileProps($this->record['owner_id'], $basename2, $props2);
+        works_activity::adminConvertZX($this->record['owner_id'], $basename1, $basename2, $origBasename);
+        works_activity::adminUpdateFileProps($this->record['owner_id'], $basename1, $props1);
+        works_activity::adminUpdateFileProps($this->record['owner_id'], $basename2, $props2);
 
         NFWX::i()->jsonSuccess([$responseRecord, $this->jsonResponseRecord($mediaProps[$this->record['id']])]);
     }
@@ -251,8 +251,8 @@ class works_media extends media {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
-        works_interaction::adminFileIdDiz($CWorks->record['id']);
-        works_interaction::adminUpdateFileProps($this->record['owner_id'], 'file_id.diz', $props);
+        works_activity::adminFileIdDiz($CWorks->record['id']);
+        works_activity::adminUpdateFileProps($this->record['owner_id'], 'file_id.diz', $props);
 
         NFWX::i()->jsonSuccess($this->jsonResponseRecord($mediaProps[$this->record['id']]));
     }
@@ -350,7 +350,7 @@ class works_media extends media {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
-        works_interaction::adminMakeRelease($CWorks->record['id'], $release_basename);
+        works_activity::adminMakeRelease($CWorks->record['id'], $release_basename);
 
         NFWX::i()->jsonSuccess(['result' => 'success', 'url' => rawurlencode($release_link)]);
     }
@@ -368,7 +368,7 @@ class works_media extends media {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
-        works_interaction::adminRemoveRelease($CWorks->record['id']);
+        works_activity::adminRemoveRelease($CWorks->record['id']);
         NFWX::i()->jsonSuccess();
     }
 }

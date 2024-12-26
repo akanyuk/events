@@ -207,14 +207,14 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
             <button id="clear-personal-note" class="btn btn-primary">Clear</button>
         </form>
 
-        <h3>Interactions</h3>
-        <button id="show-all-interactions" class="btn btn-default btn-sm btn-full-xs"
-                style="margin-top: 1em; margin-bottom: 1em; display:none;">Show early interactions
+        <h3>Activity</h3>
+        <button id="show-all-activity" class="btn btn-default btn-sm btn-full-xs"
+                style="margin-top: 1em; margin-bottom: 1em; display:none;">Show early activity
         </button>
-        <div class="interactions" id="work-interactions"></div>
+        <div class="activity" id="work-activity"></div>
 
         <form id="send-message" style="margin-top: 1em;"
-              action="<?php echo NFW::i()->base_path ?>admin/works_interaction?action=message&work_id=<?php echo $Module->record['id'] ?>">
+              action="<?php echo NFW::i()->base_path ?>admin/works_activity?action=message&work_id=<?php echo $Module->record['id'] ?>">
             <div class="form-group">
                 <div class="col-md-12">
                     <textarea required="required" class="form-control" name="message"
@@ -267,7 +267,7 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
         wuF.activeForm({
             success: function () {
                 $.jGrowl('Work profile updated');
-                loadInteractions();
+                loadActivity();
             }
         });
 
@@ -327,7 +327,7 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
         $('form[id="update-status"]').activeForm({
             success: function () {
                 $.jGrowl('Status updated');
-                loadInteractions();
+                loadActivity();
             }
         });
 
@@ -396,7 +396,7 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
         $('form[id="works-update-links"]').activeForm({
             success: function () {
                 $.jGrowl('Work links updated');
-                loadInteractions();
+                loadActivity();
             }
         });
 
@@ -439,84 +439,84 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
         <?php endif; ?>
     }
 
-    // Interactions
+    // Activity
 
-    const divWorkInteractions = $('div[id="work-interactions"]');
-    const buttonShowAllInteractions = $('button[id="show-all-interactions"]');
-    const showLastInteractionsCnt = 25; // Showing last N interactions
+    const divWorkActivity = $('div[id="work-activity"]');
+    const buttonShowAllActivity = $('button[id="show-all-activity"]');
+    const showLastActivityCnt = 25; // Showing last N activity
 
     $('form[id="send-message"]').activeForm({
         success: function (resp) {
             $('form[id="send-message"]').find('textarea').val("");
-            const item = interactionsItem(resp);
-            divWorkInteractions.append(item);
+            const item = activityItem(resp);
+            divWorkActivity.append(item);
         }
     });
 
-    buttonShowAllInteractions.click(function () {
-        divWorkInteractions.find('.item').show();
-        buttonShowAllInteractions.hide();
+    buttonShowAllActivity.click(function () {
+        divWorkActivity.find('.item').show();
+        buttonShowAllActivity.hide();
 
         $([document.documentElement, document.body]).animate({
-            scrollTop: divWorkInteractions.offset().top - 100
+            scrollTop: divWorkActivity.offset().top - 100
         }, 500);
     });
 
-    loadInteractions(); // At startup
+    loadActivity(); // At startup
 
-    function loadInteractions() {
-        buttonShowAllInteractions.hide();
+    function loadActivity() {
+        buttonShowAllActivity.hide();
 
         $.ajax(
-            '<?php echo NFW::i()->base_path . 'admin/works_interaction?action=list&work_id=' . $Module->record['id']?>',
+            '<?php echo NFW::i()->base_path . 'admin/works_activity?action=list&work_id=' . $Module->record['id']?>',
             {
                 method: "get",
                 success: function (response) {
-                    divWorkInteractions.empty();
-                    let isButtonShowAllInteractions = false;
+                    divWorkActivity.empty();
+                    let isButtonShowAllActivity = false;
                     let isUnreadDelimiterShown = false;
                     const numRecords = response['records'].length;
                     response['records'].forEach(function (r, index) {
                         if (index === 0 && r['is_new']) {
-                            isUnreadDelimiterShown = true; // All interactions new
+                            isUnreadDelimiterShown = true; // All activities new
                         }
 
                         if (!isUnreadDelimiterShown && r['is_new']) {
                             let delimMsg = document.createElement('div');
-                            delimMsg.innerText = "New interactions";
+                            delimMsg.innerText = "New activity";
                             delimMsg.className = "message";
 
                             let delim = document.createElement('div');
                             delim.classList.add("item", "unread-delimiter");
                             delim.appendChild(delimMsg);
 
-                            divWorkInteractions.append(delim);
+                            divWorkActivity.append(delim);
 
                             isUnreadDelimiterShown = true;
                         }
 
-                        let item = interactionsItem(r);
-                        if (numRecords - index > showLastInteractionsCnt && !r['is_new']) {
+                        let item = activityItem(r);
+                        if (numRecords - index > showLastActivityCnt && !r['is_new']) {
                             item["style"].display = 'none';
-                            isButtonShowAllInteractions = true;
+                            isButtonShowAllActivity = true;
                         }
-                        divWorkInteractions.append(item);
+                        divWorkActivity.append(item);
                     });
 
-                    if (numRecords > showLastInteractionsCnt && isButtonShowAllInteractions) {
-                        buttonShowAllInteractions.show();
+                    if (numRecords > showLastActivityCnt && isButtonShowAllActivity) {
+                        buttonShowAllActivity.show();
                     }
 
                     UpdateHeaderUnread(response['unread']);
                 },
                 error: function () {
-                    alert("Load work interactions unexpected error");
+                    alert("Load work activity unexpected error");
                 }
             }
         );
     }
 
-    function interactionsItem(r) {
+    function activityItem(r) {
         const isOutgoing = r['posted_by'] !== <?php echo $Module->record['posted_by']?>;
 
         let author = document.createElement('div');

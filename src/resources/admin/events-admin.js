@@ -1,5 +1,5 @@
 function UpdateHeaderUnread(cnt) {
-    document.querySelectorAll("#head-interactions-badge").forEach(badge => {
+    document.querySelectorAll("#head-activity-badge").forEach(badge => {
         switch (cnt) {
             case 0:
                 badge.remove();

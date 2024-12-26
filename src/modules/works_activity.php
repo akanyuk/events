@@ -1,9 +1,9 @@
 <?php
 
 /**
- * @desc Interactions between work author and organizers
+ * @desc Activity between work author and organizers
  */
-class works_interaction extends base_module {
+class works_activity extends base_module {
     const MESSAGE = 1;
 
     const AUTHOR_ADD_WORK = 100;
@@ -120,11 +120,11 @@ class works_interaction extends base_module {
     public static function addMessage(int $workID, string $message): bool {
         $query = array(
             'INSERT' => '`type`, work_id, message, posted, posted_by',
-            'INTO' => 'works_interaction',
+            'INTO' => 'works_activity',
             'VALUES' => self::MESSAGE . ', ' . $workID . ', \'' . NFW::i()->db->escape($message) . '\', ' . time() . ',' . NFW::i()->user['id']
         );
         if (!NFW::i()->db->query_build($query)) {
-            NFW::i()->errorHandler(null, 'Unable to insert new interaction', __FILE__, __LINE__, NFW::i()->db->error());
+            NFW::i()->errorHandler(null, 'Unable to insert new activity', __FILE__, __LINE__, NFW::i()->db->error());
             return false;
         }
 
@@ -137,7 +137,7 @@ class works_interaction extends base_module {
     public static function authorUnread(): int {
         if (!$result = NFW::i()->db->query_build([
             'SELECT' => 'COUNT(*)',
-            'FROM' => 'works_interaction_unread AS wi',
+            'FROM' => 'works_activity_unread AS wi',
             'JOINS' => array(
                 array(
                     'INNER JOIN' => 'works AS w',
@@ -146,7 +146,7 @@ class works_interaction extends base_module {
             ),
             'WHERE' => 'wi.user_id=' . NFW::i()->user['id'] . ' AND w.posted_by=' . NFW::i()->user['id'],
         ])) {
-            NFW::i()->errorHandler(null, 'Unable to load work interaction last read', __FILE__, __LINE__, NFW::i()->db->error());
+            NFW::i()->errorHandler(null, 'Unable to load work activity last read', __FILE__, __LINE__, NFW::i()->db->error());
             return 0;
         }
         if (!NFW::i()->db->num_rows($result)) {
@@ -160,7 +160,7 @@ class works_interaction extends base_module {
     public static function adminUnread(): int {
         if (!$result = NFW::i()->db->query_build([
             'SELECT' => 'COUNT(*)',
-            'FROM' => 'works_interaction_unread AS wi',
+            'FROM' => 'works_activity_unread AS wi',
             'JOINS' => array(
                 array(
                     'INNER JOIN' => 'works AS w',
@@ -169,7 +169,7 @@ class works_interaction extends base_module {
             ),
             'WHERE' => 'wi.user_id=' . NFW::i()->user['id'] . ' AND w.posted_by!=' . NFW::i()->user['id'],
         ])) {
-            NFW::i()->errorHandler(null, 'Unable to load work interaction last read', __FILE__, __LINE__, NFW::i()->db->error());
+            NFW::i()->errorHandler(null, 'Unable to load admin activities unread', __FILE__, __LINE__, NFW::i()->db->error());
             return 0;
         }
         if (!NFW::i()->db->num_rows($result)) {
@@ -182,23 +182,23 @@ class works_interaction extends base_module {
 
     public static function unreadExplained(): array {
         $subSql = '(
-SELECT COUNT(*) FROM works_interaction AS i2
-LEFT JOIN works_interaction_last_read AS l ON l.work_id=i2.work_id AND l.user_id=' . NFW::i()->user['id'] . '
-WHERE i2.work_id = i.work_id AND (i2.id > l.interaction_id OR l.interaction_id IS NULL)
+SELECT COUNT(*) FROM works_activity AS i2
+LEFT JOIN works_activity_last_read AS l ON l.work_id=i2.work_id AND l.user_id=' . NFW::i()->user['id'] . '
+WHERE i2.work_id = i.work_id AND (i2.id > l.activity_id OR l.activity_id IS NULL)
 ) AS unread';
         $query = [
             'SELECT' => 'i.work_id, ' . $subSql,
-            'FROM' => 'works_interaction AS i',
+            'FROM' => 'works_activity AS i',
             'JOINS' => [
                 [
-                    'INNER JOIN' => 'works_interaction_unread AS u',
+                    'INNER JOIN' => 'works_activity_unread AS u',
                     'ON' => 'u.work_id=i.work_id AND u.user_id=' . NFW::i()->user['id'],
                 ],
             ],
             'GROUP BY' => 'i.work_id',
         ];
         if (!$result = NFW::i()->db->query_build($query)) {
-            NFW::i()->errorHandler(null, 'Unable to load work interaction last read', __FILE__, __LINE__, NFW::i()->db->error());
+            NFW::i()->errorHandler(null, 'Unable to load work activity unread explained', __FILE__, __LINE__, NFW::i()->db->error());
             return [];
         }
         if (!NFW::i()->db->num_rows($result)) {
@@ -216,7 +216,7 @@ WHERE i2.work_id = i.work_id AND (i2.id > l.interaction_id OR l.interaction_id I
 
     public static function markRead(int $workID): bool {
         if (!NFW::i()->db->query_build([
-            'DELETE' => 'works_interaction_unread',
+            'DELETE' => 'works_activity_unread',
             'WHERE' => 'work_id=' . $workID . ' AND user_id=' . NFW::i()->user['id'],
         ])) {
             NFW::i()->errorHandler(null, 'Unable to mark work read', __FILE__, __LINE__, NFW::i()->db->error());
@@ -227,27 +227,27 @@ WHERE i2.work_id = i.work_id AND (i2.id > l.interaction_id OR l.interaction_id I
     }
 
     public static function workDeleted(int $workID) {
-        if (!NFW::i()->db->query_build(array('DELETE' => 'works_interaction_unread', 'WHERE' => 'work_id=' . $workID))) {
-            NFW::i()->errorHandler(null, 'Unable to delete interaction unread states', __FILE__, __LINE__, NFW::i()->db->error());
+        if (!NFW::i()->db->query_build(array('DELETE' => 'works_activity_unread', 'WHERE' => 'work_id=' . $workID))) {
+            NFW::i()->errorHandler(null, 'Unable to delete activity unread states', __FILE__, __LINE__, NFW::i()->db->error());
         }
 
-        if (!NFW::i()->db->query_build(array('DELETE' => 'works_interaction_last_read', 'WHERE' => 'work_id=' . $workID))) {
-            NFW::i()->errorHandler(null, 'Unable to delete old interaction last read state', __FILE__, __LINE__, NFW::i()->db->error());
+        if (!NFW::i()->db->query_build(array('DELETE' => 'works_activity_last_read', 'WHERE' => 'work_id=' . $workID))) {
+            NFW::i()->errorHandler(null, 'Unable to delete old activity last read state', __FILE__, __LINE__, NFW::i()->db->error());
         }
 
-        if (!NFW::i()->db->query_build(array('DELETE' => 'works_interaction', 'WHERE' => 'work_id=' . $workID))) {
-            NFW::i()->errorHandler(null, 'Unable to delete interactions', __FILE__, __LINE__, NFW::i()->db->error());
+        if (!NFW::i()->db->query_build(array('DELETE' => 'works_activity', 'WHERE' => 'work_id=' . $workID))) {
+            NFW::i()->errorHandler(null, 'Unable to delete activities', __FILE__, __LINE__, NFW::i()->db->error());
         }
     }
 
     private static function saveNoMessage(int $type, int $workID, string $metadata = "") {
         $query = array(
             'INSERT' => '`type`, work_id, metadata, posted, posted_by',
-            'INTO' => 'works_interaction',
+            'INTO' => 'works_activity',
             'VALUES' => $type . ', ' . $workID . ', \'' . NFW::i()->db->escape($metadata) . '\', ' . time() . ',' . NFW::i()->user['id']
         );
         if (!NFW::i()->db->query_build($query)) {
-            NFW::i()->errorHandler(null, 'Unable to insert new interaction', __FILE__, __LINE__, NFW::i()->db->error());
+            NFW::i()->errorHandler(null, 'Unable to insert new activity', __FILE__, __LINE__, NFW::i()->db->error());
             return;
         }
 
@@ -263,9 +263,9 @@ WHERE i2.work_id = i.work_id AND (i2.id > l.interaction_id OR l.interaction_id I
             return;
         }
 
-        // Prune old interactions unread with same `work_id`
-        if (!NFW::i()->db->query_build(array('DELETE' => 'works_interaction_unread', 'WHERE' => 'work_id=' . $workID))) {
-            NFW::i()->errorHandler(null, 'Unable to delete old interaction unread states', __FILE__, __LINE__, NFW::i()->db->error());
+        // Prune old activity unread with same `work_id`
+        if (!NFW::i()->db->query_build(array('DELETE' => 'works_activity_unread', 'WHERE' => 'work_id=' . $workID))) {
+            NFW::i()->errorHandler(null, 'Unable to delete old activity unread states', __FILE__, __LINE__, NFW::i()->db->error());
             return;
         }
 
@@ -278,10 +278,10 @@ WHERE i2.work_id = i.work_id AND (i2.id > l.interaction_id OR l.interaction_id I
 
             if (!NFW::i()->db->query_build(array(
                 'INSERT' => '`work_id`, `user_id`',
-                'INTO' => 'works_interaction_unread',
+                'INTO' => 'works_activity_unread',
                 'VALUES' => $workID . ', ' . $userID
             ))) {
-                NFW::i()->errorHandler(null, 'Unable to insert works interaction state', __FILE__, __LINE__, NFW::i()->db->error());
+                NFW::i()->errorHandler(null, 'Unable to insert works activity unread state', __FILE__, __LINE__, NFW::i()->db->error());
             }
         }
     }
@@ -291,16 +291,16 @@ WHERE i2.work_id = i.work_id AND (i2.id > l.interaction_id OR l.interaction_id I
             return;
         }
 
-        if (!NFW::i()->db->query_build(array('DELETE' => 'works_interaction_last_read', 'WHERE' => 'work_id=' . $workID . ' AND user_id=' . NFW::i()->user['id']))) {
-            NFW::i()->errorHandler(null, 'Unable to delete old interaction last read', __FILE__, __LINE__, NFW::i()->db->error());
+        if (!NFW::i()->db->query_build(array('DELETE' => 'works_activity_last_read', 'WHERE' => 'work_id=' . $workID . ' AND user_id=' . NFW::i()->user['id']))) {
+            NFW::i()->errorHandler(null, 'Unable to delete old activity last read', __FILE__, __LINE__, NFW::i()->db->error());
         }
 
         if (!NFW::i()->db->query_build([
-            'INSERT' => 'interaction_id, work_id,user_id',
-            'INTO' => 'works_interaction_last_read',
+            'INSERT' => 'activity_id, work_id, user_id',
+            'INTO' => 'works_activity_last_read',
             'VALUES' => $id . ',' . $workID . ',' . NFW::i()->user['id'],
         ])) {
-            NFW::i()->errorHandler(null, 'Unable to update work interaction last read', __FILE__, __LINE__, NFW::i()->db->error());
+            NFW::i()->errorHandler(null, 'Unable to update work activity last read', __FILE__, __LINE__, NFW::i()->db->error());
         }
     }
 
@@ -368,11 +368,11 @@ WHERE i2.work_id = i.work_id AND (i2.id > l.interaction_id OR l.interaction_id I
 
     public function records(array $work) {
         if (!$result = NFW::i()->db->query_build([
-            'SELECT' => 'interaction_id',
-            'FROM' => 'works_interaction_last_read',
+            'SELECT' => 'activity_id',
+            'FROM' => 'works_activity_last_read',
             'WHERE' => 'work_id=' . $work['id'] . ' AND user_id=' . NFW::i()->user['id'],
         ])) {
-            $this->error('Unable to load work interaction last read', __FILE__, __LINE__, NFW::i()->db->error());
+            $this->error('Unable to load work activities', __FILE__, __LINE__, NFW::i()->db->error());
             return false;
         }
         $lastReadID = 0;
@@ -382,7 +382,7 @@ WHERE i2.work_id = i.work_id AND (i2.id > l.interaction_id OR l.interaction_id I
 
         $query = array(
             'SELECT' => 'wi.*, u.username AS poster_username',
-            'FROM' => 'works_interaction AS wi',
+            'FROM' => 'works_activity AS wi',
             'JOINS' => array(
                 array(
                     'LEFT JOIN' => 'users AS u',
@@ -393,14 +393,14 @@ WHERE i2.work_id = i.work_id AND (i2.id > l.interaction_id OR l.interaction_id I
             'ORDER BY' => 'posted',
         );
         if (!$result = NFW::i()->db->query_build($query)) {
-            $this->error('Unable to load work interaction', __FILE__, __LINE__, NFW::i()->db->error());
+            $this->error('Unable to load work activities', __FILE__, __LINE__, NFW::i()->db->error());
             return false;
         }
 
         $langMain = NFW::i()->getLang('main');
         $lastID = 0;
         $isLegacy = true;
-        $lang = NFW::i()->getLang("interaction");
+        $lang = NFW::i()->getLang("activity");
         $records = [];
         while ($record = NFW::i()->db->fetch_assoc($result)) {
             $lastID = $record['id'];
@@ -413,7 +413,7 @@ WHERE i2.work_id = i.work_id AND (i2.id > l.interaction_id OR l.interaction_id I
         self::updateLastReadState($lastID, $work['id']);
 
         // Resetting unread state for current user
-        if (!NFW::i()->db->query_build(array('DELETE' => 'works_interaction_unread', 'WHERE' => 'work_id=' . $work['id'] . ' AND user_id=' . NFW::i()->user['id']))) {
+        if (!NFW::i()->db->query_build(array('DELETE' => 'works_activity_unread', 'WHERE' => 'work_id=' . $work['id'] . ' AND user_id=' . NFW::i()->user['id']))) {
             NFW::i()->errorHandler(null, 'Unable to reset unread states', __FILE__, __LINE__, NFW::i()->db->error());
         }
 
@@ -486,8 +486,8 @@ WHERE i2.work_id = i.work_id AND (i2.id > l.interaction_id OR l.interaction_id I
 }
 
 function removeLastPropsChangeSameFile(int $workID, string $basename) {
-    if (!$result = NFW::i()->db->query('SELECT id, type, metadata FROM works_interaction WHERE work_id=' . $workID . ' ORDER BY id DESC LIMIT 0, 1')) {
-        NFW::i()->errorHandler(null, 'Unable to get interaction of work', __FILE__, __LINE__, NFW::i()->db->error());
+    if (!$result = NFW::i()->db->query('SELECT id, type, metadata FROM works_activity WHERE work_id=' . $workID . ' ORDER BY id DESC LIMIT 0, 1')) {
+        NFW::i()->errorHandler(null, 'Unable to get activity of work', __FILE__, __LINE__, NFW::i()->db->error());
         return;
     }
     if (!NFW::i()->db->num_rows($result)) {
@@ -496,11 +496,11 @@ function removeLastPropsChangeSameFile(int $workID, string $basename) {
 
     list($id, $type, $meta) = NFW::i()->db->fetch_row($result);
     $metadata = json_decode($meta, true);
-    if ($type != works_interaction::ADMIN_UPDATE_FILE_PROPS || $metadata['basename'] != $basename) {
+    if ($type != works_activity::ADMIN_UPDATE_FILE_PROPS || $metadata['basename'] != $basename) {
         return;
     }
 
-    if (!NFW::i()->db->query('DELETE FROM works_interaction WHERE id=' . $id)) {
-        NFW::i()->errorHandler(null, 'Unable to delete last interaction of work', __FILE__, __LINE__, NFW::i()->db->error());
+    if (!NFW::i()->db->query('DELETE FROM works_activity WHERE id=' . $id)) {
+        NFW::i()->errorHandler(null, 'Unable to delete last activity of work', __FILE__, __LINE__, NFW::i()->db->error());
     }
 }

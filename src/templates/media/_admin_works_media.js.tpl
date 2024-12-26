@@ -45,7 +45,7 @@ $(function () {
 
             form.find('*[id="session-size"]').text(number_format(response['iSessionSize'] / 1048576, 2, '.', ' '));
 
-            loadInteractions();
+            loadActivity();
         }
     });
 
@@ -155,7 +155,7 @@ $(function () {
             return;
         }
 
-        loadInteractions();
+        loadActivity();
     });
 
     // Rename file
@@ -180,7 +180,7 @@ $(function () {
         success: function (response) {
             mediaContainer.find('[id="record"][data-id="' + response['id'] + '"]').find('[id="basename"]').text(response['basename']);
             renameDialog.modal('hide');
-            loadInteractions();
+            loadActivity();
         }
     });
 
@@ -265,7 +265,7 @@ $(function () {
                 success: function (response) {
                     zxScrDialog.modal("hide");
                     response.forEach((item) => mediaContainer.appendRow(item));
-                    loadInteractions();
+                    loadActivity();
                 }
             },
         );
@@ -292,7 +292,7 @@ $(function () {
             }
 
             recordRow.remove();
-            loadInteractions();
+            loadActivity();
         });
     });
 
@@ -305,7 +305,7 @@ $(function () {
             }
 
             mediaContainer.appendRow(response);
-            loadInteractions();
+            loadActivity();
         }, 'json');
 
         return false;
@@ -321,7 +321,7 @@ $(function () {
             const sUrl = decodeURIComponent(response.url);
             $('span[id="permanent-link"]').html('<a href="' + sUrl + '">' + sUrl + '</a>');
             $('button[id="media-remove-release"]').show();
-            loadInteractions();
+            loadActivity();
         }
     });
 
@@ -337,7 +337,7 @@ $(function () {
                     $('span[id="permanent-link"]').html('<em>none</em>');
                     $('button[id="media-remove-release"]').hide();
                     $.jGrowl('File removed');
-                    loadInteractions();
+                    loadActivity();
                 },
                 error: function (response) {
                     if (response['responseJSON']['errors']['general'] === undefined) {

@@ -42,25 +42,25 @@ if (isset($_GET['action'])) {
 
             NFWX::i()->jsonSuccess(['files' => $files]);
             break;
-        case 'work_interaction':
+        case 'work_activity':
             $CWorks = new works($_GET['work_id']);
             if (!$CWorks->record['id']) {
                 $this->error($CWorks->last_msg, __FILE__, __LINE__);
                 NFWX::i()->jsonError(400, $this->last_msg);
             }
 
-            $CWorksInteraction = new works_interaction();
-            $records = $CWorksInteraction->records($CWorks->record);
-            if ($CWorksInteraction->error) {
-                NFWX::i()->jsonError(400, $CWorksInteraction->last_msg);
+            $CWorksActivity = new works_activity();
+            $records = $CWorksActivity->records($CWorks->record);
+            if ($CWorksActivity->error) {
+                NFWX::i()->jsonError(400, $CWorksActivity->last_msg);
             }
 
             NFWX::i()->jsonSuccess([
                 'records' => $records,
-                'unread' => works_interaction::authorUnread(),
+                'unread' => works_activity::authorUnread(),
             ]);
             break;
-        case 'interaction_message':
+        case 'activity_message':
             $req = json_decode(file_get_contents('php://input'));
 
             $CWorks = new works($req->workID);
@@ -73,7 +73,7 @@ if (isset($_GET['action'])) {
                 NFWX::i()->jsonError(400, ['message' => $langMain['cabinet message required']]);
             }
 
-            if (!works_interaction::addMessage($CWorks->record['id'], $req->message)) {
+            if (!works_activity::addMessage($CWorks->record['id'], $req->message)) {
                 $this->error('Unable to save message', __FILE__, __LINE__, NFW::i()->db->error());
                 NFWX::i()->jsonError(500, ['debug' => NFW::i()->db->error], 'Save message failed');
             }
@@ -82,7 +82,8 @@ if (isset($_GET['action'])) {
                 'message' => $req->message,
                 'is_message' => true,
                 'posted' => time(),
-                'poster_username' => NFW::i()->user['username']
+                'posted_by' => intval(NFW::i()->user['id']),
+                'poster_username' => NFW::i()->user['username'],
             ]);
             break;
         case 'upload_work':
@@ -139,7 +140,7 @@ if (isset($_GET['action'])) {
             // Adding media files
             $CMedia->closeSession('works', $CWorks->record['id']);
 
-            works_interaction::authorAddWork($CWorks->record);
+            works_activity::authorAddWork($CWorks->record);
 
             NFWX::i()->jsonSuccess(['message' => $langMain['works upload success message']]);
             break;
@@ -169,7 +170,7 @@ switch (count($pathParts) == 2 ? $pathParts[1] : false) {
 
         $unread = [];
         if (!empty($records)) {
-            $unread = works_interaction::unreadExplained();
+            $unread = works_activity::unreadExplained();
         }
 
         $content = $CWorks->renderAction([

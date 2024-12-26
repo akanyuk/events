@@ -2,91 +2,91 @@
     background-color: #501c2d !important;
 }
 
-/* interactions */
+/* activity */
 
-.interactions .item {
+.activity .item {
     display: flex;
     flex-flow: column-reverse;
     margin: 1em 0;
 }
 
-.interactions .action {
+.activity .action {
     margin: 0.1em 0;
     padding: 0.3em 1em;
     background-color: #f4f4f4;
 }
 
-[data-bs-theme="dark"] .interactions .action {
+[data-bs-theme="dark"] .activity .action {
     background-color: rgb(36, 40, 45);
 }
 
 @media (min-width: 769px) {
-    .interactions .action {
+    .activity .action {
         flex-flow: row;
         gap: 0.5em;
     }
 }
 
-.interactions .outgoing {
+.activity .outgoing {
     align-items: flex-end;
 }
 
-.interactions .incoming .message, .interactions .outgoing .message {
+.activity .incoming .message, .activity .outgoing .message {
     width: 70%;
     border-radius: 3px;
     padding: 5px 10px;
 }
 
 @media (max-width: 768px) {
-    .interactions .incoming .message, .interactions .outgoing .message {
+    .activity .incoming .message, .activity .outgoing .message {
         width: 100%;
     }
 }
 
-.interactions .incoming .message {
+.activity .incoming .message {
     color: #222;
     background-color: #cbd0ef;
 }
 
-[data-bs-theme="dark"] .interactions .incoming .message {
+[data-bs-theme="dark"] .activity .incoming .message {
     color: #fff;
     background-color: #3F51B5;
 }
 
-.interactions .outgoing .message {
+.activity .outgoing .message {
     color: #222;
     background-color: #d5e4d0;
 }
 
-[data-bs-theme="dark"] .interactions .outgoing .message {
+[data-bs-theme="dark"] .activity .outgoing .message {
     color: #fff;
     background-color: #4a673f;
 }
 
-.interactions .action .message {
+.activity .action .message {
     color: #222222;
     font-size: 90%;
 }
 
-[data-bs-theme="dark"] .action .message {
+[data-bs-theme="dark"] .activity .action .message {
     color: #bbbbbb;
 }
 
-.interactions .author {
+.activity .author {
     color: #444444;
     font-size: 90%;
     white-space: nowrap;
 }
 
-[data-bs-theme="dark"] .interactions .author {
+[data-bs-theme="dark"] .activity .author {
     color: #747474;
 }
 
-.interactions .unread-delimiter {
+.activity .unread-delimiter {
     margin: 1em 0;
 }
 
-.interactions .unread-delimiter .message {
+.activity .unread-delimiter .message {
     color: #fff;
     background-color: #444;
     border-radius: 15px;

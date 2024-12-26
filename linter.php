@@ -28,6 +28,6 @@ $CWorksMedia->actionAdminMakeRelease();
 $CWorksMedia->actionAdminRemoveRelease();
 $CWorksMedia->actionAdminUpdateProperties();
 
-$CWorksInteraction = new works_interaction();
-$CWorksInteraction->actionAdminList();
-$CWorksInteraction->actionAdminMessage();
+$CWorksActivity = new works_activity();
+$CWorksActivity->actionAdminList();
+$CWorksActivity->actionAdminMessage();

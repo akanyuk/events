@@ -81,7 +81,7 @@ $langMain = NFW::i()->getLang('main');
             throw new Error(result.errors["local_file"]);
         }
 
-        loadInteractions();
+        loadActivity();
     }
 
     function loadWorkMedia() {
