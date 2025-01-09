@@ -24,6 +24,7 @@ class events extends active_record {
         'announcement_og' => array('desc' => 'Announcement for Open Graph', 'type' => 'str', 'maxlength' => 128),
         'options' => array('desc' => 'Options', 'type' => 'custom'),
         'content' => array('desc' => 'Description', 'type' => 'str', 'maxlength' => 1048576),
+        'content_column' => array('desc' => 'Description in column', 'type' => 'str', 'maxlength' => 1048576),
         'date_from' => array('desc' => 'Date from', 'type' => 'date', 'required' => true),
         'date_to' => array('desc' => 'Date to', 'type' => 'date', 'is_end' => true, 'required' => true),
         'hide_works_count' => array('desc' => 'Hide works count', 'type' => 'bool'),
@@ -46,7 +47,7 @@ class events extends active_record {
         'value' => array('desc' => 'Value', 'type' => 'str', 'style' => 'width: 100px;', 'required' => 1)
     );
 
-    static function get_managed() {
+    static function getManaged(): array {
         static $managed_records = false;
 
         if ($managed_records === false) {
@@ -69,7 +70,7 @@ class events extends active_record {
             }
 
             if (!$result = NFW::i()->db->query_build($query)) {
-                return array();
+                return [];
             }
 
             while ($cur_record = NFW::i()->db->fetch_assoc($result)) {
@@ -78,6 +79,22 @@ class events extends active_record {
         }
 
         return $managed_records;
+    }
+
+    static function getManagers(int $eventID): array {
+        if (!$result = NFW::i()->db->query_build([
+            'SELECT' => 'user_id',
+            'FROM' => 'events_managers',
+            'WHERE' => 'event_id=' . $eventID,
+        ])) {
+            return [];
+        }
+
+        $managers = [];
+        while ($record = NFW::i()->db->fetch_assoc($result)) {
+            $managers[] = $record['user_id'];
+        }
+        return $managers;
     }
 
     private function formatRecord($record) {
@@ -91,12 +108,12 @@ class events extends active_record {
 
         $record['dates_desc'] = date('d.m.Y', $record['date_from']) == date('d.m.Y', $record['date_to']) ? date('d.m.Y', $record['date_from']) : date('d.m.Y', $record['date_from']) . ' - ' . date('d.m.Y', $record['date_to']);
 
-        $days_left = ceil(($record['date_from'] - NFW::i()->actual_date) / 86400);
+        $days_left = ceil(($record['date_from'] - NFWX::i()->actual_date) / 86400);
         if ($days_left >= 1) {
-            $record['status_label'] = '<span class="label label-info">+' . $days_left . ' ' . word_suffix($days_left, $lang_main['days suffix']) . '</span>';
+            $record['status_label'] = '+' . $days_left . ' ' . word_suffix($days_left, $lang_main['days suffix']);
             $record['status_type'] = 'upcoming';
-        } elseif ($record['date_from'] < NFW::i()->actual_date && $record['date_to'] > NFW::i()->actual_date) {
-            $record['status_label'] = '<span class="label label-danger">NOW!</span>';
+        } elseif ($record['date_from'] < NFWX::i()->actual_date && $record['date_to'] > NFWX::i()->actual_date) {
+            $record['status_label'] = 'NOW!';
             $record['status_type'] = 'current';
         } else {
             $record['status_label'] = '';
@@ -105,10 +122,8 @@ class events extends active_record {
 
         // Prepare thumbnails
 
-        NFW::i()->registerFunction('tmb');
-
         if (isset($record['preview']['url']) && file_exists($record['preview']['fullpath'])) {
-            $record['preview_img'] = tmb($record['preview'], 64, 64, array('complementary' => true));
+            $record['preview_img'] = $record['preview']['url'];
             $record['is_preview_img'] = true;
         } else {
             $record['preview_img'] = NFW::i()->assets('main/news-no-image.png');
@@ -214,7 +229,7 @@ class events extends active_record {
         $filter = $options['filter'] ?? array();
 
         if (isset($filter['managed_events']) && $filter['managed_events']) {
-            $managed_events = events::get_managed();
+            $managed_events = events::getManaged();
             if (empty($managed_events)) return array();
 
             $where[] = 'e.id IN(' . implode(',', $managed_events) . ')';
@@ -228,6 +243,14 @@ class events extends active_record {
 
         if (isset($filter['upcoming-current']) && $filter['upcoming-current']) {
             $where[] = 'e.date_to > ' . time();
+        }
+
+        if (!empty($filter['aliases'])) {
+            $aliases = [];
+            foreach ($filter['aliases'] as $alias) {
+                $aliases[] = '"' . NFW::i()->db->escape($alias) . '"';
+            }
+            $where[] = 'e.alias IN (' . implode(', ', $aliases) . ')';
         }
 
         if (isset($filter['alias_group']) && $filter['alias_group']) {
@@ -321,7 +344,9 @@ class events extends active_record {
     }
 
     function actionAdminInsert() {
-        if (empty($_POST)) return false;
+        if (empty($_POST)) {
+            return false;
+        }
 
         $this->loadServicettributes();
 
@@ -335,6 +360,11 @@ class events extends active_record {
         $this->save();
         if ($this->error) {
             NFW::i()->renderJSON(array('result' => 'error', 'errors' => array('general' => $this->last_msg)));
+        }
+
+        if (!NFW::i()->db->query('INSERT INTO ' . NFW::i()->db->prefix . 'events_managers (user_id, event_id) VALUES (' . NFW::i()->user['id'] . ',' . $this->record['id'] . ')')) {
+            $this->error('Unable to insert event managers', __FILE__, __LINE__, NFW::i()->db->error());
+            return false;
         }
 
         NFW::i()->renderJSON(array('result' => 'success', 'record_id' => $this->record['id']));

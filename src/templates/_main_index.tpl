@@ -1,237 +1,207 @@
 <?php
-/**
- * @var $worksComments string Pre rendered works comments HTML content
- */
-
 // Index page
-$lang_main = NFW::i()->getLang('main');
 
-$CEvents = new events();
-$upcoming = $current = $past = array();
-$lastEvents = $CEvents->getRecords(array('limit' => 5, 'load_media' => true));
-foreach ($lastEvents as $record) {
-    switch ($record['status_type']) {
-        case 'upcoming':
-            array_unshift($upcoming, $record);
-            break;
-        case 'current':
-            $current[] = $record;
-            break;
-        default:
-            $past[] = $record;
-            break;
-    }
+$CWorksComments = new works_comments();
+list($comments, $screenshots) = $CWorksComments->latestComments();
+$worksComments = $CWorksComments->renderAction([
+    'comments' => $comments,
+    'screenshots' => $screenshots,
+], 'latest');
+
+$langMain = NFW::i()->getLang('main');
+list($upcoming, $current, $past) = lastEvents();
+
+foreach ($current as $record) {
+    displayIndexEvent($record, 'current');
+}
+
+foreach ($upcoming as $record) {
+    displayIndexEvent($record, 'upcoming');
 }
 ?>
-    <style>
-        .vote-now-body DIV {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.2em;
-        }
-    </style>
+    <div class="row">
+        <div class="col-md-6 mb-5">
+            <h2 class="index-head"><?php echo $langMain['latest events'] ?></h2>
+            <?php foreach ($past as $record) displayIndexEvent($record); ?>
+            <div class="d-grid">
+                <a class="btn btn-lg btn-primary"
+                   href="<?php echo NFW::i()->absolute_path ?>/events"><?php echo $langMain['all events'] ?></a>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <section id="latest-comments"></section>
+            <h2 class="index-head"><?php echo $langMain['latest comments'] ?></h2>
+            <div class="mb-4">
+                <?php echo $worksComments ?>
+            </div>
+            <div class="d-grid">
+                <a class="btn btn-lg btn-primary"
+                   href="<?php echo NFW::i()->base_path . 'comments/all' ?>"><?php echo $langMain['all comments'] ?></a>
+            </div>
+        </div>
+    </div>
 <?php
-if (!empty($current)) {
-    foreach ($current as $record) {
-        displayIndexEvent($record, 'full');
+
+function lastEvents(): array {
+    $CEvents = new events();
+    $upcoming = $current = $past = array();
+    $lastEvents = $CEvents->getRecords(array('limit' => 20, 'load_media' => true));
+    foreach ($lastEvents as $record) {
+        switch ($record['status_type']) {
+            case 'upcoming':
+                array_unshift($upcoming, $record);
+                break;
+            case 'current':
+                $current[] = $record;
+                break;
+            default:
+                $past[] = $record;
+                break;
+        }
+    }
+    return [$upcoming, $current, array_slice($past, 0, 5)];
+}
+
+function displayIndexEvent($record, $layout = ""): void {
+    switch ($layout) {
+        case 'upcoming':
+        case 'current':
+            ?>
+            <div class="d-grid mx-auto col-lg-8 mb-4">
+                <div class="row mb-4 gy-4">
+                    <div class="col-md-6">
+                        <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>">
+                            <img class="w-100" alt=""
+                                 src="<?php echo $record['preview_img_large'] ?: NFW::i()->assets('main/current-event-large.png') ?>"/>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <h2>
+                            <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><?php echo htmlspecialchars($record['title']) ?></a>
+                        </h2>
+                        <p class="h5"><?php echo $record['dates_desc'] ?>
+                            <span
+                                    class="badge text-bg-<?php echo $layout == 'current' ? 'danger' : 'info' ?>"><?php echo $record['status_label'] ?></span>
+                        </p>
+                        <?php if ($record['announcement']): ?>
+                            <div class="mt-3"><?php echo nl2br($record['announcement']) ?></div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <?php displayCurrenEventUploadingStatus($record); ?>
+                <?php if ($layout == 'current') displayCurrenEventVotingStatus($record); ?>
+            </div>
+            <?php
+            break;
+        default:
+            ?>
+            <div class="table-row">
+                <div class="align-top text-left" style="display: table-cell; width: 80px;"><a
+                            href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><img class="media-object"
+                                                                                             src="<?php echo $record['preview_img'] ?>"
+                                                                                             alt=""></a>
+                </div>
+                <div class="align-middle text-left" style="display: table-cell;"><h4><a
+                                href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><?php echo htmlspecialchars($record['title']) ?></a>
+                    </h4>
+                    <div class="d-none d-sm-block me-1 text-muted"><?php echo $record['dates_desc'] ?></div>
+                </div>
+            </div>
+            <div class="mb-4">
+                <div class="d-block d-sm-none my-1 text-muted"><?php echo $record['dates_desc'] ?></div>
+                <?php echo nl2br($record['announcement']) ?>
+            </div>
+        <?php
     }
 }
 
-if (!empty($upcoming)) {
-    $layout = empty($current) || count($upcoming) < 2 ? 'big' : 'small';
-    foreach ($upcoming as $record) {
-        displayIndexEvent($record, $layout);
+function displayCurrenEventUploadingStatus($record): void {
+    $CCompetitions = new competitions();
+    $compos = [];
+    foreach ($CCompetitions->getRecords(['filter' => [
+        'open_reception' => true,
+        'event_id' => $record['id']]]) as $compo) {
+        $compos[] = $compo;
     }
-}
-
-echo '<div class="well well-sm">';
-echo '<input id="works-search" class="form-control" placeholder="' . $lang_main['search hint'] . '" />';
-echo '</div>';
-
-if ($worksComments) {
-    echo '<div class="hidden-md hidden-sm hidden-lg">';
-    echo '<h2 class="index-head">' . $lang_main['latest comments'] . '</h2>';
-    echo $worksComments;
-    echo '<div style="margin-top: 20px; margin-bottom: 40px;">';
-    echo '<a class="btn btn-lg btn-events-main" href="' . NFW::i()->base_path . 'comments.html">' . $lang_main['all comments'] . '</a>';
-    echo '</div>';
-    echo '</div>';
-}
-
-if (!empty($past)) {
-    echo '<h2 class="index-head">' . $lang_main['latest events'] . '</h2>';
-    foreach ($past as $record) {
-        displayIndexEvent($record);
+    if (count($compos) == 0) {
+        return;
     }
-}
 
-if (count($lastEvents) > 0) {
+    $langMain = NFW::i()->getLang("main");
     ?>
-    <div style="margin-bottom: 40px; text-align: center;">
-        <a class="btn btn-lg btn-primary btn-events-main"
-           href="<?php echo NFW::i()->absolute_path ?>/events"><?php echo $lang_main['all events'] ?></a>
+    <div class="mb-3">
+        <h3><?php echo $langMain['Reception opened'] ?>:</h3>
+        <?php foreach ($compos as $compo): ?>
+            <div class="d-flex flex-row mb-2 justify-content-between gap-2">
+                <a href="<?php echo NFW::i()->absolute_path . '/upload/' . $compo['event_alias'] . '/' . $compo['alias'] ?>"><?php echo htmlspecialchars($compo['title']) ?></a>
+                <div class="text-nowrap text-info"><?php echo $compo['reception_status']['desc'] ?></div>
+            </div>
+        <?php endforeach; ?>
     </div>
     <?php
 }
 
-function displayIndexEvent($record, $layout = 'small'): void {
-    switch ($layout) {
-        case 'small':
-            ?>
-            <div style="padding-bottom: 20px;">
-                <div style="display: table-row;">
-                    <div style="display: table-cell; width: 80px; vertical-align: middle; text-align: left;">
-                        <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><img class="media-object"
-                                                                                            src="<?php echo $record['preview_img'] ?>"
-                                                                                            alt=""/></a>
-                    </div>
-                    <div style="display: table-cell; vertical-align: middle;">
-                        <h4 style="margin-bottom: 0;"><a
-                                    href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><?php echo htmlspecialchars($record['title']) ?></a>
-                        </h4>
-                        <div class="text-muted"><?php echo $record['dates_desc'] ?></div>
-                        <div><?php echo $record['status_label'] ?></div>
-                    </div>
-                </div>
-                <?php if ($record['announcement']): ?>
-                    <p style="padding-top: 0.5em;"><?php echo nl2br($record['announcement']) ?></p>
-                <?php endif; ?>
-            </div>
-            <?php
-            break;
-        case 'big':
-            ?>
-            <div style="padding-bottom: 50px;">
-                <div class="row">
-                    <div class="col-sm-12 col-md-5">
-                        <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>">
-                            <img src="<?php echo $record['preview_img_large'] ?: NFW::i()->assets('main/current-event-large.png') ?>"
-                                 style="width: 100%; margin-top: 20px;" alt=""/>
-                        </a>
-                    </div>
-                    <div class="col-sm-12 col-md-7">
-                        <h2>
-                            <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><?php echo htmlspecialchars($record['title']) ?></a>
-                        </h2>
-                        <div style="font-weight: bold;"><?php echo $record['dates_desc'] ?></div>
-                        <div style="font-size: 200%"><?php echo $record['status_label'] ?></div>
-                        <?php if ($record['announcement']): ?>
-                            <div style="padding-top: 20px;"><?php echo nl2br($record['announcement']) ?></div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-            <?php
-            break;
-        case 'full':
-            $langMain = NFW::i()->getLang("main");
-            ?>
-            <div class="index-current-event">
-                <div class="row">
-                    <div class="col-sm-12 col-md-5">
-                        <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>">
-                            <img src="<?php echo $record['preview_img_large'] ?: NFW::i()->assets('main/current-event-large.png') ?>"
-                                 style="width: 100%; margin-top: 20px;" alt=""/>
-                        </a>
-                    </div>
-                    <div class="col-sm-12 col-md-7">
-                        <div class="hidden-sm hidden-xs">
-                            <h2>
-                                <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><?php echo htmlspecialchars($record['title']) ?></a>
-                            </h2>
+function displayCurrenEventVotingStatus($record): void {
+    $langMain = NFW::i()->getLang("main");
+    ?>
+    <div id="vote-now-container-<?php echo $record['id'] ?>" class="mb-3" style="display: none;">
+        <h3><?php echo $langMain['Voting opened'] ?>:</h3>
+        <div id="vote-now-body-<?php echo $record['id'] ?>"></div>
+    </div>
 
-                            <div style="font-weight: bold;"><?php echo $record['dates_desc'] ?></div>
+    <div id="live-voting-container-<?php echo $record['id'] ?>" style="display: none;">
+        <div class="d-grid d-md-block mb-3">
+            <a href="<?php echo NFW::i()->absolute_path . '/live_voting/' . $record['alias'] ?>"
+               class="btn btn-success btn-lg">Live Voting</a>
+        </div>
+    </div>
 
-                            <?php if ($record['announcement']): ?>
-                                <div style="padding: 10px 0;"><?php echo nl2br($record['announcement']) ?></div>
-                            <?php endif; ?>
-                        </div>
-                        <div class="hidden-lg hidden-md" id="no-live-voting-<?php echo $record['id'] ?>">
-                            <h2>
-                                <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><?php echo htmlspecialchars($record['title']) ?></a>
-                            </h2>
+    <script>
+        const liveVotingContainer = document.getElementById("live-voting-container-<?php echo $record['id']?>");
 
-                            <div style="font-weight: bold;"><?php echo $record['dates_desc'] ?></div>
+        setInterval(updateVotingState, 5000);
+        updateVotingState();
 
-                            <?php if ($record['announcement']): ?>
-                                <div style="padding: 10px 0;"><?php echo nl2br($record['announcement']) ?></div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
+        function updateVotingState() {
+            fetch('/internal_api?action=votingStatus&event_id=<?php echo $record['id']?>').then(response => response.json()).then(response => {
+                updateLiveVoting(response['liveVotingOpen']);
+                updateVotingOpen(response['votingOpen']);
+            });
+        }
 
-                <?php if (!NFW::i()->user['is_guest']): ?>
-                    <div id="live-voting-container-<?php echo $record['id'] ?>" style="display: block;">
-                        <div class="hidden-xs" style="text-align: center">
-                            <a href="<?php echo NFW::i()->absolute_path . '/live_voting/' . $record['alias'] ?>"
-                               class="btn btn-success btn-lg">Live Voting</a>
-                        </div>
-                        <div class="hidden-lg hidden-md hidden-sm">
-                            <a href="<?php echo NFW::i()->absolute_path . '/live_voting/' . $record['alias'] ?>"
-                               class="btn btn-success btn-lg" style="display: flow-root;">Live Voting</a>
-                        </div>
-                    </div>
-                <?php endif; ?>
+        function updateLiveVoting(state) {
+            liveVotingContainer.style.display = state ? "block" : "none";
+        }
 
-                <?php if (!NFW::i()->user['is_guest']): ?>
-                    <div id="vote-now-container-<?php echo $record['id'] ?>" style="display: none;">
-                        <h3><?php echo $langMain['Voting is open'] ?>:</h3>
-                        <div id="vote-now-body-<?php echo $record['id'] ?>" class="vote-now-body"></div>
-                    </div>
-                <?php endif; ?>
+        function updateVotingOpen(values) {
+            const voteNowContainer = document.getElementById("vote-now-container-<?php echo $record['id']?>");
+            const voteNowBody = document.getElementById("vote-now-body-<?php echo $record['id']?>");
 
-                <hr/>
-            </div>
+            if (values.length === 0) {
+                voteNowContainer.style.display = "none";
+                return
+            }
 
-            <?php if (!NFW::i()->user['is_guest']): ?>
-            <script>
-                const liveVotingContainer = document.getElementById("live-voting-container-<?php echo $record['id']?>");
+            voteNowBody.innerHTML = "";
+            values.forEach((compo) => {
+                const title = document.createElement('a');
+                title.innerText = compo['title']
+                title.href = compo['url']
 
-                setInterval(updateVotingState, 5000);
-                updateVotingState();
+                const status = document.createElement('div');
+                status.innerText = compo['statusText']
+                status.className = "text-nowrap text-danger"
 
-                function updateVotingState() {
-                    fetch('/internal_api?action=votingStatus&event_id=<?php echo $record['id']?>').then(response => response.json()).then(response => {
-                        updateLiveVoting(response['liveVotingOpen']);
-                        updateVotingOpen(response['votingOpen']);
-                    });
-                }
+                const item = document.createElement('div');
+                item.className = "d-flex flex-row mb-2 justify-content-between gap-2";
+                item.appendChild(title);
+                item.appendChild(status);
 
-                function updateLiveVoting(state) {
-                    liveVotingContainer.style.display = state ? "block" : "none";
-                }
+                voteNowBody.appendChild(item);
+            })
 
-                function updateVotingOpen(values) {
-                    const voteNowContainer = document.getElementById("vote-now-container-<?php echo $record['id']?>");
-                    const voteNowBody = document.getElementById("vote-now-body-<?php echo $record['id']?>");
-
-                    if (values.length === 0) {
-                        voteNowContainer.style.display = "none";
-                        return
-                    }
-
-                    voteNowBody.innerHTML = "";
-                    values.forEach((compo) => {
-                        const title = document.createElement('a');
-                        title.innerText = compo['title']
-                        title.href = compo['url']
-
-                        const status = document.createElement('div');
-                        status.innerText = compo['statusText']
-                        status.className = "text-danger"
-
-                        const item = document.createElement('div');
-                        item.appendChild(title);
-                        item.appendChild(status);
-
-                        voteNowBody.appendChild(item);
-                    })
-
-                    voteNowContainer.style.display = "block";
-                }
-            </script>
-        <?php endif;
-            break;
-    }
+            voteNowContainer.style.display = "block";
+        }
+    </script>
+    <?php
 }
-	

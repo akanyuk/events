@@ -149,7 +149,7 @@ class live_voting extends active_record {
                     'position' => intval($_POST['position']),
                     'title' => $CWorks->record['title'],
                     'competition_title' => $CWorks->record['competition_title'],
-                    'screenshot' => $CWorks->record['screenshot'] ? cache_media($CWorks->record['screenshot'], 256, 0) : '',
+                    'screenshot' => $CWorks->record['screenshot'] ? cache_media($CWorks->record['screenshot'], 640, 0) : '',
                     'voting_options' => $CEvents->votingOptions(),
                 ];
 

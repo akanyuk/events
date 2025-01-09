@@ -7,6 +7,8 @@
  */
 reset($page);
 
+$adminActivityCnt = works_activity::adminUnread();
+
 NFW::i()->registerResource('bootstrap');
 NFW::i()->registerFunction('page_is');
 
@@ -106,7 +108,10 @@ if (!empty(NFW::i()->breadcrumb)) {
     <div class="container-fluid">
         <div class="hidden-md hidden-lg">
             <div class="pull-right">
-                <a class="navbar-brand" href="/admin" title="Control panel"><span class="fas fa-cog"></span></a>
+                <a class="navbar-brand" href="/admin" title="Control panel">
+                    <span class="fas fa-cog"></span>
+                    <?php echo $adminActivityCnt > 0 ? '<span id="head-activity-badge" class="label label-warning">'.$adminActivityCnt.'</span>' : ''?>
+                </a>
                 <a class="navbar-brand"
                    title="<?php echo NFW::i()->lang['LoggedAs'] . ' ' . htmlspecialchars(NFW::i()->user['username']) ?>"
                    href="<?php echo NFW::i()->base_path ?>admin/profile"><span class="fas fa-user"></span></a>
@@ -147,7 +152,10 @@ if (!empty(NFW::i()->breadcrumb)) {
 
         <div class="hidden-xs hidden-sm">
             <div class="navbar-right">
-                <a class="navbar-brand" href="/admin" title="Control panel"><span class="fas fa-cog"></span></a>
+                <a class="navbar-brand" href="/admin">
+                    <span class="fas fa-cog"></span>
+                    <?php echo $adminActivityCnt > 0 ? '<span id="head-activity-badge" class="label label-warning">'.$adminActivityCnt.'</span>' : ''?>
+                </a>
                 <a class="navbar-brand"
                    title="<?php echo NFW::i()->lang['LoggedAs'] . ' ' . htmlspecialchars(NFW::i()->user['username']) ?>"
                    href="<?php echo NFW::i()->base_path ?>admin/profile"><span class="fas fa-user"></span></a>

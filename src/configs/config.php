@@ -45,6 +45,21 @@ return array(
     'use_browscap' => true,
 
     'media' => array(
+        'availableIcons' => [
+            'ay',
+            'mg2',
+            'mgs',
+            'mp3',
+            'ogg',
+            'pt2',
+            'pt3',
+            'scl',
+            'scr',
+            'sna',
+            'tap',
+            'trd',
+            'tzx',
+        ],
         'MAX_FILE_SIZE' => 67108864,    // MAX_FILE_SIZE # 64Mb
         'MAX_SESSION_SIZE' => 67108864, // MAX_SESSION_SIZE # 64Mb
         'fs_encoding' => 'utf8',        // Filesystem encoding

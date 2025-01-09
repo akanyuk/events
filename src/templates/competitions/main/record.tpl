@@ -1,27 +1,33 @@
 <?php
 /**
- * @var object $Module
- * @var array $event
+ * @var int $competitionID
+ * @var bool $hideWorksCount
  * @var array $competitions
- * @var string $content
+ * @var array $competitionsGroups
+ * @var string $votingBlock
+ * @var string $worksBlock
+ * @var string $announcement
+ * @var string $workComments
  */
-echo $content;
 
-if (empty($competitions)) {
-    return;
-}
+NFW::i()->registerFunction('competitions_list_short');
+$compoList = competitions_list_short($competitionsGroups, $competitions, $hideWorksCount, true, $competitionID);
 
-echo '<div class="event-competitions">';
-echo '<h3><a href="'.NFW::i()->absolute_path.'/'.$event['alias'].'">'.htmlspecialchars($event['title']).'</a></h3>';
-foreach ($competitions as $c) {
-    echo '<h5>';
-    if ($c['id'] == $Module->record['id']) {
-        echo '<strong>'.htmlspecialchars($c['title']).'</strong>';
-    } else if ($c['release_status']['available'] && $c['release_works']) {
-        echo '<a href="'.NFW::i()->absolute_path.'/'.$c['event_alias'].'/'.$c['alias'].'">'.htmlspecialchars($c['title']).'</a>';
-    } else if($c['voting_status']['available'] && $c['voting_works']) {
-        echo '<a href="'.NFW::i()->absolute_path.'/'.$c['event_alias'].'/'.$c['alias'].'">'.htmlspecialchars($c['title']).'</a>';
-    }
-    echo '</h5>';
-}
-echo '</div>';
+// Right column content
+ob_start();
+?>
+<div class="d-none d-md-block">
+    <div class="mb-5"><?php echo $announcement ?></div>
+</div>
+<?php
+echo $compoList;
+NFWX::i()->mainLayoutRightContent = ob_get_clean();
+
+// Main content
+?>
+<div class="d-block d-md-none">
+    <div class="mb-5"><?php echo $announcement ?></div>
+</div>
+
+<?php echo $votingBlock.$worksBlock.$workComments ?>
+

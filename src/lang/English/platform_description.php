@@ -1,7 +1,4 @@
 <?php 
-/**
- * @var $lang_platform_description array
- */
 $lang_platform_description = array (
 	'ZX Spectrum' => array(
 		'default' => array(
@@ -180,7 +177,6 @@ $lang_platform_description = array (
             'default' => array(
                 '256х192, 256х224 or 256х240',
                 '64 colors palette, 31 colors on-screen',
-                '<a href="http://chipwiki.ru/wiki/Master_System/Pixel_Art">Подробнее об ограничениях платформы</a>',
             ),
         )
     ),

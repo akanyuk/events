@@ -6,95 +6,160 @@
  * @var integer $MAX_FILE_SIZE
  * @var integer $MAX_SESSION_SIZE
  */
-NFW::i()->registerResource('jquery.blockUI');	// too long requests
-
-$lang_media = NFW::i()->getLang('media');
-$lang_main = NFW::i()->getLang('main');
+$langMedia = NFW::i()->getLang('media');
+$langMain = NFW::i()->getLang('main');
 ?>
-<script type="text/javascript">
-$(document).ready(function(){
-    const form = $('form[id="<?php echo $session_id?>"]');
-    const submitAvailable = $('*[data-role="submit-available"]');
+<div id="work-files-container"></div>
 
-    form.activeForm({
-		success: function() {
-			form.resetForm().trigger('cleanErrors').trigger('load');
-		}
-	});
+<div class="mb-3">
+    <label for="add-files-file" class="d-block">
+        <span class="d-grid btn btn-success"><?php echo $langMain['works add files'] ?></span>
+        <input type="file" id="add-files-file" style="display:none" multiple/>
+    </label>
+</div>
 
-	form.find('input[name="local_file"]').change(function() {
-		form.submit();
+<div class="mb-3 alert alert-warning">
+    <?php echo $langMedia['MaxFileSize'] ?>:
+    <strong><?php echo number_format(NFW::i()->cfg['media']['MAX_FILE_SIZE'] / 1048576, 2, '.', ' ') . 'Mb' ?></strong>
+</div>
+
+<script type="text/javascript"><?php ob_start();?>
+    const workFilesContainer = document.getElementById("work-files-container");
+    const addFilesBtn = document.getElementById("add-files-file");
+
+    loadWorkMedia();
+
+    addFilesBtn.addEventListener('change', function () {
+        if (this.files.length === 0) {
+            return;
+        }
+
+        addFilesBtn.setAttribute("disabled", "disabled");
+
+        let waitResponses = this.files.length;
+        let needReload = false;
+        for (const file of this.files) {
+            uploadFile(file).then(function () {
+                needReload = true;
+
+                waitResponses--;
+                if (waitResponses === 0) {
+                    afterUpload(true);
+                }
+            }).catch(err => {
+                gErrorToastText.innerText = err;
+                gErrorToast.show();
+
+                waitResponses--;
+                if (waitResponses === 0) {
+                    afterUpload(needReload);
+                }
+            });
+        }
+
+        const afterUpload = function (needReload) {
+            if (needReload) {
+                loadWorkMedia();
+            }
+            addFilesBtn.value = "";
+            addFilesBtn.removeAttribute("disabled");
+        };
     });
-		
-	form.bind('load', function(){
-		$.get("<?php echo NFW::i()->base_path.'media.php?action=list&session_id='.$session_id.'&ts='?>" + new Date().getTime(), function(response){
-			if (response['iTotalRecords'] === 0) {
-                submitAvailable.hide();
-				return false;
-			}
 
-			form.find('*[id="session_size"]').text(response['iSessionSize_str']);
-			form.find('*[id="media-list-rows"]').empty();
+    async function uploadFile(file) {
+        let formData = new FormData();
+        formData.append("local_file", file);
 
-			const rowTemplate = '<tr><td style="white-space: nowrap;"><a href="%url%" target="_blank"><img src="%icon%" title="%basename%" /></a></td><td style="width: 100%;"><a href="%url%" target="_blank">%basename%</a></td><td style="white-space: nowrap;"><a rel="remove-media-file" href="#" id="%id%" class="btn btn-sm btn-danger" title="<?php echo $lang_media['Remove']?>"><span class="fa fa-times"></span></a></td>';
-			
-			$.each(response.aaData, function(i, r){
-                let tpl = rowTemplate.replace(/%id%/g, r.id);
-                tpl = tpl.replace(/%basename%/g, r.basename);
-				tpl = tpl.replace(/%url%/g, r.url);
-				tpl = tpl.replace('%icon%', r.icon_medium); 
-				form.find('*[id="media-list-rows"]').append(tpl);
-			});
+        const response = await fetch('<?php echo NFW::i()->base_path . 'media.php?action=upload&session_id=' . $session_id?>', {
+            method: "POST",
+            body: formData
+        });
+        const resp = await response.text()
+        const result = JSON.parse(resp.replace(/<textarea>/g, '').replace(/<\/textarea>/g, ''));
 
-			// Show submit block
-            submitAvailable.show();
-            const scrollTo = $('*[data-role="submit-available"]:last').offset().top - 128;
-            $('html, body').animate({ scrollTop: scrollTo }, 500);
-		}, 'json');
-	});
+        if (result.result === 'error') {
+            throw new Error(result.errors["local_file"]);
+        }
 
-	$(document).off('click', 'a[rel="remove-media-file"]').on('click', 'a[rel="remove-media-file"]', function(){
-        const file_id = $(this).attr('id');
-        $.post('<?php echo NFW::i()->base_path?>media.php?action=remove', { 'file_id': file_id }, function(){
-			form.trigger('load');
-		});
-		
-		return false;
-	});
+        loadActivity();
+    }
 
-    submitAvailable.hide();
-});
+    function loadWorkMedia() {
+        fetch('<?php echo NFW::i()->base_path . 'cabinet?action=work_files&work_id=' . $owner_id?>').then(response => response.json()).then(response => {
+            workFilesContainer.innerHTML = "";
+
+            response['files'].forEach(f => {
+                let file = document.createElement('div');
+                file.className = "d-flex gap-3 mb-3";
+
+                let iconContainer = document.createElement('div');
+                iconContainer.className = "text-center";
+
+                let iconA = document.createElement('a');
+                iconA.setAttribute("href", f.url);
+
+                let iconImg = document.createElement('img');
+                iconImg.setAttribute("src", f.icon);
+                iconImg.setAttribute("alt", "");
+                iconA.appendChild(iconImg);
+
+                iconContainer.appendChild(iconA);
+
+                let status = document.createElement('div');
+                status.className = "d-flex justify-content-center gap-1";
+                status.appendChild(statusIcon('<?php echo $langMain['filestatus screenshot'] ?>', f['isScreenshot'], 'media-screenshot'));
+                status.appendChild(statusIcon('<?php echo $langMain['filestatus image'] ?>', f['isImage'], 'media-image'));
+                status.appendChild(statusIcon('<?php echo $langMain['filestatus audio'] ?>', f['isAudio'], 'media-audio'));
+                status.appendChild(statusIcon('<?php echo $langMain['filestatus voting'] ?>', f['isVoting'], 'media-voting'));
+                status.appendChild(statusIcon('<?php echo $langMain['filestatus release'] ?>', f['isRelease'], 'media-release'));
+                iconContainer.appendChild(status);
+
+                file.appendChild(iconContainer);
+
+                let desc = document.createElement('div');
+                desc.className = "w-100 overflow-x-hidden";
+
+                let descA = document.createElement('a');
+                descA.setAttribute("href", f.url);
+                descA.innerHTML = f.basename;
+                desc.appendChild(descA);
+
+                let descSm = document.createElement('div');
+                descSm.className = "text-muted small";
+
+                let descSm1 = document.createElement('div');
+                descSm1.innerHTML = "<?php echo $langMain['works uploaded'] . ': '?>" + f['postedBy'];
+                descSm.appendChild(descSm1);
+
+                let descSm2 = document.createElement('div');
+                descSm2.innerHTML = "<?php echo $langMain['works filesize'] . ': '?>" + f['filesize'];
+                descSm.appendChild(descSm2);
+
+                desc.appendChild(descSm);
+
+                file.appendChild(desc);
+
+                workFilesContainer.appendChild(file);
+            });
+        });
+    }
+
+    function statusIcon(title, isActive, icon) {
+        let st = document.createElement('div');
+        st.setAttribute("title", title);
+
+        let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.classList.add(isActive ? 'text-success' : 'text-muted');
+        svg.style.width = '1em';
+        svg.style.height = '1em';
+
+        let use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+        use.setAttribute("href", "#" + icon);
+        svg.appendChild(use);
+
+        st.appendChild(svg);
+        return st;
+    }
+
+    <?php NFWX::i()->mainBottomScript .= ob_get_clean(); ?>
 </script>
-<form id="<?php echo $session_id?>" action="<?php echo NFW::i()->base_path.'media.php?action=upload&session_id='.$session_id?>" enctype="multipart/form-data"><fieldset>
-	<legend><?php echo $lang_main['works add files']?></legend>
-	<input type="hidden" name="owner_id" value="<?php echo $owner_id?>" />
-	<input type="hidden" name="owner_class" value="<?php echo $owner_class?>" />
-	<input type="hidden" name="MAX_FILE_SIZE" value="<?php echo $MAX_FILE_SIZE?>" />
-	
-	<div class="form-group" id="local_file">
-		 <div class="col-md-6">
-		 	<input type="file" name="local_file" />
-		 	<span class="help-block"></span>
-		 </div>
-		<div class="col-md-6">
-			<div class="alert alert-warning dm-alert-cond">
-				<p><?php echo $lang_media['MaxFileSize']?>: <strong><?php echo number_format($MAX_FILE_SIZE / 1048576, 2, '.', ' ')?>Mb</strong></p>
-				<p><?php echo $lang_media['MaxSessionSize']?>: <strong><?php echo number_format($MAX_SESSION_SIZE / 1048576, 2, '.', ' ')?>Mb</strong></p>
-				<p><?php echo $lang_media['CurrentSessionSize']?>: <strong><span id="session_size">0</span>Mb</strong></p>
-			</div>
-		</div>
-	</div>
-	
-	<div data-role="submit-available">
-		<table id="media-list" class="table table-striped table-condensed table-hover">
-			<thead>
-				<tr>
-					<th></th>
-					<th><?php echo $lang_media['File']?></th>
-					<th></th>
-				</tr>
-			</thead>
-			<tbody id="media-list-rows"></tbody>
-		</table>
-	</div>
-</fieldset></form>

@@ -6,15 +6,13 @@ class NFWX extends NFW {
 
     // Come from `settings` DB table
     var $project_settings = array();
-    var array $notify_emails = array();
-    var array $main_menu = array();
 
     var $actual_date = false;
 
-    var array $main_og = array();             # мета теги для Open Graph
-    var bool $main_login_form = true;        # форма авторизации, по умолчанию включена
-    var bool $main_search_box = true;        # строка поиска, по умолчанию включена
-    var bool $main_right_pane = true;        # правая панель, по умолчанию включена
+    var array $main_og = array();             // Open Graph meta tags
+    var string $mainContainerAdditionalClasses = "";
+    var string $mainLayoutRightContent = "";   // The content of the right block of the page. If not specified, the right block is not displayed
+    var string $mainBottomScript = "";
 
     function __construct($init_cfg = null) {
         // Глобально кодировка для mb-операций
@@ -25,8 +23,6 @@ class NFWX extends NFW {
 
         parent::__construct($init_cfg);
         self::$_ext_instance = $this;
-
-        $this->resources_depends['main'] = array('resources' => array('jquery', 'bootstrap3.typeahead', 'font-awesome'));
 
         // Preload all available settings
         $CSettings = new settings();
@@ -54,16 +50,19 @@ class NFWX extends NFW {
     }
 
     function checkPermissions($module = 1, $action = '', $additional = false): bool {
-        if (parent::checkPermissions($module, $action, $additional)) return true;
+        if (parent::checkPermissions($module, $action, $additional)) {
+            return true;
+        }
 
         // Search
-        if ($module == 'works' && $action == 'search') return true;
+        if ($module == 'works' && $action == 'search') {
+            return true;
+        }
 
         // Voting actions
-        if ($module == 'vote' && in_array($action, array('request_votekey', 'add_vote'))) return true;
-
-        // (re) load comments list
-        if ($module == 'works_comments' && $action == 'comments_list') return true;
+        if ($module == 'vote' && in_array($action, array('request_votekey', 'add_vote'))) {
+            return true;
+        }
 
         // Adding works comments - all registered
         if ($module == 'works_comments' && $action == 'add_comment') {
@@ -81,30 +80,34 @@ class NFWX extends NFW {
             return $CCompetitions->record['voting_status']['available'] || $CCompetitions->record['release_status']['available'];
         }
 
-        // --- special permissions for works authors REQUIRED BEFORE event's managers! ---
+        // --- special permissions for works authors and event's managers ---
 
-        // Any operations with `works` session files for authors
-        if ($module == 'works' && in_array($action, array('media_get', 'media_upload', 'media_modify')) && $additional == 0) return true;
+        $managed_events = events::getManaged();
 
-        // Fetching works
-        if ($module == 'works' && $action == 'media_get') {
+        // Any operations with works files for authors and managers
+        if ($module == 'works' && in_array($action, array('media_get', 'media_upload'))) {
+            if ($additional == 0) {
+                return true; // Session upload
+            }
+
             $CWorks = new works($additional);
-            if (!$CWorks->record['id']) return false;
+            if (!$CWorks->record['id']) {
+                return false;
+            }
 
-            // Always return work to author
-            if ($CWorks->record['posted_by'] == NFW::i()->user['id']) return true;
+            return $CWorks->record['posted_by'] == NFW::i()->user['id'] || in_array($CWorks->record['event_id'], $managed_events);
         }
 
-        // --- special permissions for event's managers ---
+        // --- special permissions for event's managers only ---
 
         // The rights are checked later by means of the module
         $bypass_module = array(
             'competitions' => array('set_pos', 'set_dates'),
             'works' => array('get_pos', 'set_pos'),
         );
-        if (isset($bypass_module[$module]) && in_array($action, $bypass_module[$module])) return true;
-
-        $managed_events = events::get_managed();
+        if (isset($bypass_module[$module]) && in_array($action, $bypass_module[$module])) {
+            return true;
+        }
 
         // Access rights to the control panel for all managers
         $allow_cp = array(
@@ -114,10 +117,14 @@ class NFWX extends NFW {
             'users' => array('admin', 'ip2geo'),
             'view_logs' => array('admin', 'export'),
         );
-        if (!empty($managed_events) && isset($allow_cp[$module]) && in_array($action, $allow_cp[$module])) return true;
+        if (!empty($managed_events) && isset($allow_cp[$module]) && in_array($action, $allow_cp[$module])) {
+            return true;
+        }
 
         // Custom calls of checkPermissions
-        if ($module == 'check_manage_event' && in_array($action, $managed_events)) return true;
+        if ($module == 'check_manage_event' && in_array($action, $managed_events)) {
+            return true;
+        }
 
         if ($module == 'events' && $action == 'update') {
             return isset($_GET['record_id']) && in_array($_GET['record_id'], $managed_events);
@@ -146,7 +153,7 @@ class NFWX extends NFW {
             return isset($_GET['event_id']) && in_array($_GET['event_id'], $managed_events);
         }
 
-        if ($module == 'works' && in_array($action, array('update', 'delete', 'preview', 'update_work', 'update_status', 'update_links', 'my_status'))) {
+        if ($module == 'works' && in_array($action, ['update', 'delete', 'preview', 'update_work', 'update_status', 'update_links', 'my_status'])) {
             if (!isset($_GET['record_id'])) {
                 return false;
             }
@@ -155,7 +162,16 @@ class NFWX extends NFW {
             return in_array($CWorks->record['event_id'], $managed_events);
         }
 
-        if ($module == 'works_media' && in_array($action, array('update_properties', 'file_id_diz', 'make_release', 'remove_release'))) {
+        if ($module == 'works' && in_array($action, array('media_get', 'media_upload', 'media_modify')) && $additional) {
+            $CWorks = new works($additional);
+            if (!$CWorks->record['id']) {
+                return false;
+            }
+
+            return in_array($CWorks->record['event_id'], $managed_events);
+        }
+
+        if ($module == 'works_media' && in_array($action, ['update_properties', 'file_id_diz', 'make_release', 'remove_release'])) {
             if (!isset($_GET['record_id'])) {
                 return false;
             }
@@ -164,7 +180,7 @@ class NFWX extends NFW {
             return in_array($CWorks->record['event_id'], $managed_events);
         }
 
-        if ($module == 'works_media' && in_array($action, array('rename_file', 'preview_zx', 'convert_zx'))) {
+        if ($module == 'works_media' && in_array($action, ['rename_file', 'preview_zx', 'convert_zx'])) {
             $CMedia = new media($_POST['file_id']);
             if ($CMedia->record['owner_class'] != "works") {
                 return false;
@@ -174,8 +190,12 @@ class NFWX extends NFW {
             return in_array($CWorks->record['event_id'], $managed_events);
         }
 
-        if ($module == 'works' && ($action == 'media_get' || $action == 'media_upload' || $action == 'media_modify') && $additional) {
-            $CWorks = new works($additional);
+        if ($module == 'works_activity' && ($action == 'list' || $action == 'message')) {
+            if (!isset($_GET['work_id'])) {
+                return false;
+            }
+
+            $CWorks = new works($_GET['work_id']);
             return in_array($CWorks->record['event_id'], $managed_events);
         }
 
@@ -215,22 +235,40 @@ class NFWX extends NFW {
         return false;
     }
 
-    function renderNews($options = array()) {
-        $CNews = new news();
-        if (!$records = $CNews->getRecords($options)) {
-            return false;
+    // Authenticate user if possible
+    function login($action = '', $login_options = array()) {
+        if (!isset($_GET['action']) || $_GET['action'] != 'login') {
+            parent::login($action, $login_options);
+            return;
         }
 
-        // Generate paging links
-        $baseURL = $options['pagination_baseurl'] ?? NFW::i()->absolute_path . '/news.html';
-        $paging_links = $CNews->num_pages > 1 ? $this->paginate($CNews->num_pages, $CNews->cur_page, $baseURL, ' ') : '';
+        // Authentication via Bootstrap v5 UI
+        $this->user = $this->default_user;
+        $this->user['language'] = $this->current_language;
 
-        // Render page content
-        return $CNews->renderAction(array(
-            'category' => $options['category'] ?? null,
-            'records' => $records,
-            'paging_links' => $paging_links,
-        ), $options['template']);
+        $classname = isset(NFW::i()->cfg['auth_class']) && NFW::i()->cfg['auth_class'] ? NFW::i()->cfg['auth_class'] : 'users';
+        $CUsers = new $classname ();
+
+        $req = json_decode(file_get_contents('php://input'));
+        if (!$account = $CUsers->authentificate($req->username, $req->password)) {
+            $langCookie = NFW::i()->cfg['cookie']['name'] . '_lang';
+            if (isset($_COOKIE[$langCookie]) && in_array($_COOKIE[$langCookie], array('Russian', 'English')) && $_COOKIE[$langCookie] != $this->user['language']) {
+                $this->user['language'] = $_COOKIE[$langCookie];
+                // Reload lang file
+                $this->current_language = $this->user['language'];
+                $this->lang = $this->getLang('nfw_main');
+            }
+
+            $this->jsonError(400, $this->lang['Errors']['Wrong_auth']);
+        }
+
+        $this->user = $account;
+        $this->user['is_guest'] = false;
+
+        $CUsers->cookie_update($this->user);
+        logs::write(logs::KIND_LOGIN);
+
+        $this->jsonSuccess();
     }
 
     function paginate($num_pages, $cur_page, $link_to, $separator = ", "): string {
@@ -245,13 +283,13 @@ class NFWX extends NFW {
         }
 
         if ($num_pages <= 1)
-            $pages = array('<li class="active"><span>1</span></li>');
+            $pages = array('<li class="page-item active"><a class="page-link">1</a></li>');
         else {
             if ($cur_page > 3) {
-                $pages[] = '<li><a href="' . $link_to . $first_letter . 'p=1">1</a></li>';
+                $pages[] = '<li class="page-item"><a class="page-link" href="' . $link_to . $first_letter . 'p=1">1</a></li>';
 
                 if ($cur_page != 4)
-                    $pages[] = '<li class="disabled"><span>...</span></li>';
+                    $pages[] = '<li class="page-item disabled"><a class="page-link">...</a></li>';
             }
 
             // Don't ask me how the following works. It just does, OK? :-)
@@ -259,20 +297,20 @@ class NFWX extends NFW {
                 if ($current < 1 || $current > $num_pages)
                     continue;
                 else if ($current != $cur_page || $link_to_all)
-                    $pages[] = '<li><a href="' . $link_to . $first_letter . 'p=' . $current . '">' . $current . '</a></li>';
+                    $pages[] = '<li class="page-item"><a class="page-link" href="' . $link_to . $first_letter . 'p=' . $current . '">' . $current . '</a></li>';
                 else
-                    $pages[] = '<li class="active"><span>' . $current . '</span></li>';
+                    $pages[] = '<li class="page-item active"><a class="page-link">' . $current . '</a></li>';
             }
 
             if ($cur_page <= ($num_pages - 3)) {
                 if ($cur_page != ($num_pages - 3))
-                    $pages[] = '<li class="disabled"><span>...</span></li>';
+                    $pages[] = '<li class="page-item disabled"><a class="page-link">...</a></li>';
 
-                $pages[] = '<li><a href="' . $link_to . $first_letter . 'p=' . $num_pages . '">' . $num_pages . '</a></li>';
+                $pages[] = '<li><a class="page-link" href="' . $link_to . $first_letter . 'p=' . $num_pages . '">' . $num_pages . '</a></li>';
             }
         }
 
-        return '<ul class="pagination">' . implode($separator, $pages) . '</ul>';
+        return '<nav><ul class="pagination">' . implode($separator, $pages) . '</ul></nav>';
     }
 
     function safeFilename($filename) {
@@ -298,35 +336,14 @@ class NFWX extends NFW {
         }
     }
 
-    function sendNotify($tp, $event_id, $data = array(), $attachments = array()): bool {
-        foreach ($this->notify_emails as $email) {
-            email::sendFromTemplate($email, $tp, array('data' => $data));
-        }
-
-        $query = array(
-            'SELECT' => 'u.email',
-            'FROM' => 'events_managers AS e',
-            'JOINS' => array(
-                array(
-                    'INNER JOIN' => 'users AS u',
-                    'ON' => 'e.user_id=u.id'
-                ),
-            ),
-            'WHERE' => 'e.event_id=' . $event_id
-        );
-        if (!$result = NFW::i()->db->query_build($query)) return false;
-        while ($u = NFW::i()->db->fetch_assoc($result)) {
-            email::sendFromTemplate($u['email'], $tp, array('data' => $data), $attachments);
-        }
-
-        return true;
-    }
-
-    function jsonError(int $errorCode, $req = array()) {
+    function jsonError(int $errorCode, $req = array(), $generalMsg = "") {
         if (is_array($req)) {
             $response = [
                 'errors' => $req,
             ];
+            if ($generalMsg != "") {
+                $response['errors']['general'] = $generalMsg;
+            }
         } else {
             $response = [
                 'errors' => [

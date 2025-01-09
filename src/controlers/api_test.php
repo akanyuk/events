@@ -1,11 +1,8 @@
 <?php
-NFWX::i()->main_search_box = false;
-NFWX::i()->main_right_pane = false;
-
-NFW::i()->registerResource('jquery.activeForm');
-active_field('set_defaults', array('labelCols' => 4, 'inputCols' => 8));
-
-ob_start();
+	NFW::i()->registerResource('jquery.activeForm');
+    active_field('set_defaults', array('labelCols' => 2, 'inputCols' => 10));
+	
+	ob_start();
 ?>
     <style>
         FORM {

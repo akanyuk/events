@@ -136,7 +136,7 @@ function workLink($work): string {
 }
 
 function adminSidebarEvents() {
-    $managed_events = events::get_managed();
+    $managed_events = events::getManaged();
     if (empty($managed_events)) return array();
 
     $query = array(
