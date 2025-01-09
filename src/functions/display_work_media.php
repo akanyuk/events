@@ -40,75 +40,76 @@ function display_work_media(array $work = array(), array $options = array()) {
 
     $langMain = NFW::i()->getLang('main');
 
-    $platformFormat = '<div class="label label-platform" title="' . $langMain['works platform'] . '">' . htmlspecialchars($work['platform']) . '</div>';
+    $platformFormat = '<div class="badge badge-platform me-1 mb-2" title="' . $langMain['works attributes']['platform'] . '">' . htmlspecialchars($work['platform']) . '</div>';
     if ($work['format']) {
-        $platformFormat .= '<div class="label label-format" title="' . $langMain['works format'] . '">' . htmlspecialchars($work['format']) . '</div>';
+        $platformFormat .= '<div class="badge badge-format" title="' . $langMain['works attributes']['format'] . '">' . htmlspecialchars($work['format']) . '</div>';
     }
 
     ob_start();
 
-    echo '<div class="works-media-container" id="work-' . $work['id'] . '">';    # special for external custom styling
+    echo '<div class="work-container mb-5">';
 
     // Display header
 
+    if ($options['rel'] == 'voting' && !$options['single']) {
+        $headerPrefix = $work['position'] . '. ';
+    } elseif ($options['rel'] == 'release' && $work['place']) {
+        $headerPrefix = '<span class="badge badge-place me-2">' . $work['place'] . '</span>';
+    } else {
+        $headerPrefix = "";
+    }
+
     if ($options['rel'] == 'preview') {
-        $headerTitle = '<h2>' . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</h2>';
+        $headerTitle = '<h2>' . $headerPrefix . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</h2>';
     } elseif ($options['rel'] == 'voting' && $options['single']) {
-        $headerTitle = '<h2>' . htmlspecialchars($work['title']) . '</h2>';
+        $headerTitle = '<h2>' . $headerPrefix . htmlspecialchars($work['title']) . '</h2>';
     } else if ($options['rel'] == 'voting' && !$options['single']) {
-        $headerTitle = '<h3><a href="' . $work['main_link'] . '">' . htmlspecialchars($work['title']) . '</a></h3>';
+        $headerTitle = '<h2>' . $headerPrefix . '<a href="' . $work['main_link'] . '#title">' . htmlspecialchars($work['title']) . '</a></h2>';
     } else if ($options['rel'] == 'release' && $options['single']) {
-        $headerTitle = '<h2>' . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</h2>';
+        $headerTitle = '<h2>' . $headerPrefix . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</h2>';
     } else if ($options['rel'] == 'release' && !$options['single']) {
-        $headerTitle = '<h3><a href="' . $work['main_link'] . '"/>' . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</a></h3>';
+        $headerTitle = '<h2>' . $headerPrefix . '<a href="' . $work['main_link'] . '#title"/>' . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</a></h2>';
     } else {
         $headerTitle = "";
     }
 
-    if ($options['rel'] == 'voting' && !$options['single']) {
-        $headerNumber = '<h3>' . $work['position'] . '.</h3>';
-    } elseif ($options['rel'] == 'release' && $work['place']) {
-        $headerNumber = '<span class="label label-place" style="font-size: 150%;">' . $work['place'] . '</span>';
-    } else {
-        $headerNumber = false;
+    echo '<div id="title" style="position: relative; top: -50px;"></div>'.$headerTitle . $platformFormat . platformDescription($work);
+
+    if ($work['author_note']) {
+        echo '<div class="alert alert-info d-flex align-items-center">
+        <svg class="flex-shrink-0 me-3" width="1.2em" height="1.2em" data-bs-toggle="tooltip"
+             data-bs-title="'.$langMain['works attributes']['author_note'].'">
+            <use xlink:href="#icon-circle-fill"/>
+        </svg>
+        <div>'.nl2br($work['author_note']).'</div>
+    </div>';
     }
-
-    echo '<div class="header">';
-    echo '<div class="row">';
-    echo $headerNumber ? '<div class="cell cell-number">' . $headerNumber . '</div>' : '';
-    echo '<div class="cell">' . $headerTitle . '</div>';
-    echo '</div>';
-
-    echo '<div class="row">';
-    echo $headerNumber ? '<div class="cell"></div>' : '';
-    echo '<div class="cell cell-platform">' . $platformFormat . '</div>';
-    echo '</div>';
-    echo '</div>';
-    echo platformDescription($work);
-
-    echo $work['author_note'] ? '<div class="author-note"><strong>' . $langMain['works author note'] . ':</strong><br />' . nl2br($work['author_note']) . '</div>' : '';
 
     list($linksHTML, $navHTML) = prepareWorkLinks($langMain, $work, $linksProps, $options['rel']);
 
-    echo '<div class="additional-html">' . $work['external_html'] . '</div>' . $navHTML . '<div id="work-iframe"></div>';
+    echo '<div class="mb-3">' . $work['external_html'] . '</div>' . $navHTML . '<div id="work-iframe"></div>';
 
     if (!empty($work['audio_files'])) {
-        echo '<div style="padding: 5px 0;"><audio controls="controls" preload="">';
+        echo '<div class="mb-3"><audio controls="controls" preload="">';
         foreach ($work['audio_files'] as $f) echo '<source src="' . cache_media($f) . '" type="' . $f['mime_type'] . '" />';
         echo $langMain['voting audio not support'] . '</audio></div>';
     }
 
     echo $linksHTML;
 
-    if ($options['rel'] != 'preview' && !$options['single']) {
-        echo '<div style="padding-top: 10px;"><a class="btn btn-default" href="' . NFW::i()->absolute_path . '/' . $work['event_alias'] . '/' . $work['competition_alias'] . '/' . $work['id'] . '#comments">' . $langMain['works comments count'] . ' ' . ($work['comments_count'] ? '<span class="badge">' . $work['comments_count'] . '</span>' : '') . '</a></div>';
-    }
-
-    echo '<div style="padding-top: 15px;">';
+    echo '<div class="mb-3">';
     if ($options['rel'] == 'voting' && !empty($options['vote_options'])) {
-        echo '<select name="votes[' . $work['id'] . ']" id="' . $work['id'] . '" class="form-control work-vote" style="display: inline;">';
-        foreach ($options['vote_options'] as $i => $d) echo '<option value="' . $i . '">' . $d . '</option>';
-        echo '</select>';
+        echo '<div class="btn-group btn-group-sm gap-1 w-640" role="group" aria-label="Voting options">';
+        foreach ($options['vote_options'] as $i => $d) {
+            if ($i == 0) {
+                continue;
+            }
+
+            $tooltip = $d === "" || strval($i) === $d ? '' : 'data-bs-toggle="tooltip" data-bs-title="' . htmlspecialchars($d) . '"';
+            echo '<button type="button" class="btn btn-outline-success btn-vote" ' . $tooltip . '
+                data-role="vote" data-work-id="' . $work['id'] . '" data-vote-value="' . $i . '">' . $i . '</button>';
+        }
+        echo '</div>';
     } elseif ($options['rel'] == 'release' && $work['num_votes']) {
         $vs = isset($options['voting_system']) && $options['voting_system'] ? $options['voting_system'] : 'avg';
 
@@ -116,41 +117,41 @@ function display_work_media(array $work = array(), array $options = array()) {
 
         $sum = 'sum:<strong>' . $work['total_scores'] . '</strong>';
         if ($vs == 'sum') {
-            $sum = '<span class="label label-vts">'.$sum.'</span>';
+            $sum = '<span class="badge badge-vts">' . $sum . '</span>';
         }
-        echo ' '.$sum;
+        echo ' ' . $sum;
 
         $avg = 'avg:<strong>' . $work['average_vote'] . '</strong>';
         if ($vs == 'avg') {
-            $avg = '<span class="label label-vts">'.$avg.'</span>';
+            $avg = '<span class="badge badge-vts">' . $avg . '</span>';
         }
-        echo ' '.$avg;
+        echo ' ' . $avg;
 
         if (isset($work['iqm_vote']) && $work['iqm_vote'] > 0) {
             $iqm = 'iqm:<strong>' . $work['iqm_vote'] . '</strong>';
             if ($vs == 'iqm') {
-                $iqm = '<span class="label label-vts">'.$iqm.'</span>';
+                $iqm = '<span class="badge badge-vts">' . $iqm . '</span>';
             }
-            echo ' '.$iqm;
+            echo ' ' . $iqm;
         }
     }
-    echo '</div>'; # <div style="padding-top: 10px;">
+    echo '</div>';
 
-
-    if (in_array($work['event_id'], events::get_managed())) {
-        echo '<div style="padding-top: 15px;">';
-        echo '<a class="btn btn-default" href="'.NFW::i()->absolute_path.'/admin/works?action=update&record_id='.$work['id'].'"><i class="fas fa-edit"></i> Edit work profile</a>';
-        echo '</div>';
+    $actionLinks = [];
+    if ($options['rel'] != 'preview' && !$options['single']) {
+        $actionLinks[] = '<a class="btn btn-primary" href="' . $work['main_link'] . '#comments">' . $langMain['works comments count'] . ' ' . ($work['comments_count'] ? '<span class="badge rounded-circle text-bg-secondary">' . $work['comments_count'] . '</span>' : '') . '</a>';
+    }
+    if ($work['posted_by'] == NFW::i()->user['id'] && $options['rel'] != 'preview') {
+        $actionLinks[] = '<a class="btn btn-warning" href="' . NFW::i()->absolute_path . '/cabinet/works_view?record_id=' . $work['id'] . '" title="Open in &laquo;My Files&raquo;"><svg width="1em" height="1em"><use href="#icon-house-gear-fill"></use></svg></a>';
+    }
+    if (in_array($work['event_id'], events::getManaged()) && $options['rel'] != 'preview') {
+        $actionLinks[] = '<a class="btn btn-warning" href="' . NFW::i()->absolute_path . '/admin/works?action=update&record_id=' . $work['id'] . '" title="Edit work"><svg width="1em" height="1em"><use href="#icon-gear-fill"></use></svg></a>';
+    }
+    if (count($actionLinks) > 0) {
+        echo '<div class="mb-3 d-flex gap-1">' . implode('', $actionLinks) . '</div>';
     }
 
-    if ($options['rel'] == 'voting') {
-        echo '
-            <div style="padding-top: 10px;">
-                <textarea class="form-control work-comment" name="comment[' . $work['id'] . ']" placeholder="' . $langMain['works your comment'] . '"></textarea>
-            </div>';
-    }
-
-    echo '</div>';    # <div class="works-media-container">
+    echo '</div>';
 
     return ob_get_clean();
 }
@@ -161,8 +162,8 @@ function prepareWorkLinks($langMain, $work, $linksProps, $rel): array {
     $navHTML = [];
 
     foreach ($work['image_files'] as $f) {
-        $iframe = '<div class="img-container"><img src="' . cache_media($f, IMAGE_WIDTH) . '" alt="" /></div>';
-        $navHTML[] = '<li><a data-role="work-iframe-toggle" data-iframe="' . htmlspecialchars($iframe) . '" href="' . $f['url'] . '">' . ucfirst($f['filename']) . '</a></li>';
+        $iframe = '<div class="img-container mb-3"><img src="' . cache_media($f, IMAGE_WIDTH) . '" alt="" /></div>';
+        $navHTML[] = '<li class="nav-item"><a class="nav-link" data-role="work-iframe-toggle" data-iframe="' . htmlspecialchars($iframe) . '" href="' . $f['url'] . '">' . ucfirst($f['filename']) . '</a></li>';
     }
 
     foreach ($work['links'] as $l) {
@@ -181,7 +182,7 @@ function prepareWorkLinks($langMain, $work, $linksProps, $rel): array {
             if (isset($linksProps[$url]['iframe'])) {
                 list($iframe, $linkURL) = $linksProps[$url]['iframe']($linkURL);
                 if ($iframe != "") {
-                    $navHTML[] = '<li role="presentation"><a href="' . $linkURL . '" data-role="work-iframe-toggle" data-iframe="' . htmlspecialchars($iframe) . '"><span class="icon" style="background-position: ' . $bgPos . ';"></span>' . $title . '</a></li>';
+                    $navHTML[] = '<li class="nav-item"><a class="nav-link" href="' . $linkURL . '" data-role="work-iframe-toggle" data-iframe="' . htmlspecialchars($iframe) . '"><span class="icon" style="background-position: ' . $bgPos . ';"></span>' . $title . '</a></li>';
                     continue;
                 }
             }
@@ -207,7 +208,7 @@ function prepareWorkLinks($langMain, $work, $linksProps, $rel): array {
 
     return [
         empty($linksHTML) ? '' : '<div class="links">' . implode('', $linksHTML) . '</div>',
-        empty($navHTML) ? '' : '<ul id="work-frames-nav" class="nav nav-pills" style="display: ' . (count($navHTML) > 1 ? 'block' : 'none') . '">' . implode('', $navHTML) . '</ul>',
+        empty($navHTML) ? '' : '<ul id="work-frames-nav" class="nav nav-underline mb-2" style="display: ' . (count($navHTML) > 1 ? 'flex' : 'none') . '">' . implode('', $navHTML) . '</ul>',
     ];
 }
 
@@ -247,7 +248,7 @@ function vkVideoIframeCreator($url): array {
     }
 
     return [
-        '<iframe src="https://vk.com/video_ext.php?oid=-' . $oid . '&id=' . $id . $hashStr . '&hd=1" width="640" height="360" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" allowfullscreen style="border: none;"></iframe>',
+        '<iframe width="640" height="360" src="https://vk.com/video_ext.php?oid=-' . $oid . '&id=' . $id . $hashStr . '&hd=1" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" allowfullscreen style="border: none;"></iframe>',
         preg_replace('%(&hash=.*)&?#?%i', '', $url),
     ];
 }
@@ -283,5 +284,5 @@ function platformDescription($work): string {
         return '';
     }
 
-    return '<ul class="platform-description"><li>' . implode('</li><li>', $pd) . '</li></ul>';
+    return '<ul><li>' . implode('</li><li>', $pd) . '</li></ul>';
 }

@@ -21,12 +21,30 @@ switch ($_GET['action']) {
         $req = json_decode(file_get_contents('php://input'));
         $CVote = new vote();
         if (!$CVote->addLiveVoteByRegisteredUser($req->workID, $req->vote)) {
-            NFWX::i()->jsonError("400", $CVote->last_msg);
+            NFWX::i()->jsonError(400, $CVote->last_msg);
         }
         NFWX::i()->jsonSuccess();
         break;
+    case 'vote':
+        $req = json_decode(file_get_contents('php://input'));
+        $CVote = new vote();
+        if (!$CVote->addVote($req->workID, $req->vote, $req->username, $req->votekey)) {
+            NFWX::i()->jsonError(400, $CVote->errors, $CVote->last_msg);
+        }
+        NFWX::i()->jsonSuccess();
+        break;
+    case 'requestVotekey':
+        $req = json_decode(file_get_contents('php://input'));
+        $CVotekeys = new votekeys();
+        if (!$CVotekeys->requestVotekey($_GET['event_id'], $req->email)) {
+            NFWX::i()->jsonError(400, $CVotekeys->last_msg);
+        }
+
+        $langMain = NFW::i()->getLang('main');
+        NFWX::i()->jsonSuccess(['message' => $langMain['votekey-request success note']]);
+        break;
     default:
-        NFWX::i()->jsonError("400", "Unknown action");
+        NFWX::i()->jsonError(400, "Unknown action");
 }
 
 function liveVoting(int $eventID, $state) {
@@ -43,7 +61,7 @@ function liveVoting(int $eventID, $state) {
         return $a['position'] > $b['position'];
     });
 
-    $state['currentAnnounce'] = 'NOW: '.$state['works'][0]['competition_title'];
+    $state['currentAnnounce'] = 'NOW: ' . $state['works'][0]['competition_title'];
 
     // Fetching already voted
     $votekey = votekey::findOrCreateVotekey($eventID, NFW::i()->user['email']);

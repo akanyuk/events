@@ -1,32 +1,20 @@
 <?php
 /** @var works $Module */
 
-$lang_main = NFW::i()->getLang('main');
+$langMain = NFW::i()->getLang('main');
+$langMedia = NFW::i()->getLang('media');
 
+NFW::i()->assign('page_title', $Module->record['title'] . ' / ' . $langMain['cabinet prods']);
 NFW::i()->breadcrumb = array(
-    array('url' => 'cabinet/works?action=list', 'desc' => $lang_main['cabinet prods']),
-    array('desc' => $Module->record['title'])
+    array('url' => 'cabinet/works_list', 'desc' => $langMain['cabinet prods']),
+    array('desc' => $Module->record['title'] . ' by ' . $Module->record['author'])
 );
+NFW::i()->breadcrumb_status = $Module->record['event_title'] . '&nbsp;/ ' . $Module->record['competition_title'];
 
-NFW::i()->registerResource('jquery.activeForm');
+NFW::i()->registerResource('base');
+NFW::i()->registerFunction('display_work_media');
 
 $CCompetitions = new competitions($Module->record['competition_id']);
-
-NFW::i()->assign('page_title', $Module->record['title'] . ' / ' . $lang_main['cabinet prods']);
-
-$placeTitle = array();
-if ($Module->record['average_vote']) {
-    $placeTitle[] = $lang_main['works average_vote'] . ':&nbsp;<strong>' . $Module->record['average_vote'] . '</strong>';
-}
-if ($Module->record['iqm_vote']) {
-    $placeTitle[] = 'IQM :&nbsp;<strong>' . $Module->record['iqm_vote'] . '</strong>';
-}
-if ($Module->record['num_votes']) {
-    $placeTitle[] = $lang_main['works num_votes'] . ':&nbsp;<strong>' . $Module->record['num_votes'] . '</strong>';
-}
-if ($Module->record['total_scores']) {
-    $placeTitle[] = $lang_main['works total_scores'] . ':&nbsp;<strong>' . $Module->record['total_scores'] . '</strong>';
-}
 
 // Is the prod visible in public
 if ($CCompetitions->record['voting_status']['available'] && $Module->record['status_info']['voting']) {
@@ -37,216 +25,243 @@ if ($CCompetitions->record['voting_status']['available'] && $Module->record['sta
     $isPublished = false;
 }
 
-// Success dialog
-NFW::i()->registerFunction('ui_dialog');
-$successDialog = new ui_dialog();
-$successDialog->render();
+echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
 ?>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('form[id="works-add-files"]').activeForm({
-                action: "<?php echo NFW::i()->base_path . 'cabinet/works?action=add_media&record_id=' . $Module->record['id']?>",
-                error: function(response) {
-                    if (response['responseJSON']['errors']['general'] !== undefined) {
-                        alert(response['responseJSON']['errors']['general']);
-                    }
-                    return false;
-                },
-                success: function (response) {
-                    $('div[id="on-complete-removable-aria"]').remove();
-
-                    $(document).trigger('show-<?php echo $successDialog->getID()?>', [response.message]);
-                    $(document).on('hide-<?php echo $successDialog->getID()?>', function () {
-                        window.location.reload();
-                    });
-                }
-            });
-        });
-    </script>
-    <style>
-        TABLE.work-files-list > tbody > tr > TD {
-            vertical-align: middle;
-        }
-
-        TABLE.work-files-list TD.filestatus .fa {
-            font-size: 200%;
-        }
-
-        .file-status-xs .fa {
-            font-size: 120%;
-        }
-
-        TABLE.work-files-list .smalldesc {
-            font-size: 90%;
-        }
-
-        @media (max-width: 768px) {
-            TABLE.work-files-list .smalldesc {
-                white-space: nowrap;
-                overflow: hidden;
-                font-size: 80%;
-                margin: 0;
-            }
-        }
-    </style>
-
-<?php ob_start(); ?>
-<?php if ($Module->record['place']): ?>
-    <div style="font-size: 600%; text-align: center; padding-bottom: 10px;">
-        <span class="label label-place" title="Place"><?php echo $Module->record['place'] ?></span>
+    <div class="d-md-none">
+        <?php echo startBlock($Module->record, $isPublished); ?>
     </div>
-    <div style="text-align: center; font-size: 80%;"><?php echo implode('<br />', $placeTitle) ?></div>
-    <hr/>
-<?php endif; ?>
-    <dl class="dl-horizontal">
-        <dt><?php echo $lang_main['works title'] ?>:</dt>
-        <dd><?php echo htmlspecialchars($Module->record['title'] . ($Module->record['author'] ? ' by ' . $Module->record['author'] : '')) ?></dd>
-        <dt><?php echo $lang_main['works platform'] ?>:</dt>
-        <dd><?php echo htmlspecialchars($Module->record['platform'] . ($Module->record['format'] ? ' / ' . $Module->record['format'] : '')) ?></dd>
-        <dt><?php echo $lang_main['event'] ?>:</dt>
-        <dd><?php echo $Module->record['event_title'] ?></dd>
-        <dt><?php echo $lang_main['competition'] ?>:</dt>
-        <dd><?php echo $Module->record['competition_title'] ?> <em>(<?php echo $Module->record['works_type'] ?>)</em>
-        </dd>
 
-        <?php if (!$Module->record['place']): ?>
-            <dt><?php echo $lang_main['works voting'] ?>:</dt>
-            <dd class="<?php echo $CCompetitions->record['voting_status']['text-class'] ?>"><?php echo $CCompetitions->record['voting_status']['desc'] ?></dd>
-        <?php endif; ?>
+    <div class="badge text-bg-danger">PREVIEW!</div>
+    <hr class="mt-0"/>
+<?php echo display_work_media($Module->record, array('rel' => 'preview')); ?>
+    <hr class="d-md-none mt-0"/>
 
-        <dd>&nbsp;</dd>
-        <dt><?php echo $lang_main['works status'] ?></dt>
-        <dd>
-            <span class="label label-<?php echo $Module->record['status_info']['css-class'] ?>"><?php echo $Module->record['status_info']['desc'] ?></span>
-        </dd>
-        <dd><?php echo $Module->record['status_info']['desc_full'] ?></dd>
-        <dt><?php echo $lang_main['works voting'] ?></dt>
-        <dd>
-            <?php echo $Module->record['status_info']['voting'] ? '<span class="label label-success">On</span>' : '<span class="label label-default">Off</span>' ?>
-        </dd>
-        <dt><?php echo $lang_main['works release'] ?></dt>
-        <dd>
-            <?php echo $Module->record['status_info']['release'] ? '<span class="label label-success">On</span>' : '<span class="label label-default">Off</span>' ?>
-        </dd>
-        <?php if ($Module->record['status_reason']): ?>
-            <dt><?php echo $lang_main['works reason'] ?></dt>
-            <dd><span class="text-warning"><?php echo nl2br($Module->record['status_reason']) ?></span></dd>
-        <?php endif ?>
+    <div class="mb-5">
+        <section id="work-activity-top"></section>
 
-        <?php if ($isPublished): $permalink = NFW::i()->absolute_path . '/' . $Module->record['event_alias'] . '/' . $Module->record['competition_alias'] . '/' . $Module->record['id']; ?>
-            <dd>&nbsp;</dd>
-            <dt><?php echo $lang_main['works permanent link'] ?>:</dt>
-            <dd><a href="<?php echo $permalink ?>"><?php echo $permalink ?></a></dd>
-        <?php endif; ?>
+        <h3><?php echo $langMain['Activity']?></h3>
 
-        <dd>&nbsp;</dd>
-        <dt><?php echo NFW::i()->lang['Posted'] ?>:</dt>
-        <dd><?php echo date('d.m.Y H:i:s', $Module->record['posted']) . ' (' . $Module->record['posted_username'] . ')' ?></dd>
-        <?php if ($Module->record['edited']): ?>
-            <dt><?php echo NFW::i()->lang['Updated'] ?>:</dt>
-            <dd><?php echo date('d.m.Y H:i:s', $Module->record['edited']) . ' (' . $Module->record['edited_username'] . ')' ?></dd>
-        <?php endif; ?>
-    </dl>
+        <div class="d-grid d-sm-block">
+            <button id="show-all-activity" class="btn btn-secondary btn-sm d-none mb-3">Show early activity
+            </button>
+        </div>
 
-    <h3><?php echo $lang_main['works files'] ?></h3>
-    <table class="table table-condensed table-striped work-files-list">
-        <tbody>
-        <?php
-        foreach ($Module->record['media_info'] as $a) {
-            if ($a['type'] == 'image') {
-                list($width, $height) = getimagesize($a['fullpath']);
-                $a['image_size'] = '[' . $width . 'x' . $height . ']';
-                $a['icon'] = $a['tmb_prefix'] . '64';
-            } else {
-                $a['image_size'] = false;
-                $a['icon'] = $a['icons']['64x64'];
-            }
-            ?>
-            <tr>
-                <td><a href="<?php echo $a['url'] ?>"><img src="<?php echo $a['icon'] ?>" alt=""/></a></td>
-                <td class="full">
-                    <div style="white-space: nowrap;">
-                        <strong><a href="<?php echo $a['url'] ?>"><?php echo htmlspecialchars($a['basename']) ?></a></strong>
-                        <span class="file-status-xs hidden-sm hidden-md hidden-lg">
-                            <?php if ($a['is_screenshot']): ?>
-                                <span class="fa fa-camera text-success" title="<?php echo $lang_main['filestatus screenshot']?>"></span>
-                            <?php endif;?>
-                            <?php if ($a['is_image']): ?>
-                                <span class="fa fa-image text-success" title="<?php echo $lang_main['filestatus image']?>"></span>
-                            <?php endif;?>
-                            <?php if ($a['is_audio']): ?>
-                                <span class="fa fa-headphones text-success" title="<?php echo $lang_main['filestatus audio']?>"></span>
-                            <?php endif;?>
-                            <?php if ($a['is_voting']): ?>
-                                <span class="fa fa-poll text-success" title="<?php echo $lang_main['filestatus voting']?>"></span>
-                            <?php endif;?>
-                            <?php if ($a['is_release']): ?>
-                                <span class="fa fa-file-archive text-success" title="<?php echo $lang_main['filestatus release']?>"></span>
-                            <?php endif;?>
-                        </span>
-                    </div>
+        <div class="activity mb-3" id="work-activity"></div>
 
-                    <p class="text-muted smalldesc">
-                        <?php echo $lang_main['works uploaded'] . ': ' . date('d.m.Y H:i', $a['posted']) . ' by ' . $a['posted_username'] ?>
-                        <br/>
-                        <?php echo $lang_main['works filesize'] . ': ' . $a['filesize_str'] . ' ' . $a['image_size'] ?>
-                    </p>
-                </td>
-                <td class="nowrap filestatus">
-                    <div class="hidden-xs">
-                        <span class="fa fa-camera <?php echo $a['is_screenshot'] ? 'text-success' : 'text-muted'?>" title="<?php echo $lang_main['filestatus screenshot']?>"></span>
-                        <span class="fa fa-image <?php echo $a['is_image'] ? 'text-success' : 'text-muted'?>" title="<?php echo $lang_main['filestatus image']?>"></span>
-                        <span class="fa fa-headphones <?php echo $a['is_audio'] ? 'text-success' : 'text-muted'?>" title="<?php echo $lang_main['filestatus audio']?>"></span>
-                        <span class="fa fa-poll <?php echo $a['is_voting'] ? 'text-success' : 'text-muted'?>" title="<?php echo $lang_main['filestatus voting']?>"></span>
-                        <span class="fa fa-file-archive <?php echo $a['is_release'] ? 'text-success' : 'text-muted'?>" title="<?php echo $lang_main['filestatus release']?>"></span>
-                    </div>
-                </td>
-                <td></td>
-            </tr>
-        <?php } ?>
-        </tbody>
-    </table>
+        <div class="mb-2">
+            <textarea id="message" class="form-control" placeholder="<?php echo $langMain['cabinet message send'] ?>"
+                      style="height: 100px"></textarea>
+            <div id="message-feedback" class="invalid-feedback"></div>
+        </div>
 
-    <div id="on-complete-removable-aria" style="padding-top: 10px;">
-        <?php
-        $CMedia = new media();
-        echo $CMedia->openSession(array(
-            'owner_class' => get_class($Module),
-            'secure_storage' => true,
-            'template' => '_cabinet_add_work_media',
-        ));
-        ?>
-        <form id="works-add-files" class="active-form">
-            <input type="hidden" name="formSent" value="1" />
-            <div class="form-group">
-                <button id="add-work-files"
-                        class="btn btn-primary"><?php echo $lang_main['works add files submit'] ?></button>
-            </div>
-        </form>
-    </div>
-<?php
-$information_pane = ob_get_clean();
-
-
-if ($CCompetitions->record['release_status']['available'] || $CCompetitions->record['voting_status']['available']) {
-    // Preview not need
-    echo $information_pane;
-} else {
-    NFW::i()->registerFunction('display_work_media');
-    ?>
-    <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" class="active"><a href="#main" aria-controls="main" role="tab"
-                                                  data-toggle="tab"><?php echo $lang_main['works tab main'] ?></a></li>
-        <li role="presentation"><a href="#preview" aria-controls="files" role="tab"
-                                   data-toggle="tab"><?php echo $lang_main['works tab preview'] ?></a></li>
-    </ul>
-    <div class="tab-content">
-        <div role="tabpanel" class="tab-pane in active" style="padding-top: 20px;"
-             id="main"><?php echo $information_pane ?></div>
-        <div role="tabpanel" class="tab-pane" id="preview">
-            <br/>
-            <?php echo display_work_media($Module->record, array('rel' => 'preview')) ?>
+        <div class="d-grid d-sm-block">
+            <button id="message-send"
+                    class="btn btn-success"><?php echo $langMain['cabinet send'] ?></button>
         </div>
     </div>
-    <?php
-}	
+
+<?php ob_start(); ?>
+    <div class="d-none d-md-block">
+        <?php echo startBlock($Module->record, $isPublished); ?>
+    </div>
+
+    <h2 class="index-head mb-3"><?php echo $langMain['works files'] ?></h2>
+<?php
+$CMedia = new media();
+echo $CMedia->openSession(array(
+    'owner_id' => $Module->record['id'],
+    'owner_class' => 'works',
+    'secure_storage' => true,
+    'template' => '_cabinet_add_work_media',
+    'after_upload' => 'cabinet_work_media_added',
+));
+NFWX::i()->mainLayoutRightContent = ob_get_clean();
+?>
+
+    <script type="text/javascript">
+        <?php ob_start(); ?>
+
+        const divWorkActivity = document.getElementById("work-activity");
+        const buttonShowAllActivity = document.getElementById("show-all-activity");
+        const showLastActivityCnt = 25; // Showing last N activity
+
+        const buttonMessageSend = document.getElementById("message-send");
+        const messageTextarea = document.getElementById("message");
+        const messageFeedback = document.getElementById("message-feedback");
+
+        buttonMessageSend.onclick = async function () {
+            let response = await fetch("?action=activity_message", {
+                method: "POST",
+                body: JSON.stringify({
+                    workID: <?php echo $Module->record['id']; ?>,
+                    message: messageTextarea.value
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            });
+
+            if (!response.ok) {
+                const resp = await response.json();
+                const errors = resp.errors;
+
+                if (errors["general"] !== undefined && errors["general"] !== "") {
+                    gErrorToastText.innerText = errors["general"];
+                    gErrorToast.show();
+                }
+
+                if (errors["message"] !== undefined && errors["message"] !== "") {
+                    messageTextarea.classList.add('is-invalid');
+                    messageFeedback.innerText = errors["message"];
+                    messageFeedback.className = 'invalid-feedback d-block';
+                }
+
+                return;
+            }
+
+            messageTextarea.value = '';
+            messageTextarea.classList.remove('is-invalid');
+            messageFeedback.className = 'd-none';
+
+            const resp = await response.json();
+            const item = activityItem(resp);
+            divWorkActivity.appendChild(item);
+        }
+
+        buttonShowAllActivity.onclick = function () {
+            divWorkActivity.querySelectorAll(".item").forEach(item => {
+                item.classList.remove("d-none");
+            });
+
+            setTimeout(function () {
+                document.getElementById("work-activity-top").scrollIntoView({
+                    block: 'start',
+                    behavior: 'smooth'
+                });
+            }, 100);
+
+            buttonShowAllActivity.classList.add("d-none");
+        };
+
+        loadActivity();
+
+        async function loadActivity() {
+            buttonShowAllActivity.classList.add("d-none");
+
+            const response = await fetch('?action=work_activity&work_id=<?php echo $Module->record['id']; ?>');
+            const resp = await response.json();
+
+            if (!response.ok) {
+                alert(resp['errors']['general']);
+                return;
+            }
+
+            divWorkActivity.innerHTML = "";
+            let isButtonShowAllActivity = false;
+            let isUnreadDelimiterShown = false;
+            const numRecords = resp['records'].length;
+            resp['records'].forEach(function (r, index) {
+                if (index === 0 && r['is_new']) {
+                    isUnreadDelimiterShown = true; // All activities new
+                }
+
+                if (!isUnreadDelimiterShown && r['is_new']) {
+                    let delimMsg = document.createElement('div');
+                    delimMsg.innerText = "<?php echo $langMain['New activity']?>";
+                    delimMsg.className = "message";
+
+                    let delim = document.createElement('div');
+                    delim.classList.add("item", "unread-delimiter");
+                    delim.appendChild(delimMsg);
+
+                    divWorkActivity.appendChild(delim);
+
+                    isUnreadDelimiterShown = true;
+                }
+
+                let item = activityItem(r);
+                if (numRecords - index > showLastActivityCnt && !r['is_new']) {
+                    item.classList.add("d-none");
+                    isButtonShowAllActivity = true;
+                }
+
+                divWorkActivity.appendChild(item);
+            });
+
+            if (numRecords > showLastActivityCnt && isButtonShowAllActivity) {
+                buttonShowAllActivity.classList.remove("d-none");
+            }
+
+            // Modifying header
+            if (resp['unread'] > 0) {
+                const cnt = resp['unread'] > 99 ? '99+' : resp['unread'];
+                document.getElementById('header-xs-icon-user').classList.add('text-warning');
+                document.getElementById('header-sm-username-badge').innerText = cnt;
+                document.getElementById('header-sm-menu-prods-badge').innerText = cnt;
+            } else {
+                document.getElementById('header-xs-icon-user').classList.remove('text-warning');
+                document.getElementById('header-sm-username-badge').innerText = '';
+                document.getElementById('header-sm-menu-prods-badge').innerText = '';
+            }
+        }
+
+        function activityItem(r) {
+            const isOutgoing = r['posted_by'] === <?php echo $Module->record['posted_by']?>;
+
+            let author = document.createElement('div');
+            author.className = "author";
+
+            if (isOutgoing) {
+                author.innerText = formatDateTime(r['posted'], true, true);
+            } else {
+                author.innerText = formatDateTime(r['posted'], true, true) + ' | ' + r['poster_username'];
+            }
+
+            let message = document.createElement('div');
+            message.className = "message";
+            message.innerText = r['message'];
+
+            let item = document.createElement('div');
+            item.className = "item";
+            if (!r['is_message']) {
+                item.classList.add("action");
+            } else if (isOutgoing) {
+                item.classList.add("outgoing");
+            } else {
+                item.classList.add("incoming");
+            }
+
+            item.appendChild(author);
+            item.appendChild(message);
+
+            return item;
+        }
+
+        <?php NFWX::i()->mainBottomScript .= ob_get_clean(); ?>
+    </script>
+
+<?php
+function startBlock(array $record, bool $isPublished): string {
+    $langMain = NFW::i()->getLang('main');
+    ob_start();
+    ?>
+    <div class="alert alert-<?php echo $record['status_info']['css-class'] ?> d-flex align-items-center"
+         role="alert">
+        <svg class="flex-shrink-0 me-2" width="1em" height="1em" data-bs-toggle="tooltip"
+             data-bs-title="<?php echo $record['status_info']['desc'] ?>">
+            <use xlink:href="#<?php echo $record['status_info']['svg-icon'] ?>"/>
+        </svg>
+        <div><?php echo $record['status_reason'] ?: $record['status_info']['desc_full'] ?></div>
+    </div>
+
+    <?php if ($isPublished):
+        $permalink = NFW::i()->absolute_path . '/' . $record['event_alias'] . '/' . $record['competition_alias'] . '/' . $record['id'];
+        ?>
+        <div class="d-grid mb-3">
+            <a class="btn btn-lg btn-primary"
+               href="<?php echo $permalink ?>#title"><?php echo $langMain['works permanent link'] ?></a>
+        </div>
+    <?php endif;
+
+    return ob_get_clean();
+}

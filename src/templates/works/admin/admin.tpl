@@ -1,6 +1,7 @@
 <?php
 /**
- * @var object $Module
+ * @var works $Module
+ * @var array $event
  * @var array $records
  * @var int $defaultCompetition
  */
@@ -51,12 +52,12 @@ foreach ($recordsTree as &$_sorting) {
     });
 }
 
-NFW::i()->assign('page_title', $Module->current_event['title'] . ' / works');
+NFW::i()->assign('page_title', $event['title'] . ' / works');
 NFW::i()->registerResource('jquery.activeForm');
 NFW::i()->registerResource('jquery.ui.interactions');
 NFW::i()->registerResource('bootstrap3.typeahead');
 NFW::i()->breadcrumb = [
-    ['url' => 'admin/events?action=update&record_id=' . $Module->current_event['id'], 'desc' => $Module->current_event['title']],
+    ['url' => 'admin/events?action=update&record_id=' . $event['id'], 'desc' => $event['title']],
     ['desc' => 'Works'],
 ];
 
@@ -199,16 +200,16 @@ NFW::i()->breadcrumb_status = ob_get_clean();
             const id = $(this).val();
             if (id === '0') {
                 eventWorks.find('div[data-role="competition-container"]').show();
-                const nextTitle = '<?php echo $Module->current_event['title']?>' + ' / works';
-                window.history.replaceState(id, nextTitle, '/admin/works?event_id=<?php echo $Module->current_event['id']?>');
+                const nextTitle = '<?php echo $event['title']?>' + ' / works';
+                window.history.replaceState(id, nextTitle, '/admin/works?event_id=<?php echo $event['id']?>');
                 return;
             }
 
             eventWorks.find('div[data-role="competition-container"]').hide();
             eventWorks.find('div[data-role="competition-container"][id="' + id + '"]').show();
 
-            const nextTitle = '<?php echo $Module->current_event['title']?>' + ' / ' + $(this).val();
-            window.history.replaceState(id, nextTitle, '/admin/works?event_id=<?php echo $Module->current_event['id']?>&filter_competition=' + id);
+            const nextTitle = '<?php echo $event['title']?>' + ' / ' + $(this).val();
+            window.history.replaceState(id, nextTitle, '/admin/works?event_id=<?php echo $event['id']?>&filter_competition=' + id);
         }).trigger('change');
 
         // Sorting work
@@ -362,7 +363,7 @@ NFW::i()->breadcrumb_status = ob_get_clean();
                 <h4 class="modal-title">Insert work</h4>
             </div>
             <div class="modal-body">
-                <form action="<?php echo $Module->formatURL('insert') . '&event_id=' . $Module->current_event['id'] ?>">
+                <form action="<?php echo $Module->formatURL('insert') . '&event_id=' . $event['id'] ?>">
                     <?php echo active_field(array('name' => 'competition_id', 'attributes' => $Module->attributes['competition_id'], 'labelCols' => '2')) ?>
                     <?php echo active_field(array('name' => 'title', 'attributes' => $Module->attributes['title'], 'labelCols' => '2')) ?>
                     <?php echo active_field(array('name' => 'author', 'attributes' => $Module->attributes['author'], 'labelCols' => '2')) ?>

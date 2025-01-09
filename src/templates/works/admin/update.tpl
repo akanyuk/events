@@ -6,6 +6,8 @@
  * @var array $linkTitles
  */
 
+$langMain = NFW::i()->getLang('main');
+
 $isPublic = true;
 if (!$CCompetitions->record['voting_status']['available'] && !$CCompetitions->record['release_status']['available']) {
     $isPublic = false;
@@ -31,41 +33,10 @@ NFW::i()->breadcrumb = array(
     array('desc' => $Module->record['title']),
 );
 
-ob_start();
-NFW::i()->breadcrumb_status = '<div>Posted: ' . date('d.m.Y H:i', $Module->record['posted']) . ' (' . $Module->record['posted_username'] . ')</div>';
-if ($Module->record['edited']) {
-    NFW::i()->breadcrumb_status .= '<div>Updated: ' . date('d.m.Y H:i', $Module->record['edited']) . ' (' . $Module->record['edited_username'] . ')</div>';
-}
+echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl')) . '</div>';
 ?>
-<style>
-    .author-note {
-        white-space: pre;
-        font-family: monospace;
-        overflow: auto;
-    }
-
-    .modal-backdrop.in {
-        opacity: .9;
-    }
-
-    #works-preview-dialog .modal-dialog {
-        height: 100%;
-        margin: 0 auto;
-    }
-
-    #works-preview-dialog .modal-content {
-        border-radius: 0;
-    }
-
-    #works-preview-dialog iframe.preview {
-        width: 100%;
-        border: none;
-    }
-</style>
-
 <div class="row">
     <div class="col-md-6" style="padding-bottom: 20px;">
-
         <div data-active-container="status" class="form-group">
             <form id="update-status"
                   action="<?php echo $Module->formatURL('update_status') . '&record_id=' . $Module->record['id'] ?>">
@@ -84,6 +55,13 @@ if ($Module->record['edited']) {
                             <dd><?php echo $publicHref ?></dd>
                         </dl>
                     <?php endif; ?>
+                    <dl>
+                        <dt>Current owner:</dt>
+                        <dd>
+                            <a href="/admin/users?filter=<?php echo urlencode($Module->record['posted_username']) ?>"><?php echo htmlspecialchars($Module->record['posted_username']) ?></a>
+                            (<?php echo htmlspecialchars($Module->record['poster_email']) ?>)
+                        </dd>
+                    </dl>
 
                     <div class="form-group">
                         <div class="col-md-12">
@@ -95,7 +73,10 @@ if ($Module->record['edited']) {
                                             class="<?php echo 'btn btn-default ' . ($Module->record['status'] == $s['id'] ? 'active btn-info' : '') ?>"
                                             title="<?php echo $s['desc'] ?>"
                                             data-description="<?php echo $s['desc_full'] . '<br />Voting: <strong>' . ($s['voting'] ? 'On' : 'Off') . '</strong>. Release: <strong>' . ($s['release'] ? 'On' : 'Off') . '</strong>' ?>">
-                                        <span class="<?php echo $s['icon'] ?>"></span></button>
+                                        <svg width="1em" height="1em">
+                                            <use xlink:href="#<?php echo $s['svg-icon'] ?>"/>
+                                        </svg>
+                                    </button>
                                 <?php } ?>
                             </div>
                         </div>
@@ -117,7 +98,7 @@ if ($Module->record['edited']) {
 
                     <div class="form-group">
                         <div class="col-md-12">
-                            <button type="submit" class="btn btn-primary">Update status</button>
+                            <button type="submit" class="btn btn-primary btn-full-xs">Update status</button>
                         </div>
                     </div>
                 </fieldset>
@@ -155,77 +136,8 @@ if ($Module->record['edited']) {
                 </div>
             </div>
         </form>
-    </div>
 
-    <div class="col-md-6">
-        <?php if ($Module->record['description']): ?>
-            <div class="hidden-xs">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h4 class="panel-title">Author's comment</h4>
-                    </div>
-                    <div class="panel-body author-note"><?php echo htmlspecialchars($Module->record['description']) ?></div>
-                </div>
-            </div>
-
-            <div class="hidden-sm hidden-md hidden-lg">
-                <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-                    <div class="panel panel-default">
-                        <div class="panel-heading" role="tab" id="headingOne">
-                            <h4 class="panel-title">
-                                <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"
-                                   aria-expanded="true" aria-controls="collapseOne">
-                                    Author's comment
-                                </a>
-                            </h4>
-                        </div>
-                        <div id="collapseOne" class="panel-collapse collapse" role="tabpanel"
-                             aria-labelledby="headingOne">
-                            <div class="panel-body author-note"><?php echo htmlspecialchars($Module->record['description']) ?></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        <?php endif; ?>
-
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h4 class="panel-title">Personal note (only for you)</h4>
-            </div>
-            <div class="panel-body">
-                <form id="works-my-status"
-                      action="<?php echo $Module->formatURL('my_status') . '&record_id=' . $Module->record['id'] ?>">
-                    <div class="form-group">
-                        <div class="col-md-12">
-                                    <textarea class="form-control"
-                                              name="comment"><?php echo $personalNote['comment'] ?></textarea>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-12">
-                            <label class="checkbox-inline">
-                                <input type="hidden" name="is_checked" value="0"/>
-                                <input type="checkbox" name="is_checked"
-                                       value="1" <?php echo $personalNote['is_checked'] ? ' checked="checked"' : '' ?>/>
-                                Checked
-                            </label>
-
-                            <label class="checkbox-inline">
-                                <input type="hidden" name="is_marked" value="0"/>
-                                <input type="checkbox" name="is_marked"
-                                       value="1" <?php echo $personalNote['is_marked'] ? ' checked="checked"' : '' ?>/>
-                                Marked
-                            </label>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-12">
-                            <button type="submit" class="btn btn-primary">Set your note</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
+        <br/>
 
         <form id="works-update-links"
               action="<?php echo $Module->formatURL('update_links') . '&record_id=' . $Module->record['id'] ?>">
@@ -288,7 +200,41 @@ if ($Module->record['edited']) {
                 </div>
             </fieldset>
         </form>
+    </div>
 
+    <div class="col-md-6">
+        <form id="works-my-status"
+              action="<?php echo $Module->formatURL('my_status') . '&record_id=' . $Module->record['id'] ?>">
+            <div <?php echo $personalNote['comment'] ? 'class="has-warning"' : '' ?> style="padding-bottom: 10px;">
+                <label class="control-label" for="comment">Personal note (only for you)</label>
+                <textarea class="form-control"
+                          name="comment"><?php echo $personalNote['comment'] ?></textarea>
+            </div>
+            <button id="set-personal-note" class="btn btn-primary">Set</button>
+            <button id="clear-personal-note" class="btn btn-primary">Clear</button>
+        </form>
+
+        <h3>Activity</h3>
+        <button id="show-all-activity" class="btn btn-default btn-sm btn-full-xs"
+                style="margin-top: 1em; margin-bottom: 1em; display:none;">Show early activity
+        </button>
+        <div class="activity" id="work-activity"></div>
+
+        <form id="send-message" style="margin-top: 1em;"
+              action="<?php echo NFW::i()->base_path ?>admin/works_activity?action=message&work_id=<?php echo $Module->record['id'] ?>">
+            <div class="form-group">
+                <div class="col-md-12">
+                    <textarea required="required" class="form-control" name="message"
+                              placeholder="Send a message to the author"></textarea>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary btn-full-xs">Send message</button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -303,6 +249,8 @@ if ($Module->record['edited']) {
             'secure_storage' => true,
             'MAX_SESSION_SIZE' => 1024 * 1024 * 256,
             'template' => '_admin_works_media',
+            'after_upload' => 'admin_work_media_added',
+            'after_delete' => 'admin_work_media_deleted',
         ),
         array('owner' => $Module->record)
     );
@@ -316,7 +264,7 @@ if ($Module->record['edited']) {
         <h4 class="panel-title">Danger Zone</h4>
     </div>
     <div class="panel-body">
-        <button class="btn btn-danger" data-role="works-delete">Delete work permanently</button>
+        <button class="btn btn-danger btn-full-xs" data-role="works-delete">Delete work permanently</button>
     </div>
 </div>
 
@@ -326,6 +274,7 @@ if ($Module->record['edited']) {
         wuF.activeForm({
             success: function () {
                 $.jGrowl('Work profile updated');
+                loadActivity();
             }
         });
 
@@ -356,6 +305,10 @@ if ($Module->record['edited']) {
             previewModal.find('iframe').css("height", previewModal.height() - 40);
         });
 
+        previewModal.on('hide.bs.modal', function () {
+            previewModal.find('iframe').attr("srcdoc", ""); // For stopping audio
+        });
+
         $(document).on('click', 'button[id="works-preview"]', function (e) {
             e.preventDefault();
             $.ajax(
@@ -381,15 +334,30 @@ if ($Module->record['edited']) {
         $('form[id="update-status"]').activeForm({
             success: function () {
                 $.jGrowl('Status updated');
+                loadActivity();
             }
         });
 
         // Personal note form
-        $('form[id="works-my-status"]').activeForm({
-            success: function () {
-                $.jGrowl('Personal note saved');
+        const formMyStatus = $('form[id="works-my-status"]');
+        const textareaMyStatus = formMyStatus.find('textarea')
+        formMyStatus.activeForm({
+            success: function (response) {
+                $.jGrowl(response['message']);
             }
         });
+        $('button[id="clear-personal-note"]').click(function () {
+            textareaMyStatus.val("");
+            textareaMyStatus.parent().removeClass("has-warning");
+        });
+        $('button[id="set-personal-note"]').click(function () {
+            if (textareaMyStatus.val() === "") {
+                $.jGrowl("Please fill note text", {theme: 'error'});
+                return false;
+            }
+            textareaMyStatus.parent().addClass("has-warning");
+        });
+
 
         // Links
         updateSaveLinksButtonVisibility();
@@ -401,14 +369,7 @@ if ($Module->record['edited']) {
             return false;
         });
 
-        $(document).on('click', '[data-action="remove-link"]', function (event) {
-            if ($(this).closest('div[id="record"]').attr('data-rel') === 'update') {
-                if (!confirm('Remove link?')) {
-                    event.preventDefault();
-                    return false;
-                }
-            }
-
+        $(document).on('click', '[data-action="remove-link"]', function () {
             $(this).closest('div[id="record"]').remove();
             updateSaveLinksButtonVisibility();
             return false;
@@ -442,6 +403,7 @@ if ($Module->record['edited']) {
         $('form[id="works-update-links"]').activeForm({
             success: function () {
                 $.jGrowl('Work links updated');
+                loadActivity();
             }
         });
 
@@ -472,11 +434,120 @@ if ($Module->record['edited']) {
     });
 
     function updateSaveLinksButtonVisibility() {
+        const btn = $('button[id="save-links"]');
+        <?php if (!empty($Module->record['links'])):?>
+        btn.show();
+        <?php else: ?>
         if ($('#work-links').find('div[id="record"]').length) {
-            $('button[id="save-links"]').show();
+            btn.show();
         } else {
-            $('button[id="save-links"]').hide();
+            btn.hide();
         }
+        <?php endif; ?>
+    }
+
+    // Activity
+
+    const divWorkActivity = $('div[id="work-activity"]');
+    const buttonShowAllActivity = $('button[id="show-all-activity"]');
+    const showLastActivityCnt = 25; // Showing last N activity
+
+    $('form[id="send-message"]').activeForm({
+        success: function (resp) {
+            $('form[id="send-message"]').find('textarea').val("");
+            const item = activityItem(resp);
+            divWorkActivity.append(item);
+        }
+    });
+
+    buttonShowAllActivity.click(function () {
+        divWorkActivity.find('.item').show();
+        buttonShowAllActivity.hide();
+
+        $([document.documentElement, document.body]).animate({
+            scrollTop: divWorkActivity.offset().top - 100
+        }, 500);
+    });
+
+    loadActivity(); // At startup
+
+    function loadActivity() {
+        buttonShowAllActivity.hide();
+
+        $.ajax(
+            '<?php echo NFW::i()->base_path . 'admin/works_activity?action=list&work_id=' . $Module->record['id']?>',
+            {
+                method: "get",
+                success: function (response) {
+                    divWorkActivity.empty();
+                    let isButtonShowAllActivity = false;
+                    let isUnreadDelimiterShown = false;
+                    const numRecords = response['records'].length;
+                    response['records'].forEach(function (r, index) {
+                        if (index === 0 && r['is_new']) {
+                            isUnreadDelimiterShown = true; // All activities new
+                        }
+
+                        if (!isUnreadDelimiterShown && r['is_new']) {
+                            let delimMsg = document.createElement('div');
+                            delimMsg.innerText = "New activity";
+                            delimMsg.className = "message";
+
+                            let delim = document.createElement('div');
+                            delim.classList.add("item", "unread-delimiter");
+                            delim.appendChild(delimMsg);
+
+                            divWorkActivity.append(delim);
+
+                            isUnreadDelimiterShown = true;
+                        }
+
+                        let item = activityItem(r);
+                        if (numRecords - index > showLastActivityCnt && !r['is_new']) {
+                            item["style"].display = 'none';
+                            isButtonShowAllActivity = true;
+                        }
+                        divWorkActivity.append(item);
+                    });
+
+                    if (numRecords > showLastActivityCnt && isButtonShowAllActivity) {
+                        buttonShowAllActivity.show();
+                    }
+
+                    UpdateHeaderUnread(response['unread']);
+                },
+                error: function () {
+                    alert("Load work activity unexpected error");
+                }
+            }
+        );
+    }
+
+    function activityItem(r) {
+        const isOutgoing = r['posted_by'] !== <?php echo $Module->record['posted_by']?>;
+
+        let author = document.createElement('div');
+        author.className = "author";
+        author.innerText = formatDateTime(r['posted'], true, true) + ' by ' + r['poster_username'];
+
+        let message = document.createElement('div');
+        message.className = "message";
+        message.innerText = r['message'];
+
+        let item = document.createElement('div');
+        item.className = "item";
+        if (!r['is_message']) {
+            item.classList.add("action");
+        } else if (isOutgoing) {
+            item.classList.add("outgoing");
+        } else {
+            item.classList.add("incoming");
+        }
+
+        item.appendChild(author);
+        item.appendChild(message);
+
+        return item;
     }
 </script>
 

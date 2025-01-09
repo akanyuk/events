@@ -9,9 +9,6 @@ $lang_main = array(
     'today' => 'Сегодня',
     'yesterday' => 'Вчера',
 
-    'news' => 'Новости',
-    'latest news' => 'Новости',
-    'all news' => 'Все новости',
     'comments' => 'Комментарии',
     'latest comments' => 'Комментарии',
     'all comments' => 'Все комментарии',
@@ -20,21 +17,29 @@ $lang_main = array(
     'reception closed' => 'завершено',
     'voting closed' => 'закончено',
     'choose button' => 'Выбрать',
-    'search hint' => 'Поиск по названию или автору',
-
     'download' => 'скачать',
+    'Search' => 'Поиск',
+    'search hint' => 'Поиск по названию или автору',
+    'Search nothing found' => 'По вашему запросу ничего не найдено',
+    'Reception opened' => 'Прием работ',
 
     'cabinet prods' => 'Мои работы',
     'cabinet profile' => 'Мой профиль',
-    'cabinet add work' => 'Загрузить работу',
+    'cabinet add work' => 'Загрузить работу',
     'cabinet add choose event' => 'Выберите событие',
     'cabinet add choose event desc' => 'Выберите событие для загрузки работы',
+    'Activity' => 'Activity', // TODO: translate
+    'Show early activity' => 'Show early activity', // TODO: translate
+    'New activity' => 'New activity', // TODO: translate
+    'cabinet message send' => 'Написать сообщение организаторам',
+    'cabinet send' => 'Отправить',
+    'cabinet message required' => 'Необходимо написать текст сообщения',
 
     'latest events' => 'Последние события',
     'all events' => 'Все события',
     'events' => 'События',
     'event' => 'Событие',
-    'events no open' => 'В настоящее время нет событий с открытым приемом работ.',
+    'events no open' => 'В настоящее время нет событий с открытым приемом работ',
     'events not found' => 'Событие не найдено.',
 
     'competition' => 'Номинация',
@@ -45,13 +50,17 @@ $lang_main = array(
     'competitions received works' => 'Прислано работ',
     'competitions approved works' => 'Принято работ',
 
+    'works attributes' => [
+        'author' => 'Автор',
+        'title' => 'Название',
+        'platform' => 'Платформа',
+        'format' => 'Формат',
+        'competition_id' => 'Номинация',
+        'author_note' => 'Комментарий автора',
+        'external_html' => 'Дополнительно',
+    ],
     'works empty' => 'У Вас не загружено ни одной работы',
     'works send' => 'Отправить работу',
-    'works title' => 'Название',
-    'works author' => 'Автор',
-    'works author note' => 'Комментарий автора',
-    'works platform' => 'Платформа',
-    'works format' => 'Формат',
     'works description' => 'Комментарий для организаторов',
     'works description public' => 'Комментарий для зрителей',
     'works description refs' => 'Отображать при голосовании дополнительные материалы (фазы, референсы и т.п.)',
@@ -69,8 +78,6 @@ $lang_main = array(
 
     'works files' => 'Файлы',
     'works add files' => 'Дозагрузить файлы',
-    'works add files submit' => 'Отправить',
-    'works add file comment' => 'Комментарий',
     'works filesize' => 'Размер',
     'works uploaded' => 'Загружен',
     'filestatus screenshot' => 'Скриншот для ссылок в социальных сетях и для показа работы на экране во время фестиваля (пати)',
@@ -79,12 +86,10 @@ $lang_main = array(
     'filestatus audio' => 'Файл будет использоваться в audio-плеере во время голосования и в публичном профиле работы',
     'filestatus release' => 'Файл будет доступен для скачивания в публичном профиле работы',
 
-    'works upload no file error' => 'Вы не добавили ни одного файла для загрузки.',
-
-    'works upload info' => '<p>Загруженные файлы будут сохранены на сервере только после нажатия кнопки «Отправить работу».</p><p>Вы можете загрузить несколько файлов (скриншот, файл для голосования, архив для релиза).</p><p>После проверки оргкомитетом на Ваш e-mail адрес будет выслано оповещение о&nbsp;текущем статусе работы.</p>',
-    'works upload agree warning' => 'Вы должны согласиться с правилами загрузки работы.',
-    'works upload success message' => 'Работа успешно сохранена. После проверки оргкомитетом Вы получите e-mail оповещение о&nbsp;текущем статусе работы.',
-    'works added files success message' => 'Новые файлы добавлены в профиль работы.',
+    'work uploaded' => 'Работа загружена',
+    'works upload no file error' => 'Вы не добавили ни одного файла для загрузки',
+    'works upload info' => '<div class="mb1">Загруженные файлы будут сохранены на сервере только после нажатия кнопки «Отправить работу».</div><div class="mb1">Вы можете загрузить несколько файлов (скриншот, файл для голосования, архив для релиза).</div>',
+    'works upload success message' => 'Работа успешно загружена. Изменение статуса отображается в разделе «Мои работы»',
     'works status desc' => array(
         0 => 'Not checked yet',
         1 => 'Verified',
@@ -98,7 +103,7 @@ $lang_main = array(
         1 => 'Работа принята',
         2 => 'Работа дисквалифицирована',
         3 => 'Ожидание ответа автора',
-        4 => 'Работа не будет показана на фестиваля, но будет включена в финальный пак работ',
+        4 => 'Работа не будет участвовать в голосовании, но будет показана вне конкурса',
         5 => 'Работа принята, ожидает преселект'
     ),
 
@@ -110,15 +115,15 @@ $lang_main = array(
 
     'works your comment' => 'Ваш комментарии. Будет виден всем посетителям сайта',
     'works comments count' => 'Обсудить',
-    'works comments write' => 'Написать комментарий',
-    'works comments send' => 'Отправить',
+    'works comments write' => 'Текст сообщения',
+    'works comments send' => 'Отправить комментарий',
     'works comments attention register' => 'Только зарегистрированные пользователи могут оставлять комментарии.',
 
     'voting to' => 'Голосование до',
     'voting audio not support' => 'Your browser does not support the audio element.<br />Please download file from link bellow.',
     'voting votes' => array(
         0 => 'Не Голосовать',
-        1 => '1: Ужасно',
+        1 => '',
         2 => '2',
         3 => '3',
         4 => '4',
@@ -127,7 +132,7 @@ $lang_main = array(
         7 => '7',
         8 => '8',
         9 => '9',
-        10 => '10: Отлично'
+        10 => 'Отлично'
     ),
     'voting name' => 'Ваше имя или ник',
     'voting vote' => 'Ваша оценка',
@@ -136,12 +141,11 @@ $lang_main = array(
     'voting error wrong username' => 'Пожалуйста укажите имя.',
     'voting error wrong votekey' => 'Ключ голосования не найден.',
     'voting success note' => 'Ваш голос принят.',
-    'Voting is open' => 'Голосование открыто',
+    'Voting opened' => 'Голосование',
 
     'votekey-request note' => 'Ключ для голосования будет выслан на указанный e-mail адрес. <br />Адрес опубликован не будет.',
     'votekey-request email label' => 'E-mail адрес',
     'votekey-request' => 'Запросить НОВЫЙ ключ',
-    'change-votekey' => 'Сменить ключ',
     'votekey-request long' => 'Запрос ключа голосования',
     'votekey-request send' => 'Отправить запрос',
     'votekey-request wrong email' => 'Некорректный e-mail адрес',
@@ -151,8 +155,9 @@ $lang_main = array(
     'votelist note' => '<p>В поле «Vote» напротив работы поставьте оценку от <strong>1 до 10</strong>, которой на Ваш взгляд заслуживает работа.</p><p>Если Вы затрудняетесь с оценкой работы, или просто не хотите голосовать - оставьте поле пустым.</p><p>В свободном месте после названия работы Вы можете оставить свой комментарий.</p>',
 
     // `/upload/%alias%` link
-    'upload info' => 'Для загрузки работы Вам необходимо авторизоваться или пройти <a href="/users?action=register">регистрацию</a>.',
+    'upload info' => 'Для загрузки работы Вам необходимо авторизоваться или пройти <a href="/users/register">регистрацию</a>.',
 
     // Live voting related
-    'live voting info' => 'Для использования живого голосования Вам необходимо авторизоваться или пройти <a href="/users?action=register">регистрацию</a>.',
+    'live voting info' => 'Для использования живого голосования Вам необходимо авторизоваться или пройти <a href="/users/register">регистрацию</a>.',
+    'live voting not running' => 'В настоящее время живое голосование не запущено. Следите за обновлениями новостных каналов',
 );

@@ -21,87 +21,79 @@ class competitions extends active_record {
         'position' => array('desc' => 'Position', 'type' => 'int', 'required' => true),
         'title' => array('desc' => 'Title', 'type' => 'str', 'required' => true, 'minlength' => 4, 'maxlength' => 255),
         'alias' => array('desc' => 'alias', 'type' => 'str', 'required' => true, 'minlength' => 2, 'maxlength' => 32),
-        'works_type' => array('desc' => 'Works type', 'type' => 'select', 'options' => array()),
         'announcement' => array('desc' => 'Announce (multilanguage HTML)', 'type' => 'textarea', 'maxlength' => 4096),
+        'works_type' => array('desc' => 'Works type', 'type' => 'select', 'options' => [
+            ['id' => 'demo', 'desc' => 'Demo'],
+            ['id' => 'picture', 'desc' => 'Picture'],
+            ['id' => 'music', 'desc' => 'Music'],
+            ['id' => 'other', 'desc' => 'Other'],
+        ]),
         'reception_from' => array('desc' => 'Works accepting start', 'type' => 'date', 'withTime' => true, 'startDate' => 1, 'endDate' => -365),
         'reception_to' => array('desc' => 'Works accepting end', 'type' => 'date', 'withTime' => true, 'startDate' => 1, 'endDate' => -365),
         'voting_from' => array('desc' => 'Voting start', 'type' => 'date', 'withTime' => true, 'startDate' => 1, 'endDate' => -365),
         'voting_to' => array('desc' => 'Voting end', 'type' => 'date', 'withTime' => true, 'startDate' => 1, 'endDate' => -365),
     );
 
-    private function loadEditorOptions() {
-        foreach (NFW::i()->works_type as $t) {
-            $this->attributes['works_type']['options'][] = array('id' => $t['alias'], 'desc' => $t['desc']);
-        }
-    }
-
     private function formatRecord($record) {
         $lang_main = NFW::i()->getLang('main');
 
         $record['reception_status'] = array(
-            'informable' => false,
             'future' => false,
             'now' => false,
             'past' => false,
             'newer' => false,
-            'text-class' => '',
-            'label-class' => 'label-default',
         );
         $record['voting_status'] = array(
-            'informable' => false,
             'available' => false,
             'future' => false,
             'now' => false,
             'past' => false,
             'newer' => false,
-            'text-class' => '',
-            'label-class' => 'label-default',
         );
         $record['release_status'] = array('available' => false);
 
         if (!$record['reception_from'] && !$record['reception_to']) {
             $record['reception_status']['desc'] = '-';
-            $record['reception_status']['text-class'] = 'text-muted';
             $record['reception_status']['newer'] = true;
         } elseif ($record['reception_from'] > NFWX::i()->actual_date) {
             $record['reception_status']['desc'] = '+' . NFWX::i()->formatTimeDelta($record['reception_from']);
-            $record['reception_status']['informable'] = true;
             $record['reception_status']['future'] = true;
         } elseif ($record['reception_from'] < NFWX::i()->actual_date && $record['reception_to'] > NFWX::i()->actual_date) {
             $record['reception_status']['desc'] = 'NOW! +' . NFWX::i()->formatTimeDelta($record['reception_to']);
-            $record['reception_status']['text-class'] = 'text-danger';
-            $record['reception_status']['label-class'] = 'label-danger';
-            $record['reception_status']['informable'] = true;
             $record['reception_status']['now'] = true;
         } else {
             $record['reception_status']['desc'] = $lang_main['reception closed'];
-            $record['reception_status']['text-class'] = 'text-muted';
             $record['reception_status']['past'] = true;
         }
 
         if (!$record['voting_from'] && !$record['voting_to']) {
             $record['voting_status']['desc'] = '-';
-            $record['voting_status']['text-class'] = 'text-muted';
             $record['voting_status']['newer'] = true;
         } elseif ($record['voting_from'] > NFWX::i()->actual_date) {
             $record['voting_status']['desc'] = '+' . NFWX::i()->formatTimeDelta($record['voting_from']);
-            $record['voting_status']['informable'] = true;
             $record['voting_status']['future'] = true;
         } elseif ($record['voting_from'] <= NFWX::i()->actual_date && $record['voting_to'] >= NFWX::i()->actual_date) {
             $record['voting_status']['desc'] = 'NOW! +' . NFWX::i()->formatTimeDelta($record['voting_to']);
-            $record['voting_status']['text-class'] = 'text-danger';
-            $record['voting_status']['label-class'] = 'label-danger';
             $record['voting_status']['available'] = true;
-            $record['voting_status']['informable'] = true;
             $record['voting_status']['now'] = true;
         } else {
             $record['voting_status']['desc'] = $lang_main['voting closed'];
-            $record['voting_status']['text-class'] = 'text-muted';
             $record['voting_status']['past'] = true;
         }
 
         if ((!$record['voting_from'] && !$record['voting_to']) || ($record['voting_to'] && $record['voting_to'] < NFWX::i()->actual_date)) {
             $record['release_status']['available'] = true;
+        }
+
+        if ($record['release_status']['available']) {
+            $record['counter'] = $record['release_works'];
+            $record['is_link'] = $record['release_works'] ?? 0;
+        } elseif ($record['voting_status']['available']) {
+            $record['counter'] = $record['voting_works'];
+            $record['is_link'] = $record['voting_works'] ?? 0;
+        } else {
+            $record['counter'] = $record['counter_works'];
+            $record['is_link'] = false;
         }
 
         return $record;
@@ -111,7 +103,7 @@ class competitions extends active_record {
         if ($id) {
             $where = ['c.id=' . intval($id)];
         } else {
-            $where = ['c.alias="' . NFW::i()->db->escape($options['alias']).'"'];
+            $where = ['c.alias="' . NFW::i()->db->escape($options['alias']) . '"'];
             if ($options['event_id']) {
                 $where[] = 'c.event_id=' . $options['event_id'];
             }
@@ -137,16 +129,16 @@ class competitions extends active_record {
         }
         $this->db_record = $this->record = NFW::i()->db->fetch_assoc($result);
 
-        $this->record = $this->formatRecord($this->record);
-
         // Get approved works
         $CWorks = new works();
         $this->record = array_merge($this->record, $CWorks->loadCounters($this->record['id']));
+
+        $this->record = $this->formatRecord($this->record);
         return $this->record;
     }
 
-    public function loadByAlias($alias, $event_id = 0) {
-        return $this->load(false, array('alias' => urldecode($alias), 'event_id' => $event_id));
+    public function loadByAlias($alias, $eventID) {
+        return $this->load(false, array('alias' => urldecode($alias), 'event_id' => $eventID));
     }
 
     public function getRecords($options = array()) {
@@ -170,7 +162,7 @@ class competitions extends active_record {
         $where = count($where) ? join(' AND ', $where) : null;
 
         $query = array(
-            'SELECT' => 'c.id, c.event_id, e.title AS event_title, c.competitions_groups_id, c.title, e.alias AS event_alias, c.alias, c.works_type, c.position, c.announcement, c.reception_from, c.reception_to, c.voting_from, c.voting_to',
+            'SELECT' => 'c.id, c.event_id, e.title AS event_title, e.alias AS event_alias, c.competitions_groups_id, c.title, e.alias AS event_alias, c.alias, c.works_type, c.position, c.announcement, c.reception_from, c.reception_to, c.voting_from, c.voting_to',
             'FROM' => $this->db_table . ' AS c',
             'JOINS' => array(
                 array(
@@ -191,11 +183,15 @@ class competitions extends active_record {
 
         $records = array();
         while ($record = NFW::i()->db->fetch_assoc($result)) {
-            $records[] = $this->formatRecord($record);
+            $records[] = $record;
         }
 
         $CWorks = new works();
         $CWorks->loadCounters($records);
+
+        foreach ($records as $key => $record) {
+            $records[$key] = $this->formatRecord($record);
+        }
 
         return $records;
     }
@@ -213,7 +209,6 @@ class competitions extends active_record {
         }
 
         if (!isset($_GET['part']) || $_GET['part'] != 'list') {
-            $this->loadEditorOptions();
             return $this->renderAction(array('event' => $CEvents->record));
         }
 
@@ -284,8 +279,6 @@ class competitions extends active_record {
     }
 
     function actionAdminInsert() {
-        $this->loadEditorOptions();
-
         $this->error_report_type = 'active_form';
         $this->formatAttributes($_POST);
 
@@ -326,8 +319,6 @@ class competitions extends active_record {
         $this->error_report_type = (empty($_POST)) ? 'default' : 'active_form';
 
         if (!$this->load($_GET['record_id'])) return false;
-
-        $this->loadEditorOptions();
 
         if (empty($_POST)) {
             return $this->renderAction();

@@ -16,10 +16,10 @@ if (!$CEvents->loadByAlias($eventAlias)) {
     NFW::i()->stop(404);
 }
 
+NFW::i()->registerFunction('tmb');
+
 $pageTitle = htmlspecialchars($CEvents->record['title']) . " / Live voting";
 
-NFWX::i()->main_search_box = false;
-NFWX::i()->main_right_pane = false;
 NFWX::i()->main_og['title'] = $pageTitle;
 NFWX::i()->main_og['description'] = $CEvents->record['announcement_og'] ?: strip_tags($CEvents->record['announcement']);
 if ($CEvents->record['preview_img_large']) {

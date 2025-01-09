@@ -1,0 +1,95 @@
+.navbar-events {
+    background-color: #50371c96 !important;
+}
+
+/* activity */
+
+.activity .item {
+    display: flex;
+    flex-flow: column-reverse;
+    margin: 1em 0;
+}
+
+.activity .action {
+    margin: 0.1em 0;
+    padding: 0.3em 1em;
+    background-color: #f4f4f4;
+}
+
+[data-bs-theme="dark"] .activity .action {
+    background-color: rgb(36, 40, 45);
+}
+
+@media (min-width: 769px) {
+    .activity .action {
+        flex-flow: row;
+        gap: 0.5em;
+    }
+}
+
+.activity .outgoing {
+    align-items: flex-end;
+}
+
+.activity .incoming .message, .activity .outgoing .message {
+    width: 70%;
+    border-radius: 3px;
+    padding: 5px 10px;
+}
+
+@media (max-width: 768px) {
+    .activity .incoming .message, .activity .outgoing .message {
+        width: 100%;
+    }
+}
+
+.activity .incoming .message {
+    color: #222;
+    background-color: #cbd0ef;
+}
+
+[data-bs-theme="dark"] .activity .incoming .message {
+    color: #fff;
+    background-color: #3F51B5;
+}
+
+.activity .outgoing .message {
+    color: #222;
+    background-color: #d5e4d0;
+}
+
+[data-bs-theme="dark"] .activity .outgoing .message {
+    color: #fff;
+    background-color: #4a673f;
+}
+
+.activity .action .message {
+    color: #222222;
+    font-size: 90%;
+}
+
+[data-bs-theme="dark"] .activity .action .message {
+    color: #bbbbbb;
+}
+
+.activity .author {
+    color: #444444;
+    font-size: 90%;
+    white-space: nowrap;
+}
+
+[data-bs-theme="dark"] .activity .author {
+    color: #747474;
+}
+
+.activity .unread-delimiter {
+    margin: 1em 0;
+}
+
+.activity .unread-delimiter .message {
+    color: #fff;
+    background-color: #444;
+    border-radius: 15px;
+    text-align: center;
+    padding-bottom: 1px;
+}

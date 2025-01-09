@@ -9,7 +9,7 @@ if (!$CEvents->record['id']) {
     NFW::i()->stop(404);
 }
 
-if (!in_array($CEvents->record['id'], events::get_managed())) {
+if (!in_array($CEvents->record['id'], events::getManaged())) {
     NFW::i()->stop(404);
 }
 

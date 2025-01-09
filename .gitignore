@@ -12,6 +12,8 @@ config.local.php
 debug.php
 var/images_cache
 var/protected_media
+var/SxGeo.dat
+var/SxGeoCity.dat
 public_html/assets
 public_html/cache
 public_html/files
