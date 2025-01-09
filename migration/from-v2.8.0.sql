@@ -49,3 +49,6 @@ DROP
 DROP
 `is_marked`,
 CHANGE `comment` `comment` text COLLATE 'utf8mb3_general_ci' NOT NULL AFTER `user_id`;
+
+ALTER TABLE `events`
+    ADD `content_column` text COLLATE 'utf8mb3_general_ci' NULL AFTER `content`;
