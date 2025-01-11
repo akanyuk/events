@@ -44,6 +44,14 @@ h2.index-head {
     margin-bottom: 30px;
 }
 
+@media (max-width: 576px) {
+    .upcoming-current-cover {
+        margin-top: 0 !important;
+        padding-left: calc(var(--bs-gutter-x) * -.5) !important;
+        padding-right: calc(var(--bs-gutter-x) * -.5) !important;
+    }
+}
+
 /* comments on index and `all comments` pages */
 .card-comment {
     border: none !important;
