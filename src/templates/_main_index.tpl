@@ -67,9 +67,9 @@ function displayIndexEvent($record, $layout = ""): void {
         case 'upcoming':
         case 'current':
             ?>
-            <div class="d-grid mx-auto col-lg-8 mb-4">
+            <div class="d-grid mx-auto col-xxl-10 mb-4">
                 <div class="row mb-4 gy-4">
-                    <div class="col-md-6">
+                    <div class="col-md-6 upcoming-current-cover">
                         <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>">
                             <img class="w-100" alt=""
                                  src="<?php echo $record['preview_img_large'] ?: NFW::i()->assets('main/current-event-large.png') ?>"/>
