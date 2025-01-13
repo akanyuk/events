@@ -77,7 +77,7 @@ function display_work_media(array $work = array(), array $options = array()) {
 
     if ($work['author_note']) {
         echo '<div class="alert alert-info d-flex align-items-center">
-        <svg class="flex-shrink-0 me-3" width="1.2em" height="1.2em" data-bs-toggle="tooltip"
+        <svg class="flex-shrink-0 me-3" width="2em" height="2em" data-bs-toggle="tooltip"
              data-bs-title="'.$langMain['works attributes']['author_note'].'">
             <use xlink:href="#icon-circle-fill"/>
         </svg>
