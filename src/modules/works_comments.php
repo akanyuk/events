@@ -128,6 +128,11 @@ class works_comments extends active_record {
             ];
         }
 
+        // Reversing grouped comments
+        foreach ($gComments as $workID => $comments) {
+            $gComments[$workID]['items'] = array_reverse($comments['items']);
+        }
+
         // Loading works screenshots
 
         $CWorks = new works();
@@ -243,7 +248,7 @@ class works_comments extends active_record {
             );
         }
 
-        return $comments;
+        return array_reverse($comments);
     }
 
     function addComment(int $workID, string $message): bool {
