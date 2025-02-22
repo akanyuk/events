@@ -23,7 +23,10 @@ NFWX::i()->mainContainerAdditionalClasses = 'd-grid mx-auto col-sm-10 col-md-8';
 <form onsubmit="addWorkFormSubmit(); return false;">
     <fieldset>
         <?php if ($competition): ?>
-            <h3><?php echo htmlspecialchars($competition['title']) ?></h3>
+            <?php if (count($Module->attributes['competition_id']['options']) > 1):?>
+                <h3><?php echo htmlspecialchars($competition['title']) ?></h3>
+            <?php endif;?>
+
             <div class="event-compo-rules"><?php echo $competition['announcement'] ?></div>
             <ul>
                 <li>

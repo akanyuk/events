@@ -24,6 +24,28 @@ svg {
     position: sticky !important;
 }
 
+header h1 {
+    margin: 5px 0 0 20px;
+    font-size: 24px;
+    font-variant: all-petite-caps;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 330px;
+}
+
+@media (min-width: 1200px) {
+    header h1 {
+        max-width: 540px;
+    }
+}
+
+@media (min-width: 1400px) {
+    header h1 {
+        max-width: 750px;
+    }
+}
+
 @media (max-width: 576px) {
     .offcanvas {
         width: 100% !important;

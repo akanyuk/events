@@ -127,13 +127,11 @@ NFWX::i()->mainLayoutRightContent = ob_get_clean();
         echo eventsGroup($eventsGroup);
         echo '<div class="mb-3">' . $event['content_column'] . '</div>';
         echo $uploadButton . ' ' . $liveVotingButton;
-        echo $competitionsListShort;
+        echo '<div class="mb-5">' . $competitionsListShort . '</div>';
         ?>
     </div>
-
-    <h1 class="d-none d-md-block"><?php echo htmlspecialchars($event['title']) ?></h1>
 <?php
-echo $event['content'] . ' ' . $timetable . ' ' . $competitionsList . $votingBlock . $worksBlock;
+echo $event['content'] . ' ' . $timetable . ' ' . $competitionsList . $votingBlock. $worksBlock;
 
 function eventsGroup(array $eventsGroup): string {
     if (sizeof($eventsGroup) < 2) {
@@ -155,10 +153,6 @@ function eventsGroup(array $eventsGroup): string {
 }
 
 function competitionsList($competitionsGroups, $competitions, bool $hideWorksCount): string {
-    if (count($competitions) < 2) {
-        return "";
-    }
-
     ob_start();
     if (empty($competitionsGroups)) {
         foreach ($competitions as $compo) {
