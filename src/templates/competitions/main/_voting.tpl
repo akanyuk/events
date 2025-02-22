@@ -89,7 +89,7 @@ $langMain = NFW::i()->getLang('main');
     const votingUsernameFeedback = document.getElementById('voting-username-feedback');
     const inputVotekey = document.getElementById('votekey');
     const votekeyFeedback = document.getElementById('votekey-feedback');
-    const scrollToError = inputVotingUsername.offsetTop - 80;
+    const scrollToError = inputVotingUsername['offsetTop'] - 80;
 
     // Load saved username
     const result = localStorage.getItem('votingUsername');
@@ -106,7 +106,7 @@ $langMain = NFW::i()->getLang('main');
         btn.onclick = async function () {
             const workID = btn.getAttribute('data-work-id');
             const username = inputVotingUsername.value;
-            const votekey = inputVotekey.value;
+            const votekey = inputVotekey['value'];
 
             let voteValue = parseInt(btn.getAttribute('data-vote-value'));
             if (btn.classList.contains('active')) {

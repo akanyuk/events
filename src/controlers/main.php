@@ -75,7 +75,6 @@ if (!$competitionAlias && !$workID) {
     if (count($competitions) == 1) {
         $c = reset($competitions);
         $CCompetitions->reload($c['id']);
-
         list($worksBlock, $votingBlock) = renderWorksBlock($CEvents->record, $CCompetitions->record);
     }
 
@@ -267,6 +266,5 @@ function renderWorksBlock(array $event, array $compo, $workID = 0): array {
         return [$worksBlock, $votingBlock];
     }
 
-    // Placeholder. Not reachable
-    return [nl2br($compo['announcement']), ""];
+    return ["", ""];
 }
