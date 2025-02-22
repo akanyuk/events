@@ -183,6 +183,7 @@ function prepareWorkLinks($langMain, $work, $linksProps, $rel): array {
                 list($iframe, $linkURL) = $linksProps[$url]['iframe']($linkURL);
                 if ($iframe != "") {
                     $navHTML[] = '<li class="nav-item"><a class="nav-link" href="' . $linkURL . '" data-role="work-iframe-toggle" data-iframe="' . htmlspecialchars($iframe) . '"><span class="icon" style="background-position: ' . $bgPos . ';"></span>' . $title . '</a></li>';
+                    $linksHTML[] = '<div class="item"><a href="' . $linkURL . '" target="_blank"><span class="icon" style="background-position: ' . $bgPos . ';"></span>' . $title . '</a></div>';
                     continue;
                 }
             }
@@ -191,7 +192,7 @@ function prepareWorkLinks($langMain, $work, $linksProps, $rel): array {
             $bgPos = $linksProps['default']['bg_pos'];
         }
 
-        $linksHTML[] = '<div class="item"><a href="' . $linkURL . '"><span class="icon" style="background-position: ' . $bgPos . ';"></span>' . $title . '</a></div>';
+        $linksHTML[] = '<div class="item"><a href="' . $linkURL . '" target="_blank"><span class="icon" style="background-position: ' . $bgPos . ';"></span>' . $title . '</a></div>';
     }
 
     if ($work['release_link']) {
