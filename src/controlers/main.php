@@ -54,6 +54,7 @@ $page['path'] = "foo";  // Unnecessary. Preventing `index` page
 
 if (!$competitionAlias && !$workID) {
     // Event page
+    NFWX::i()->mainHeaderTittle = $CEvents->record['title'];
     $page['title'] = $CEvents->record['title'];
 
     NFWX::i()->main_og['title'] = $CEvents->record['title'];
@@ -109,6 +110,10 @@ if (!$workID) {
         NFW::i()->breadcrumb_status = '<span class="badge text-bg-danger">' . $lang_main['voting to'] . ': ' . date('d.m.Y H:i', $CCompetitions->record['voting_to']) . '</span>';
     }
 
+    $page['title'] = $CCompetitions->record['title'];
+    NFWX::i()->mainHeaderTittle = $CCompetitions->record['title'];
+    NFWX::i()->mainHeaderTittleXl = $CEvents->record['title'] . ' / ' . $CCompetitions->record['title'];
+
     NFWX::i()->main_og['title'] = $CCompetitions->record['title'];
     NFWX::i()->main_og['description'] = $CEvents->record['title'];
     if ($CEvents->record['preview_img_large']) {
@@ -119,7 +124,6 @@ if (!$workID) {
 
     $CCompetitionsGroups = new competitions_groups();
 
-    $page['title'] = $CCompetitions->record['title'];
     $page['content'] = NFW::i()->fetch(NFW::i()->findTemplatePath('competitions/main/record.tpl'), [
         'announcement' => $CCompetitions->record['announcement'],
         'competitions' => $CCompetitions->getRecords(array('filter' => array('event_id' => $CEvents->record['id']))),
@@ -163,14 +167,16 @@ if (count($competitions) > 1) {
 
 }
 
+$page['title'] = $CWorks->record['display_title'];
+NFWX::i()->mainHeaderTittle = $CWorks->record['title'];
+NFWX::i()->mainHeaderTittleXl = $CWorks->record['display_title'];
+
 NFWX::i()->main_og['title'] = $CWorks->record['display_title'];
 NFWX::i()->main_og['description'] = $CEvents->record['title'] . ' / ' . $CCompetitions->record['title'];
 if ($CWorks->record['screenshot']) {
     NFW::i()->registerFunction('cache_media');
     NFWX::i()->main_og['image'] = cache_media($CWorks->record['screenshot'], 640);
 }
-
-$page['title'] = $CWorks->record['display_title'];
 
 list($worksBlock, $votingBlock) = renderWorksBlock($CEvents->record, $CCompetitions->record, $workID);
 

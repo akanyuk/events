@@ -130,8 +130,6 @@ NFWX::i()->mainLayoutRightContent = ob_get_clean();
         echo $competitionsListShort;
         ?>
     </div>
-
-    <h1 class="d-none d-md-block"><?php echo htmlspecialchars($event['title']) ?></h1>
 <?php
 echo $event['content'] . ' ' . $timetable . ' ' . $competitionsList . $votingBlock . $worksBlock;
 

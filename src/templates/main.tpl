@@ -155,7 +155,11 @@ if ($authorActivityCnt + $adminActivityCnt > 99) {
 <main class="fixed-top navbar-events">
     <header>
         <div class="container-fluid py-1 px-1 px-sm-3 px-md-5 d-flex justify-content-between align-items-center">
-            <a href="/"><img src="<?php echo NFW::i()->assets('main/logo.gif') ?>" alt=""></a>
+            <div class="d-flex align-items-start">
+                <a href="/"><img src="<?php echo NFW::i()->assets('main/logo.gif') ?>" alt=""></a>
+                <h1 class="d-none d-lg-block d-xl-none"><?php echo htmlspecialchars(NFWX::i()->mainHeaderTittle)?></h1>
+                <h1 class="d-none d-xl-block"><?php echo htmlspecialchars(NFWX::i()->mainHeaderTittleXl ? NFWX::i()->mainHeaderTittleXl : NFWX::i()->mainHeaderTittle)?></h1>
+            </div>
 
             <div class="d-flex align-items-center">
                 <?php if (works_comments::hasNew()): ?>
