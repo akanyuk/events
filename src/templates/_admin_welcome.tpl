@@ -120,7 +120,7 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
                         <div>
                             <strong>
                                 <a class="alert-link"
-                                   href="<?php echo NFW::i()->absolute_path . '/admin/works?action=update&record_id=' . $record['id'] ?>"><?php echo htmlspecialchars($record['title'] . ' by ' . $record['author']) ?></a>
+                                   href="<?php echo NFW::i()->absolute_path . '/admin/works?action=update&record_id=' . $record['id'] ?>#activity"><?php echo htmlspecialchars($record['title'] . ' by ' . $record['author']) ?></a>
                                 <span class="label label-warning"><?php echo $unread[$record['id']] ?></span>
                             </strong>
                             <div class="text-muted">

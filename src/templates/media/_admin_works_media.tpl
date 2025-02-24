@@ -307,7 +307,6 @@ echo '<style>' . $css . '</style>';
                 <div class="input-group-addon">.zip</div>
             </div>
         </div>
-        <button class="btn btn-primary btn-full-xs"><span class="fa fa-save"></span> Generate release archive
-        </button>
+        <button class="btn btn-primary btn-full-xs">Generate release archive</button>
     </fieldset>
 </form>

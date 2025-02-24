@@ -27,6 +27,7 @@ $CWorksMedia->actionAdminFileIdDiz();
 $CWorksMedia->actionAdminMakeRelease();
 $CWorksMedia->actionAdminRemoveRelease();
 $CWorksMedia->actionAdminUpdateProperties();
+$CWorksMedia->actionAdminDownloadFiles();
 
 $CWorksActivity = new works_activity();
 $CWorksActivity->actionAdminList();
