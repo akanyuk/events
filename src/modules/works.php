@@ -4,29 +4,6 @@
  */
 
 class works extends active_record {
-    // TODO: remove after checking
-//    static $action_aliases = array(
-//        'update' => array(
-//            array('module' => 'works', 'action' => 'admin'),
-//            array('module' => 'works', 'action' => 'get_pos'),
-//            array('module' => 'works', 'action' => 'set_pos'),
-//            array('module' => 'works', 'action' => 'insert'),
-//            array('module' => 'works', 'action' => 'preview'),
-//            array('module' => 'works', 'action' => 'update_work'),
-//            array('module' => 'works', 'action' => 'update_status'),
-//            array('module' => 'works', 'action' => 'update_links'),
-//            array('module' => 'works', 'action' => 'my_status'),
-//            array('module' => 'works', 'action' => 'delete'),
-//            array('module' => 'works_media', 'action' => 'update_properties'),
-//            array('module' => 'works_media', 'action' => 'rename_file'),
-//            array('module' => 'works_media', 'action' => 'preview_zx'),
-//            array('module' => 'works_media', 'action' => 'convert_zx'),
-//            array('module' => 'works_media', 'action' => 'file_id_diz'),
-//            array('module' => 'works_media', 'action' => 'make_release'),
-//            array('module' => 'works_media', 'action' => 'remove_release'),
-//        ),
-//    );
-
     var $attributes = array(
         'competition_id' => array('type' => 'select', 'desc' => 'Competition', 'required' => true, 'options' => array()),
         'position' => array('type' => 'int', 'desc' => 'Position'),

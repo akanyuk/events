@@ -173,7 +173,7 @@ class NFWX extends NFW {
             return in_array($CWorks->record['event_id'], $managed_events);
         }
 
-        if ($module == 'works_media' && in_array($action, ['update_properties', 'file_id_diz', 'make_release', 'remove_release'])) {
+        if ($module == 'works_media' && in_array($action, ['update_properties', 'file_id_diz', 'make_release', 'remove_release', 'download_files'])) {
             if (!isset($_GET['record_id'])) {
                 return false;
             }

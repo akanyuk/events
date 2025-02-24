@@ -183,14 +183,14 @@ class works_media extends media {
         $basename1 = $this->record['filename'] . '.' . $ZXGFX->getOutputType();
         $this->insertFromString($ZXGFX->generate(), array('owner_class' => 'works', 'owner_id' => $CWorks->record['id'], 'secure_storage' => true, 'basename' => $basename1));
 
-        $props1 =  [
+        $props1 = [
             'screenshot' => 1,
             'image' => 0,
             'audio' => 0,
             'voting' => 0,
             'release' => 0,
         ];
-        $mediaProps[$this->record['id']] =$props1;
+        $mediaProps[$this->record['id']] = $props1;
 
         $responseRecord = $this->jsonResponseRecord($mediaProps[$this->record['id']]);
 
@@ -332,14 +332,12 @@ class works_media extends media {
                 $basename = strtolower($a['basename']);
                 $basename = in_array($basename, $already_added) ? $a['id'] . '_' . $basename : $basename;
                 $already_added[] = $basename;
-                $zip->addFile($a['fullpath'], iconv("UTF-8", 'cp866', $basename));
+                $zip->addFile($a['fullpath'], $basename);
             }
         }
 
         $description = $this->generateDescription($CWorks->record);
         $description .= "\n" . 'Download: ' . $release_link;
-
-        $description = mb_convert_encoding($description, 'cp1251', 'UTF-8');
         $zip->setArchiveComment($description);
 
         $zip->close();
@@ -370,5 +368,39 @@ class works_media extends media {
 
         works_activity::adminRemoveRelease($CWorks->record['id']);
         NFWX::i()->jsonSuccess();
+    }
+
+    function actionAdminDownloadFiles() {
+        $CWorks = new works($_GET['record_id']);
+        if (!$CWorks->record['id']) {
+            $this->error($CWorks->last_msg, __FILE__, __LINE__);
+            NFWX::i()->jsonError(400, $this->last_msg);
+        }
+
+        $dirName = $CWorks->record['title'] . ' by ' . $CWorks->record['author'];
+        $tmpName = tempnam(sys_get_temp_dir(), "_WORK_FILES_");
+
+        $zip = new ZipArchive;
+        $result = $zip->open($tmpName, ZipArchive::OVERWRITE);
+        if ($result === false) {
+            $this->error("open temporary zip file failed", __FILE__, __LINE__);
+            NFWX::i()->jsonError(400, $this->last_msg);
+        }
+
+        $already_added = array();
+        foreach ($CWorks->record['media_info'] as $a) {
+            $basename = strtolower($a['basename']);
+            $basename = in_array($basename, $already_added) ? $a['id'] . '/' . $basename : $basename;
+            $already_added[] = $basename;
+            $zip->addFile($a['fullpath'], $dirName . '/' . $basename);
+        }
+
+        $zip->close();
+
+        header("Content-Description: File Transfer");
+        header("Content-Type: application/zip");
+        header("Content-Disposition: attachment; filename=\"" . NFWX::i()->safeFilename($CWorks->record['title']) . "\"");
+        readfile($tmpName);
+        NFW::i()->stop();
     }
 }
