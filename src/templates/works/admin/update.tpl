@@ -214,6 +214,7 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
             <button id="clear-personal-note" class="btn btn-primary">Clear</button>
         </form>
 
+        <br /><section id="activity"></section>
         <h3>Activity</h3>
         <button id="show-all-activity" class="btn btn-default btn-sm btn-full-xs"
                 style="margin-top: 1em; margin-bottom: 1em; display:none;">Show early activity
@@ -483,6 +484,7 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
                     divWorkActivity.empty();
                     let isButtonShowAllActivity = false;
                     let isUnreadDelimiterShown = false;
+                    let isScrollNewActivity = false;
                     const numRecords = response['records'].length;
                     response['records'].forEach(function (r, index) {
                         if (index === 0 && r['is_new']) {
@@ -490,6 +492,10 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
                         }
 
                         if (!isUnreadDelimiterShown && r['is_new']) {
+                            let delimAnchor = document.createElement('section');
+                            delimAnchor.id = "new-activity";
+                            divWorkActivity.append(delimAnchor);
+
                             let delimMsg = document.createElement('div');
                             delimMsg.innerText = "New activity";
                             delimMsg.className = "message";
@@ -501,6 +507,7 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
                             divWorkActivity.append(delim);
 
                             isUnreadDelimiterShown = true;
+                            isScrollNewActivity = true;
                         }
 
                         let item = activityItem(r);
@@ -516,6 +523,10 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
                     }
 
                     UpdateHeaderUnread(response['unread']);
+
+                    if (isScrollNewActivity) {
+                        window.location.href = "#new-activity"
+                    }
                 },
                 error: function () {
                     alert("Load work activity unexpected error");
