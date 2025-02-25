@@ -133,12 +133,13 @@ echo '<style>' . $css . '</style>';
                             <li><a href="#" id="works-media-rename">Rename</a></li>
                             <li><a href="#" id="works-media-zx-spectrum-scr">ZX Spectrum screen</a></li>
                             <li><a href="#" id="works-media-delete"><span
-                                        class="text-danger">Delete</span></a></li>
+                                            class="text-danger">Delete</span></a></li>
                         </ul>
                     </div>
                 </div>
                 <div class="btn-group" role="group">
-                    <button role="<?php echo $session_id ?>-prop" id="screenshot" type="button" class="btn %btn-screenshot%"
+                    <button role="<?php echo $session_id ?>-prop" id="screenshot" type="button"
+                            class="btn %btn-screenshot%"
                             title="<?php echo TITLE_SCREENSHOT ?>"><span class="fa fa-camera"></span></button>
                     <button role="<?php echo $session_id ?>-prop" id="image" type="button" class="btn %btn-image%"
                             title="<?php echo TITLE_IMAGE ?>"><span class="fa fa-image"></span></button>
@@ -171,9 +172,6 @@ echo '<style>' . $css . '</style>';
                         <div id="record" class="record"
                              data-id="<?php echo $record['id'] ?>"
                              data-basename="<?php echo $record['basename'] ?>">
-                            <div id="comment"
-                                 style="display: none;"><?php echo htmlspecialchars($record['comment']) ?></div>
-
                             <div class="cell cell-i">
                                 <a role="<?php echo $session_id ?>-file-properties" href="<?php echo $record['url'] ?>"
                                    data-type="<?php echo $record['type'] ?>"
@@ -189,8 +187,8 @@ echo '<style>' . $css . '</style>';
                                    data-type="<?php echo $record['type'] ?>"
                                    data-basename="<?php echo $record['basename'] ?>"
                                    data-posted="<?php echo $record['posted'] ?>"
-                                   data-filesize="<?php echo $record['filesize_str'] ?>">
-                                    <strong id="basename"><?php echo limit_text($record['basename'], 64) ?></strong>
+                                   data-filesize="<?php echo $record['filesize_str'] ?>"><strong
+                                            id="basename"><?php echo limit_text($record['basename'], 64) ?></strong>
                                 </a>
                                 <div class="info">
                                     <div>Uploaded: <?php echo date('d.m.Y H:i', $record['posted']) ?>
@@ -212,7 +210,7 @@ echo '<style>' . $css . '</style>';
                                             <li><a href="#" id="works-media-rename">Rename</a></li>
                                             <li><a href="#" id="works-media-zx-spectrum-scr">ZX Spectrum screen</a></li>
                                             <li><a href="#" id="works-media-delete"><span
-                                                        class="text-danger">Delete</span></a></li>
+                                                            class="text-danger">Delete</span></a></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -260,7 +258,7 @@ echo '<style>' . $css . '</style>';
                     <strong><?php echo number_format($MAX_SESSION_SIZE / 1048576, 2, '.', ' ') . $lang_media['mb'] ?></strong>
                 </p>
                 <p><?php echo $lang_media['CurrentSessionSize'] ?>: <strong><span
-                            id="session-size"><?php echo number_format($session_size / 1048576, 2, '.', ' ') ?></span><?php echo $lang_media['mb'] ?>
+                                id="session-size"><?php echo number_format($session_size / 1048576, 2, '.', ' ') ?></span><?php echo $lang_media['mb'] ?>
                     </strong></p>
                 <?php if ($image_max_x && $image_max_y): ?>
                     <p><?php echo $lang_media['MaxImageSize'] ?>:
@@ -289,13 +287,13 @@ echo '<style>' . $css . '</style>';
     <fieldset style="overflow: hidden">
         <legend>Release link:</legend>
         <span
-            id="permanent-link"><?php echo $owner['release_link'] ? '<a href="' . $owner['release_link']['url'] . '">' . $owner['release_link']['url'] . '</a>' : '<em>none</em>' ?></span>
+                id="permanent-link"><?php echo $owner['release_link'] ? '<a href="' . $owner['release_link']['url'] . '">' . $owner['release_link']['url'] . '</a>' : '<em>none</em>' ?></span>
 
         <div class="form-group">
             <button id="media-remove-release"
                     class="btn btn-sm btn-danger btn-full-xs" <?php echo $owner['release_link'] ? '' : 'style="display: none;"' ?>
                     title="Delete file"><span class="hidden-xs"><span class="fa fa-times"></span></span><span
-                    class="hidden-sm hidden-md hidden-lg"> Delete file</span></button>
+                        class="hidden-sm hidden-md hidden-lg"> Delete file</span></button>
         </div>
 
         <div class="clearfix" style="padding-top: 10px;"></div>
