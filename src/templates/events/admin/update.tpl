@@ -401,13 +401,16 @@ $successDialog->render();
                 <ul class="nav nav-pills nav-stacked">
                     <li role="presentation"><a
                             href="<?php echo NFW::i()->base_path . 'admin/competitions?event_id=' . $Module->record['id'] ?>"
-                            title="Manage competitions of this events">Manage competitions</a></li>
+                            title="Manage competitions of this events">Competitions</a></li>
                     <li role="presentation"><a
                             href="<?php echo NFW::i()->base_path . 'admin/works?event_id=' . $Module->record['id'] ?>"
-                            title="Manage works of this events">Manage works</a></li>
+                            title="Manage works of this events">Works</a></li>
                     <li role="presentation"><a
                             href="<?php echo NFW::i()->base_path . 'admin/vote?event_id=' . $Module->record['id'] ?>"
-                            title="Manage voting of this events">Manage voting</a></li>
+                            title="Manage voting of this events">Voting</a></li>
+                    <li role="presentation"><a
+                            href="<?php echo NFW::i()->base_path . 'admin/live_voting?event_id=' . $Module->record['id'] ?>"
+                            title="Manage voting of this events">Live voting</a></li>
                     <li role="presentation"><a
                                 href="<?php echo NFW::i()->base_path . 'admin/timeline?event_id=' . $Module->record['id'] ?>"
                                 title="Manage voting of this events">Timeline</a></li>

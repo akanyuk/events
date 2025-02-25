@@ -112,10 +112,6 @@ NFW::i()->breadcrumb_status = ob_get_clean();
         padding: 10px;
     }
 
-    .panel-works-sort .works-sort-title, .panel-works-sort .works-sort-author {
-        white-space: nowrap;
-        overflow: hidden;
-    }
     .panel-works-sort .btn-works-sort-up, .panel-works-sort .btn-works-sort-down {
         display: block;
     }
