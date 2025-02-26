@@ -179,6 +179,7 @@ $(function () {
     renameForm.activeForm({
         success: function (response) {
             mediaContainer.find('[id="record"][data-id="' + response['id'] + '"]').find('[id="basename"]').text(response['basename']);
+            mediaContainer.find('[id="record"][data-id="' + response['id'] + '"]').data('basename', response['basename'])
             renameDialog.modal('hide');
             loadActivity();
         }
