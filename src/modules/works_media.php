@@ -209,7 +209,7 @@ class works_media extends media {
             $this->error('Unable to load selected file for conversion.', __FILE__, __LINE__);
             NFWX::i()->jsonError(400, $this->last_msg);
         }
-        $basename2 = 'main' . $ZXGFX->getOutputType();
+        $basename2 = 'main.' . $ZXGFX->getOutputType();
         $this->insertFromString($ZXGFX->generate(), array(
             'owner_class' => 'works',
             'owner_id' => $CWorks->record['id'],
