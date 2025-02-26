@@ -181,7 +181,12 @@ class works_media extends media {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
         $basename1 = $this->record['filename'] . '.' . $ZXGFX->getOutputType();
-        $this->insertFromString($ZXGFX->generate(), array('owner_class' => 'works', 'owner_id' => $CWorks->record['id'], 'secure_storage' => true, 'basename' => $basename1));
+        $this->insertFromString($ZXGFX->generate(), array(
+            'owner_class' => 'works',
+            'owner_id' => $CWorks->record['id'],
+            'secure_storage' => true,
+            'basename' => $basename1,
+        ));
 
         $props1 = [
             'screenshot' => 1,
@@ -204,8 +209,13 @@ class works_media extends media {
             $this->error('Unable to load selected file for conversion.', __FILE__, __LINE__);
             NFWX::i()->jsonError(400, $this->last_msg);
         }
-        $basename2 = $this->record['filename'] . '.' . $ZXGFX->getOutputType();
-        $this->insertFromString($ZXGFX->generate(), array('owner_class' => 'works', 'owner_id' => $CWorks->record['id'], 'secure_storage' => true, 'basename' => $basename2));
+        $basename2 = 'main' . $ZXGFX->getOutputType();
+        $this->insertFromString($ZXGFX->generate(), array(
+            'owner_class' => 'works',
+            'owner_id' => $CWorks->record['id'],
+            'secure_storage' => true,
+            'basename' => $basename2,
+        ));
 
         $props2 = [
             'screenshot' => 0,
