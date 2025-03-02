@@ -21,7 +21,7 @@ $noImage = NFW::i()->assets('main/current-event-large.png');
                         alt=""></a>
             <div class="card-body px-0 pt-md-0">
                 <p class="lead"><a
-                            href="<?php echo $w['work_url'] ?>"><?php echo htmlspecialchars($w['title']) ?></a>
+                            href="<?php echo $w['work_url'] ?>"><?php echo htmlspecialchars($w['display_title']) ?></a>
                 </p>
 
                 <?php foreach ($w['items'] as $comment): ?>

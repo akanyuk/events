@@ -69,7 +69,7 @@ class works_comments extends active_record {
         }
 
         $query = array(
-            'SELECT' => 'wc.*, w.title AS work_title, w.author AS work_author, c.works_type, c.alias AS competition_alias, e.title AS event_title, e.alias AS event_alias, c.event_id',
+            'SELECT' => 'wc.*, w.title AS work_title, w.author, c.works_type, c.alias AS competition_alias, c.voting_to, e.title AS event_title, e.alias AS event_alias, c.event_id',
             'FROM' => $this->db_table . ' AS wc',
             'JOINS' => array(
                 array(
@@ -119,7 +119,7 @@ class works_comments extends active_record {
             if (empty($gComments[$workID]['comments'])) {
                 $gComments[$workID]['work_id'] = $workID;
                 $gComments[$workID]['work_url'] = NFW::i()->absolute_path . '/' . $comment['event_alias'] . '/' . $comment['competition_alias'] . '/' . $comment['work_id'] . '#comments';
-                $gComments[$workID]['title'] = $comment['event_title'] . ' / ' . $comment['work_title'] . ' by ' . $comment['work_author'];
+                $gComments[$workID]['display_title'] = $comment['event_title'] . ' / ' . ($comment['voting_to'] <= NFWX::i()->actual_date ? $comment['work_title'] . ' by ' . $comment['author'] : $comment['work_title']);
             }
             $gComments[$workID]['items'][] = [
                 'posted' => $comment['posted'],

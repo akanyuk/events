@@ -15,7 +15,7 @@ foreach ($comments as $workID => $w): ?>
                                                     class="card-img-top mt-0 mt-md-2 pe-md-3 <?php echo isset($screenshots[$workID]) ? '' : 'no-screenshot' ?>" alt=""></a>
         <div class="card-body px-0 pt-md-0">
             <p class="lead"><a
-                        href="<?php echo $w['work_url'] ?>"><?php echo htmlspecialchars($w['title']) ?></a>
+                        href="<?php echo $w['work_url'] ?>"><?php echo htmlspecialchars($w['display_title']) ?></a>
             </p>
 
             <?php foreach ($w['items'] as $comment): ?>
