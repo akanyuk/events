@@ -731,8 +731,7 @@ class works extends active_record {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
-        $comment = NFW::i()->db->escape($_POST['comment']);
-        if ($comment == "") {
+        if (!isset($_POST['set']) || !$_POST['set']) {
             NFWX::i()->jsonSuccess(["message" => "Personal note cleared"]);
         }
 

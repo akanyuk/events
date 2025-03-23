@@ -205,6 +205,7 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
     <div class="col-md-6">
         <form id="works-my-status"
               action="<?php echo $Module->formatURL('my_status') . '&record_id=' . $Module->record['id'] ?>">
+            <input type="hidden" name="set"/>
             <div <?php echo $personalNote['comment'] ? 'class="has-warning"' : '' ?> style="padding-bottom: 10px;">
                 <label class="control-label" for="comment">Personal note (only for you)</label>
                 <textarea class="form-control"
@@ -346,6 +347,7 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
         // Personal note form
         const formMyStatus = $('form[id="works-my-status"]');
         const textareaMyStatus = formMyStatus.find('textarea')
+        const setMyStatus = formMyStatus.find('input[name="set"]');
         formMyStatus.activeForm({
             success: function (response) {
                 $.jGrowl(response['message']);
@@ -353,16 +355,12 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
         });
         $('button[id="clear-personal-note"]').click(function () {
             textareaMyStatus.val("");
-            textareaMyStatus.parent().removeClass("has-warning");
+            setMyStatus.val("");
         });
         $('button[id="set-personal-note"]').click(function () {
-            if (textareaMyStatus.val() === "") {
-                $.jGrowl("Please fill note text", {theme: 'error'});
-                return false;
-            }
-            textareaMyStatus.parent().addClass("has-warning");
+            console.log(setMyStatus);
+            setMyStatus.val("1");
         });
-
 
         // Links
         updateSaveLinksButtonVisibility();

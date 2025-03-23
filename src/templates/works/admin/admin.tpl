@@ -138,7 +138,7 @@ NFW::i()->breadcrumb_status = ob_get_clean();
              style="display: <?php echo $filteredCompetition == 0 || $filteredCompetition == $compoID ? 'block' : 'none' ?>;">
             <div class="row">
                 <div class="col-xs-9">
-                    <h4><?php echo htmlspecialchars($c['title']) . ' ' . $c['approved'] . '(' . count($c['works']) . ')' ?></h4>
+                    <h4><?php echo htmlspecialchars($c['title']) . ' ' . $c['approved'] . ' [' . count($c['works']) . ']' ?></h4>
                 </div>
                 <div class="col-xs-3" style="text-align: right;">
                     <button id="works-sort" type="button" class="btn btn-link"
