@@ -57,9 +57,9 @@ if (!empty($managedEvents)) {
         'JOINS' => array(
             array('INNER JOIN' => 'competitions AS c', 'ON' => 'c.id=w.competition_id'),
             array('INNER JOIN' => 'events AS e', 'ON' => 'e.id=c.event_id'),
-            array('LEFT JOIN' => 'works_managers_notes AS wmi', 'ON' => 'wmi.work_id=w.id AND wmi.user_id=' . NFW::i()->user['id'])
+            array('INNER JOIN' => 'works_managers_notes AS wmi', 'ON' => 'wmi.work_id=w.id AND wmi.user_id=' . NFW::i()->user['id'])
         ),
-        'WHERE' => 'wmi.comment != "" AND e.id IN(' . implode(',', $managedEvents) . ')',
+        'WHERE' => 'e.id IN(' . implode(',', $managedEvents) . ')',
         'ORDER BY' => 'w.posted DESC',
     );
     if (!$result = NFW::i()->db->query_build($query)) {
