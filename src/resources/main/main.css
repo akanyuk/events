@@ -60,6 +60,10 @@ header h1 {
     background-color: #31606e;
 }
 
+.badge-cnt {
+    height: fit-content;
+}
+
 /* index page */
 h2.index-head {
     border-bottom: 1px solid #bbb;
@@ -144,12 +148,6 @@ h2.index-head {
 
 .event-compo-rules UL {
     margin-bottom: 0 !important;
-}
-
-/* competitions list short */
-
-.competitions-list-short .badge-cnt {
-    height: fit-content;
 }
 
 /* work */

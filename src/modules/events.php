@@ -258,7 +258,7 @@ class events extends active_record {
         }
 
         $query = array(
-            'SELECT' => 'e.id, e.is_hidden, e.title, e.alias, e.announcement, e.date_from, e.date_to, e.posted',
+            'SELECT' => 'e.id, e.is_hidden, e.hide_works_count, e.title, e.alias, e.announcement, e.date_from, e.date_to, e.posted',
             'FROM' => $this->db_table . ' AS e',
             'WHERE' => empty($where) ? null : implode(' AND ', $where),
             'LIMIT' => isset($options['limit']) && $options['limit'] ? intval($options['limit']) : null,
