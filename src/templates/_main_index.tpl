@@ -81,7 +81,7 @@ function displayIndexEvent($record, $layout = ""): void {
                         </h2>
                         <p class="h5"><?php echo $record['dates_desc'] ?>
                             <span
-                                    class="badge text-bg-<?php echo $layout == 'current' ? 'danger' : 'info' ?>"><?php echo $record['status_label'] ?></span>
+                                class="badge text-bg-<?php echo $layout == 'current' ? 'danger' : 'info' ?>"><?php echo $record['status_label'] ?></span>
                         </p>
                         <?php if ($record['announcement']): ?>
                             <div class="mt-3"><?php echo nl2br($record['announcement']) ?></div>
@@ -97,12 +97,12 @@ function displayIndexEvent($record, $layout = ""): void {
             ?>
             <div class="table-row">
                 <div class="align-top text-left" style="display: table-cell; width: 80px;"><a
-                            href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><img class="media-object"
-                                                                                             src="<?php echo $record['preview_img'] ?>"
-                                                                                             alt=""></a>
+                        href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><img class="media-object"
+                                                                                         src="<?php echo $record['preview_img'] ?>"
+                                                                                         alt=""></a>
                 </div>
                 <div class="align-middle text-left" style="display: table-cell;"><h4><a
-                                href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><?php echo htmlspecialchars($record['title']) ?></a>
+                            href="<?php echo NFW::i()->base_path . $record['alias'] ?>"><?php echo htmlspecialchars($record['title']) ?></a>
                     </h4>
                     <div class="d-none d-sm-block me-1 text-muted"><?php echo $record['dates_desc'] ?></div>
                 </div>
@@ -115,12 +115,14 @@ function displayIndexEvent($record, $layout = ""): void {
     }
 }
 
-function displayCurrenEventUploadingStatus($record): void {
+function displayCurrenEventUploadingStatus($event): void {
+    $hideWorksCount = $event['hide_works_count'];
+
     $CCompetitions = new competitions();
     $compos = [];
     foreach ($CCompetitions->getRecords(['filter' => [
         'open_reception' => true,
-        'event_id' => $record['id']]]) as $compo) {
+        'event_id' => $event['id']]]) as $compo) {
         $compos[] = $compo;
     }
     if (count($compos) == 0) {
@@ -131,14 +133,43 @@ function displayCurrenEventUploadingStatus($record): void {
     ?>
     <div class="mb-3">
         <h3><?php echo $langMain['Reception opened'] ?>:</h3>
-        <?php foreach ($compos as $compo): ?>
-            <div class="d-flex flex-row mb-2 justify-content-between gap-2">
-                <a href="<?php echo NFW::i()->absolute_path . '/upload/' . $compo['event_alias'] . '/' . $compo['alias'] ?>"><?php echo htmlspecialchars($compo['title']) ?></a>
-                <div class="text-nowrap text-info"><?php echo $compo['reception_status']['desc'] ?></div>
-            </div>
-        <?php endforeach; ?>
+        <?php foreach ($compos as $compo) echo _displayCurrenEventUploadingStatusCompo($hideWorksCount, $compo);?>
     </div>
     <?php
+}
+
+function _displayCurrenEventUploadingStatusCompo(bool $hideWorksCount, $compo): string {
+    $langMain = NFW::i()->getLang("main");
+    ob_start();
+
+    switch ($hideWorksCount) {
+        case true:
+            ?>
+            <div class="d-grid gap-2 align-items-center" style="grid-template-columns: 100fr 1fr;">
+                <a class="mb-2" href="<?php echo NFW::i()->absolute_path . '/' . $compo['event_alias'] . '#' . $compo['alias'] ?>"><?php echo htmlspecialchars($compo['title']) ?></a>
+                <div class="text-nowrap text-info"><?php echo $compo['reception_status']['desc'] ?></div>
+            </div>
+            <?php
+            break;
+        default:
+            ?>
+            <div class="d-grid gap-2 align-items-center" style="grid-template-columns: 100fr 1fr 1fr;">
+                <a class="mb-2" href="<?php echo NFW::i()->absolute_path . '/' . $compo['event_alias'] . '#' . $compo['alias'] ?>"><?php echo htmlspecialchars($compo['title']) ?></a>
+                <div class="text-nowrap text-info me-3"><?php echo $compo['reception_status']['desc'] ?></div>
+                <?php
+                if (!$compo['counter']) {
+                    echo '<div class="badge badge-cnt text-bg-secondary" title="' . $langMain['competitions received works'] . '">' . $compo['counter'] . '</div>';
+                } elseif ($compo['counter'] < 3) {
+                    echo '<div class="badge badge-cnt text-bg-warning" title="' . $langMain['competitions received works'] . '">' . $compo['counter'] . '</div>';
+                } else {
+                    echo '<div class="badge badge-cnt text-bg-success" title="' . $langMain['competitions received works'] . '">' . $compo['counter'] . '</div>';
+                }
+                ?>
+            </div>
+        <?php
+    }
+
+    return ob_get_clean();
 }
 
 function displayCurrenEventVotingStatus($record): void {
