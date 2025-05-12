@@ -1,5 +1,10 @@
 <?php
 
+youtubeIframeCreator('');
+vkVideoIframeCreator('');
+rutubeIframeCreator('');
+plvideoIframeCreator('');
+
 $CVote = new vote();
 $CVote->actionAdminVotekeys();
 $CVote->actionAdminVotes();

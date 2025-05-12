@@ -103,9 +103,9 @@ function display_work_media(array $work = array(), array $options = array()) {
 
     echo $linksHTML;
 
-    echo '<div class="mb-3">';
+    echo '<div class="mb-3 d-flex gap-1">';
     if ($options['rel'] == 'voting' && !empty($options['vote_options'])) {
-        echo '<div class="btn-group btn-group-sm gap-1 w-640" role="group" aria-label="Voting options">';
+        echo '<div class="btn-group btn-group-sm gap-2 w-640" role="group" aria-label="Voting options">';
         foreach ($options['vote_options'] as $i => $d) {
             if ($i == 0) {
                 continue;
@@ -119,26 +119,26 @@ function display_work_media(array $work = array(), array $options = array()) {
     } elseif ($options['rel'] == 'release' && $work['num_votes']) {
         $vs = isset($options['voting_system']) && $options['voting_system'] ? $options['voting_system'] : 'avg';
 
-        echo 'vts:<strong>' . $work['num_votes'] . '</strong>';
+        echo '<div>vts:<strong>' . $work['num_votes'] . '</strong></div>';
 
         $sum = 'sum:<strong>' . $work['total_scores'] . '</strong>';
         if ($vs == 'sum') {
             $sum = '<span class="badge badge-vts">' . $sum . '</span>';
         }
-        echo ' ' . $sum;
+        echo '<div>'.$sum.'</div>';
 
         $avg = 'avg:<strong>' . $work['average_vote'] . '</strong>';
         if ($vs == 'avg') {
             $avg = '<span class="badge badge-vts">' . $avg . '</span>';
         }
-        echo ' ' . $avg;
+        echo '<div>'.$avg.'</div>';
 
         if (isset($work['iqm_vote']) && $work['iqm_vote'] > 0) {
             $iqm = 'iqm:<strong>' . $work['iqm_vote'] . '</strong>';
             if ($vs == 'iqm') {
                 $iqm = '<span class="badge badge-vts">' . $iqm . '</span>';
             }
-            echo ' ' . $iqm;
+            echo '<div>'.$iqm.'</div>';
         }
     }
     echo '</div>';
