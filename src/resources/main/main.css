@@ -185,7 +185,7 @@ h2.index-head {
 }
 
 .work-container .links {
-    margin-bottom: 5px;
+    margin-bottom: 1rem;
 }
 
 .work-container .links .item {
@@ -205,7 +205,7 @@ h2.index-head {
 }
 
 [data-bs-theme="dark"] .work-container .links .icon {
-    background: url("icons-16x16-dark.png?20240927");
+    background: url("icons-16x16-dark.png?20250512");
 }
 
 audio {
