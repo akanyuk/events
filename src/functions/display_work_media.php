@@ -57,29 +57,30 @@ function display_work_media(array $work = array(), array $options = array()) {
 
     // Display header
 
-    if ($options['rel'] == 'voting' && !$options['single']) {
-        $headerPrefix = $work['position'] . '. ';
-    } elseif ($options['rel'] == 'release' && $work['place']) {
-        $headerPrefix = '<span class="badge badge-place me-2">' . $work['place'] . '<span class="suffix">' . place_suffix($work['place']) . '</span></span>';
+    if ($options['rel'] == 'release' && $work['place']) {
+        $place = '<span class="badge badge-place me-2">' . $work['place'] . '<span class="suffix">' . place_suffix($work['place']) . '</span></span>';
     } else {
-        $headerPrefix = "";
+        $place = "";
     }
 
     if ($options['rel'] == 'preview') {
-        $headerTitle = '<h2>' . $headerPrefix . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</h2>';
+        $title = '<h2>' . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</h2>';
     } elseif ($options['rel'] == 'voting' && $options['single']) {
-        $headerTitle = '<h2>' . $headerPrefix . htmlspecialchars($work['title']) . '</h2>';
+        $title = '<h2>' . htmlspecialchars($work['title']) . '</h2>';
     } else if ($options['rel'] == 'voting' && !$options['single']) {
-        $headerTitle = '<h2>' . $headerPrefix . '<a href="' . $work['main_link'] . '#title">' . htmlspecialchars($work['title']) . '</a></h2>';
+        $title = '<h2>' . $work['position'] . '. <a href="' . $work['main_link'] . '#title">' . htmlspecialchars($work['title']) . '</a></h2>';
     } else if ($options['rel'] == 'release' && $options['single']) {
-        $headerTitle = '<h2>' . $headerPrefix . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</h2>';
+        $title = '<h2>' . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</h2>';
     } else if ($options['rel'] == 'release' && !$options['single']) {
-        $headerTitle = '<h2>' . $headerPrefix . '<a href="' . $work['main_link'] . '#title"/>' . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</a></h2>';
+        $title = '<h2><a href="' . $work['main_link'] . '#title"/>' . htmlspecialchars($work['title'] . ($work['author'] ? ' by ' . $work['author'] : '')) . '</a></h2>';
     } else {
-        $headerTitle = "";
+        $title = "";
     }
 
-    echo '<div id="title" style="position: relative; top: -50px;"></div>' . $headerTitle . $platformFormat . platformDescription($work);
+    echo '<section id="title">';
+    echo '<div class="d-flex align-items-center gap-1 mb-2">' . $place . $title . '</div>';
+    echo $platformFormat . platformDescription($work);
+    echo '</section>';
 
     if ($work['author_note']) {
         echo '<div class="alert alert-info d-flex align-items-center">
@@ -125,20 +126,20 @@ function display_work_media(array $work = array(), array $options = array()) {
         if ($vs == 'sum') {
             $sum = '<span class="badge badge-vts">' . $sum . '</span>';
         }
-        echo '<div>'.$sum.'</div>';
+        echo '<div>' . $sum . '</div>';
 
         $avg = 'avg:<strong>' . $work['average_vote'] . '</strong>';
         if ($vs == 'avg') {
             $avg = '<span class="badge badge-vts">' . $avg . '</span>';
         }
-        echo '<div>'.$avg.'</div>';
+        echo '<div>' . $avg . '</div>';
 
         if (isset($work['iqm_vote']) && $work['iqm_vote'] > 0) {
             $iqm = 'iqm:<strong>' . $work['iqm_vote'] . '</strong>';
             if ($vs == 'iqm') {
                 $iqm = '<span class="badge badge-vts">' . $iqm . '</span>';
             }
-            echo '<div>'.$iqm.'</div>';
+            echo '<div>' . $iqm . '</div>';
         }
     }
     echo '</div>';

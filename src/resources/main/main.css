@@ -162,13 +162,13 @@ h2.index-head {
 }
 
 .work-container .badge-place {
-    background-color: #512172;
-    padding-left: 0.5em;
-    padding-right: 0.5em;
+    border-radius: 3px;
+    background-color: #a41e1e;
+    font-size: 180%;
 }
 
 .work-container .badge-place .suffix {
-    font-size: 60%;
+    font-size: 50%;
     vertical-align: top;
 }
 
