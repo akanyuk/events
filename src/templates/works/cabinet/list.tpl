@@ -4,6 +4,8 @@
  * @var array $unread
  */
 
+NFW::i()->registerFunction('place_suffix');
+
 $langMain = NFW::i()->getLang('main');
 NFW::i()->assign('page_title', $langMain['cabinet prods']);
 
@@ -80,23 +82,7 @@ echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
 
         $url = NFW::i()->base_path . 'cabinet/works_view?record_id=' . $work['id'];
 
-        switch ($work['place']) {
-            case 0:
-                $ePrefix = '';
-                break;
-            case 1:
-                $ePrefix = '<strong>' . $work['place'] . 'st</strong>&nbsp;at ';
-                break;
-            case 2:
-                $ePrefix = '<strong>' . $work['place'] . 'nd</strong>&nbsp;at ';
-                break;
-            case 3:
-                $ePrefix = '<strong>' . $work['place'] . 'rd</strong>&nbsp;at ';
-                break;
-            default:
-                $ePrefix = '<strong>' . $work['place'] . 'th</strong>&nbsp;at ';
-                break;
-        }
+        $ePrefix = $work['place'] > 0 ? '<strong>' . $work['place'].place_suffix($work['place']) . '</strong>&nbsp;at ' : '';
 
         $spanUnread = '';
         if (isset($unread[$work['id']])) {
@@ -130,4 +116,3 @@ echo NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl'));
         </a>
     <?php endif; ?>
 </div>
-

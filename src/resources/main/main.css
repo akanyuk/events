@@ -157,8 +157,19 @@ h2.index-head {
     max-width: 100%;
 }
 
+.work-container {
+    margin-bottom: 6rem !important;
+}
+
 .work-container .badge-place {
     background-color: #512172;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
+
+.work-container .badge-place .suffix {
+    font-size: 60%;
+    vertical-align: top;
 }
 
 .work-container .badge-vts {
@@ -190,7 +201,7 @@ h2.index-head {
     width: 16px;
     height: 16px;
     margin-right: 3px;
-    background: url("icons-16x16.png?20240927");
+    background: url("icons-16x16.png?20250512");
 }
 
 [data-bs-theme="dark"] .work-container .links .icon {
