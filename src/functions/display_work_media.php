@@ -37,9 +37,10 @@ function display_work_media(array $work = array(), array $options = array()) {
         'scenestream.net' => array('title' => 'Nectarine', 'bg_pos' => '-224px 0px'),
         'bandcamp.com' => array('title' => 'Bandcamp', 'bg_pos' => '-240px 0px'),
         'vk.com' => array('title' => 'VK', 'bg_pos' => '-256px 0px', 'iframe' => "vkVideoIframeCreator"),
+        'vkvideo.ru' => array('title' => 'VK', 'bg_pos' => '-256px 0px', 'iframe' => "vkVideoIframeCreator"),
         'modarchive.org' => array('title' => 'The Mod Archive', 'bg_pos' => '-272px 0px'),
-        'rutube.ru' => array('title' => 'Rutube', 'bg_pos' => '-288px 0px'),
-        'plvideo.ru' => array('title' => 'Platforma', 'bg_pos' => '-304px 0px'),
+        'rutube.ru' => array('title' => 'Rutube', 'bg_pos' => '-288px 0px', 'iframe' => 'rutubeIframeCreator'),
+        'plvideo.ru' => array('title' => 'Platforma', 'bg_pos' => '-304px 0px', 'iframe' => 'plvideoIframeCreator'),
         'disk.yandex.ru' => array('title' => 'Yandex Disk', 'bg_pos' => '-320px 0px'),
     );
 
@@ -59,7 +60,7 @@ function display_work_media(array $work = array(), array $options = array()) {
     if ($options['rel'] == 'voting' && !$options['single']) {
         $headerPrefix = $work['position'] . '. ';
     } elseif ($options['rel'] == 'release' && $work['place']) {
-        $headerPrefix = '<span class="badge badge-place me-2">' . $work['place'].'<span class="suffix">'.place_suffix($work['place']) . '</span></span>';
+        $headerPrefix = '<span class="badge badge-place me-2">' . $work['place'] . '<span class="suffix">' . place_suffix($work['place']) . '</span></span>';
     } else {
         $headerPrefix = "";
     }
@@ -78,15 +79,15 @@ function display_work_media(array $work = array(), array $options = array()) {
         $headerTitle = "";
     }
 
-    echo '<div id="title" style="position: relative; top: -50px;"></div>'.$headerTitle . $platformFormat . platformDescription($work);
+    echo '<div id="title" style="position: relative; top: -50px;"></div>' . $headerTitle . $platformFormat . platformDescription($work);
 
     if ($work['author_note']) {
         echo '<div class="alert alert-info d-flex align-items-center">
         <svg class="flex-shrink-0 me-3" width="2em" height="2em" data-bs-toggle="tooltip"
-             data-bs-title="'.$langMain['works attributes']['author_note'].'">
+             data-bs-title="' . $langMain['works attributes']['author_note'] . '">
             <use xlink:href="#icon-circle-fill"/>
         </svg>
-        <div>'.nl2br($work['author_note']).'</div>
+        <div>' . nl2br($work['author_note']) . '</div>
     </div>';
     }
 
@@ -266,6 +267,35 @@ function youtubeIframeCreator($url): array {
     }
     return [
         '<iframe width="640" height="360" src="https://www.youtube.com/embed/' . $match[1] . '" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" allowfullscreen style="border: none;"></iframe>',
+        $url
+    ];
+}
+
+function rutubeIframeCreator($url): array {
+    $parsedURL = parse_url($url);
+    $p = explode('/', trim($parsedURL['path'], '/'));
+
+    $url = 'https://rutube.ru/play/embed/' . end($p);
+
+    parse_str($parsedURL['query'], $q);
+    if (!empty($q['p'])) {
+        $url .= '?p=' . $q['p'];
+    }
+
+    return [
+        '<iframe width="640" height="360" src="' . $url . '" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" allowfullscreen style="border: none;"></iframe>',
+        $url
+    ];
+}
+
+function plvideoIframeCreator($url): array {
+    parse_str(parse_url($url, PHP_URL_QUERY), $q);
+    if (empty($q['v'])) {
+        return ["", $url];
+    }
+
+    return [
+        '<iframe width="640" height="360" src="https://plvideo.ru/embed/' . $q['v'] . '" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" allowfullscreen style="border: none;"></iframe>',
         $url
     ];
 }
