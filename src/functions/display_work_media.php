@@ -103,7 +103,7 @@ function display_work_media(array $work = array(), array $options = array()) {
 
     echo $linksHTML;
 
-    echo '<div class="mb-3 d-flex gap-1">';
+    echo '<div class="mb-3 d-flex gap-2">';
     if ($options['rel'] == 'voting' && !empty($options['vote_options'])) {
         echo '<div class="btn-group btn-group-sm gap-2 w-640" role="group" aria-label="Voting options">';
         foreach ($options['vote_options'] as $i => $d) {
