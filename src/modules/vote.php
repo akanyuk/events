@@ -195,17 +195,17 @@ class vote extends active_record {
             foreach ($works[$cid]['works'] as $key => $work) {
                 switch ($calcBy) {
                     case 'avg':
-                        if ($work['average_vote'] == $prev_average && $work['total_scores'] == $prev_total && $place > 1) {
+                        if ($work['average_vote'] == $prev_average && $place > 1) {
                             $place--;
                         }
                         break;
                     case 'iqm':
-                        if ($work['iqm_vote'] == $prev_iqm && $work['total_scores'] == $prev_total && $place > 1) {
+                        if ($work['iqm_vote'] == $prev_iqm && $place > 1) {
                             $place--;
                         }
                         break;
                     default:
-                        if ($work['total_scores'] == $prev_total && $work['num_votes'] == $prevNumVotes && $place > 1) {
+                        if ($work['total_scores'] == $prev_total && $place > 1) {
                             $place--;
                         }
                 }
