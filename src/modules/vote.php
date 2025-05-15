@@ -169,7 +169,6 @@ class vote extends active_record {
             $works[$r['competition_id']]['works'][$r['work_id']]['num_votes']++;
         }
 
-        $prevNumVotes = 0;
         $prev_total = 0;
         $prev_average = 0;
         $prev_iqm = 0;
@@ -211,7 +210,6 @@ class vote extends active_record {
                 }
 
                 $prev_total = $work['total_scores'];
-                $prevNumVotes = $work['num_votes'];
                 $prev_average = $work['average_vote'];
                 $prev_iqm = $work['iqm_vote'];
                 $works[$cid]['works'][$key]['place'] = $place++;
