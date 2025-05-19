@@ -26,19 +26,22 @@ foreach ($CCompetitionsGroups->getRecords($event['id']) as $group) {
 ?>
 <script type="text/javascript">
 $(document).ready(function(){
-	var setDatesDialog = $('div[id="competitions-setdates-dialog"]');
-	var setDatesForm = setDatesDialog.find('form');
-	setDatesDialog.modal({ 'show': false });
+    const competitions = $('div[id="competitions"]');
+    const setDatesDialog = $('div[id="competitions-setdates-dialog"]');
+    const setDatesForm = setDatesDialog.find('form');
+    const setDatesFormCompetitionsList = setDatesDialog.find('div[id="competitions-list"]');
+
+    setDatesDialog.modal({ 'show': false });
 
 	$(document).on('click', 'button[id="competitions-setdates"]', function(){
 		setDatesForm.resetForm().trigger('cleanErrors');
-		
-		setDatesForm.find('div[id="competitions-list"]').empty();
-		$('div[id="competitions"]').find('.record').each(function(){
-			var id = $(this).attr('id');
-			var title = $(this).find('#title').text();
 
-			setDatesForm.find('div[id="competitions-list"]').append('<div class="checkbox"><label><input type="checkbox" name="competition[]" value="' + id + '" /> ' + title + '</label></div>');
+        setDatesFormCompetitionsList.empty();
+		$('div[id="competitions"]').find('.record').each(function(){
+            const id = $(this).attr('id');
+            const title = $(this).find('#title').text();
+
+            setDatesFormCompetitionsList.append('<div class="checkbox"><label><input type="checkbox" name="competition[]" value="' + id + '" /> ' + title + '</label></div>');
  		});
 
 		
@@ -49,7 +52,7 @@ $(document).ready(function(){
 		'success': function(response) {
 			setDatesDialog.modal('hide');
 
-			if (response.is_updated) {
+			if (response['is_updated']) {
 				$(document).trigger('admin-reload-competitions-list');
 			}
 			
@@ -61,25 +64,23 @@ $(document).ready(function(){
 		setDatesDialog.find('form').submit();
 	});
 
-	$('[role="competitions-setdates-toggle-all"]').click(function(){
-		var oContainer = setDatesForm.find('div[id="competitions-list"]');
-		var newState = oContainer.find('input[type="checkbox"]:not(:checked)').length ? true : false;
-
-		oContainer.find('input[type="checkbox"]').prop('checked', newState);
+	$('[data-action="competitions-setdates-toggle-all"]').click(function(){
+        const newState = !!setDatesFormCompetitionsList.find('input[type="checkbox"]:not(:checked)').length;
+        setDatesFormCompetitionsList.find('input[type="checkbox"]').prop('checked', newState);
 		$(this).prop('checked', newState);
 	});
 
 	// Action 'admin'
 
  	// Sortable `values`
- 	$('div[id="competitions"]').sortable({
+    competitions.sortable({
 		items: '.record',
  		axis: 'y', 
  		cursor: 'default',
- 		stop: function(event, ui) {
- 	 		var aPositions = [];
- 	 		var iCurPos = 1;
- 			$('div[id="competitions"]').find('.record').each(function(){
+ 		stop: function() {
+            const aPositions = [];
+            let iCurPos = 1;
+            $('div[id="competitions"]').find('.record').each(function(){
  				aPositions.push({ 'record_id': $(this).attr('id'), 'position': iCurPos });
  				$(this).find('#position').text(iCurPos++);
  			});
@@ -88,7 +89,7 @@ $(document).ready(function(){
  			
  			// Update positions
 			$.post('<?php echo $Module->formatURL('set_pos')?>', { 'position': aPositions }, function(response){
-				if (response != 'success') {
+				if (response !== 'success') {
 					alert(response);
 					return false;
 				}
@@ -100,25 +101,25 @@ $(document).ready(function(){
 
 	// Colorize different dates of competitions
 	$(document).on('admin-competitions-colorize', function(){
-		var aColors = ['','#000','#080','#770','#555','#077','#707','#000','#080','#770','#555','#077','#707','#000','#080','#770','#555','#077','#707','#000','#080','#770','#555','#077','#707','#000','#080','#770','#555','#077','#707'];
+        const aColors = ['', '#000', '#080', '#770', '#555', '#077', '#707', '#000', '#080', '#770', '#555', '#077', '#707', '#000', '#080', '#770', '#555', '#077', '#707', '#000', '#080', '#770', '#555', '#077', '#707', '#000', '#080', '#770', '#555', '#077', '#707'];
 
-		var aAnchors = ['.cell:eq(4)', '.cell:eq(5)', '.cell:eq(6)', '.cell:eq(7)'];
-		var curValues = [];
-		var curIndexes = [];
-		
-		$.each(aAnchors, function(i, a){
+        const aAnchors = ['.cell:eq(4)', '.cell:eq(5)', '.cell:eq(6)', '.cell:eq(7)'];
+        const curValues = [];
+        const curIndexes = [];
+
+        $.each(aAnchors, function(){
 			curValues.push(0);
 			curIndexes.push(0);
 		});
 		
 		$('div[id="competitions"]').find('.record').each(function(){
-			var curRow = $(this);
-			
-			$.each(aAnchors, function(i, a){
-				var curValue = curRow.find(a).text();
-				var curIndex = curIndexes[i];
+            const curRow = $(this);
 
-				if (curValue != curValues[i]) {
+            $.each(aAnchors, function(i, a){
+                const curValue = curRow.find(a).text();
+                let curIndex = curIndexes[i];
+
+                if (curValue !== curValues[i]) {
 					curValues[i] = curValue;
 
 					curIndex = curIndex + 1;
@@ -132,13 +133,13 @@ $(document).ready(function(){
 	
 	// (Re) load competitions list
 	$(document).on('admin-reload-competitions-list', function(){
-		$('div[id="competitions"]').find('.header').hide();
-		$('div[id="competitions"]').find('.record').remove();
+        competitions.find('.header').hide();
+        competitions.find('.record').remove();
 		
 		$.get('<?php echo $Module->formatURL('admin').'&event_id='.$event['id'].'&part=list'?>', function(response) {
 			if (response) {
-				$('div[id="competitions"]').append(response);
-				$('div[id="competitions"]').find('.header').show();
+                competitions.append(response);
+                competitions.find('.header').show();
 
 				$(document).trigger('admin-competitions-colorize');
 			}
@@ -149,7 +150,7 @@ $(document).ready(function(){
     const insertDialog = $('div[id="competitions-insert-dialog"]');
     insertDialog.modal({ 'show': false });
 
-	$(document).on('click', 'button[id="competitions-insert"]', function(e, message){
+	$(document).on('click', 'button[id="competitions-insert"]', function(){
 		insertDialog.find('form').resetForm().trigger('cleanErrors');
 		insertDialog.modal('show');
 	});
@@ -194,7 +195,7 @@ $(document).ready(function(){
 							<?php echo active_field(array('name' => 'voting_to', 'attributes'=>$Module->attributes['voting_to'], 'labelCols' => 5))?>
 						</div>
 						<div class="col-md-5">
-							<div class="checkbox"><label><input type="checkbox" role="competitions-setdates-toggle-all" />All competitions</label></div>
+							<div class="checkbox"><label><input type="checkbox" data-action="competitions-setdates-toggle-all" />All competitions</label></div>
 							<hr />
 							<div id="competitions-list"></div>
 						</div>
@@ -257,6 +258,7 @@ $(document).ready(function(){
 	<div class="header">
 		<div class="cell"></div>
 		<div class="cell">Title</div>
+        <div class="cell">Works</div>
 		<div class="cell">Alias</div>
 		<div class="cell">Type</div>
 		<div class="cell">Accepting from</div>
