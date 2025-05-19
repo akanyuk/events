@@ -22,7 +22,10 @@ foreach ($records as $r) {
     <div class="record" id="<?php echo $r['id'] ?>">
         <div class="cell" id="position"><?php echo $r['position'] ?></div>
         <div class="cell" id="title"><a
-                    href="<?php echo $Module->formatURL('update') . '&record_id=' . $r['id'] ?>"><?php echo $title ?></a>
+                href="<?php echo $Module->formatURL('update') . '&record_id=' . $r['id'] ?>"><?php echo $title ?></a>
+        </div>
+        <div class="cell" style="text-align: center"><a
+                href="<?php echo NFW::i()->absolute_path . '/admin/works?event_id=' . $r['event_id'] . '&filter_competition=' . $r['id'] ?>"><?php echo $r['counter'] ?></a>
         </div>
         <div class="cell"><?php echo htmlspecialchars($r['alias']) ?></div>
         <div class="cell"><?php echo htmlspecialchars($r['works_type']) ?></div>
