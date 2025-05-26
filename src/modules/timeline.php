@@ -8,6 +8,7 @@ class timeline extends active_record {
     );
 
     var $attributes = array(
+        'uid' => array('desc' => 'UID', 'type' => 'string', 'maxlength' => 64),
         'event_id' => array('desc' => 'Event', 'type' => 'select', 'options' => array()),
         'competition_id' => array('desc' => 'Competition', 'type' => 'select', 'options' => array()),
         'begin' => array('desc' => 'begin', 'type' => 'date', 'withTime' => true, 'startDate' => 1, 'endDate' => -365),
@@ -29,7 +30,7 @@ class timeline extends active_record {
         'title' => array('desc' => 'Title', 'type' => 'str', 'required' => true, 'minlength' => 4, 'maxlength' => 255),
         'description' => array('desc' => 'Description (multilanguage HTML)', 'type' => 'textarea', 'minlength' => 4, 'maxlength' => 2048),
         'type' => array('desc' => 'Type', 'type' => 'string', 'maxlength' => 32),
-        'place' => array('desc' => 'Place', 'type' => 'string', 'maxlength' => 255),
+        'location' => array('desc' => 'Location', 'type' => 'string', 'maxlength' => 255),
         'is_public' => array('desc' => 'Public', 'type' => 'bool'),
     );
 
@@ -106,6 +107,7 @@ class timeline extends active_record {
 
         foreach ($_POST['title'] as $key => $title) {
             $values = [
+                '\'' . NFW::i()->db->escape($_POST['uid'][$key] ?: uniqid("", true)) . '\'',
                 $key,
                 $CEvents->record['id'],
                 intval($_POST['competition_id'][$key]),
@@ -115,12 +117,12 @@ class timeline extends active_record {
                 '\'' . NFW::i()->db->escape($title) . '\'',
                 '\'' . NFW::i()->db->escape($_POST['description'][$key]) . '\'',
                 '\'' . NFW::i()->db->escape($_POST['type'][$key]) . '\'',
-                '\'' . NFW::i()->db->escape($_POST['place'][$key]) . '\'',
+                '\'' . NFW::i()->db->escape($_POST['location'][$key]) . '\'',
                 '\'' . NFW::i()->db->escape($_POST['begin_source'][$key]) . '\'',
                 '\'' . NFW::i()->db->escape($_POST['end_source'][$key]) . '\'',
             ];
             $query = array(
-                'INSERT' => '`position`, `event_id`, `competition_id`, `begin`, `end`, `is_public`, `title`, `description`, `type`, `place`, `begin_source`, `end_source`',
+                'INSERT' => '`uid`, `position`, `event_id`, `competition_id`, `begin`, `end`, `is_public`, `title`, `description`, `type`, `location`, `begin_source`, `end_source`',
                 'INTO' => $this->db_table,
                 'VALUES' => implode(', ', $values),
             );

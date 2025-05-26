@@ -19,12 +19,14 @@ class apiV2 {
                 $result = [];
                 foreach ($records as $record) {
                     $result[] = [
+                        'uid' => $record['uid'],
                         'begin' => $record['begin'],
                         'end' => $record['end'],
                         'title' => $record['title'] ?: $record['competition_title'],
                         'description' => $record['description'],
                         'isPublic' => (bool)$record['is_public'],
                         'type' => $record['type'],
+                        'location' => $record['location'],
                     ];
                 }
 

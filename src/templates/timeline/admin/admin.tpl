@@ -127,19 +127,20 @@ ob_start(); ?>
         $('div[id="values-area"]').sortable({items: 'div[id="record"]', axis: 'y'});
 
         f.find('[id="add-values-record"]').click(function () {
-            f.addValue('<?php echo $now?>', '<?php echo $now?>', 0, 1, '', '', '', '', '');
+            f.addValue("", "<?php echo $now?>", "<?php echo $now?>", 0, 1, "", "", "", "", "");
             return false;
         });
 
-        f.addValue = function (begin, end, competitionID, isPublic, title, description, type, place, beginSource, endSource) {
+        f.addValue = function (uid, begin, end, competitionID, isPublic, title, description, type, location, beginSource, endSource) {
             const record = $('<div id="record" class="record">');
             record.append($('div[id="timeline-record-template"]').html()
+                .replace(/%uid%/g, uid)
                 .replace(/%begin%/g, begin)
                 .replace(/%end%/g, end)
                 .replace(/%title%/g, title.replace(/"/g, '&quot;'))
                 .replace(/%description%/g, description)
                 .replace(/%type%/g, type)
-                .replace(/%place%/g, place))
+                .replace(/%location%/g, location))
             if (isPublic) {
                 record.find('input[data-role="is_public"]').attr('checked', 'checked');
                 record.find('input[name="is_public[]"]').val(1);
@@ -219,6 +220,7 @@ ob_start(); ?>
         }
 
         <?php foreach ($records as $r) echo "\t\t" . 'f.addValue(
+        ' . json_encode($r['uid']) . ',
         ' . json_encode(date("Y-m-d H:i", $r['begin'])) . ', 
         ' . json_encode(date("Y-m-d H:i", $r['end'])) . ', 
         ' . $r['competition_id'] . ', 
@@ -226,7 +228,7 @@ ob_start(); ?>
         ' . json_encode($r['title']) . ', 
         ' . json_encode($r['description']) . ',
         ' . json_encode($r['type']) . ', 
-        ' . json_encode($r['place']) . ',
+        ' . json_encode($r['location']) . ',
         ' . json_encode($r['begin_source']) . ', 
         ' . json_encode($r['end_source']) . '
         );' . "\n"; ?>
@@ -254,12 +256,13 @@ ob_start(); ?>
         max-width: 100px;
     }
 
-    /* Type, place */
+    /* Type, location */
     .settings .cell:nth-child(8), .settings .cell:nth-child(9) {
         max-width: 80px;
     }
 </style>
 <div id="timeline-record-template" style="display: none;">
+    <input name="uid[]" value="%uid%" type="hidden"/>
     <div class="cell"><input name="begin[]" value="%begin%" type="text" data-role="date" class="form-control"/></div>
     <div class="cell">
         <select name="begin_source[]" class="form-control">
@@ -293,7 +296,7 @@ ob_start(); ?>
                              title="Using competition title if blank" class="form-control"/></div>
     <div class="cell"><textarea name="description[]" class="form-control">%description%</textarea></div>
     <div class="cell"><input name="type[]" value="%type%" class="form-control"/></div>
-    <div class="cell"><input name="place[]" value="%place%" class="form-control"/></div>
+    <div class="cell"><input name="location[]" value="%location%" class="form-control"/></div>
     <div class="cell">
         <label>
             <input name="is_public[]" type="hidden"/>
@@ -331,13 +334,13 @@ ob_start(); ?>
             <div class="cell">Title</div>
             <div class="cell">Description</div>
             <div class="cell">Type</div>
-            <div class="cell">Place</div>
+            <div class="cell">Location</div>
             <div class="cell">Public</div>
         </div>
     </div>
     <div style="padding-top: 20px;">
         <a id="add-values-record" class="btn btn-default">Add value</a>
         <button type="submit" name="form-send" class="btn btn-primary"><span
-                    class="fa fa-save"></span> <?php echo NFW::i()->lang['Save changes'] ?></button>
+                class="fa fa-save"></span> <?php echo NFW::i()->lang['Save changes'] ?></button>
     </div>
 </form>
