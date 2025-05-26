@@ -3,6 +3,8 @@
  * @desc Managing works
  */
 
+const WORKS_STATUS_UNCHECKED = 0;
+
 class works extends active_record {
     var $attributes = array(
         'competition_id' => array('type' => 'select', 'desc' => 'Competition', 'required' => true, 'options' => array()),
@@ -15,7 +17,7 @@ class works extends active_record {
         'external_html' => array('type' => 'textarea', 'desc' => 'Additional text (HTML)', 'maxlength' => 2048),
 
         'status' => array('type' => 'select', 'desc' => 'Status', 'options' => array(
-            ['id' => 0, 'cnt' => false, 'voting' => false, 'release' => false, 'css-class' => 'warning', 'svg-icon' => 'status-unchecked'],      // Unchecked
+            ['id' => WORKS_STATUS_UNCHECKED, 'cnt' => false, 'voting' => false, 'release' => false, 'css-class' => 'warning', 'svg-icon' => 'status-unchecked'],      // Unchecked
             ['id' => 1, 'cnt' => true, 'voting' => true, 'release' => true, 'css-class' => 'success', 'svg-icon' => 'status-checked'],           // Checked
             ['id' => 2, 'cnt' => false, 'voting' => false, 'release' => false, 'css-class' => 'danger', 'svg-icon' => 'status-disqualified'],    // Disqualified
             ['id' => 3, 'cnt' => false, 'voting' => false, 'release' => false, 'css-class' => 'warning', 'svg-icon' => 'status-feedback-needed'],// Feedback needed

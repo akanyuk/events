@@ -50,6 +50,7 @@ if (!empty($unreadID)) {
 }
 
 $markedProds = array();
+$uncheckedProds = array();
 if (!empty($managedEvents)) {
     $query = array(
         'SELECT' => 'e.title AS event_title, c.title AS competition_title, w.id, w.status, w.title, w.author, w.posted, w.posted_username, wmi.comment AS managers_notes_comment',
@@ -69,6 +70,25 @@ if (!empty($managedEvents)) {
     while ($r = NFW::i()->db->fetch_assoc($result)) {
         $r['status_info'] = $CWorks->attributes['status']['options'][$r['status']];
         $markedProds[] = $r;
+    }
+
+    $query = array(
+        'SELECT' => 'e.title AS event_title, c.title AS competition_title, w.id, w.status, w.title, w.author, w.posted, w.posted_username',
+        'FROM' => 'works AS w',
+        'JOINS' => array(
+            array('INNER JOIN' => 'competitions AS c', 'ON' => 'c.id=w.competition_id'),
+            array('INNER JOIN' => 'events AS e', 'ON' => 'e.id=c.event_id'),
+        ),
+        'WHERE' => 'e.id IN(' . implode(',', $managedEvents) . ') AND w.status=' . WORKS_STATUS_UNCHECKED,
+        'ORDER BY' => 'w.posted DESC',
+    );
+    if (!$result = NFW::i()->db->query_build($query)) {
+        echo '<div class="alert alert-danger">Unable to fetch marked prods</div>';
+        return false;
+    }
+    while ($r = NFW::i()->db->fetch_assoc($result)) {
+        $r['status_info'] = $CWorks->attributes['status']['options'][$r['status']];
+        $uncheckedProds[] = $r;
     }
 }
 
@@ -94,12 +114,10 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
     }
 </style>
 <div class="row unread-prods">
-    <div class="col-md-6">
+    <div class="col-md-4">
         <h2>New activities</h2>
         <div id="all-works-read" class="alert alert-success"
-             style="display:<?php echo empty($unreadProds) ? 'block' : 'none' ?>">You
-            checked all prods
-        </div>
+             style="display:<?php echo empty($unreadProds) ? 'block' : 'none' ?>">No new activities</div>
         <div id="unread-works">
             <?php foreach ($unreadProds as $record): ?>
                 <div
@@ -108,7 +126,7 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
                     <button id="mark-work-read" data-id="<?php echo $record['id'] ?>"
                             type="button" class="close"
                             data-dismiss="alert" aria-label="Mark as read"><span aria-hidden="true"
-                                                                          title="Mark as read">&times;</span>
+                                                                                 title="Mark as read">&times;</span>
                     </button>
                     <div class="inner">
                         <div style="padding-top: 5px;" data-toggle="tooltip" data-html="true"
@@ -133,19 +151,20 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
         </div>
     </div>
 
-    <div class="col-md-6">
+    <div class="col-md-4">
         <h2>Marked prods</h2>
         <div id="no-marked-works" class="alert alert-success"
              style="display:<?php echo empty($markedProds) ? 'block' : 'none' ?>">You have no marked prods
         </div>
         <div id="marked-works">
-            <?php foreach ($markedProds as $record) :?>
-                <div class="alert alert-unread alert-dismissible alert-<?php echo $record['status_info']['css-class'] ?>"
-                     role="alert">
+            <?php foreach ($markedProds as $record) : ?>
+                <div
+                    class="alert alert-unread alert-dismissible alert-<?php echo $record['status_info']['css-class'] ?>"
+                    role="alert">
                     <button id="clear-work-marked" data-id="<?php echo $record['id'] ?>"
                             type="button" class="close"
                             data-dismiss="alert" aria-label="Clear marked"><span aria-hidden="true"
-                                                                          title="Clear marked">&times;</span>
+                                                                                 title="Clear marked">&times;</span>
                     </button>
                     <div class="inner">
                         <div style="padding-top: 5px;" data-toggle="tooltip" data-html="true"
@@ -174,6 +193,33 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
                 </div>
             <?php endforeach; ?>
         </div>
+    </div>
+
+    <div class="col-md-4">
+        <h2>Unchecked prods</h2>
+        <?php if (empty($uncheckedProds)): ?>
+            <div class="alert alert-success">You have no unchecked prods</div>
+        <?php else: ?>
+            <?php foreach ($uncheckedProds as $record) : ?>
+                <div
+                    class="alert alert-unread alert-<?php echo $record['status_info']['css-class'] ?>" role="alert">
+                    <div class="inner">
+                        <div>
+                            <strong>
+                                <a class="alert-link"
+                                   href="<?php echo NFW::i()->absolute_path . '/admin/works?action=update&record_id=' . $record['id'] ?>"><?php echo htmlspecialchars($record['title'] . ' by ' . $record['author']) ?></a>
+                                <?php if (isset($unread[$record['id']]) && $unread[$record['id']] > 0): ?>
+                                    <span class="label label-warning"><?php echo $unread[$record['id']] ?></span>
+                                <?php endif; ?>
+                            </strong>
+                            <div class="text-muted">
+                                <small><?php echo htmlspecialchars($record['event_title'] . ' / ' . $record['competition_title']) ?></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
     </div>
 </div>
 <script type="text/javascript">
