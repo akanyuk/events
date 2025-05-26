@@ -208,9 +208,6 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
                             <strong>
                                 <a class="alert-link"
                                    href="<?php echo NFW::i()->absolute_path . '/admin/works?action=update&record_id=' . $record['id'] ?>"><?php echo htmlspecialchars($record['title'] . ' by ' . $record['author']) ?></a>
-                                <?php if (isset($unread[$record['id']]) && $unread[$record['id']] > 0): ?>
-                                    <span class="label label-warning"><?php echo $unread[$record['id']] ?></span>
-                                <?php endif; ?>
                             </strong>
                             <div class="text-muted">
                                 <small><?php echo htmlspecialchars($record['event_title'] . ' / ' . $record['competition_title']) ?></small>
