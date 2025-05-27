@@ -72,7 +72,7 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
                                             data-css-class="<?php echo $s['css-class'] ?>" type="button"
                                             class="<?php echo 'btn btn-default ' . ($Module->record['status'] == $s['id'] ? 'active btn-info' : '') ?>"
                                             title="<?php echo $s['desc'] ?>"
-                                            data-description="<?php echo $s['desc_full'] . '<br />Voting: <strong>' . ($s['voting'] ? 'On' : 'Off') . '</strong>. Release: <strong>' . ($s['release'] ? 'On' : 'Off') . '</strong>' ?>">
+                                            data-description="<?php echo $s['desc_full'] . '<br />Voting: <strong>' . ($s['voting'] ? 'On' : 'Off') . '</strong>. Release: <strong>' . ($s['release'] ? 'On' : 'Off') . '</strong>. Counters: <strong>' . ($s['cnt'] ? 'On' : 'Off') . '</strong>' ?>">
                                         <svg width="1em" height="1em">
                                             <use xlink:href="#<?php echo $s['svg-icon'] ?>"/>
                                         </svg>
