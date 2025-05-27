@@ -21,8 +21,8 @@ class works extends active_record {
             ['id' => WORKS_STATUS_UNCHECKED, 'cnt' => false, 'voting' => false, 'release' => false, 'css-class' => 'warning', 'svg-icon' => 'status-unchecked'],      // Unchecked
             ['id' => 1, 'cnt' => true, 'voting' => true, 'release' => true, 'css-class' => 'success', 'svg-icon' => 'status-checked'],           // Checked
             ['id' => 2, 'cnt' => false, 'voting' => false, 'release' => false, 'css-class' => 'danger', 'svg-icon' => 'status-disqualified'],    // Disqualified
-            ['id' => 4, 'cnt' => false, 'voting' => false, 'release' => true, 'css-class' => 'info', 'svg-icon' => 'status-out-of-compo'],       // Out of competition
             ['id' => 3, 'cnt' => false, 'voting' => false, 'release' => false, 'css-class' => 'warning', 'svg-icon' => 'status-feedback-needed'],// Feedback needed
+            ['id' => 4, 'cnt' => false, 'voting' => false, 'release' => true, 'css-class' => 'info', 'svg-icon' => 'status-out-of-compo'],       // Out of competition
             ['id' => 5, 'cnt' => true, 'voting' => false, 'release' => false, 'css-class' => 'info', 'svg-icon' => 'status-wait-preselection'],  // Wait preselect
             ['id' => 6, 'cnt' => false, 'voting' => false, 'release' => false, 'css-class' => 'danger', 'svg-icon' => 'status-canceled'],         // Canceled
         )),
