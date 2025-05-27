@@ -16,7 +16,7 @@ class works extends active_record {
         'format' => array('type' => 'str', 'desc' => 'Format', 'maxlength' => 128),
         'external_html' => array('type' => 'textarea', 'desc' => 'Additional text (HTML)', 'maxlength' => 2048),
 
-        // The sorting order is important!
+        // The record number must match the ID!
         'status' => array('type' => 'select', 'desc' => 'Status', 'options' => array(
             ['id' => WORKS_STATUS_UNCHECKED, 'cnt' => false, 'voting' => false, 'release' => false, 'css-class' => 'warning', 'svg-icon' => 'status-unchecked'],      // Unchecked
             ['id' => 1, 'cnt' => true, 'voting' => true, 'release' => true, 'css-class' => 'success', 'svg-icon' => 'status-checked'],           // Checked
