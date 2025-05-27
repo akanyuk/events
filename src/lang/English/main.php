@@ -97,6 +97,7 @@ $lang_main = array(
         3 => 'Feedback needed',
         4 => 'Out of compo',
         5 => 'Wait preselection',
+        6 => 'Canceled',
     ),
     'works status desc full' => array(
         0 => 'The prod is being processed by the organizers',
@@ -104,7 +105,8 @@ $lang_main = array(
         2 => 'Work is disqualified',
         3 => 'Awaiting author\'s feedback',
         4 => 'The prod will not participate in the voting, but will be shown out of competition',
-        5 => 'The prod wait to preselect'
+        5 => 'The prod wait to preselect',
+        6 => 'The compo has been cancelled',
     ),
 
     'works details' => 'Prods',
