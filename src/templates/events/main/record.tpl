@@ -45,10 +45,16 @@ if ($event['alias_group'] != "") {
 
 $uploadButton = '';
 if ($isReceptionCan) {
-    if (stristr($event['content_column'], '%UPLOAD-BUTTON%')) {
-        $event['content_column'] = str_replace('%UPLOAD-BUTTON%', '<a href="' . NFW::i()->absolute_path . '/upload/' . $event['alias'] . '" class="btn btn-primary d-block mb-1">' . $langMain['cabinet add work'] . '</a>', $event['content_column']);
+    if (count($competitions) == 1) {
+        $uploadURL = NFW::i()->absolute_path . '/upload/' . $event['alias'].'/'.$competitions[0]['alias'];
     } else {
-        $uploadButton = '<a href="' . NFW::i()->absolute_path . '/upload/' . $event['alias'] . '" class="btn btn-primary d-block mb-1">' . $langMain['cabinet add work'] . '</a>';
+        $uploadURL = NFW::i()->absolute_path . '/upload/' . $event['alias'];
+    }
+
+    if (stristr($event['content_column'], '%UPLOAD-BUTTON%')) {
+        $event['content_column'] = str_replace('%UPLOAD-BUTTON%', '<a href="' . $uploadURL . '" class="btn btn-primary d-block mb-1">' . $langMain['cabinet add work'] . '</a>', $event['content_column']);
+    } else {
+        $uploadButton = '<a href="' . $uploadURL . '" class="btn btn-primary d-block mb-1">' . $langMain['cabinet add work'] . '</a>';
     }
 } else {
     $event['content_column'] = str_replace('%UPLOAD-BUTTON%', '', $event['content_column']);
