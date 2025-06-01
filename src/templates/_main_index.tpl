@@ -133,43 +133,25 @@ function displayCurrenEventUploadingStatus($event): void {
     ?>
     <div class="mb-3">
         <h3><?php echo $langMain['Reception opened'] ?>:</h3>
-        <?php foreach ($compos as $compo) echo _displayCurrenEventUploadingStatusCompo($hideWorksCount, $compo);?>
-    </div>
-    <?php
-}
-
-function _displayCurrenEventUploadingStatusCompo(bool $hideWorksCount, $compo): string {
-    $langMain = NFW::i()->getLang("main");
-    ob_start();
-
-    switch ($hideWorksCount) {
-        case true:
-            ?>
-            <div class="d-grid gap-2 align-items-center" style="grid-template-columns: 100fr 1fr;">
-                <a class="mb-2" href="<?php echo NFW::i()->absolute_path . '/' . $compo['event_alias'] . '#' . $compo['alias'] ?>"><?php echo htmlspecialchars($compo['title']) ?></a>
+        <div class="d-grid gap-2 align-items-center" style="grid-template-columns: 100fr 1fr<?php echo $hideWorksCount?:' 1fr'?>;">
+            <?php foreach ($compos as $compo):?>
+                <div><a href="<?php echo NFW::i()->absolute_path . '/' . $compo['event_alias'] . '#' . $compo['alias'] ?>"><?php echo htmlspecialchars($compo['title']) ?></a></div>
                 <div class="text-nowrap text-info"><?php echo $compo['reception_status']['desc'] ?></div>
-            </div>
-            <?php
-            break;
-        default:
-            ?>
-            <div class="d-grid gap-2 align-items-center" style="grid-template-columns: 100fr 1fr 1fr;">
-                <a class="mb-2" href="<?php echo NFW::i()->absolute_path . '/' . $compo['event_alias'] . '#' . $compo['alias'] ?>"><?php echo htmlspecialchars($compo['title']) ?></a>
-                <div class="text-nowrap text-info me-3"><?php echo $compo['reception_status']['desc'] ?></div>
                 <?php
-                if (!$compo['counter']) {
-                    echo '<div class="badge badge-cnt text-bg-secondary" title="' . $langMain['competitions received works'] . '">' . $compo['counter'] . '</div>';
-                } elseif ($compo['counter'] < 3) {
-                    echo '<div class="badge badge-cnt text-bg-warning" title="' . $langMain['competitions received works'] . '">' . $compo['counter'] . '</div>';
-                } else {
-                    echo '<div class="badge badge-cnt text-bg-success" title="' . $langMain['competitions received works'] . '">' . $compo['counter'] . '</div>';
+                if (!$hideWorksCount) {
+                    if (!$compo['counter']) {
+                        echo '<div class="badge badge-cnt text-bg-secondary" title="' . $langMain['competitions received works'] . '">' . $compo['counter'] . '</div>';
+                    } elseif ($compo['counter'] < 3) {
+                        echo '<div class="badge badge-cnt text-bg-warning" title="' . $langMain['competitions received works'] . '">' . $compo['counter'] . '</div>';
+                    } else {
+                        echo '<div class="badge badge-cnt text-bg-success" title="' . $langMain['competitions received works'] . '">' . $compo['counter'] . '</div>';
+                    }
                 }
                 ?>
-            </div>
-        <?php
-    }
-
-    return ob_get_clean();
+            <?php endforeach;?>
+        </div>
+    </div>
+    <?php
 }
 
 function displayCurrenEventVotingStatus($record): void {
@@ -201,7 +183,7 @@ function displayCurrenEventVotingStatus($record): void {
         }
 
         function updateLiveVoting(state) {
-            liveVotingContainer.style.display = state ? "block" : "none";
+            liveVotingContainer['style'].display = state ? "block" : "none";
         }
 
         function updateVotingOpen(values) {
@@ -209,7 +191,7 @@ function displayCurrenEventVotingStatus($record): void {
             const voteNowBody = document.getElementById("vote-now-body-<?php echo $record['id']?>");
 
             if (values.length === 0) {
-                voteNowContainer.style.display = "none";
+                voteNowContainer['style'].display = "none";
                 return
             }
 
@@ -231,7 +213,7 @@ function displayCurrenEventVotingStatus($record): void {
                 voteNowBody.appendChild(item);
             })
 
-            voteNowContainer.style.display = "block";
+            voteNowContainer['style'].display = "block";
         }
     </script>
     <?php
