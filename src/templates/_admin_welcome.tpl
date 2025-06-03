@@ -1,5 +1,11 @@
 <?php
 
+$managedEvents = events::getManaged();
+if (empty($managedEvents)) {
+    echo '<h2>Welcome</h2>';
+    return;
+}
+
 // local actions
 
 if (isset($_GET['action']) && $_GET['action'] == 'mark_work_read') {
@@ -21,7 +27,6 @@ if (isset($_GET['action']) && $_GET['action'] == 'clear_work_marked') {
 
 // New activity, marked prods
 
-$managedEvents = events::getManaged();
 $CWorks = new works();
 
 $unread = works_activity::unreadExplained();
@@ -36,7 +41,7 @@ if (!empty($unreadID)) {
             array('INNER JOIN' => 'competitions AS c', 'ON' => 'c.id=w.competition_id'),
             array('INNER JOIN' => 'events AS e', 'ON' => 'e.id=c.event_id'),
         ),
-        'WHERE' => 'w.id IN(' . implode(',', $unreadID) . ')',
+        'WHERE' => 'e.id IN(' . implode(',', $managedEvents) . ') AND w.id IN(' . implode(',', $unreadID) . ')',
         'ORDER BY' => 'w.posted DESC',
     );
     if (!$result = NFW::i()->db->query_build($query)) {
@@ -50,46 +55,44 @@ if (!empty($unreadID)) {
 }
 
 $markedProds = array();
-$uncheckedProds = array();
-if (!empty($managedEvents)) {
-    $query = array(
-        'SELECT' => 'e.title AS event_title, c.title AS competition_title, w.id, w.status, w.title, w.author, w.posted, w.posted_username, wmi.comment AS managers_notes_comment',
-        'FROM' => 'works AS w',
-        'JOINS' => array(
-            array('INNER JOIN' => 'competitions AS c', 'ON' => 'c.id=w.competition_id'),
-            array('INNER JOIN' => 'events AS e', 'ON' => 'e.id=c.event_id'),
-            array('INNER JOIN' => 'works_managers_notes AS wmi', 'ON' => 'wmi.work_id=w.id AND wmi.user_id=' . NFW::i()->user['id'])
-        ),
-        'WHERE' => 'e.id IN(' . implode(',', $managedEvents) . ')',
-        'ORDER BY' => 'w.posted DESC',
-    );
-    if (!$result = NFW::i()->db->query_build($query)) {
-        echo '<div class="alert alert-danger">Unable to fetch marked prods</div>';
-        return false;
-    }
-    while ($r = NFW::i()->db->fetch_assoc($result)) {
-        $r['status_info'] = $CWorks->attributes['status']['options'][$r['status']];
-        $markedProds[] = $r;
-    }
+$query = array(
+    'SELECT' => 'e.title AS event_title, c.title AS competition_title, w.id, w.status, w.title, w.author, w.posted, w.posted_username, wmi.comment AS managers_notes_comment',
+    'FROM' => 'works AS w',
+    'JOINS' => array(
+        array('INNER JOIN' => 'competitions AS c', 'ON' => 'c.id=w.competition_id'),
+        array('INNER JOIN' => 'events AS e', 'ON' => 'e.id=c.event_id'),
+        array('INNER JOIN' => 'works_managers_notes AS wmi', 'ON' => 'wmi.work_id=w.id AND wmi.user_id=' . NFW::i()->user['id'])
+    ),
+    'WHERE' => 'e.id IN(' . implode(',', $managedEvents) . ')',
+    'ORDER BY' => 'w.posted DESC',
+);
+if (!$result = NFW::i()->db->query_build($query)) {
+    echo '<div class="alert alert-danger">Unable to fetch marked prods</div>';
+    return false;
+}
+while ($r = NFW::i()->db->fetch_assoc($result)) {
+    $r['status_info'] = $CWorks->attributes['status']['options'][$r['status']];
+    $markedProds[] = $r;
+}
 
-    $query = array(
-        'SELECT' => 'e.title AS event_title, c.title AS competition_title, w.id, w.status, w.title, w.author, w.posted, w.posted_username',
-        'FROM' => 'works AS w',
-        'JOINS' => array(
-            array('INNER JOIN' => 'competitions AS c', 'ON' => 'c.id=w.competition_id'),
-            array('INNER JOIN' => 'events AS e', 'ON' => 'e.id=c.event_id'),
-        ),
-        'WHERE' => 'e.id IN(' . implode(',', $managedEvents) . ') AND w.status=' . WORKS_STATUS_UNCHECKED,
-        'ORDER BY' => 'w.posted DESC',
-    );
-    if (!$result = NFW::i()->db->query_build($query)) {
-        echo '<div class="alert alert-danger">Unable to fetch marked prods</div>';
-        return false;
-    }
-    while ($r = NFW::i()->db->fetch_assoc($result)) {
-        $r['status_info'] = $CWorks->attributes['status']['options'][$r['status']];
-        $uncheckedProds[] = $r;
-    }
+$uncheckedProds = array();
+$query = array(
+    'SELECT' => 'e.title AS event_title, c.title AS competition_title, w.id, w.status, w.title, w.author, w.posted, w.posted_username',
+    'FROM' => 'works AS w',
+    'JOINS' => array(
+        array('INNER JOIN' => 'competitions AS c', 'ON' => 'c.id=w.competition_id'),
+        array('INNER JOIN' => 'events AS e', 'ON' => 'e.id=c.event_id'),
+    ),
+    'WHERE' => 'e.id IN(' . implode(',', $managedEvents) . ') AND w.status=' . WORKS_STATUS_UNCHECKED,
+    'ORDER BY' => 'w.posted DESC',
+);
+if (!$result = NFW::i()->db->query_build($query)) {
+    echo '<div class="alert alert-danger">Unable to fetch marked prods</div>';
+    return false;
+}
+while ($r = NFW::i()->db->fetch_assoc($result)) {
+    $r['status_info'] = $CWorks->attributes['status']['options'][$r['status']];
+    $uncheckedProds[] = $r;
 }
 
 NFW::i()->registerResource('jquery.jgrowl');

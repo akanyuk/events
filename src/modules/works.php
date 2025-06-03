@@ -15,6 +15,7 @@ class works extends active_record {
         'platform' => array('type' => 'str', 'desc' => 'Platform', 'required' => true, 'maxlength' => 128, 'options' => array()),
         'format' => array('type' => 'str', 'desc' => 'Format', 'maxlength' => 128),
         'external_html' => array('type' => 'textarea', 'desc' => 'Additional text (HTML)', 'maxlength' => 2048),
+        'author_note' => array('type' => 'textarea', 'desc' => 'Author note', 'maxlength' => 512),
 
         // The record number must match the ID!
         'status' => array('type' => 'select', 'desc' => 'Status', 'options' => array(
@@ -27,8 +28,6 @@ class works extends active_record {
             ['id' => 6, 'cnt' => false, 'voting' => false, 'release' => false, 'css-class' => 'danger', 'svg-icon' => 'status-canceled'],         // Canceled
         )),
         'status_reason' => array('type' => 'textarea', 'maxlength' => 512),
-
-        'author_note' => array('type' => 'textarea', 'desc' => 'Author note', 'maxlength' => 512),
     );
 
     function __construct($record_id = false) {
