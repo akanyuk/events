@@ -206,9 +206,13 @@ switch (count($pathParts) == 2 ? $pathParts[1] : false) {
         // Choose event
         if (count($events) > 1 && !isset($_GET['event'])) {
             $CEvents = new events();
-            $content = $CWorks->renderAction(array(
-                'events' => $CEvents->getRecords(array('load_media' => true, 'filter' => array('aliases' => $events)))
-            ), 'cabinet/add_choose_event');
+            $content = $CWorks->renderAction([
+                'events' => $CEvents->getRecords([
+                    'load_media' => true,
+                    'order' => 'date_from ASC',
+                    'filter' => ['aliases' => $events],
+                ])
+            ], 'cabinet/add_choose_event');
         } else {
             $eventAlias = $_GET['event'] ?? reset($events);
 

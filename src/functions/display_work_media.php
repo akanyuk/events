@@ -175,7 +175,7 @@ function prepareWorkLinks($langMain, $work, $linksProps, $rel): array {
 
     foreach ($work['links'] as $l) {
         $linkURL = $l['url'];
-        if (stripos($linkURL, 'vk.com/video_ext.php') !== false) {
+        if (stripos($linkURL, 'vk.com/video_ext.php') !== false || stripos($linkURL, 'vkvideo.ru/video_ext.php') !== false) {
             $linkURL = vkVideoIframeParse($l['url']);
             if ($linkURL == "") {
                 continue;
@@ -237,7 +237,7 @@ function vkVideoIframeParse($iframe): string {
         return "";
     }
 
-    return 'https://vk.com/video-' . str_replace('-', '', $params['oid']) . '_' . $params['id'] . (isset($params['hash']) ? '?hash=' . $params['hash'] : '');
+    return 'https://vkvideo.ru/video-' . str_replace('-', '', $params['oid']) . '_' . $params['id'] . (isset($params['hash']) ? '?hash=' . $params['hash'] : '');
 }
 
 function vkVideoIframeCreator($url): array {
@@ -256,8 +256,8 @@ function vkVideoIframeCreator($url): array {
     }
 
     return [
-        '<iframe width="640" height="360" src="https://vk.com/video_ext.php?oid=-' . $oid . '&id=' . $id . $hashStr . '&hd=1" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" allowfullscreen style="border: none;"></iframe>',
-        preg_replace('%(&hash=.*)&?#?%i', '', $url),
+        '<iframe width="640" height="360" src="https://vkvideo.ru/video_ext.php?oid=-' . $oid . '&id=' . $id . $hashStr . '&hd=1" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" allowfullscreen style="border: none;"></iframe>',
+        preg_replace('%([&?]hash=.*)&?#?%i', '', $url),
     ];
 }
 
