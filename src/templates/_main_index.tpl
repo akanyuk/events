@@ -68,7 +68,7 @@ function displayIndexEvent($record, $layout = ""): void {
         case 'current':
             ?>
             <div class="d-grid mx-auto col-xxl-10 mb-5">
-                <div class="row mb-4 gy-4">
+                <div class="row mb-4 gy-3">
                     <div class="col-md-6 upcoming-current-cover">
                         <a href="<?php echo NFW::i()->base_path . $record['alias'] ?>">
                             <img class="w-100" alt=""
@@ -133,7 +133,7 @@ function displayCurrenEventUploadingStatus($event): void {
     ?>
     <div class="mb-3">
         <h3><?php echo $langMain['Reception opened'] ?>:</h3>
-        <div class="d-grid gap-2 align-items-center" style="grid-template-columns: 100fr 1fr<?php echo $hideWorksCount?:' 1fr'?>;">
+        <div class="d-grid gap-2 align-items-center" style="grid-template-columns: 100fr 1fr<?php echo $hideWorksCount?'':' 1fr'?>;">
             <?php foreach ($compos as $compo):?>
                 <div><a href="<?php echo NFW::i()->absolute_path . '/' . $compo['event_alias'] . '#' . $compo['alias'] ?>"><?php echo htmlspecialchars($compo['title']) ?></a></div>
                 <div class="text-nowrap text-info"><?php echo $compo['reception_status']['desc'] ?></div>

@@ -5,6 +5,7 @@ services:
     ports:
       - '80:80'
       - '443:443'
+      - '84:84'
     volumes:
       - ${WWW_ROOT}:/opt/www
     depends_on:
