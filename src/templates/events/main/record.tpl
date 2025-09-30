@@ -309,7 +309,7 @@ function _timetableRows(int $eventID): array {
         $result[] = [
             'time' => date('H:i', $record['begin']),
             'type' => $record['type'],
-            'place' => $record['place'],
+            'place' => $record['place'] ?? '',
             'description' => $record['description'],
             'rowspan' => 1,
         ];

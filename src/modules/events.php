@@ -139,7 +139,7 @@ class events extends active_record {
         return $record;
     }
 
-    protected function save($attributes = array()) {
+    protected function save($attributes = array()): bool {
         $is_update = !$this->record['id'];
 
         $result = parent::save($attributes);

@@ -85,7 +85,7 @@ class vote extends active_record {
         return [$records, $totalRecords, $numFiltered];
     }
 
-    private function doVote(int $workID, $eventID, votekey $votekey, int $vote, array $voteVariants, string $username):bool {
+    private function doVote(int $workID, $eventID, votekey $votekey, int $vote, array $voteVariants, string $username): bool {
         // Prune old vote with same votekey
         if (!NFW::i()->db->query_build(array('DELETE' => 'votes', 'WHERE' => 'votekey_id=' . $votekey->id . ' AND work_id=' . $workID))) {
             $this->error('Unable to delete old votes', __FILE__, __LINE__, NFW::i()->db->error());
@@ -113,7 +113,7 @@ class vote extends active_record {
     }
 
     // Load results for given works array
-    public function getResults($eventID, $calcBy) {
+    public function getResults($eventID, $calcBy = 'avg') {
         $query = array(
             'SELECT' => 'v.work_id, v.vote, w.competition_id, w.title, w.author, c.position AS competition_pos, c.title AS competition_title',
             'FROM' => 'votes AS v',
@@ -193,18 +193,18 @@ class vote extends active_record {
             $place = 1;
             foreach ($works[$cid]['works'] as $key => $work) {
                 switch ($calcBy) {
-                    case 'avg':
-                        if ($work['average_vote'] == $prev_average && $place > 1) {
-                            $place--;
-                        }
-                        break;
                     case 'iqm':
                         if ($work['iqm_vote'] == $prev_iqm && $place > 1) {
                             $place--;
                         }
                         break;
-                    default:
+                    case 'sum':
                         if ($work['total_scores'] == $prev_total && $place > 1) {
+                            $place--;
+                        }
+                        break;
+                    default:
+                        if ($work['average_vote'] == $prev_average && $place > 1) {
                             $place--;
                         }
                 }
@@ -480,7 +480,7 @@ class vote extends active_record {
                 }
             }
 
-            NFW::i()->stop('Results saved with "'.$calcBy.'" calculation');
+            NFW::i()->stop('Results saved with "' . $calcBy . '" calculation');
         } elseif (isset($_GET['part']) && $_GET['part'] == 'list') {
             $calcBy = $_GET['calc_by'] ?? false;
             NFW::i()->stop($this->renderAction(array(
