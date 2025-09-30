@@ -126,12 +126,6 @@ foreach ($compos as $compo_index => $c) {
                     'mime_type' => $f['mime_type']
                 );
 
-            if ($w['place']) {
-                $place = intval($w['place']);
-            } else {
-                $place = $votes[$w['id']]['place'] ?? null;
-            }
-
             $works[$compo_index][$cur_index++] = array(
                 'workId' => $w['id'],
                 'workTitle' => $w['title'],
@@ -146,33 +140,33 @@ foreach ($compos as $compo_index => $c) {
                 'NumVotes' => $votes[$w['id']]['num_votes'] ?? null,
                 'Sum' => $votes[$w['id']]['total_scores'] ?? null,
                 'Score' => $votes[$w['id']]['score'] ?? null,
-                'Place' => $place,
+                'Place' => $votes[$w['id']]['place'],
             );
         }
     }
 }
 
 ob_start();
+
 if (isset($_GET['ResponseType']) && $_GET['ResponseType'] == 'json') {
-    echo json_encode(array(
-            'event' => $event,
-            'compos' => $compos,
-            'works' => $works
-        )
-    );
-} else {
-    echo '$event = ';
-    var_export($event);
-    echo ';';
-    echo "\n\n";
-    echo '$compos = ';
-    var_export($compos);
-    echo ';';
-    echo "\n\n";
-    echo '$works = ';
-    var_export($works);
-    echo ';';
+    NFWX::i()->jsonSuccess([
+        'event' => $event,
+        'compos' => $compos,
+        'works' => $works
+    ]);
 }
+
+echo '$event = ';
+var_export($event);
+echo ';';
+echo "\n\n";
+echo '$compos = ';
+var_export($compos);
+echo ';';
+echo "\n\n";
+echo '$works = ';
+var_export($works);
+echo ';';
 
 header('Content-type: text/plain');
 NFW::i()->stop(ob_get_clean());
