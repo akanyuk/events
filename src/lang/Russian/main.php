@@ -62,7 +62,7 @@ $lang_main = array(
     'works empty' => 'У Вас не загружено ни одной работы',
     'works send' => 'Отправить работу',
     'works description' => 'Комментарий для организаторов',
-    'works description public' => 'Комментарий для зрителей',
+    'works author note' => 'Комментарий для зрителей',
     'works description refs' => 'Отображать при голосовании дополнительные материалы (фазы, референсы и т.п.)',
     'works description refs options' => array('Да', 'Нет', 'На усмотрение организаторов', 'Другое (в комментарии)'),
 

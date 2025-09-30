@@ -101,9 +101,9 @@ NFWX::i()->mainContainerAdditionalClasses = 'd-grid mx-auto col-sm-10 col-md-8';
         </div>
 
         <div class="mb-3">
-            <label for="description_public"><?php echo $langMain['works description public'] ?></label>
-            <textarea data-role="addWorkInput" id="description_public" class="form-control"></textarea>
-            <div data-role="addWorkFeedback" id="description_public" class="invalid-feedback"></div>
+            <label for="author_note"><?php echo $langMain['works author note'] ?> (max. 512 symbols)</label>
+            <textarea data-role="addWorkInput" id="author_note" class="form-control"></textarea>
+            <div data-role="addWorkFeedback" id="author_note" class="invalid-feedback"></div>
         </div>
 
         <div class="mb-3">

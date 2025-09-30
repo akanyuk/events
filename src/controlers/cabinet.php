@@ -87,11 +87,6 @@ if (isset($_GET['action'])) {
             ]);
             break;
         case 'upload_work':
-            $CMedia = new media();
-            if (!$CMedia->countSessionFiles('works')) {
-                NFWX::i()->jsonError(400, $langMain['works upload no file error']);
-            }
-
             $req = json_decode(file_get_contents('php://input'));
 
             $CCompetitions = new competitions($req->competition_id);
@@ -113,10 +108,11 @@ if (isset($_GET['action'])) {
             foreach ($req as $k => $v) $r[$k] = $v;
             $CWorks->formatAttributes($r);
 
-            $desc = array();
-            if ($req->description_public) {
-                $desc[] = 'Comment for visitors:' . "\n" . $req->description_public;
+            if ($req->author_note) {
+                $CWorks->record['author_note'] = $req->author_note;
             }
+
+            $desc = array();
             if ($req->description_refs) {
                 $desc[] = 'Display additional: ' . $req->description_refs;
             }
@@ -125,10 +121,20 @@ if (isset($_GET['action'])) {
             }
             $CWorks->record['description'] = implode("\n\n", $desc);
 
-            $errors = $CWorks->validate();
-            if (!empty($errors)) {
-                NFWX::i()->jsonError(400, $errors, $CWorks->last_msg);
+            $validateErrors = $CWorks->validate();
+
+            $CMedia = new media();
+            $mediaError = $CMedia->countSessionFiles('works') ? "" : $langMain['works upload no file error'];
+
+            if (!empty($validateErrors) || $mediaError != "") {
+                if (empty($validateErrors)) {
+                    NFWX::i()->jsonError(400, $mediaError);
+                }
+
+                NFWX::i()->jsonError(400, $validateErrors, $mediaError ?: $CWorks->last_msg);
             }
+
+            // Begin saving
 
             $CWorks->saveWork();
             if ($CWorks->error) {

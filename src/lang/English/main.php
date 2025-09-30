@@ -62,7 +62,7 @@ $lang_main = array(
     'works empty' => 'You have not uploaded any prods yet',
     'works send' => 'Send prod',
     'works description' => 'Comment for organizers',
-    'works description public' => 'Comment for visitors',
+    'works author note' => 'Comment for visitors',
     'works description refs' => 'Display additional materials during voting (phases, references, etc)',
     'works description refs options' => array('Yes', 'No', 'At the discretion of the organizers', 'Another (in comment)'),
 
