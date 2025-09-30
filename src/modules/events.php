@@ -28,7 +28,7 @@ class events extends active_record {
         'date_from' => array('desc' => 'Date from', 'type' => 'date', 'required' => true),
         'date_to' => array('desc' => 'Date to', 'type' => 'date', 'is_end' => true, 'required' => true),
         'hide_works_count' => array('desc' => 'Hide works count', 'type' => 'bool'),
-        'voting_system' => ['type' => 'select', 'desc' => 'Voting system', 'options' => [
+        'voting_system' => ['type' => 'select', 'desc' => 'Voting system', 'default' => 'avg', 'options' => [
             ['id' => 'avg', 'desc' => 'Average'],
             ['id' => 'iqm', 'desc' => 'IQM'],
             ['id' => 'sum', 'desc' => 'Sum'],
