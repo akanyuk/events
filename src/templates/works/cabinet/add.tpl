@@ -124,6 +124,23 @@ NFWX::i()->mainContainerAdditionalClasses = 'd-grid mx-auto col-sm-10 col-md-8';
         </div>
 
         <div class="mb-3">
+            <h5><?php echo $langMain['works on compo canceled'] ?></h5>
+            <?php $isFirst = true;
+            foreach ($langMain['works on compo canceled options'] as $o) { ?>
+                <div class="form-check">
+                    <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="description_on_cancel"
+                               data-role="addWorkInput" id="description_on_cancel"
+                               value="<?php echo $o ?>" <?php echo $isFirst ? 'checked="checked"' : '' ?>/>
+                        <?php echo $o ?>
+                    </label>
+                </div>
+                <?php $isFirst = false;
+            } ?>
+            <div data-role="addWorkFeedback" id="description_on_cancel" class="invalid-feedback"></div>
+        </div>
+
+        <div class="mb-3">
             <label for="description"><?php echo $langMain['works description'] ?></label>
             <textarea data-role="addWorkInput" id="description" class="form-control"></textarea>
             <div data-role="addWorkFeedback" id="description" class="invalid-feedback"></div>
@@ -216,6 +233,7 @@ NFWX::i()->mainContainerAdditionalClasses = 'd-grid mx-auto col-sm-10 col-md-8';
         if (!response.ok) {
             const resp = await response.json();
             const errors = resp.errors;
+            let scrollToError = 0;
 
             Object.keys(errors).forEach(function (key) {
                 if (key === 'general') {
@@ -227,6 +245,11 @@ NFWX::i()->mainContainerAdditionalClasses = 'd-grid mx-auto col-sm-10 col-md-8';
                 document.querySelector('[data-role="addWorkInput"][id=' + key + ']').classList.add('is-invalid');
                 document.querySelector('[data-role="addWorkFeedback"][id=' + key + ']').innerText = errors[key];
                 document.querySelector('[data-role="addWorkFeedback"][id=' + key + ']').classList.add('d-block');
+
+                let curScroll = document.querySelector('[data-role="addWorkInput"][id=' + key + ']').offsetTop - 80;
+                if (scrollToError === 0 || curScroll < scrollToError) {
+                    scrollToError = curScroll;
+                }
             });
 
             document.querySelectorAll('[data-role="addWorkInput"]').forEach(item => {
@@ -234,6 +257,10 @@ NFWX::i()->mainContainerAdditionalClasses = 'd-grid mx-auto col-sm-10 col-md-8';
                     item.classList.add('is-valid');
                 }
             });
+
+            if (scrollToError > 0) {
+                window.scrollTo({top: scrollToError, behavior: "smooth"});
+            }
 
             return;
         }

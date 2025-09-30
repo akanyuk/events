@@ -116,6 +116,9 @@ if (isset($_GET['action'])) {
             if ($req->description_refs) {
                 $desc[] = 'Display additional: ' . $req->description_refs;
             }
+            if ($req->description_on_cancel) {
+                $desc[] = 'If compo cancelled: ' . $req->description_on_cancel;
+            }
             if ($req->description) {
                 $desc[] = 'Comment for organizers:' . "\n" . $req->description;
             }
