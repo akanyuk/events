@@ -179,7 +179,7 @@ switch (count($pathParts) == 2 ? $pathParts[1] : false) {
 
         $unread = [];
         if (!empty($records)) {
-            $unread = works_activity::unreadExplained();
+            $unread = works_activity::unreadExplained(true);
         }
 
         $content = $CWorks->renderAction([

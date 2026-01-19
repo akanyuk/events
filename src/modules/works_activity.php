@@ -180,23 +180,29 @@ class works_activity extends base_module {
         return $cnt;
     }
 
-    public static function unreadExplained(): array {
-        $subSql = '(
-SELECT COUNT(*) FROM works_activity AS i2
-LEFT JOIN works_activity_last_read AS l ON l.work_id=i2.work_id AND l.user_id=' . NFW::i()->user['id'] . '
-WHERE i2.work_id = i.work_id AND (i2.id > l.activity_id OR l.activity_id IS NULL)
-) AS unread';
+    public static function unreadExplained($onlyOwned=false): array {
         $query = [
-            'SELECT' => 'i.work_id, ' . $subSql,
+            'SELECT' => 'COUNT(*) AS unread, i.work_id',
             'FROM' => 'works_activity AS i',
             'JOINS' => [
                 [
                     'INNER JOIN' => 'works_activity_unread AS u',
                     'ON' => 'u.work_id=i.work_id AND u.user_id=' . NFW::i()->user['id'],
                 ],
+                [
+                    'LEFT JOIN' => 'works_activity_last_read AS l',
+                    'ON' => 'l.work_id=i.work_id AND l.user_id=' . NFW::i()->user['id'],
+                ],
             ],
+            'WHERE' => 'i.id > l.activity_id OR l.activity_id IS NULL',
             'GROUP BY' => 'i.work_id',
         ];
+        if ($onlyOwned) {
+            $query['JOINS'][] = [
+                'INNER JOIN' => 'works AS w',
+                'ON' => 'w.id=i.work_id AND w.posted_by=' . NFW::i()->user['id'],
+            ];
+        }
         if (!$result = NFW::i()->db->query_build($query)) {
             NFW::i()->errorHandler(null, 'Unable to load work activity unread explained', __FILE__, __LINE__, NFW::i()->db->error());
             return [];

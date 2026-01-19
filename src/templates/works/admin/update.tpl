@@ -395,7 +395,7 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
 
         // Autocomplete link title
         let aTitles = [];
-        <?php foreach ($linkTitles as $t) echo 'aTitles.push(\'' . htmlspecialchars($t) . '\');' . "\n"; ?>
+        <?php foreach ($linkTitles as $t) echo 'aTitles.push(' . json_encode($t) . ');' . "\n"; ?>
         $('input[data-type="links-title"]').typeahead({
             source: aTitles,
             minLength: 1,

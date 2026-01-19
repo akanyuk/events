@@ -312,7 +312,7 @@ NFW::i()->breadcrumb_status = ob_get_clean();
 
         // Platform typeahead
         let aPlatforms = [];
-        <?php foreach ($Module->attributes['platform']['options'] as $p) echo 'aPlatforms.push(\'' . htmlspecialchars($p) . '\');' . "\n"; ?>
+        <?php foreach ($Module->attributes['platform']['options'] as $p) echo 'aPlatforms.push(' . json_encode($p) . ');' . "\n"; ?>
         $('input[name="platform"]').typeahead({
             source: aPlatforms,
             minLength: 0
