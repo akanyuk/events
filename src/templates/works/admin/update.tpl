@@ -28,83 +28,109 @@ NFW::i()->registerResource('jquery.ui.interactions');
 NFW::i()->assign('page_title', $Module->record['title'] . ' / edit');
 
 NFW::i()->breadcrumb = array(
-    array('url' => 'admin/events?action=update&record_id=' . $Module->record['event_id'], 'desc' => $Module->record['event_title']),
-    array('url' => 'admin/works?event_id=' . $Module->record['event_id'] . '&filter_competition=' . $Module->record['competition_id'], 'desc' => $Module->record['competition_title']),
-    array('desc' => $Module->record['title']),
+        array('url' => 'admin/events?action=update&record_id=' . $Module->record['event_id'], 'desc' => $Module->record['event_title']),
+        array('url' => 'admin/works?event_id=' . $Module->record['event_id'] . '&filter_competition=' . $Module->record['competition_id'], 'desc' => $Module->record['competition_title']),
+        array('desc' => $Module->record['title']),
 );
 
 echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath('_common_status_icons.tpl')) . '</div>';
 ?>
+<div class="row" data-active-container="status">
+    <div class="col-md-6" style="padding-bottom: 20px;">
+        <legend>Work status</legend>
+
+        <?php if ($isPublic): ?>
+            <dl>
+                <dt>Published with a link:</dt>
+                <dd><a href="<?php echo $publicHref ?>"><?php echo $publicHref ?></a></dd>
+            </dl>
+        <?php else: ?>
+            <dl>
+                <dt>Not been published yet. Link:</dt>
+                <dd><?php echo $publicHref ?></dd>
+            </dl>
+        <?php endif; ?>
+        <dl>
+            <dt>Current owner:</dt>
+            <dd>
+                <a href="/admin/users?filter=<?php echo urlencode($Module->record['posted_username']) ?>"><?php echo htmlspecialchars($Module->record['posted_username']) ?></a>
+                (<?php echo htmlspecialchars($Module->record['poster_email']) ?>)
+            </dd>
+        </dl>
+
+        <dl>
+            <dt>Personal note (only for you)
+                <a href="#" id="toggle-personal-note-edit" class="fa fa-edit"></a>
+            </dt>
+            <dd>
+                <div id="personal-note-view" class="alert alert-warning"
+                     style="margin-top: 5px; display: <?php echo $personalNote['comment'] ? 'block' : 'none' ?>"
+                     role="alert">
+                    <button id="remove-personal-note" type="button" class="close" aria-label="Clear personal note"><span
+                                aria-hidden="true" title="Clear personal note">&times;</span>
+                    </button>
+                    <span id="inner"><?php echo htmlspecialchars($personalNote['comment']) ?></span>
+                </div>
+
+                <form id="works-my-status" style="display: none;"
+                      action="<?php echo $Module->formatURL('my_status') . '&record_id=' . $Module->record['id'] ?>">
+                    <input type="hidden" name="set"/>
+                    <textarea class="form-control" style="margin-bottom: 5px;"
+                              name="comment"><?php echo $personalNote['comment'] ?></textarea>
+                    <button id="set-personal-note" class="btn btn-primary">Set</button>
+                    <button id="clear-personal-note" class="btn btn-primary">Clear</button>
+                </form>
+            </dd>
+        </dl>
+    </div>
+
+    <div class="col-md-6">
+        <form id="update-status"
+              action="<?php echo $Module->formatURL('update_status') . '&record_id=' . $Module->record['id'] ?>">
+            <input name="status" type="hidden" value="<?php echo $Module->record['status'] ?>"/>
+            <fieldset>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <div class="col-md-6" style="margin-bottom: 10px;">
+                        <div id="status-buttons" class="btn-group" role="group">
+                            <?php foreach ($Module->attributes['status']['options'] as $s) { ?>
+                                <button data-role="status-change-buttons"
+                                        data-status-id="<?php echo $s['id'] ?>"
+                                        data-css-class="<?php echo $s['css-class'] ?>" type="button"
+                                        class="<?php echo 'btn btn-default ' . ($Module->record['status'] == $s['id'] ? 'active btn-info' : '') ?>"
+                                        title="<?php echo $s['desc'] ?>"
+                                        data-description="<?php echo $s['desc_full'] . '<br />Voting: <strong>' . ($s['voting'] ? 'On' : 'Off') . '</strong>. Release: <strong>' . ($s['release'] ? 'On' : 'Off') . '</strong>. Counters: <strong>' . ($s['cnt'] ? 'On' : 'Off') . '</strong>' ?>">
+                                    <svg width="1em" height="1em">
+                                        <use xlink:href="#<?php echo $s['svg-icon'] ?>"/>
+                                    </svg>
+                                </button>
+                            <?php } ?>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div id="status-description" class="alert alert-info"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <label>Status reason (displayed to the author)</label>
+                        <textarea class="form-control"
+                                  name="status_reason"><?php echo $Module->record['status_reason'] ?></textarea>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-primary btn-full-xs">Update status</button>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>
+
 <div class="row">
     <div class="col-md-6" style="padding-bottom: 20px;">
-        <div data-active-container="status" class="form-group">
-            <form id="update-status"
-                  action="<?php echo $Module->formatURL('update_status') . '&record_id=' . $Module->record['id'] ?>">
-                <input name="status" type="hidden" value="<?php echo $Module->record['status'] ?>"/>
-                <fieldset>
-                    <legend>Work status</legend>
-
-                    <?php if ($isPublic): ?>
-                        <dl>
-                            <dt>Published with a link:</dt>
-                            <dd><a href="<?php echo $publicHref ?>"><?php echo $publicHref ?></a></dd>
-                        </dl>
-                    <?php else: ?>
-                        <dl>
-                            <dt>Not been published yet. Link:</dt>
-                            <dd><?php echo $publicHref ?></dd>
-                        </dl>
-                    <?php endif; ?>
-                    <dl>
-                        <dt>Current owner:</dt>
-                        <dd>
-                            <a href="/admin/users?filter=<?php echo urlencode($Module->record['posted_username']) ?>"><?php echo htmlspecialchars($Module->record['posted_username']) ?></a>
-                            (<?php echo htmlspecialchars($Module->record['poster_email']) ?>)
-                        </dd>
-                    </dl>
-
-                    <div class="form-group">
-                        <div class="col-md-12">
-                            <div id="status-buttons" class="btn-group" role="group">
-                                <?php foreach ($Module->attributes['status']['options'] as $s) { ?>
-                                    <button data-role="status-change-buttons"
-                                            data-status-id="<?php echo $s['id'] ?>"
-                                            data-css-class="<?php echo $s['css-class'] ?>" type="button"
-                                            class="<?php echo 'btn btn-default ' . ($Module->record['status'] == $s['id'] ? 'active btn-info' : '') ?>"
-                                            title="<?php echo $s['desc'] ?>"
-                                            data-description="<?php echo $s['desc_full'] . '<br />Voting: <strong>' . ($s['voting'] ? 'On' : 'Off') . '</strong>. Release: <strong>' . ($s['release'] ? 'On' : 'Off') . '</strong>. Counters: <strong>' . ($s['cnt'] ? 'On' : 'Off') . '</strong>' ?>">
-                                        <svg width="1em" height="1em">
-                                            <use xlink:href="#<?php echo $s['svg-icon'] ?>"/>
-                                        </svg>
-                                    </button>
-                                <?php } ?>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="col-md-12">
-                            <div id="status-description" class="alert alert-info"></div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="col-md-12">
-                            <label>Status reason (displayed to the author)</label>
-                            <textarea class="form-control"
-                                      name="status_reason"><?php echo $Module->record['status_reason'] ?></textarea>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="col-md-12">
-                            <button type="submit" class="btn btn-primary btn-full-xs">Update status</button>
-                        </div>
-                    </div>
-                </fieldset>
-            </form>
-        </div>
-
         <form id="works-update"
               action="<?php echo $Module->formatURL('update_work') . '&record_id=' . $Module->record['id'] ?>">
 
@@ -200,22 +226,15 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
                 </div>
             </fieldset>
         </form>
+
+        <br/>
+
+        <button id="works-preview" class="btn btn-info btn-lg btn-full-xs"
+                title="Preview with current values of fields and links">Preview
+        </button>
     </div>
 
     <div class="col-md-6">
-        <form id="works-my-status"
-              action="<?php echo $Module->formatURL('my_status') . '&record_id=' . $Module->record['id'] ?>">
-            <input type="hidden" name="set"/>
-            <div <?php echo $personalNote['comment'] ? 'class="has-warning"' : '' ?> style="padding-bottom: 10px;">
-                <label class="control-label" for="comment">Personal note (only for you)</label>
-                <textarea class="form-control"
-                          name="comment"><?php echo $personalNote['comment'] ?></textarea>
-            </div>
-            <button id="set-personal-note" class="btn btn-primary">Set</button>
-            <button id="clear-personal-note" class="btn btn-primary">Clear</button>
-        </form>
-
-        <br/>
         <section id="activity"></section>
         <h3>Activity</h3>
         <button id="show-all-activity" class="btn btn-default btn-sm btn-full-xs"
@@ -249,16 +268,16 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
     <?php
     $CMedia = new media();
     echo $CMedia->openSession(
-        array(
-            'owner_class' => get_class($Module),
-            'owner_id' => $Module->record['id'],
-            'secure_storage' => true,
-            'MAX_SESSION_SIZE' => 1024 * 1024 * 256,
-            'template' => '_admin_works_media',
-            'after_upload' => 'admin_work_media_added',
-            'after_delete' => 'admin_work_media_deleted',
-        ),
-        array('owner' => $Module->record)
+            array(
+                    'owner_class' => get_class($Module),
+                    'owner_id' => $Module->record['id'],
+                    'secure_storage' => true,
+                    'MAX_SESSION_SIZE' => 1024 * 1024 * 256,
+                    'template' => '_admin_works_media',
+                    'after_upload' => 'admin_work_media_added',
+                    'after_delete' => 'admin_work_media_deleted',
+            ),
+            array('owner' => $Module->record)
     );
     ?>
 </div>
@@ -321,7 +340,7 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
                 '<?php echo $Module->formatURL('preview') . '&record_id=' . $Module->record['id']?>',
                 {
                     method: "post",
-                    data: wuF.serialize(),
+                    data: wuF.serialize() + '&' + $('form[id="works-update-links"]').serialize(),
                     dataType: "json",
                     success: function (response) {
                         previewModal.find('iframe').attr("srcdoc", response.content);
@@ -345,21 +364,46 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
         });
 
         // Personal note form
-        const formMyStatus = $('form[id="works-my-status"]');
-        const textareaMyStatus = formMyStatus.find('textarea')
-        const setMyStatus = formMyStatus.find('input[name="set"]');
-        formMyStatus.activeForm({
-            success: function (response) {
-                $.jGrowl(response['message']);
-            }
+        const formPersonalNote = $('form[id="works-my-status"]');
+        const textareaPersonalNote = formPersonalNote.find('textarea')
+        const setPersonalNote = formPersonalNote.find('input[name="set"]');
+        const personalNoteView = $('#personal-note-view');
+
+        $('#toggle-personal-note-edit').click(function () {
+            $('#personal-note-view').hide();
+            formPersonalNote.show();
+            return false;
         });
+
+        $('[id="remove-personal-note"]').click(function () {
+            textareaPersonalNote.val("");
+            setPersonalNote.val("");
+            personalNoteView.hide();
+            formPersonalNote.submit();
+            formPersonalNote.hide();
+            return false;
+        });
+
+        formPersonalNote.activeForm();
+
         $('button[id="clear-personal-note"]').click(function () {
-            textareaMyStatus.val("");
-            setMyStatus.val("");
+            textareaPersonalNote.val("");
+            setPersonalNote.val("");
+            personalNoteView.hide();
+            formPersonalNote.hide();
         });
+
         $('button[id="set-personal-note"]').click(function () {
-            console.log(setMyStatus);
-            setMyStatus.val("1");
+            if (textareaPersonalNote.val() !== "") {
+                setPersonalNote.val("1");
+                personalNoteView.find('#inner').text(textareaPersonalNote.val());
+                personalNoteView.show();
+            } else {
+                personalNoteView.hide();
+                textareaPersonalNote.val("");
+                setPersonalNote.val("");
+            }
+            formPersonalNote.hide();
         });
 
         // Links
