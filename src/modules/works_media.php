@@ -387,7 +387,7 @@ class works_media extends media {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
-        $dirName = $CWorks->record['title'] . ' by ' . $CWorks->record['author'];
+        $dirName = $CWorks->record['competition_title'] . '/' . str_replace('/', '^', $CWorks->record['title'] . ' by ' . $CWorks->record['author']);
         $tmpName = tempnam(sys_get_temp_dir(), "_WORK_FILES_");
 
         $zip = new ZipArchive;
@@ -397,11 +397,11 @@ class works_media extends media {
             NFWX::i()->jsonError(400, $this->last_msg);
         }
 
-        $already_added = array();
+        $alreadyAdded = array();
         foreach ($CWorks->record['media_info'] as $a) {
-            $basename = strtolower($a['basename']);
-            $basename = in_array($basename, $already_added) ? $a['id'] . '/' . $basename : $basename;
-            $already_added[] = $basename;
+            $basename = str_replace('/', '^', strtolower($a['basename']));
+            $basename = in_array($basename, $alreadyAdded) ? $a['id'] . '/' . $basename : $basename;
+            $alreadyAdded[] = $basename;
             $zip->addFile($a['fullpath'], $dirName . '/' . $basename);
         }
 
@@ -409,7 +409,7 @@ class works_media extends media {
 
         header("Content-Description: File Transfer");
         header("Content-Type: application/zip");
-        header("Content-Disposition: attachment; filename=\"" . NFWX::i()->safeFilename($CWorks->record['title']) . "\"");
+        header("Content-Disposition: attachment; filename=\"" . NFWX::i()->safeFilename($CWorks->record['title']) . ".zip\"");
         readfile($tmpName);
         NFW::i()->stop();
     }

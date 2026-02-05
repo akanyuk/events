@@ -36,7 +36,7 @@ $attrs = $CUsers->attributes;
                 </dl>
 
                 <div class="mb-3">
-                    <label for="realname"><?php echo $attrs['realname']['desc'] ?></label>
+                    <label for="realname"><?php echo $langUsers['Display name'] ?></label>
                     <input data-role="input" id="realname" class="form-control"
                            type="text" required="required" maxlength="<?php echo $attrs['realname']['maxlength'] ?>"
                            value="<?php echo NFW::i()->user['realname'] ?>">

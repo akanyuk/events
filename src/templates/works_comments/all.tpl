@@ -30,7 +30,7 @@ $noImage = NFW::i()->assets('main/current-event-large.png');
                             <?php echo nl2br(htmlspecialchars($comment['message'])) ?>
                         </blockquote>
                         <figcaption class="blockquote-footer">
-                            <?php echo friendly_date($comment['posted'], $langMain) . ' by ' . date('H:i', $comment['posted']) . ' ' . htmlspecialchars($comment['posted_username']) ?>
+                            <?php echo friendly_date($comment['posted'], $langMain) . ' ' . date('H:i', $comment['posted']) . ' by ' . htmlspecialchars($comment['user_realname']) ?>
                         </figcaption>
                     </figure>
                 <?php endforeach; ?>

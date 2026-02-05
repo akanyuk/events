@@ -594,6 +594,13 @@ class works extends active_record {
             'external_html' => $this->attributes['external_html'],
         ));
 
+        $this->record['links'] = array();
+        if (isset($_POST['links'])) foreach ($_POST['links']['url'] as $pos => $url) {
+            if (!$url) continue;
+
+            $this->record['links'][] = array('url' => $url, 'title' => $_POST['links']['title'][$pos]);
+        }
+
         NFW::i()->registerFunction("display_work_media");
         NFWX::i()->jsonSuccess(["content" =>
             NFWX::i()->renderPage(NFW::i()->fetch(SRC_ROOT . '/templates/works/admin/preview.tpl',

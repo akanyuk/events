@@ -69,9 +69,13 @@ class works_comments extends active_record {
         }
 
         $query = array(
-            'SELECT' => 'wc.*, w.title AS work_title, w.author, c.works_type, c.alias AS competition_alias, c.voting_to, e.title AS event_title, e.alias AS event_alias, c.event_id',
+            'SELECT' => 'wc.*, u.realname AS user_realname, w.title AS work_title, w.author, c.works_type, c.alias AS competition_alias, c.voting_to, e.title AS event_title, e.alias AS event_alias, c.event_id',
             'FROM' => $this->db_table . ' AS wc',
             'JOINS' => array(
+                array(
+                    'INNER JOIN' => 'users AS u',
+                    'ON' => 'wc.posted_by=u.id'
+                ),
                 array(
                     'INNER JOIN' => 'works AS w',
                     'ON' => 'wc.work_id=w.id'
@@ -123,7 +127,7 @@ class works_comments extends active_record {
             }
             $gComments[$workID]['items'][] = [
                 'posted' => $comment['posted'],
-                'posted_username' => $comment['posted_username'],
+                'user_realname' => $comment['user_realname'],
                 'message' => $comment['message'],
             ];
         }
@@ -243,7 +247,7 @@ class works_comments extends active_record {
         foreach ($this->getRecords(['work_id' => $CWorks->record['id']]) as $comment) {
             $comments[] = array(
                 'id' => $comment['id'],
-                'posted_str' => friendly_date($comment['posted'], $langMain) . ' ' . date('H:i', $comment['posted']) . ' by ' . htmlspecialchars($comment['posted_username']),
+                'posted_str' => friendly_date($comment['posted'], $langMain) . ' ' . date('H:i', $comment['posted']) . ' by ' . htmlspecialchars($comment['user_realname']),
                 'message' => nl2br(htmlspecialchars($comment['message'])),
             );
         }

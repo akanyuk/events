@@ -276,7 +276,7 @@ function timetable(int $eventID) {
             ?>
             <tr class="<?php echo $r['type'] ?>">
                 <?php echo $r['time'] ? '<td class="td-dt" rowspan="' . $r['rowspan'] . '">' . $r['time'] . '</td>' : '' ?>
-                <td class="td-place"><?php echo $r['place'] ? '<span class="badge text-bg-secondary text-bg-' . $r['place'] . '">' . $r['place'] . '</span>' : '' ?></td>
+                <td class="td-location"><?php echo $r['location'] ? '<span class="badge text-bg-secondary text-bg-' . $r['location'] . '">' . $r['location'] . '</span>' : '' ?></td>
                 <td><?php echo $r['description'] ?></td>
             </tr>
             <?
@@ -309,7 +309,7 @@ function _timetableRows(int $eventID): array {
         $result[] = [
             'time' => date('H:i', $record['begin']),
             'type' => $record['type'],
-            'place' => $record['place'] ?? '',
+            'location' => $record['location'] ?? '',
             'description' => $record['description'],
             'rowspan' => 1,
         ];
