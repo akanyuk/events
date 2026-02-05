@@ -25,6 +25,7 @@ $lang_users = array(
 
     // profile
     'My profile' => 'Мой профиль',
+    'Display name' => 'Отображаемое имя',
     'Old password' => 'Старый пароль',
     'Save password' => 'Сохранить пароль',
     'Update profile message' => 'Профиль пользователя обновлен',
