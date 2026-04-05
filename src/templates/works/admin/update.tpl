@@ -158,7 +158,6 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
             <div class="row">
                 <div class="col-md-12">
                     <button type="submit" class="btn btn-primary">Save settings</button>
-                    <button id="works-preview" class="btn btn-default">Preview</button>
                 </div>
             </div>
         </form>
