@@ -449,7 +449,7 @@ class works extends active_record {
                 'event_id' => $CEvents->record['id'],
                 'allow_hidden' => true,
             ),
-            'ORDER BY' => 'c.position, w.posted',
+            'ORDER BY' => 'c.position, c.id, w.posted',
             'load_attachments' => true,
             'skip_pagination' => true,
         ));
