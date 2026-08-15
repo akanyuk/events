@@ -2,6 +2,7 @@
 /**
  * @var string $session_id
  * @var integer $owner_id
+ * @var bool $isReleaseDisabled
  */
 
 $langMedia = NFW::i()->getLang('media');
@@ -312,7 +313,7 @@ $(function () {
         return false;
     });
 
-
+    <?php if (!$isReleaseDisabled):?>
     $('form[id="make-release"]').activeForm({
         action: '<?php echo NFW::i()->base_path . 'admin/works_media?action=make_release&record_id=' . $owner_id?>',
         error: function (response) {
@@ -351,4 +352,5 @@ $(function () {
 
         return false;
     });
+    <?php endif; ?>
 });

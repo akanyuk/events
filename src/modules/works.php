@@ -549,7 +549,9 @@ class works extends active_record {
             return false;
         }
 
-        if (!$this->load($_GET['record_id']) || !$this->loadEditorOptions($this->record['event_id'])) {
+        $CEvents = new events($this->record['event_id']);
+        if (!$CEvents->record['id']) {
+            $this->error($CEvents->last_msg);
             return false;
         }
 
@@ -573,6 +575,7 @@ class works extends active_record {
         }
 
         return $this->renderAction([
+            'CEvents' => $CEvents,
             'CCompetitions' => $CCompetitions,
             'personalNote' => $personalNote,
             'linkTitles' => $linkTitles,

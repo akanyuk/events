@@ -1,6 +1,7 @@
 <?php
 /**
  * @var object $Module
+ * @var events $CEvents
  * @var competitions $CCompetitions
  * @var array $personalNote
  * @var array $linkTitles
@@ -48,6 +49,13 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
             <dl>
                 <dt>Not been published yet. Link:</dt>
                 <dd><?php echo $publicHref ?></dd>
+            </dl>
+        <?php endif; ?>
+
+        <?php if ($Module->record['release_link']): ?>
+            <dl>
+                <dt>Release link: <?php if ($CEvents->record['is_release_disabled']) echo '<span class="fa fa-question-circle text-warning" title="The creation of new release archives has been disabled by the administrator"></span>'?></dt>
+                <dd><?php echo '<a href="' . $Module->record['release_link']['url'] . '">' . $Module->record['release_link']['url'] . '</a>' ?></dd>
             </dl>
         <?php endif; ?>
         <dl>
@@ -270,6 +278,7 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
                     'template' => '_admin_works_media',
                     'after_upload' => 'admin_work_media_added',
                     'after_delete' => 'admin_work_media_deleted',
+                    'isReleaseDisabled' => $CEvents->record['is_release_disabled'],
             ),
             array('owner' => $Module->record)
     );
