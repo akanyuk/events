@@ -36,13 +36,10 @@ function display_work_media(array $work = array(), array $options = array()) {
         'scenemusic.net' => array('title' => 'Nectarine', 'bg_pos' => '-224px 0px'),
         'scenestream.net' => array('title' => 'Nectarine', 'bg_pos' => '-224px 0px'),
         'bandcamp.com' => array('title' => 'Bandcamp', 'bg_pos' => '-240px 0px'),
-//        'vk.com' => array('title' => 'VK', 'bg_pos' => '-256px 0px', 'iframe' => "vkVideoIframeCreator"),
-//        'vkvideo.ru' => array('title' => 'VK', 'bg_pos' => '-256px 0px', 'iframe' => "vkVideoIframeCreator"),
         'vk.com' => array('title' => 'VK', 'bg_pos' => '-256px 0px'),
         'vkvideo.ru' => array('title' => 'VK', 'bg_pos' => '-256px 0px'),
         'modarchive.org' => array('title' => 'The Mod Archive', 'bg_pos' => '-272px 0px'),
         'rutube.ru' => array('title' => 'Rutube', 'bg_pos' => '-288px 0px', 'iframe' => 'rutubeIframeCreator'),
-        'plvideo.ru' => array('title' => 'Platforma', 'bg_pos' => '-304px 0px', 'iframe' => 'plvideoIframeCreator'),
         'disk.yandex.ru' => array('title' => 'Yandex Disk', 'bg_pos' => '-320px 0px'),
     );
 
@@ -177,12 +174,6 @@ function prepareWorkLinks($langMain, $work, $linksProps, $rel): array {
 
     foreach ($work['links'] as $l) {
         $linkURL = $l['url'];
-        if (stripos($linkURL, 'vk.com/video_ext.php') !== false || stripos($linkURL, 'vkvideo.ru/video_ext.php') !== false) {
-            $linkURL = vkVideoIframeParse($l['url']);
-            if ($linkURL == "") {
-                continue;
-            }
-        }
 
         $url = preg_replace('#^www\.(.+\.)#i', '$1', parse_url($linkURL, PHP_URL_HOST));
         if (isset($linksProps[$url])) {
@@ -222,47 +213,6 @@ function prepareWorkLinks($langMain, $work, $linksProps, $rel): array {
     ];
 }
 
-function vkVideoIframeParse($iframe): string {
-    preg_match('/src=\"(.*)\".*/isU', $iframe, $match);
-    if (count($match) < 2) {
-        return "";
-    }
-    $src = $match[1];
-
-    $query = parse_url($src, PHP_URL_QUERY);
-    if (!$query) {
-        return "";
-    }
-
-    parse_str($query, $params);
-    if (!isset($params['oid']) || !isset($params['id'])) {
-        return "";
-    }
-
-    return 'https://vkvideo.ru/video-' . str_replace('-', '', $params['oid']) . '_' . $params['id'] . (isset($params['hash']) ? '?hash=' . $params['hash'] : '');
-}
-
-function vkVideoIframeCreator($url): array {
-    preg_match('%video-(\d*)_(\d*)%i', $url, $match);
-    if (count($match) < 3) {
-        return ["", $url];
-    }
-    $oid = $match[1];
-    $id = $match[2];
-
-    $hashStr = '';
-    $query = parse_url($url, PHP_URL_QUERY);
-    if ($query) {
-        parse_str($query, $params);
-        $hashStr = isset($params['hash']) ? '&hash=' . $params['hash'] : '';
-    }
-
-    return [
-        '<iframe width="640" height="360" src="https://vkvideo.ru/video_ext.php?oid=-' . $oid . '&id=' . $id . $hashStr . '&hd=1" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" allowfullscreen style="border: none;"></iframe>',
-        preg_replace('%([&?]hash=.*)&?#?%i', '', $url),
-    ];
-}
-
 function youtubeIframeCreator($url): array {
     preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i', $url, $match);
     if (count($match) < 2) {
@@ -287,18 +237,6 @@ function rutubeIframeCreator($url): array {
 
     return [
         '<iframe width="640" height="360" src="' . $url . '" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" allowfullscreen style="border: none;"></iframe>',
-        $url
-    ];
-}
-
-function plvideoIframeCreator($url): array {
-    parse_str(parse_url($url, PHP_URL_QUERY), $q);
-    if (empty($q['v'])) {
-        return ["", $url];
-    }
-
-    return [
-        '<iframe width="640" height="360" src="https://plvideo.ru/embed/' . $q['v'] . '" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" allowfullscreen style="border: none;"></iframe>',
         $url
     ];
 }

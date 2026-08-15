@@ -102,6 +102,7 @@ $(document).ready(function(){
 	<?php echo active_field(array('name' => 'alias', 'value' => $Module->record['alias'], 'attributes'=>$Module->attributes['alias'], 'labelCols' => '2', 'inputCols' => '8'))?>
     <?php echo active_field(array('name' => 'alias_group', 'value' => $Module->record['alias_group'], 'attributes'=>$Module->attributes['alias_group'], 'labelCols' => '2', 'inputCols' => '8'))?>
 	<?php echo active_field(array('name' => 'is_hidden', 'value' => $Module->record['is_hidden'], 'attributes'=>$Module->attributes['is_hidden'], 'labelCols' => '2', 'inputCols' => '8'))?>
+    <?php echo active_field(array('name' => 'is_release_disabled', 'value' => $Module->record['is_release_disabled'], 'attributes'=>$Module->attributes['is_release_disabled'], 'labelCols' => '2', 'inputCols' => '8'))?>
 	
 	<div class="form-group">
 		<div class="col-md-6 col-md-offset-2">

@@ -10,6 +10,8 @@
  * @var integer $MAX_SESSION_SIZE
  * @var integer $image_max_x
  * @var integer $image_max_y
+ *
+ * @var bool $isReleaseDisabled
  */
 
 const TITLE_SCREENSHOT = "Screenshot for social media links";
@@ -283,28 +285,31 @@ echo '<style>' . $css . '</style>';
     <div id="uploading-status" class="uploading-status" style="display: none;"></div>
 </form>
 
-<form id="make-release" class="form-inline" style="padding-top: 20px;">
-    <fieldset style="overflow: hidden">
-        <legend>Release link:</legend>
-        <span
-                id="permanent-link"><?php echo $owner['release_link'] ? '<a href="' . $owner['release_link']['url'] . '">' . $owner['release_link']['url'] . '</a>' : '<em>none</em>' ?></span>
+<?php if (!$isReleaseDisabled): ?>
+    <form id="make-release" class="form-inline" style="padding-top: 20px;">
+        <fieldset style="overflow: hidden">
+            <legend>Manage release link:</legend>
+            <span
+                    id="permanent-link"><?php echo $owner['release_link'] ? '<a href="' . $owner['release_link']['url'] . '">' . $owner['release_link']['url'] . '</a>' : '<em>none</em>' ?></span>
 
-        <div class="form-group">
-            <button id="media-remove-release"
-                    class="btn btn-sm btn-danger btn-full-xs" <?php echo $owner['release_link'] ? '' : 'style="display: none;"' ?>
-                    title="Delete file"><span class="hidden-xs"><span class="fa fa-times"></span></span><span
-                        class="hidden-sm hidden-md hidden-lg"> Delete file</span></button>
-        </div>
 
-        <div class="clearfix" style="padding-top: 10px;"></div>
-
-        <div class="form-group">
-            <div class="input-group">
-                <input type="text" class="form-control" name="release_basename" placeholder="filename"
-                       value="<?php echo NFWX::i()->safeFilename($owner['title']) ?>">
-                <div class="input-group-addon">.zip</div>
+            <div class="form-group">
+                <button id="media-remove-release"
+                        class="btn btn-sm btn-danger btn-full-xs" <?php echo $owner['release_link'] ? '' : 'style="display: none;"' ?>
+                        title="Delete file"><span class="hidden-xs"><span class="fa fa-times"></span></span><span
+                            class="hidden-sm hidden-md hidden-lg"> Delete file</span></button>
             </div>
-        </div>
-        <button class="btn btn-primary btn-full-xs">Generate release archive</button>
-    </fieldset>
-</form>
+
+            <div class="clearfix" style="padding-top: 10px;"></div>
+
+            <div class="form-group">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="release_basename" placeholder="filename"
+                           value="<?php echo NFWX::i()->safeFilename($owner['title']) ?>">
+                    <div class="input-group-addon">.zip</div>
+                </div>
+            </div>
+            <button class="btn btn-primary btn-full-xs">Generate release archive</button>
+        </fieldset>
+    </form>
+<?php endif; ?>
