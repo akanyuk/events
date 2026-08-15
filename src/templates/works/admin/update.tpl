@@ -177,12 +177,7 @@ echo '<div style="display: none;">' . NFW::i()->fetch(NFW::i()->findTemplatePath
 
                 <div class="collapse" id="collapseLinksHelp">
                     <div class="well">
-                        <p>YouTube links will be automatically converted to an iframe</p>
-
-                        <p>VK Video links will be automatically converted to an iframe only with manually hash added.
-                            Example: <code>&hash=5df22c4cff63dc92</code></p>
-
-                        <p>You can also use embedded VK Video instead of a direct link to the video</p>
+                        <p>YouTube and RuTube links will be automatically converted to an iframe</p>
                     </div>
                 </div>
 
