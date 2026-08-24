@@ -23,26 +23,26 @@ class works_activity extends base_module {
     const ADMIN_LINK_REMOVED = 211;
 
     public static function authorAddWork(array $work) {
-        self::saveNoMessage(self::AUTHOR_ADD_WORK, $work['id']);
+        self::addNoMessage(self::AUTHOR_ADD_WORK, $work['id']);
         if ($work['description']) {
             self::addMessage($work['id'], $work['description']);
         }
     }
 
     public static function authorAddFile(int $workID, string $basename) {
-        self::saveNoMessage(self::AUTHOR_ADD_FILE, $workID, json_encode([
+        self::addNoMessage(self::AUTHOR_ADD_FILE, $workID, json_encode([
             'basename' => $basename,
         ]));
     }
 
     public static function adminAddFile(int $workID, string $basename) {
-        self::saveNoMessage(self::ADMIN_ADD_FILE, $workID, json_encode([
+        self::addNoMessage(self::ADMIN_ADD_FILE, $workID, json_encode([
             'basename' => $basename,
         ]));
     }
 
     public static function adminDeleteFile(int $workID, string $basename) {
-        self::saveNoMessage(self::ADMIN_DELETE_FILE, $workID, json_encode([
+        self::addNoMessage(self::ADMIN_DELETE_FILE, $workID, json_encode([
             'basename' => $basename,
         ]));
     }
@@ -50,7 +50,7 @@ class works_activity extends base_module {
     public static function adminUpdateFileProps(int $workID, string $basename, array $props) {
         removeLastPropsChangeSameFile($workID, $basename);
 
-        self::saveNoMessage(self::ADMIN_UPDATE_FILE_PROPS, $workID, json_encode([
+        self::addNoMessage(self::ADMIN_UPDATE_FILE_PROPS, $workID, json_encode([
             'basename' => $basename,
             'props' => array_filter([
                 isset($props['screenshot']) && $props['screenshot'] ? 'screenshot' : null,
@@ -63,14 +63,14 @@ class works_activity extends base_module {
     }
 
     public static function adminRenameFile(int $workID, string $oldName, string $basename) {
-        self::saveNoMessage(self::ADMIN_RENAME_FILE, $workID, json_encode([
+        self::addNoMessage(self::ADMIN_RENAME_FILE, $workID, json_encode([
             'oldName' => $oldName,
             'basename' => $basename,
         ]));
     }
 
     public static function adminConvertZX(int $workID, string $basename1, string $basename2, string $origName) {
-        self::saveNoMessage(self::ADMIN_CONVERT_ZX, $workID, json_encode([
+        self::addNoMessage(self::ADMIN_CONVERT_ZX, $workID, json_encode([
             'basename1' => $basename1,
             'basename2' => $basename2,
             'origName' => $origName,
@@ -78,46 +78,50 @@ class works_activity extends base_module {
     }
 
     public static function adminFileIdDiz(int $workID) {
-        self::saveNoMessage(self::ADMIN_FILE_ID_DIZ, $workID);
+        self::addNoMessage(self::ADMIN_FILE_ID_DIZ, $workID);
     }
 
     public static function adminMakeRelease(int $workID, string $basename) {
-        self::saveNoMessage(self::ADMIN_MAKE_RELEASE, $workID, json_encode([
+        self::addNoMessage(self::ADMIN_MAKE_RELEASE, $workID, json_encode([
             'basename' => $basename,
         ]));
     }
 
     public static function adminRemoveRelease(int $workID) {
-        self::saveNoMessage(self::ADMIN_REMOVE_RELEASE, $workID);
+        self::addNoMessage(self::ADMIN_REMOVE_RELEASE, $workID);
     }
 
     public static function adminUpdateStatus(int $workID, int $status, string $reason) {
-        self::saveNoMessage(self::ADMIN_UPDATE_STATUS, $workID, json_encode([
+        self::addNoMessage(self::ADMIN_UPDATE_STATUS, $workID, json_encode([
             'status' => $status,
             'reason' => $reason,
         ]));
     }
 
     public static function adminUpdate(int $workID, string $field, string $value) {
-        self::saveNoMessage(self::ADMIN_UPDATE, $workID, json_encode([
+        self::addNoMessage(self::ADMIN_UPDATE, $workID, json_encode([
             'field' => $field,
             'value' => $value,
         ]));
     }
 
     public static function adminLinkAdded(int $workID, string $url) {
-        self::saveNoMessage(self::ADMIN_LINK_ADDED, $workID, json_encode([
+        self::addNoMessage(self::ADMIN_LINK_ADDED, $workID, json_encode([
             'url' => $url,
         ]));
     }
 
     public static function adminLinkRemoved(int $workID, string $url) {
-        self::saveNoMessage(self::ADMIN_LINK_REMOVED, $workID, json_encode([
+        self::addNoMessage(self::ADMIN_LINK_REMOVED, $workID, json_encode([
             'url' => $url,
         ]));
     }
 
     public static function addMessage(int $workID, string $message): bool {
+        if (NFW::i()->project_settings['disable_activities']) {
+            return true;
+        }
+
         $query = array(
             'INSERT' => '`type`, work_id, message, posted, posted_by',
             'INTO' => 'works_activity',
@@ -132,6 +136,26 @@ class works_activity extends base_module {
         self::updateUnreadState($workID);
         self::updateLastReadState($id, $workID);
         return true;
+    }
+
+    private static function addNoMessage(int $type, int $workID, string $metadata = "") {
+        if (NFW::i()->project_settings['disable_activities']) {
+            return;
+        }
+
+        $query = array(
+            'INSERT' => '`type`, work_id, metadata, posted, posted_by',
+            'INTO' => 'works_activity',
+            'VALUES' => $type . ', ' . $workID . ', \'' . NFW::i()->db->escape($metadata) . '\', ' . time() . ',' . NFW::i()->user['id']
+        );
+        if (!NFW::i()->db->query_build($query)) {
+            NFW::i()->errorHandler(null, 'Unable to insert new activity', __FILE__, __LINE__, NFW::i()->db->error());
+            return;
+        }
+
+        $id = NFW::i()->db->insert_id();
+        self::updateUnreadState($workID);
+        self::updateLastReadState($id, $workID);
     }
 
     public static function authorUnread(): int {
@@ -244,22 +268,6 @@ class works_activity extends base_module {
         if (!NFW::i()->db->query_build(array('DELETE' => 'works_activity', 'WHERE' => 'work_id=' . $workID))) {
             NFW::i()->errorHandler(null, 'Unable to delete activities', __FILE__, __LINE__, NFW::i()->db->error());
         }
-    }
-
-    private static function saveNoMessage(int $type, int $workID, string $metadata = "") {
-        $query = array(
-            'INSERT' => '`type`, work_id, metadata, posted, posted_by',
-            'INTO' => 'works_activity',
-            'VALUES' => $type . ', ' . $workID . ', \'' . NFW::i()->db->escape($metadata) . '\', ' . time() . ',' . NFW::i()->user['id']
-        );
-        if (!NFW::i()->db->query_build($query)) {
-            NFW::i()->errorHandler(null, 'Unable to insert new activity', __FILE__, __LINE__, NFW::i()->db->error());
-            return;
-        }
-
-        $id = NFW::i()->db->insert_id();
-        self::updateUnreadState($workID);
-        self::updateLastReadState($id, $workID);
     }
 
     private static function updateUnreadState(int $workID) {
@@ -492,6 +500,10 @@ class works_activity extends base_module {
 }
 
 function removeLastPropsChangeSameFile(int $workID, string $basename) {
+    if (NFW::i()->project_settings['disable_activities']) {
+        return;
+    }
+
     if (!$result = NFW::i()->db->query('SELECT id, type, metadata FROM works_activity WHERE work_id=' . $workID . ' ORDER BY id DESC LIMIT 0, 1')) {
         NFW::i()->errorHandler(null, 'Unable to get activity of work', __FILE__, __LINE__, NFW::i()->db->error());
         return;
