@@ -1,4 +1,4 @@
-FROM php:7.4-fpm
+FROM php:8.5-fpm
 
 RUN apt-get update
 
@@ -22,4 +22,5 @@ RUN docker-php-ext-install curl
 RUN docker-php-ext-install mysqli pdo_mysql
 
 # apcu
-RUN pecl install apcu && docker-php-ext-enable apcu
+RUN pecl install apcu
+RUN docker-php-ext-enable apcu

@@ -139,7 +139,7 @@ class works_activity extends base_module {
     }
 
     private static function addNoMessage(int $type, int $workID, string $metadata = "") {
-        if (NFW::i()->project_settings['disable_activities']) {
+        if (NFWX::i()->project_settings['disable_activities']) {
             return;
         }
 
@@ -330,8 +330,8 @@ class works_activity extends base_module {
             case self::ADMIN_REMOVE_RELEASE:
                 $message = $lang[$record['type']];
                 break;
-            case self::AUTHOR_ADD_FILE;
-            case self::ADMIN_ADD_FILE;
+            case self::AUTHOR_ADD_FILE:
+            case self::ADMIN_ADD_FILE:
             case self::ADMIN_DELETE_FILE:
             case self::ADMIN_MAKE_RELEASE:
                 $metadata = json_decode($record['metadata'], true);

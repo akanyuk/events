@@ -79,8 +79,9 @@ class works extends active_record {
         }
         unset($record['attachments']);
 
-        $fs_basename = iconv("UTF-8", NFW::i()->cfg['media']['fs_encoding'], $record['release_basename']);
         if ($record['release_basename'] && file_exists(PUBLIC_HTML . '/files/' . $record['event_alias'] . '/' . $record['competition_alias'] . '/' . $fs_basename)) {
+            $fs_basename = iconv("UTF-8", NFW::i()->cfg['media']['fs_encoding'], $record['release_basename']);
+
             NFW::i()->registerFunction('friendly_filesize');
             $record['release_link'] = array(
                 'url' => NFW::i()->absolute_path . '/files/' . $record['event_alias'] . '/' . $record['competition_alias'] . '/' . $record['release_basename'],

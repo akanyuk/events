@@ -104,6 +104,9 @@ class live_voting extends active_record {
         }
 
         $state = apcu_fetch(storageKeyPrefix . $_GET['event_id']);
+        if ($state === false) {
+            $state = [];
+        }
 
         if (isset($_POST['comingAnnounce']) && $_POST['comingAnnounce']) {
             $state['comingAnnounce'] = [
