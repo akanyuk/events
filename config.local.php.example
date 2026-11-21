@@ -22,6 +22,7 @@ return array(
         'From' => 'robot@events.local',
     ),
     'set_language_by_geoip' => false,
+    'main_domain' => 'events.local',
     'dbg' => array(
         'actualDate' => '2022/05/10 11:00', // Emulate date. Format: Y/m/d H:i
         'userId' => -1,
