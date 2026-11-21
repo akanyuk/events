@@ -8,7 +8,11 @@
  */
 
 /**
- * Returns the alias label if $host is a subdomain of $main_domain, null otherwise.
+ * Returns the alias label if $host is a subdomain of the main domain zone, null otherwise.
+ *
+ * Alias subdomains live in the zone of the main domain:
+ * `dihalt.retroscene.org` for `events.retroscene.org` (shared zone `retroscene.org`),
+ * `dihalt.events.local` for `events.local` (zone `events.local` - `local` is too broad).
  */
 function subdomain_alias_label(string $host, string $main_domain): ?string {
     $host = strtolower(trim($host));
@@ -17,11 +21,18 @@ function subdomain_alias_label(string $host, string $main_domain): ?string {
     $host = preg_replace('/:\d+$/', '', $host);
     $main_domain = preg_replace('/:\d+$/', '', $main_domain);
 
-    if ($host === '' || $main_domain === '') {
+    if ($host === '' || $main_domain === '' || $host === $main_domain) {
         return null;
     }
 
-    $suffix = '.' . $main_domain;
+    // Zone: main domain without the first label, if at least two labels remain
+    $dot = strpos($main_domain, '.');
+    $zone = $dot === false ? $main_domain : substr($main_domain, $dot + 1);
+    if (strpos($zone, '.') === false) {
+        $zone = $main_domain;
+    }
+
+    $suffix = '.' . $zone;
     if (substr($host, -strlen($suffix)) !== $suffix) {
         return null;
     }
