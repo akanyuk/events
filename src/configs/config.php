@@ -80,6 +80,10 @@ return array(
         'title' => 'Events Control Panel',
     ),
 
+    // Main domain. Requests to `<alias_group>.<main_domain>` redirect to the main domain
+    // (the freshest event of the alias group, or the main page). Empty - feature disabled
+    'main_domain' => '',
+
     'SceneID3' => array(
         "clientID" => "",
         "clientSecret" => "",

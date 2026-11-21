@@ -26,6 +26,9 @@ class NFWX extends NFW {
         parent::__construct($init_cfg);
         self::$_ext_instance = $this;
 
+        // Subdomain aliases: requests to `<alias_group>.<main_domain>` redirect to the main domain
+        $this->subdomainAliasRedirect();
+
         // Preload all available settings
         $CSettings = new settings();
         foreach ($CSettings->getConfigs() as $key => $config) {
@@ -49,6 +52,40 @@ class NFWX extends NFW {
      */
     public static function i(): NFWX {
         return self::$_ext_instance;
+    }
+
+    /**
+     * Requests to `<alias_group>.<main_domain>` (any path) redirect to the main domain:
+     * to the freshest event of the alias group, or to the main page if there is no such group.
+     */
+    private function subdomainAliasRedirect() {
+        if (empty($this->cfg['main_domain'])) {
+            return;
+        }
+
+        require_once SRC_ROOT . '/helpers/subdomain_alias.inc.php';
+
+        $label = subdomain_alias_label($_SERVER['HTTP_HOST'] ?? '', $this->cfg['main_domain']);
+        if ($label === null) {
+            return;
+        }
+
+        $alias = '';
+        if ($result = $this->db->query_build(array(
+            'SELECT' => 'alias',
+            'FROM' => 'events',
+            'WHERE' => 'alias_group="' . $this->db->escape($label) . '" AND is_hidden=0',
+            'ORDER BY' => 'date_from DESC',
+            'LIMIT' => 1,
+        ))) {
+            if ($record = $this->db->fetch_assoc($result)) {
+                $alias = $record['alias'];
+            }
+        }
+
+        $scheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] && $_SERVER['HTTPS'] != 'off') ? 'https' : 'http';
+        header('Location: ' . subdomain_alias_redirect_url($scheme, $this->cfg['main_domain'], $alias), true, 302);
+        exit;
     }
 
     function checkPermissions($module = 1, $action = '', $additional = false): bool {
