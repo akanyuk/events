@@ -170,50 +170,44 @@ function displayCurrenEventVotingStatus($record): void {
     </div>
 
     <script>
-        const liveVotingContainer = document.getElementById("live-voting-container-<?php echo $record['id']?>");
+        setInterval(updateVotingState<?php echo $record['id']?>, 5000);
+        updateVotingState<?php echo $record['id']?>();
 
-        setInterval(updateVotingState, 5000);
-        updateVotingState();
-
-        function updateVotingState() {
+        function updateVotingState<?php echo $record['id']?>() {
             fetch('/internal_api?action=votingStatus&event_id=<?php echo $record['id']?>').then(response => response.json()).then(response => {
-                updateLiveVoting(response['liveVotingOpen']);
-                updateVotingOpen(response['votingOpen']);
+                // Live voting state
+                document.getElementById("live-voting-container-<?php echo $record['id']?>")['style'].display = response['liveVotingOpen'] ? "block" : "none";
+
+                // Normal voting state
+                const voteNowContainer = document.getElementById("vote-now-container-<?php echo $record['id']?>");
+                const voteNowBody = document.getElementById("vote-now-body-<?php echo $record['id']?>");
+                const values = response['votingOpen'];
+
+                if (values.length === 0) {
+                    voteNowContainer['style'].display = "none";
+                    return
+                }
+
+                voteNowBody.innerHTML = "";
+                values.forEach((compo) => {
+                    const title = document.createElement('a');
+                    title.innerText = compo['title']
+                    title.href = compo['url']
+
+                    const status = document.createElement('div');
+                    status.innerText = compo['statusText']
+                    status.className = "text-nowrap text-danger"
+
+                    const item = document.createElement('div');
+                    item.className = "d-flex flex-row mb-2 justify-content-between gap-2";
+                    item.appendChild(title);
+                    item.appendChild(status);
+
+                    voteNowBody.appendChild(item);
+                })
+
+                voteNowContainer['style'].display = "block";
             });
-        }
-
-        function updateLiveVoting(state) {
-            liveVotingContainer['style'].display = state ? "block" : "none";
-        }
-
-        function updateVotingOpen(values) {
-            const voteNowContainer = document.getElementById("vote-now-container-<?php echo $record['id']?>");
-            const voteNowBody = document.getElementById("vote-now-body-<?php echo $record['id']?>");
-
-            if (values.length === 0) {
-                voteNowContainer['style'].display = "none";
-                return
-            }
-
-            voteNowBody.innerHTML = "";
-            values.forEach((compo) => {
-                const title = document.createElement('a');
-                title.innerText = compo['title']
-                title.href = compo['url']
-
-                const status = document.createElement('div');
-                status.innerText = compo['statusText']
-                status.className = "text-nowrap text-danger"
-
-                const item = document.createElement('div');
-                item.className = "d-flex flex-row mb-2 justify-content-between gap-2";
-                item.appendChild(title);
-                item.appendChild(status);
-
-                voteNowBody.appendChild(item);
-            })
-
-            voteNowContainer['style'].display = "block";
         }
     </script>
     <?php
